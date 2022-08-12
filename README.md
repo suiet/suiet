@@ -1,0 +1,1 @@
+# SUI Wallet Chrome Extension
