@@ -1,0 +1,79 @@
+.main-page {
+  width: 362px;
+  height: 573px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.sui-amount {
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 44px;
+  text-align: center;
+  color: #111322;
+  margin-top: 28px;
+}
+
+.main-content .account {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 7px;
+  margin-bottom: 19px;
+  text-align: center;
+}
+
+.operations {
+  display: flex;
+  padding: 0 12px;
+  div {
+    width: 110px;
+    height: 40px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+    border-radius: 16px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: #344054;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:not(:last-of-type) {
+      margin-right: 6px;
+    }
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+
+  .airdrop {
+    .icon {
+      background: url("../../assets/down-double.svg") no-repeat center;
+      background-size: cover;
+    }
+  }
+
+  .receive {
+    .icon {
+      background: url("../../assets/qr-code.svg") no-repeat center;
+      background-size: cover;
+    }
+  }
+
+  .send {
+    .icon {
+      background: url("../../assets/trend-up.svg") no-repeat center;
+      background-size: cover;
+    }
+  }
+}

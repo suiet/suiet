@@ -1,0 +1,48 @@
+.main-page {
+  width: 362px;
+  height: 573px;
+  background: url("../../assets/bg.png") no-repeat center;
+}
+
+.suiet-title {
+  text-align: center;
+  padding-top: 160px;
+  font-weight: 300;
+  font-size: 56px;
+  line-height: 68px;
+  color: #0b2e77;
+}
+
+.import-wallet-btn,
+.create-new-btn {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  cursor: pointer;
+}
+
+.create-new-btn {
+  width: 266px;
+  height: 60px;
+  background: #3ea2f8;
+  border: 1px solid #3ea2f8;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 16px;
+  color: #ffffff;
+  margin-top: 145px;
+}
+
+.import-wallet-btn {
+  width: 266px;
+  height: 60px;
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 16px;
+  color: #1f5eb2;
+  margin-top: 16px;
+}

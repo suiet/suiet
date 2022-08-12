@@ -1,0 +1,47 @@
+.header-container {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 64px;
+  position: relative;
+  border-bottom: 1px solid #eaecf0;
+
+  .avatar {
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    background: #d9d9d9;
+  }
+
+  .num {
+    margin-left: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 17px;
+    color: #111322;
+  }
+
+  .account {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #7d89b0;
+    margin-left: 8px;
+  }
+
+  .net {
+    position: absolute;
+    right: 16px;
+    width: 56px;
+    height: 22px;
+    background: #ecfdf3;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 18px;
+    color: #027a48;
+  }
+}
