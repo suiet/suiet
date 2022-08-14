@@ -1,0 +1,48 @@
+.header-container {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 64px;
+  position: relative;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.avatar {
+  @apply flex justify-center items-center;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: rgba(216, 245, 254, 1);
+}
+
+.account {
+  @apply flex items-center;
+  margin-left: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 17px;
+  color: #111322;
+}
+
+.address {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.net {
+  position: absolute;
+  right: 16px;
+  width: 56px;
+  height: 22px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  background: #FEF0C7;
+  color: #DC6803;
+}

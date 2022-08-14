@@ -1,0 +1,42 @@
+.settings-container {
+  .settings-item {
+    display: flex;
+    padding: 12px 26px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #000000;
+    cursor: pointer;
+  }
+
+  .icon-wallet,
+  .icon-network,
+  .icon-security {
+    width: 24px;
+    height: 24px;
+    background: no-repeat center;
+    background-size: cover;
+    display: inline-block;
+    margin-right: 9px;
+  }
+
+  .icon-wallet {
+    background-image: url("./assets/wallet.svg");
+  }
+
+  .icon-network {
+    background-image: url("./assets/net.svg");
+  }
+
+  .icon-security {
+    background-image: url("./assets/security.svg");
+  }
+}
+
+.app-version {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgba(0, 0, 0, 0.1);
+  text-align: center;
+}

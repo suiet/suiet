@@ -1,12 +1,14 @@
 import Header from "./Header";
 import Menu from "./Menu";
+import TransacationFlow from "../TransactionFlow";
 import "./index.scss";
+import SettingPage from "../SettingsPage";
 
 function MainPage() {
   return (
     <div className="main-page">
       <Header />
-      <div className="main-content">
+      {/* <div className="main-content">
         <div className="sui-amount">1.002 SUI</div>
         <div className="account">0x2152f....01f6</div>
         <div className="operations">
@@ -23,7 +25,9 @@ function MainPage() {
             Send
           </div>
         </div>
-      </div>
+      </div> */}
+      <TransacationFlow />
+      <SettingPage />
       <Menu />
     </div>
   );

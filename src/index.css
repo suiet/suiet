@@ -1,3 +1,5 @@
+@import "styles/tailwind.css";
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -54,6 +56,12 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+strong {
+  font-weight: 600;
+  size: 16px;
+  line-height: 24px;
 }
 
 @media (prefers-color-scheme: light) {
