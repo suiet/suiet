@@ -1,0 +1,71 @@
+.transaction-item {
+  &-container {
+    display: flex;
+    padding: 24px 19px 15px 15px;
+    align-items: center;
+    position: relative;
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  &-icon {
+    width: 24px;
+    height: 24px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+
+    &.received {
+      background-image: url("./assets/receive.svg");
+    }
+
+    &.sent {
+      background-image: url("./assets/send.svg");
+    }
+
+    &.airdrop {
+      background-image: url("./assets/airdrop.svg");
+    }
+
+    &::after {
+      display: block;
+      content: "";
+      background: url("./assets/sui.svg") no-repeat center;
+      background-size: cover;
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 14px;
+      top: 14px;
+    }
+  }
+
+  &-detail {
+    margin-left: 17px;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: #000000;
+  }
+
+  &-type {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 19px;
+    margin-right: 5px;
+    margin-bottom: 2px;
+  }
+
+  &-amount {
+    position: absolute;
+    right: 15px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 19px;
+    color: #3fb534;
+
+    &.sent {
+      color: #ff4974;
+    }
+  }
+}
