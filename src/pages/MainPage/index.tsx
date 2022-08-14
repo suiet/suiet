@@ -1,11 +1,13 @@
 import Header from "./Header";
 import Menu from "./Menu";
 import styles from "./index.module.scss";
+import TokenList from "./TokenList";
 
 function MainPage() {
   return (
     <div className={styles['main-page']}>
       <Header />
+
       <div className={styles['main-content']}>
         <div className={styles['sui-amount']}>1.002 SUI</div>
         <div className={styles['account']}>0x2152f....01f6</div>
@@ -24,6 +26,8 @@ function MainPage() {
           </div>
         </div>
       </div>
+
+      <TokenList />
 
       <Menu className="mt-auto" />
     </div>
