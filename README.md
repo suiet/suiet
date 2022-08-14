@@ -1,6 +1,6 @@
 # Suiet, the wallet designed for everyone
 
-> If you want to know how to install/use suiet, please visit our offical website [suiet.app](https://suiet.app) or [docs](https://suiet.app/docs)
+> If you want to know how to **install/use** suiet, please visit our offical website [suiet.app](https://suiet.app) or [docs](https://suiet.app/docs)
 
 > **Warning**
 > Suiet is current on devnet, we may make break changes before the mainnet of [Sui](sui.io) goes online.
