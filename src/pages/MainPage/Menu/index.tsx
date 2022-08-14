@@ -1,9 +1,39 @@
-function Menu() {
+import classnames from 'classnames';
+import type { StyleExtendable } from '../../../types';
+import styles from './index.module.scss';
+import IconHome from '../../../assets/icons/icon-home.svg';
+import IconTx from '../../../assets/icons/icon-tx.svg';
+import IconSettings from '../../../assets/icons/icon-settings.svg';
+
+export type MenuProps = StyleExtendable;
+type MenuItemProps = StyleExtendable & {
+  active?: boolean;
+  icon: string;
+  alt?: string;
+}
+
+const MenuItem: React.FC<MenuItemProps> = (props) => {
   return (
-    <div>
-      <div></div>
-      <div></div>
-      <div></div>
+    <div className={classnames(
+      styles['menu-item'],
+        {
+          [styles['menu-item--active']]: props.active,
+        }
+      )}>
+        <img src={props.icon} className={styles['menu-icon']} alt={props.alt || 'icon'} />
+    </div>
+  )
+}
+
+const Menu: React.FC<MenuProps> = (props) => {
+  return (
+    <div 
+      className={classnames(styles['menu'], props.className)} 
+      style={props.style}
+    >
+      <MenuItem icon={IconHome} alt="home" active />
+      <MenuItem icon={IconTx} alt="transaction" />
+      <MenuItem icon={IconSettings} alt="settings" />
     </div>
   );
 }

@@ -24,7 +24,8 @@ function MainPage() {
           </div>
         </div>
       </div>
-      <Menu />
+
+      <Menu className="mt-auto" />
     </div>
   );
 }
