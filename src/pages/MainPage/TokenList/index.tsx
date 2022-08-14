@@ -1,6 +1,6 @@
 import classnames from "classnames";
 import type { StyleExtendable } from "../../../types";
-import IconWaterDrop from '../../../assets/icons/icon-waterdrop.svg';
+import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import styles from './index.module.scss';
 
 export type TokenListProps = StyleExtendable;

@@ -1,9 +1,9 @@
 import classnames from 'classnames';
 import type { StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
-import IconHome from '../../../assets/icons/icon-home.svg';
-import IconTx from '../../../assets/icons/icon-tx.svg';
-import IconSettings from '../../../assets/icons/icon-settings.svg';
+import IconHome from '../../../assets/icons/home.svg';
+import IconTx from '../../../assets/icons/transactions.svg';
+import IconSettings from '../../../assets/icons/settings.svg';
 
 export type MenuProps = StyleExtendable;
 type MenuItemProps = StyleExtendable & {
