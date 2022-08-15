@@ -1,5 +1,11 @@
 {
   "name": "suiet",
   "type": "react",
-  "static": "dist"
+  "static": "dist",
+  "rewrites": [
+    {
+      "source": "/login",
+      "destination": "/"
+    }
+  ]
 }

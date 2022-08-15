@@ -9,8 +9,8 @@ import classnames from "classnames";
 function MainPage() {
   return (
     <div className={styles['main-content']}>
-      <div className={styles['sui-amount']}>1.002 SUI</div>
-      <div className={styles['account']}>
+      <div className={styles['balance']}>1.002 SUI</div>
+      <div className={styles['address']}>
         <span>0x2152f....01f6</span>   
         <img className={classnames(styles['icon-copy'], 'ml-[5px]')} src={IconCopy} alt="copy" />
       </div>

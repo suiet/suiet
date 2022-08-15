@@ -18,7 +18,7 @@ const TokenItem = () => {
     <div className={styles['token-item']}>
       <div className="flex items-center">
         <TokenIcon />
-        <strong className="ml-[12px]">SUI</strong>
+        <strong className={classnames(styles['token-name'], 'ml-[12px]')}>SUI</strong>
         <p className={classnames(styles['token-amonut'], 'ml-[120px]')}>1.002</p>
       </div>
     </div>
