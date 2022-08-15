@@ -1,24 +1,26 @@
+@import "../../../styles/variables";
+
 .main-content {
   display: flex;
   flex-direction: column;
   padding-bottom: 32px;
 }
 
-.sui-amount {
+.balance {
   font-weight: 700;
   font-size: 36px;
   line-height: 44px;
   text-align: center;
-  color: #111322;
+  color: $gray-900;
   margin-top: 28px;
 }
 
-.main-content .account {
+.address {
   @apply flex justify-center items-center;
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
-  color: rgba(0, 0, 0, 0.6);
+  color: $gray-400;
   margin-top: 7px;
   margin-bottom: 19px;
   text-align: center;

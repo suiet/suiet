@@ -1,3 +1,5 @@
+@import "../../../styles/variables.scss";
+
 $icon-size: 40px;
 
 .token-item {
@@ -19,8 +21,17 @@ $icon-size: 40px;
   background: rgba(62, 162, 248, 1);
 }
 
+.token-name {
+  color: $gray-900;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+}
+
 .token-amonut {
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+  color: $gray-700;
 }
