@@ -2,6 +2,7 @@ import classnames from 'classnames';
 import React from 'react';
 import { Extendable } from '../../types';
 import styles from './index.module.scss';
+import Textarea from "../../components/Textarea";
 
 const Title = (props: Extendable) => {
   return (
@@ -11,15 +12,18 @@ const Title = (props: Extendable) => {
 
 const SendPage = () => {
   return (
-    <div>
-      <section>
+    <div className={styles['container']}>
+      <section className={styles['section']}>
         <Title>Address</Title>
         <div>
-          <input type="textarea" placeholder="Enter SUI address" />
+          <Textarea
+            state={'fail'}
+            placeholder="Enter SUI address"
+          />
         </div>
       </section>
 
-      <section>
+      <section className={styles['section']}>
         <Title>Amount</Title>
         <div>
           <input type="number" />
@@ -33,7 +37,7 @@ const SendPage = () => {
 
       <div></div>
 
-      <section>
+      <section className={styles['section']}>
         <Title>Gas fee</Title>
         <div>
           <img src="" alt="sui" />

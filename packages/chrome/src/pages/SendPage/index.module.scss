@@ -1,5 +1,13 @@
 @import "../../styles/variables.scss";
 
+.container {
+  padding-top: 24px;
+}
+
+.section {
+  padding: 0 24px;
+}
+
 .title {
   font-style: normal;
   font-weight: 500;
