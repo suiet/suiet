@@ -34,7 +34,9 @@
 
 .operations {
   display: flex;
+  justify-content: space-between;
   padding: 0 12px;
+
   div {
     width: 110px;
     height: 40px;
@@ -50,9 +52,6 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    &:not(:last-of-type) {
-      margin-right: 6px;
-    }
   }
 
   .icon {
