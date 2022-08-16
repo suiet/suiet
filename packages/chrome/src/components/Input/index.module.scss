@@ -1,18 +1,18 @@
 @import "../../styles/variables.scss";
 
-.textarea-wrapper {
+.input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.textarea {
+.input {
   box-sizing: border-box;
   width: 100%;
-  height: 80px;
+  height: 40px;
   padding: 8px 12px;
+  gap: 8px;
 
-  resize: none;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -49,9 +49,42 @@
       }
     }
   }
+
+  &--no-border {
+    border: none !important;
+    box-shadow: none !important;;
+  }
 }
 
 .icon {
   position: absolute;
   right: 13.3px;
+}
+
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: #FFFFFF;
+  border: 1px solid $gray-300;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 8px;
+
+  &-state {
+    &--error {
+      border: 1px solid $error-300;
+      box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+    }
+  }
+}
+
+.input-suffix {
+  border-left: 1px solid $gray-300;
+
+  &-state {
+    &--error {
+      border-color: $error-300;
+    }
+  }
 }

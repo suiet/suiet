@@ -1,36 +1,70 @@
 import classnames from 'classnames';
-import React from 'react';
-import { Extendable } from '../../types';
+import React, {useState} from 'react';
+import {Extendable} from '../../types';
 import styles from './index.module.scss';
 import Textarea from "../../components/Textarea";
+import {InputGroup} from "../../components/Input";
+import IconWaterDrop from "../../assets/icons/waterdrop.svg";
+import TokenIcon from "../../components/TokenIcon";
+import {Title, Normal} from '../../components/Typo';
 
-const Title = (props: Extendable) => {
+const Hints = (props: Extendable & { state?: 'error' }) => {
+  const {state = 'error', ...restProps} = props;
   return (
-    <h1 {...props} className={classnames(props.className, styles['title'])} />
+    <small
+      {...restProps}
+      className={classnames(
+        styles['hints'],
+        state ? styles[`hints--${state}`] : '',
+        props.className
+      )}>this is not a validate address
+    </small>
   )
 }
 
 const SendPage = () => {
+  const [address, setAddress] = useState<{
+    state: 'default' | 'success' | 'error';
+    errMsg: string;
+  }>({
+    state: 'default',
+    errMsg: '',
+    // state: 'error',
+    // errMsg: 'this is not a validate address',
+  });
+
   return (
     <div className={styles['container']}>
       <section className={styles['section']}>
         <Title>Address</Title>
-        <div>
+        <div className={'mt-[6px]'}>
           <Textarea
-            state={'fail'}
+            state={address.state}
             placeholder="Enter SUI address"
           />
+          {address.errMsg && (
+            <Hints className={'mt-[6px]'}>{address.errMsg}</Hints>
+          )}
         </div>
       </section>
 
-      <section className={styles['section']}>
+      <section className={classnames(styles['section'], 'mt-[20px]')}>
         <Title>Amount</Title>
-        <div>
-          <input type="number" />
-          <div>
-            <img src="" alt="sui" />
-            <span>SUI</span>
-          </div>
+        <div className={'mt-[6px]'}>
+          <InputGroup
+            state={'default'}
+            placeholder={'Please enter the amount'}
+            suffix={(
+              <div className={styles['input-suffix']}>
+                <TokenIcon
+                  icon={IconWaterDrop}
+                  size={'small'}
+                  alt="water-drop"
+                />
+                <Normal className={'ml-[8px]'}>SUI</Normal>
+              </div>
+            )}
+          />
           <span>≈ 12 USD</span>
         </div>
       </section>
@@ -40,7 +74,7 @@ const SendPage = () => {
       <section className={styles['section']}>
         <Title>Gas fee</Title>
         <div>
-          <img src="" alt="sui" />
+          <img src="" alt="sui"/>
         </div>
         <span>0.0012 SUI ≈ 12 USD</span>
 
