@@ -1,0 +1,27 @@
+@import "../../../styles/variables.scss";
+
+.menu {
+  @apply flex justify-between items-center;
+  box-sizing: border-box;
+  width: 362px;
+  height: 72px;
+  padding: 8px 16px;
+  border-top: 1px solid #DCDFEA;
+}
+
+.menu-item {
+  @apply flex justify-center items-center;
+  width: 105px;
+  height: 56px;
+
+  &--active {
+    background: $gray-100;
+    border-radius: 16px;
+  }
+}
+
+.menu-icon {
+  width: 20px;
+  height: 20px;
+  color: $gray-300;
+}

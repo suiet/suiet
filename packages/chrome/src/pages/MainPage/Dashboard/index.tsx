@@ -4,6 +4,7 @@ import IconDownDouble from '../../../assets/icons/down-double.svg';
 import IconQrCode from '../../../assets/icons/qrcode.svg';
 import IconTrendUp from '../../../assets/icons/trendup.svg';
 import classnames from "classnames";
+import {Link} from "react-router-dom";
 
 
 function MainPage() {
@@ -23,10 +24,12 @@ function MainPage() {
           <img src={IconQrCode} className={styles['icon']} />
           Receive
         </div>
-        <div className={styles['send']}>
-          <img src={IconTrendUp} className={styles['icon']} />
-          Send
-        </div>
+        <Link to={'/send'}>
+          <div className={styles['send']}>
+            <img src={IconTrendUp} className={styles['icon']} />
+            Send
+          </div>
+        </Link>
       </div>
     </div>
   );
