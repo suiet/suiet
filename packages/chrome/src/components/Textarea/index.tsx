@@ -5,8 +5,10 @@ import classnames from "classnames";
 import IconInputSuccess from '../../assets/icons/input-success.svg';
 import IconInputFail from '../../assets/icons/input-fail.svg';
 
+type State = 'success' | 'error' | 'default';
+
 export type TextareaProps = Extendable & TextareaHTMLAttributes<HTMLElement> & {
-  state?: 'success' | 'fail';
+  state?: State;
   elClassName?: string;
   elStyle?: CSSProperties;
 };
@@ -16,14 +18,18 @@ const stateMap = {
     icon: IconInputSuccess,
     alt: 'success',
   },
-  fail: {
+  error: {
     icon: IconInputFail,
-    alt: 'fail',
+    alt: 'error',
   },
   default: {
     icon: '',
     alt: '',
   },
+}
+
+function hasState(state: State) {
+  return state !== 'default';
 }
 
 const Textarea = (props: TextareaProps) => {
@@ -46,7 +52,7 @@ const Textarea = (props: TextareaProps) => {
         {...textareaProps}
         className={
           classnames(styles['textarea'],
-          state ? [
+            hasState(state) ? [
             styles['textarea-state'],
             styles[`textarea-state--${state}`],
           ] : '',
@@ -55,7 +61,7 @@ const Textarea = (props: TextareaProps) => {
         style={elStyle}
       >
       </textarea>
-      {state && (
+      {hasState(state) && (
         <div className={styles['icon']}>
           <img src={stateMetrics.icon} alt={stateMetrics.alt} />
         </div>
