@@ -26,12 +26,6 @@
   text-align: center;
 }
 
-.icon-copy {
-  width: 10.8px;
-  height: 10.8px;
-  cursor: pointer;
-}
-
 .operations {
   display: flex;
   justify-content: space-between;
@@ -59,4 +53,9 @@
     height: 20px;
     margin-right: 8px;
   }
+}
+
+.qr-code {
+  width: 128px;
+  height: 128px;
 }

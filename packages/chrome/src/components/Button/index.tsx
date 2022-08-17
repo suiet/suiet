@@ -7,6 +7,7 @@ export type ButtonState = 'normal' | 'primary';
 
 export type ButtonProps = Extendable & {
   state?: ButtonState;
+  onClick?: () => void;
 }
 
 const Button = (props: ButtonProps) => {

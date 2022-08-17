@@ -4,11 +4,11 @@ import {Extendable} from '../../types';
 import styles from './index.module.scss';
 import Textarea from "../../components/Textarea";
 import {InputGroup} from "../../components/Input";
-import IconWaterDrop from "../../assets/icons/waterdrop.svg";
-import TokenIcon from "../../components/TokenIcon";
 import Typo from '../../components/Typo';
 import Divider from "../../components/Divider";
 import Button from "../../components/Button";
+import {useNavigate} from "react-router-dom";
+import WaterDropIcon from "../../components/WaterDropIcon";
 
 const Hints = (props: Extendable & { state?: 'error' }) => {
   const {state = 'error', ...restProps} = props;
@@ -24,17 +24,8 @@ const Hints = (props: Extendable & { state?: 'error' }) => {
   )
 }
 
-const WaterDropIcon = () => {
-  return (
-    <TokenIcon
-      icon={IconWaterDrop}
-      size={'small'}
-      alt="water-drop"
-    />
-  )
-}
-
 const SendPage = () => {
+  const navi = useNavigate();
   const [address, setAddress] = useState<{
     state: 'default' | 'success' | 'error';
     errMsg: string;
@@ -68,7 +59,7 @@ const SendPage = () => {
             placeholder={'Please enter the amount'}
             suffix={(
               <div className={styles['input-suffix']}>
-                <WaterDropIcon />
+                <WaterDropIcon size={'small'} />
                 <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
               </div>
             )}
@@ -81,12 +72,15 @@ const SendPage = () => {
         <Divider type={'horizontal'} />
         <Typo.Title>Gas fee</Typo.Title>
         <div className={'flex items-center'}>
-          <WaterDropIcon />
+          <WaterDropIcon size={'small'} />
           <Typo.Normal className={'ml-[6px]'}>0.0012 SUI ≈ 12 USD</Typo.Normal>
         </div>
 
         <Button state={'primary'} className={'mt-[20px]'}>Send</Button>
-        <Button className={'mt-[10px]'}>Cancel</Button>
+        <Button
+          className={'mt-[10px]'}
+          onClick={() => {navi('/')}}
+        >Cancel</Button>
       </section>
     </div>
   )
