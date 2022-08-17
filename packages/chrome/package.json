@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@crxjs/vite-plugin": "^1.0.13",
-    "antd": "^4.22.5",
     "classnames": "^2.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

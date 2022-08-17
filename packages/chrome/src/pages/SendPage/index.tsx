@@ -6,7 +6,8 @@ import Textarea from "../../components/Textarea";
 import {InputGroup} from "../../components/Input";
 import IconWaterDrop from "../../assets/icons/waterdrop.svg";
 import TokenIcon from "../../components/TokenIcon";
-import {Title, Normal} from '../../components/Typo';
+import Typo from '../../components/Typo';
+import Divider from "../../components/Divider";
 
 const Hints = (props: Extendable & { state?: 'error' }) => {
   const {state = 'error', ...restProps} = props;
@@ -19,6 +20,16 @@ const Hints = (props: Extendable & { state?: 'error' }) => {
         props.className
       )}>this is not a validate address
     </small>
+  )
+}
+
+const WaterDropIcon = () => {
+  return (
+    <TokenIcon
+      icon={IconWaterDrop}
+      size={'small'}
+      alt="water-drop"
+    />
   )
 }
 
@@ -36,7 +47,7 @@ const SendPage = () => {
   return (
     <div className={styles['container']}>
       <section className={styles['section']}>
-        <Title>Address</Title>
+        <Typo.Title>Address</Typo.Title>
         <div className={'mt-[6px]'}>
           <Textarea
             state={address.state}
@@ -49,34 +60,29 @@ const SendPage = () => {
       </section>
 
       <section className={classnames(styles['section'], 'mt-[20px]')}>
-        <Title>Amount</Title>
+        <Typo.Title>Amount</Typo.Title>
         <div className={'mt-[6px]'}>
           <InputGroup
             state={'default'}
             placeholder={'Please enter the amount'}
             suffix={(
               <div className={styles['input-suffix']}>
-                <TokenIcon
-                  icon={IconWaterDrop}
-                  size={'small'}
-                  alt="water-drop"
-                />
-                <Normal className={'ml-[8px]'}>SUI</Normal>
+                <WaterDropIcon />
+                <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
               </div>
             )}
           />
-          <span>≈ 12 USD</span>
+          <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>
         </div>
       </section>
 
-      <div></div>
-
       <section className={styles['section']}>
-        <Title>Gas fee</Title>
-        <div>
-          <img src="" alt="sui"/>
+        <Divider type={'horizontal'} />
+        <Typo.Title>Gas fee</Typo.Title>
+        <div className={'flex items-center'}>
+          <WaterDropIcon />
+          <Typo.Normal className={'ml-[6px]'}>0.0012 SUI ≈ 12 USD</Typo.Normal>
         </div>
-        <span>0.0012 SUI ≈ 12 USD</span>
 
         <button>Send</button>
         <button>Cancel</button>

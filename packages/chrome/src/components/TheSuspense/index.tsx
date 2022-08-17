@@ -1,10 +1,9 @@
 import React, {ReactNode, Suspense} from 'react';
-import {Spin} from "antd";
 import {Extendable} from "../../types";
 
 const TheSuspense = (props: Extendable) => {
   return (
-    <Suspense fallback={<Spin />}>
+    <Suspense fallback={<div>Loading...</div>}>
       {props.children}
     </Suspense>
   );
