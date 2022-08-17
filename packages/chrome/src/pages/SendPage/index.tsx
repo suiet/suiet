@@ -8,6 +8,7 @@ import IconWaterDrop from "../../assets/icons/waterdrop.svg";
 import TokenIcon from "../../components/TokenIcon";
 import Typo from '../../components/Typo';
 import Divider from "../../components/Divider";
+import Button from "../../components/Button";
 
 const Hints = (props: Extendable & { state?: 'error' }) => {
   const {state = 'error', ...restProps} = props;
@@ -84,8 +85,8 @@ const SendPage = () => {
           <Typo.Normal className={'ml-[6px]'}>0.0012 SUI ≈ 12 USD</Typo.Normal>
         </div>
 
-        <button>Send</button>
-        <button>Cancel</button>
+        <Button state={'primary'} className={'mt-[20px]'}>Send</Button>
+        <Button className={'mt-[10px]'}>Cancel</Button>
       </section>
     </div>
   )
