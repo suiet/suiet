@@ -1,0 +1,57 @@
+@import "../../styles/variables.scss";
+
+.textarea-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 80px;
+  padding: 8px 12px;
+
+  resize: none;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+
+  background: #FFFFFF;
+  border: 1px solid $gray-300;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 8px;
+  color: $gray-900;
+
+  &::placeholder {
+    color: $gray-500;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &-state {
+    position: relative;
+    padding-right: 38px;
+
+    &--success {
+    }
+
+    &--error {
+      border: 1px solid $error-300;
+      box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+      //color: $error-300;
+
+      &::placeholder {
+        //color: $error-300;
+      }
+    }
+  }
+}
+
+.icon {
+  position: absolute;
+  right: 13.3px;
+}

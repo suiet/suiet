@@ -2,23 +2,16 @@ import classnames from "classnames";
 import type { StyleExtendable } from "../../../types";
 import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import styles from './index.module.scss';
+import TokenIcon from "../../../components/TokenIcon";
 
 export type TokenListProps = StyleExtendable;
-
-const TokenIcon = () => {
-  return (
-    <div className={styles['icon-wrap']}>
-      <img className={styles['icon-wrap-icon']} src={IconWaterDrop} alt="water-drop" />
-    </div>
-  )
-}
 
 const TokenItem = () => {
   return (
     <div className={styles['token-item']}>
       <div className="flex items-center">
-        <TokenIcon />
-        <strong className="ml-[12px]">SUI</strong>
+        <TokenIcon icon={IconWaterDrop} alt="water-drop" />
+        <strong className={classnames(styles['token-name'], 'ml-[12px]')}>SUI</strong>
         <p className={classnames(styles['token-amonut'], 'ml-[120px]')}>1.002</p>
       </div>
     </div>

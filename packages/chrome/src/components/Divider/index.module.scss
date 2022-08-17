@@ -1,0 +1,9 @@
+@import '../../styles/variables';
+
+.divider {
+  &--horizontal {
+    height: 1px;
+    margin: 10px 0;
+    background: $gray-200;
+  }
+}
