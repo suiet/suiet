@@ -1,6 +1,8 @@
-@import "../../../styles/variables.scss";
+@import "../../styles/variables.scss";
 
 $icon-size: 40px;
+$icon-wrap-size--sm: 16px;
+$icon-size--sm: 10px;
 
 .token-item {
   @apply box-border flex items-center;
@@ -19,19 +21,15 @@ $icon-size: 40px;
   width: $icon-size;
   height: $icon-size;
   background: rgba(62, 162, 248, 1);
+
+  &--small {
+    width: $icon-wrap-size--sm;
+    height: $icon-wrap-size--sm;
+  }
 }
 
-.token-name {
-  color: $gray-900;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.token-amonut {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  color: $gray-700;
+.icon {
+  &--small {
+    height: $icon-size--sm;
+  }
 }
