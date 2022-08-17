@@ -6,6 +6,10 @@
     {
       "source": "/login",
       "destination": "/"
+    },
+    {
+      "source": "/send",
+      "destination": "/"
     }
   ]
 }
