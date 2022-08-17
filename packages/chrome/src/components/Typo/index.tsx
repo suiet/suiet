@@ -28,7 +28,21 @@ export const Normal = (props: TypoProps) => {
   );
 };
 
+
+export const Small = (props: TypoProps) => {
+  return (
+    <p
+      {...props}
+      className={classnames(
+        styles['small'],
+        props.className
+      )}
+    />
+  );
+};
+
 export default {
   Title,
-  Normal
+  Normal,
+  Small,
 }
