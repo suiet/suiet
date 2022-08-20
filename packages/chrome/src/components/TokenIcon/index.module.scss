@@ -13,6 +13,11 @@ $icon-size--sm: 10px;
   &:first-of-type {
     border-top: 1px solid #EFF1F5;
   }
+
+  &:hover {
+    /* Gray/50 */
+    background: #F9FAFB;
+  }
 }
 
 .icon-wrap {

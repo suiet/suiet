@@ -32,7 +32,7 @@ const Modal = (props: ModalProps) => {
             <div className={'flex justify-between items-center'}>
               <Dialog.Title className={styles['title']}>{title}</Dialog.Title>
               <Dialog.Close className={styles['close']}>
-                <img src={IconClose} alt="close"/>
+                <img src={IconClose} style={{outline:"none"}} alt="close"/>
               </Dialog.Close>
             </div>
             {children}
