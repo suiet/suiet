@@ -1,3 +1,8 @@
+<a href="https://suiet.app"><p align="center">
+<img width="480" src="./assets/LogoWithSlogen.png?raw=trueg"/>
+
+</p></a>
+
 # Suiet, the wallet designed for everyone
 
 > If you want to know how to **install/use** suiet, please visit our offical website [suiet.app](https://suiet.app) or [docs](https://suiet.app/docs)
@@ -14,4 +19,19 @@
 
 ```bash
 git clone git@github.com:suiet/suiet.git
+```
+
+3. Install the dependencies
+
+```bash
+npm install
+```
+
+### 🏁 Run app in your browser
+
+Go to chrome extension dir the start the App:
+
+```bash
+cd packages/chrome
+npm start
 ```
