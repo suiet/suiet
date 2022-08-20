@@ -17,7 +17,8 @@ type MenuItemProps = StyleExtendable & {
 const MenuItem: React.FC<MenuItemProps> = ({ to, icon, alt }) => {
   const navigate = useNavigate();
   const resolved = useResolvedPath(to);
-  const match = useMatch({ path: resolved.pathname, end: true });
+  const match = useMatch({ path: resolved.pathname, end: false });
+
   return (
     <div
       className={classnames(styles['menu-item'], {
@@ -38,7 +39,7 @@ const Menu: React.FC<MenuProps> = (props) => {
       className={classnames(styles['menu'], props.className)}
       style={props.style}
     >
-      <MenuItem to="/" icon={IconHome} alt="home" />
+      <MenuItem to="/home" icon={IconHome} alt="home" />
       <MenuItem to="/transaction/flow" icon={IconTx} alt="transaction" />
       <MenuItem to="/settings" icon={IconSettings} alt="settings" />
     </div>
