@@ -7,6 +7,11 @@
     line-height: 24px;
     color: #000000;
     cursor: pointer;
+
+    &:hover {
+      /* Gray/50 */
+      background: #F9FAFB;
+    }
   }
 
   .icon-wallet,

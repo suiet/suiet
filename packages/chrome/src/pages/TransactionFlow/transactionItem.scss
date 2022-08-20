@@ -5,6 +5,11 @@
     align-items: center;
     position: relative;
     border-bottom: 1px solid #eaecf0;
+
+    &:hover {
+      /* Gray/50 */
+      background: #F9FAFB;
+    }
   }
 
   &-icon {
