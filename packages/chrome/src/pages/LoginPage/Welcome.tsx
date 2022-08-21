@@ -13,7 +13,7 @@ const Welcome = () => {
         )
       }>Suiet</Typo.Title>
       <Typo.Normal className={styles['suiet-desc']}>The wallet for Everyone</Typo.Normal>
-      <div className={'mt-[117px] w-full px-[22px]'}>
+      <section className={'mt-[117px] w-full px-[22px]'}>
         <LinkButton
           to={'/settings'}
           type={'primary'}
@@ -25,7 +25,7 @@ const Welcome = () => {
           className={'mt-[16px] w-full'
           }>Import Wallet
         </LinkButton>
-      </div>
+      </section>
     </div>
   )
 }

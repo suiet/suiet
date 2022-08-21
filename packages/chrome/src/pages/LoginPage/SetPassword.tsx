@@ -13,7 +13,7 @@ const Welcome = () => {
           'mt-[80px]'
         )
       }>Set wallet password</Typo.Title>
-      <div className={'mt-[214px] w-full px-[22px]'}>
+      <section className={'mt-[214px] w-full px-[22px]'}>
         <div>
           <Typo.Small className={styles['pwd']}>Password</Typo.Small>
           <Input className={'mt-[6px]'} placeholder={'Please enter the password'} />
@@ -29,7 +29,7 @@ const Welcome = () => {
         >
           Next
         </LinkButton>
-      </div>
+      </section>
     </div>
   )
 }

@@ -53,3 +53,33 @@
   line-height: 20px;
   color: $gray-700;
 }
+
+.phrase {
+  @apply flex;
+  position: relative;
+  width: 316px;
+  height: 242px;
+  padding: 24px 32px;
+
+  background: #EDFCFF;
+  border-radius: 12px;
+}
+
+.phrase .phrase-item {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 32px;
+  color: $primary-800;
+}
+
+.phrase .icon-copy {
+  position: absolute;
+  right: 13px;
+  top: 15px;
+
+  width: 13.3px;
+  height: 13.3px;
+  stroke: $primary-400;
+  stroke-width: 2px;
+}
