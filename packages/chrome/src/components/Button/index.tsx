@@ -3,7 +3,7 @@ import classnames from "classnames";
 import styles from './index.module.scss';
 import {Extendable} from "../../types";
 
-export type ButtonState = 'normal' | 'primary';
+export type ButtonState = 'normal' | 'primary' | 'danger';
 
 export type ButtonProps = Extendable & {
   state?: ButtonState;
