@@ -5,9 +5,10 @@ import {withSus} from './components/TheSuspense';
 
 import './App.css';
 import {fetchPassword} from "./utils/auth";
+import CreateNewWallet from "./pages/OnBoarding/CreateNewWallet";
 
 const MainPage = lazy(() => import('./pages/MainPage'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
+const WelcomePage = lazy(() => import('./pages/OnBoarding/Welcome'));
 const SettingPage = lazy(() => import('./pages/SettingsPage'));
 const SendPage = lazy(() => import('./pages/SendPage'));
 const TransacationFlowPage = lazy(() => import('./pages/TransactionFlow'));
@@ -42,7 +43,7 @@ function App() {
   async function checkLoginStatus() {
     const password = await fetchPassword();
     if (!password) {
-      navigate('login');
+      navigate('onboard');
       return;
     }
     setPassword(password);
@@ -72,7 +73,11 @@ function App() {
             />
             <Route path="settings/*" element={withSus(<SettingPage/>)}/>
           </Route>
-          <Route path="login" element={withSus(<LoginPage/>)}/>
+          <Route path={'onboard'}>
+            <Route index element={<Navigate to="/onboard/welcome"/>}/>
+            <Route path="welcome" element={withSus(<WelcomePage />)}/>
+            <Route path="create-new-wallet" element={withSus(<CreateNewWallet />)}/>
+          </Route>
         </Routes>
       </div>
     </AppContext.Provider>

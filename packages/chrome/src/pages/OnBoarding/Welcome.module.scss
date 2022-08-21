@@ -1,0 +1,25 @@
+@import "../../styles/variables";
+
+.main-page {
+  @apply flex flex-col items-center;
+  box-sizing: border-box;
+  width: 362px;
+  height: 573px;
+  background: radial-gradient(100% 100% at 6.22% 0%, rgba(0, 137, 255, 0.27) 0%, rgba(93, 200, 223, 0) 100%);
+}
+
+.main-page .suiet-title {
+  text-align: center;
+  font-weight: 300;
+  font-size: 56px;
+  line-height: 68px;
+  color: $primary-900;
+}
+
+.main-page .suiet-desc {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 29px;
+  color: $primary-900;
+}
