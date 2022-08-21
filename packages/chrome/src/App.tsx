@@ -4,8 +4,6 @@ import AppLayout from './components/AppLayout';
 import { withSus } from './components/TheSuspense';
 
 import './App.css';
-import TransacationFlow from './pages/TransactionFlow';
-
 const MainPage = lazy(() => import('./pages/MainPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SettingPage = lazy(() => import('./pages/SettingsPage'));
