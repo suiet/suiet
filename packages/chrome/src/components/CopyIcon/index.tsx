@@ -1,17 +1,15 @@
 import React from "react";
 import classnames from "classnames";
-import styles from "../../pages/MainPage/Dashboard/index.module.scss";
-import IconCopy from "../../assets/icons/copy.svg";
+import {ReactComponent as IconCopy} from "../../assets/icons/copy.svg";
 import {Extendable} from "../../types";
+import styles from './index.module.scss';
 
 const CopyIcon = (props: Extendable) => {
   return (
-    <img
+    <IconCopy
       {...props}
-      src={IconCopy}
-      alt="copy"
       className={classnames(
-  'w-[10.8px] h-[10.8px] pointer',
+        styles['icon-copy'],
         props.className
       )}
     />
