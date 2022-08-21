@@ -1,0 +1,61 @@
+@import "../../../styles/variables";
+
+.container {
+  @apply flex flex-col items-center;
+  box-sizing: border-box;
+  width: 362px;
+  height: 573px;
+}
+
+.container .step-title {
+  text-align: center;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 38px;
+  color: $gray-900;
+}
+
+.container .step-button {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+
+.container .pwd {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-700;
+}
+
+.phrase {
+  @apply flex;
+  position: relative;
+  width: 316px;
+  height: 242px;
+  padding: 24px 32px;
+
+  background: #EDFCFF;
+  border-radius: 12px;
+}
+
+.phrase .phrase-item {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 32px;
+  color: $primary-800;
+}
+
+.phrase .icon-copy {
+  position: absolute;
+  right: 13px;
+  top: 15px;
+
+  width: 13.3px;
+  height: 13.3px;
+  stroke: $primary-400;
+  stroke-width: 2px;
+}
