@@ -45,10 +45,10 @@ export async function readEncryptedMnemonic<S extends Storage>(storage: S): Prom
     return encryptedMnemonic
 }
 
-export function createNewWallet(storage: Storage, password: string, hdpath=""): Wallet {
+export async function createNewWallet(storage: Storage, password: string, hdpath=""): Promise<Wallet> {
     const mnemonic = bip39.generateMnemonic();
     const encryptedMnemonic = encryptMnemonic(password, mnemonic)
-    storage.setSync(ENCRYPTED_MNEMONIC_KEY, JSON.stringify(encryptedMnemonic))
+    await storage.set(ENCRYPTED_MNEMONIC_KEY, JSON.stringify(encryptedMnemonic))
 
     return new Wallet(password, encryptedMnemonic, storage, hdpath)
 }
