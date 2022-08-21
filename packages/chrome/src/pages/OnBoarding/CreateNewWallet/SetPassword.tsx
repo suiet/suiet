@@ -1,10 +1,11 @@
 import styles from "./index.module.scss";
-import Typo from "../../components/Typo";
-import LinkButton from "./LinkButton";
+import Typo from "../../../components/Typo";
 import classnames from "classnames";
-import Input from "../../components/Input";
+import LinkButton from "../LinkButton";
+import Input from "../../../components/Input";
+import {CreateWalletStepProps} from "./index";
 
-const Welcome = () => {
+const SavePassword = (props: CreateWalletStepProps) => {
   return (
     <div className={styles['container']}>
       <Typo.Title className={
@@ -20,12 +21,12 @@ const Welcome = () => {
         </div>
         <LinkButton
           to={'/settings'}
-          type={'primary'}
+          theme={'primary'}
           className={classnames(
             styles['step-button'],
             'mt-[16px]'
-          )
-        }
+          )}
+          onClick={props.onNext}
         >
           Next
         </LinkButton>
@@ -34,4 +35,4 @@ const Welcome = () => {
   )
 }
 
-export default Welcome;
+export default SavePassword;

@@ -1,10 +1,11 @@
 import styles from "./index.module.scss";
-import Typo from "../../components/Typo";
-import LinkButton from "./LinkButton";
+import Typo from "../../../components/Typo";
+import LinkButton from "../LinkButton";
 import classnames from "classnames";
-import {Extendable} from "../../types";
-import CopyIcon from "../../components/CopyIcon";
+import {Extendable} from "../../../types";
+import CopyIcon from "../../../components/CopyIcon";
 import {useState} from "react";
+import {CreateWalletStepProps} from "./index";
 
 type PhraseDisplayProps = Extendable & {
   phrases: string[];
@@ -30,7 +31,7 @@ const PhraseDisplay = (props: PhraseDisplayProps) => {
   )
 }
 
-const SavePhrase = () => {
+const SavePhrase = (props: CreateWalletStepProps) => {
   const [phrases, setPhrases] = useState([
     'scrub',
     'slogan',
@@ -58,12 +59,12 @@ const SavePhrase = () => {
         <PhraseDisplay phrases={phrases}></PhraseDisplay>
         <LinkButton
           to={'/settings'}
-          type={'primary'}
+          theme={'primary'}
           className={classnames(
             styles['step-button'],
             'mt-[32px]'
-          )
-          }
+          )}
+          onClick={props.onNext}
         >
           I've saved the Phrase
         </LinkButton>
