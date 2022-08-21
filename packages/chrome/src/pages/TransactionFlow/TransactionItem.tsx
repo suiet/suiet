@@ -1,5 +1,5 @@
-import classnames from "classnames";
-import "./transactionItem.scss";
+import classnames from 'classnames';
+import './transactionItem.scss';
 
 interface TransactionItemProps {
   type: string;
@@ -7,18 +7,20 @@ interface TransactionItemProps {
   amount: number;
   coin?: string;
   date?: string;
+  onClick: () => void;
 }
 
 function TransactionItem({
   type,
   to,
   amount,
-  coin = "sui",
+  coin = 'sui',
   date,
+  onClick,
 }: TransactionItemProps) {
   return (
-    <div className="transaction-item-container">
-      <div className={classnames("transaction-item-icon", type)} />
+    <div className="transaction-item-container" onClick={onClick}>
+      <div className={classnames('transaction-item-icon', type)} />
       <div className="transaction-item-detail">
         <div className="transaction-item-type">
           {type}
@@ -26,8 +28,8 @@ function TransactionItem({
         </div>
         <div className="transaction-item-to">To {to}</div>
       </div>
-      <div className={classnames("transaction-item-amount", type)}>
-        {type === "sent" ? "- " : "+ "}
+      <div className={classnames('transaction-item-amount', type)}>
+        {type === 'sent' ? '- ' : '+ '}
         {amount} {coin.toUpperCase()}
       </div>
     </div>
