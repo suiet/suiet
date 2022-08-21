@@ -1,48 +1,50 @@
+@import "../../styles/variables";
+
 .main-page {
+  @apply flex flex-col items-center;
+  box-sizing: border-box;
   width: 362px;
   height: 573px;
-  background: url("../../assets/bg.png") no-repeat center;
+  background: radial-gradient(100% 100% at 6.22% 0%, rgba(0, 137, 255, 0.27) 0%, rgba(93, 200, 223, 0) 100%);
 }
 
-.suiet-title {
+.main-page .suiet-title {
   text-align: center;
   padding-top: 160px;
   font-weight: 300;
   font-size: 56px;
   line-height: 68px;
-  color: #0b2e77;
+  color: $primary-900;
 }
 
-.import-wallet-btn,
-.create-new-btn {
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 28px;
+.main-page .suiet-desc {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 29px;
+  color: $primary-900;
+}
+
+.link-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: auto;
-  cursor: pointer;
-}
 
-.create-new-btn {
   width: 266px;
   height: 60px;
-  background: #3ea2f8;
-  border: 1px solid #3ea2f8;
-  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border: 1px solid #FFFFFF;
+  background: #FFFFFF;
+  box-shadow: $shadow-xs;
   border-radius: 16px;
-  color: #ffffff;
-  margin-top: 145px;
-}
+  color: $primary-700;
 
-.import-wallet-btn {
-  width: 266px;
-  height: 60px;
-  background: #ffffff;
-  border: 1px solid #ffffff;
-  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
-  border-radius: 16px;
-  color: #1f5eb2;
-  margin-top: 16px;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+
+  &--primary {
+    background: $primary-500;
+    border: 1px solid $primary-500;
+    color: $white;
+  }
 }
