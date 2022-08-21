@@ -10,7 +10,6 @@
 
 .main-page .suiet-title {
   text-align: center;
-  padding-top: 160px;
   font-weight: 300;
   font-size: 56px;
   line-height: 68px;
@@ -25,26 +24,32 @@
   color: $primary-900;
 }
 
-.link-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.container {
+  @apply flex flex-col items-center;
+  box-sizing: border-box;
+  width: 362px;
+  height: 573px;
+}
 
-  width: 266px;
-  height: 60px;
-  border: 1px solid #FFFFFF;
-  background: #FFFFFF;
-  box-shadow: $shadow-xs;
-  border-radius: 16px;
-  color: $primary-700;
-
+.container .step-title {
+  text-align: center;
+  font-style: normal;
   font-weight: 500;
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 30px;
+  line-height: 38px;
+  color: $gray-900;
+}
 
-  &--primary {
-    background: $primary-500;
-    border: 1px solid $primary-500;
-    color: $white;
-  }
+.container .step-button {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+
+.container .pwd {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-700;
 }
