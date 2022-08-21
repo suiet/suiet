@@ -8,8 +8,9 @@
 
     &:hover {
       /* Gray/50 */
-      background: #F9FAFB;
+      background: #f9fafb;
     }
+    cursor: pointer;
   }
 
   &-icon {
@@ -21,21 +22,21 @@
     position: relative;
 
     &.received {
-      background-image: url("./assets/receive.svg");
+      background-image: url('./assets/receive.svg');
     }
 
     &.sent {
-      background-image: url("./assets/send.svg");
+      background-image: url('./assets/send.svg');
     }
 
     &.airdrop {
-      background-image: url("./assets/airdrop.svg");
+      background-image: url('./assets/airdrop.svg');
     }
 
     &::after {
       display: block;
-      content: "";
-      background: url("./assets/sui.svg") no-repeat center;
+      content: '';
+      background: url('./assets/sui.svg') no-repeat center;
       background-size: cover;
       position: absolute;
       width: 16px;
