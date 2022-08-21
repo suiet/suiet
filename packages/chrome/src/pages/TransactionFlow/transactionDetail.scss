@@ -1,0 +1,65 @@
+.transaction-detail-container {
+  padding: 0 24px;
+}
+
+.transaction-detail {
+  &-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0 24px;
+    border-bottom: 1px solid #eaecf0;
+  }
+
+  &-icon {
+    width: 48px;
+    height: 48px;
+    background: url('./assets/send.svg') no-repeat center;
+  }
+
+  &-title {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 32px;
+    text-align: center;
+    color: #101828;
+    margin-top: 16px;
+  }
+
+  &-item-container {
+    padding: 24px 0;
+  }
+
+  &-item {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #667085;
+    margin-bottom: 16px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    span {
+      &:first-of-type {
+        color: #344054;
+      }
+    }
+  }
+
+  &-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 314px;
+    height: 40px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+    border-radius: 8px;
+  }
+}

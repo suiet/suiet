@@ -11,6 +11,9 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SettingPage = lazy(() => import('./pages/SettingsPage'));
 const SendPage = lazy(() => import('./pages/SendPage'));
 const TransacationFlowPage = lazy(() => import('./pages/TransactionFlow'));
+const TransacationDetail = lazy(
+  () => import('./pages/TransactionFlow/transactionDetail')
+);
 
 function App() {
   return (
@@ -23,6 +26,10 @@ function App() {
           <Route
             path="transaction/flow"
             element={withSus(<TransacationFlowPage />)}
+          />
+          <Route
+            path="transaction/detail/:id"
+            element={withSus(<TransacationDetail />)}
           />
           <Route path="settings/*" element={withSus(<SettingPage />)} />
         </Route>
