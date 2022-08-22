@@ -74,6 +74,11 @@
 }
 
 .qr-code {
-  width: 128px;
-  height: 128px;
+  width: 124px;
+  height: 124px;
+  padding: 4px;
+}
+
+.text-scan {
+  color: rgba(0, 0, 0, 0.3);
 }
