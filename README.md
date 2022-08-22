@@ -21,7 +21,7 @@
 git clone git@github.com:suiet/suiet.git
 ```
 
-3. Install the dependencies
+3. Install the dependencies for all the packages
 
 ```bash
 npm install
@@ -32,6 +32,5 @@ npm install
 Go to chrome extension dir the start the App:
 
 ```bash
-cd packages/chrome
-npm start
+npm run dev -w @suiet/chrome-ext
 ```
