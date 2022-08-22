@@ -8,8 +8,15 @@ import WaterDropIcon from "../../../components/WaterDropIcon";
 import CopyIcon from "../../../components/CopyIcon";
 import Typo from "../../../components/Typo";
 import TestQrCode from '../../../assets/test-qrcode.png';
+import QRCodeSVG from "qrcode.react";
+import classnames from "classnames";
+import {useState} from "react";
 
-const ReceiveButton = () => {
+export type ReceiveButtonProps = {
+  address: string;
+}
+
+const ReceiveButton = (props: ReceiveButtonProps) => {
   return (
     <Modal
       title={(
@@ -27,12 +34,15 @@ const ReceiveButton = () => {
     >
       <div className={'flex flex-col items-center mt-[22px]'}>
         <div className={'flex flex-col items-center'}>
-          <img
-            src={TestQrCode}
-            alt="qr-code"
-            className={styles['qr-code']}
-          />
-          <Typo.Normal className={'mt-[2px]'}>scan to receive</Typo.Normal>
+          {/*<img*/}
+          {/*  src={TestQrCode}*/}
+          {/*  alt="qr-code"*/}
+          {/*  className={styles['qr-code']}*/}
+          {/*/>*/}
+          <QRCodeSVG value={props.address} className={styles['qr-code']} />
+          <Typo.Normal className={classnames('mt-[2px]', styles['text-scan'])}>
+            scan to receive
+          </Typo.Normal>
         </div>
         <div className={'flex items-center mt-[21px]'}>
           <Typo.Small>0x2152f01152f01f6152f01f6f6</Typo.Small>
@@ -44,6 +54,8 @@ const ReceiveButton = () => {
 }
 
 function MainPage() {
+  const [address, setAddress] = useState('0x2152fabcd01f6');
+
   return (
     <div className={styles['main-content']}>
       <div className={styles['balance']}>1.002 SUI</div>
@@ -56,7 +68,7 @@ function MainPage() {
           <img src={IconDownDouble} className={styles['icon']} />
           Airdrop
         </div>
-        <ReceiveButton />
+        <ReceiveButton address={address} />
         <Link to={'/send'}>
           <div className={styles['send']}>
             <img src={IconTrendUp} className={styles['icon']} />
