@@ -1,13 +1,12 @@
 import React, {createContext, lazy, useEffect, useState} from 'react';
 import {Navigate, Route, Routes, useNavigate} from 'react-router-dom';
-import AppLayout from './components/AppLayout';
-import {withSus} from './components/TheSuspense';
-
 import './App.css';
-import {fetchPassword} from "./utils/auth";
-import CreateNewWallet from "./pages/OnBoarding/CreateNewWallet";
 import {ToastContainer} from "react-toastify";
 import './styles/react-toastify.scss';
+
+import AppLayout from './components/AppLayout';
+import {withSus} from './components/TheSuspense';
+import {fetchPassword} from "./utils/auth";
 
 const MainPage = lazy(() => import('./pages/MainPage'));
 const WelcomePage = lazy(() => import('./pages/OnBoarding/Welcome'));
@@ -17,6 +16,8 @@ const TransacationFlowPage = lazy(() => import('./pages/TransactionFlow'));
 const TransacationDetail = lazy(
   () => import('./pages/TransactionFlow/transactionDetail')
 );
+const CreateNewWallet = lazy(() => import("./pages/OnBoarding/CreateNewWallet"));
+const ImportWallet = lazy(() => import("./pages/OnBoarding/ImportWallet"));
 
 export interface AppContextParams {
   password: string;
@@ -77,6 +78,7 @@ function App() {
             <Route index element={<Navigate to="/onboard/welcome"/>}/>
             <Route path="welcome" element={withSus(<WelcomePage />)}/>
             <Route path="create-new-wallet" element={withSus(<CreateNewWallet />)}/>
+            <Route path="import-wallet" element={withSus(<ImportWallet />)}/>
           </Route>
         </Routes>
         <ToastContainer />
