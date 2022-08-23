@@ -32,7 +32,7 @@ function hasState(state: State) {
   return state !== 'default';
 }
 
-const Textarea = (props: TextareaProps) => {
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((props, ref) => {
   const {
     state = 'default',
     className,
@@ -50,6 +50,7 @@ const Textarea = (props: TextareaProps) => {
     >
       <textarea
         {...textareaProps}
+        ref={ref}
         className={
           classnames(styles['textarea'],
             hasState(state) ? [
@@ -68,6 +69,6 @@ const Textarea = (props: TextareaProps) => {
       )}
     </div>
   );
-};
+});
 
 export default Textarea;

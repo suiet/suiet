@@ -6,6 +6,7 @@ import {Extendable} from "../../types";
 export type ButtonState = 'normal' | 'primary' | 'danger';
 
 export type ButtonProps = Extendable & {
+  type?: 'button' | 'submit' | 'reset';
   state?: ButtonState;
   onClick?: () => void;
 }
