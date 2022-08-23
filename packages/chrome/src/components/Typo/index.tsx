@@ -28,7 +28,6 @@ export const Normal = (props: TypoProps) => {
   );
 };
 
-
 export const Small = (props: TypoProps) => {
   return (
     <p
@@ -41,8 +40,23 @@ export const Small = (props: TypoProps) => {
   );
 };
 
+export const Hints = (props: Extendable & { state?: 'default' | 'error' }) => {
+  const {state = 'default', ...restProps} = props;
+  return (
+    <small
+      {...restProps}
+      className={classnames(
+        styles['hints'],
+        state ? styles[`hints--${state}`] : '',
+        props.className
+      )}>
+    </small>
+  )
+}
+
 export default {
   Title,
   Normal,
   Small,
+  Hints
 }

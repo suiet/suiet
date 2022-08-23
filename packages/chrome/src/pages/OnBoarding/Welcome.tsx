@@ -6,12 +6,13 @@ import {useNavigate} from "react-router-dom";
 
 const Welcome = () => {
   const navigate = useNavigate();
+
   function handleCreateNewWallet() {
     navigate('/onboard/create-new-wallet')
   }
 
   function handleImportWallet() {
-
+    navigate('/onboard/import-wallet')
   }
 
   return (

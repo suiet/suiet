@@ -23,3 +23,16 @@
   line-height: 20px;
   color: $gray-500;
 }
+
+.hints {
+  display: block;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-500;
+
+  &--error {
+    color: $error-500;
+  }
+}
