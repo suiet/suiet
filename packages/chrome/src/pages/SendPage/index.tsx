@@ -12,6 +12,7 @@ import WaterDropIcon from "../../components/WaterDropIcon";
 import {isValidSuiAddress} from "@mysten/sui.js";
 import {useForm} from "react-hook-form";
 import {ErrorMessage} from '@hookform/error-message';
+import toast from "../../components/toast";
 
 const Hints = (props: Extendable & { state?: 'default' | 'error' }) => {
   const {state = 'default', ...restProps} = props;
@@ -48,7 +49,9 @@ const SendPage = () => {
   });
 
   function submitTransaction(data: SendFormValues) {
+    // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     console.log('submit', data)
+    toast.success('Sent Success');
   }
 
   return (
@@ -133,9 +136,7 @@ const SendPage = () => {
           <Button type={'submit'} state={'primary'} className={'mt-[20px]'}>Send</Button>
           <Button
             className={'mt-[10px]'}
-            onClick={() => {
-              navi('/')
-            }}
+            onClick={() => {navi('/')}}
           >Cancel</Button>
         </section>
       </form>
