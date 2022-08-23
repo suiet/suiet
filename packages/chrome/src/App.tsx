@@ -29,7 +29,7 @@ export const AppContext = createContext<AppContextParams>({
 });
 
 function App() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [appContext, setAppContext] = useState({
     password: '',
     setPassword,
@@ -42,29 +42,18 @@ function App() {
     }))
   }
 
-  // async function checkLoginStatus() {
-  //   const password = await fetchPassword();
-  //   if (!password) {
-  //     navigate('onboard');
-  //     return;
-  //   }
-  //   setPassword(password);
-  // }
+  async function loadPassword() {
+    const password = await fetchPassword();
+    if (password) {
+      setPassword(password);
+    }
+  }
 
   useEffect(() => {
     (async function () {
-      // await checkLoginStatus();
+      await loadPassword();
     })();
   }, [])
-
-  // const contextClass: Record<string, any> = {
-  //   success: "bg-blue-600",
-  //   error: "bg-red-600",
-  //   info: "bg-gray-600",
-  //   warning: "bg-orange-400",
-  //   default: "bg-indigo-600",
-  //   dark: "bg-white-600 font-gray-300",
-  // };
 
   return (
     <AppContext.Provider value={appContext}>
