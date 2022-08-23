@@ -11,6 +11,8 @@ import TestQrCode from '../../../assets/test-qrcode.png';
 import QRCodeSVG from "qrcode.react";
 import classnames from "classnames";
 import {useState} from "react";
+import toast from "../../../components/toast";
+import {ReactComponent as IconSuccess} from "../../../assets/icons/toast-success.svg";
 
 export type ReceiveButtonProps = {
   address: string;
@@ -64,7 +66,9 @@ function MainPage() {
         <CopyIcon className={'ml-[5px]'} />
       </div>
       <div className={styles['operations']}>
-        <div className={styles['airdrop']}>
+        <div className={styles['airdrop']} onClick={() => {
+          toast.success('Hi')
+        }}>
           <img src={IconDownDouble} className={styles['icon']} />
           Airdrop
         </div>
