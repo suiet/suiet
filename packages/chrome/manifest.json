@@ -1,7 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Suiet Wallet",
+  "description": "An awesome wallet for Sui",
   "version": "1.0.0",
+  "icons": {
+    "128": "logo.png"
+  },
   "action": { "default_popup": "index.html" },
   "permissions": [
     "storage"
