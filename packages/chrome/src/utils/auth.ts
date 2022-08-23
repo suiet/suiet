@@ -1,13 +1,13 @@
 import storage from "./storage";
 
-enum Key {
+enum StorageKey {
   PASSWORD = 'PASSWORD'
 }
 
 export async function fetchPassword() {
-  return storage.get(Key.PASSWORD)
+  return storage.get(StorageKey.PASSWORD)
 }
 
 export async function storePassword(value: string) {
-  return storage.set(Key.PASSWORD, value);
+  return storage.set(StorageKey.PASSWORD, value);
 }
