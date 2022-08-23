@@ -29,7 +29,7 @@ const stateMap = {
   },
 }
 
-export const InputGroup = (props: InputProps) => {
+export const InputGroup = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const {
     state = 'default',
     children,
@@ -38,6 +38,7 @@ export const InputGroup = (props: InputProps) => {
     suffix,
     ...restProps
   } = props;
+
   return (
     <div className={classnames(
       styles['input-group'],
@@ -46,6 +47,7 @@ export const InputGroup = (props: InputProps) => {
     )}>
       <Input
         {...restProps}
+        ref={ref}
         state={state}
         className={'flex-1'}
         elClassName={classnames(
@@ -61,13 +63,13 @@ export const InputGroup = (props: InputProps) => {
       }>{suffix}</div>)}
     </div>
   )
-}
+})
 
 function hasState(state: State) {
   return state !== 'default';
 }
 
-const Input = (props: InputProps) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const {
     state = 'default',
     className,
@@ -85,6 +87,7 @@ const Input = (props: InputProps) => {
     >
       <input
         {...inputProps}
+        ref={ref}
         className={
           classnames(styles['input'],
             hasState(state) ? [
@@ -103,6 +106,6 @@ const Input = (props: InputProps) => {
       )}
     </div>
   );
-};
+});
 
 export default Input;

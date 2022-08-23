@@ -27,7 +27,7 @@ export const AppContext = createContext<AppContextParams>({
 });
 
 function App() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [appContext, setAppContext] = useState({
     password: '',
     setPassword,
@@ -40,18 +40,18 @@ function App() {
     }))
   }
 
-  async function checkLoginStatus() {
-    const password = await fetchPassword();
-    if (!password) {
-      navigate('onboard');
-      return;
-    }
-    setPassword(password);
-  }
+  // async function checkLoginStatus() {
+  //   const password = await fetchPassword();
+  //   if (!password) {
+  //     navigate('onboard');
+  //     return;
+  //   }
+  //   setPassword(password);
+  // }
 
   useEffect(() => {
     (async function () {
-      await checkLoginStatus();
+      // await checkLoginStatus();
     })();
   }, [])
 
