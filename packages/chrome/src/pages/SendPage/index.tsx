@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, {useState} from 'react';
+import React from 'react';
 import {Extendable} from '../../types';
 import styles from './index.module.scss';
 import Textarea from "../../components/Textarea";
@@ -9,9 +9,13 @@ import Divider from "../../components/Divider";
 import Button from "../../components/Button";
 import {useNavigate} from "react-router-dom";
 import WaterDropIcon from "../../components/WaterDropIcon";
+import {isValidSuiAddress} from "@mysten/sui.js";
+import {useForm} from "react-hook-form";
+import {ErrorMessage} from '@hookform/error-message';
+import toast from "../../components/toast";
 
-const Hints = (props: Extendable & { state?: 'error' }) => {
-  const {state = 'error', ...restProps} = props;
+const Hints = (props: Extendable & { state?: 'default' | 'error' }) => {
+  const {state = 'default', ...restProps} = props;
   return (
     <small
       {...restProps}
@@ -19,69 +23,124 @@ const Hints = (props: Extendable & { state?: 'error' }) => {
         styles['hints'],
         state ? styles[`hints--${state}`] : '',
         props.className
-      )}>this is not a validate address
+      )}>
     </small>
   )
 }
 
+interface SendFormValues {
+  address: string;
+  amount: number;
+}
+
 const SendPage = () => {
   const navi = useNavigate();
-  const [address, setAddress] = useState<{
-    state: 'default' | 'success' | 'error';
-    errMsg: string;
-  }>({
-    state: 'default',
-    errMsg: '',
-    // state: 'error',
-    // errMsg: 'this is not a validate address',
+
+  const {
+    register,
+    handleSubmit,
+    formState,
+  } = useForm<SendFormValues>({
+    mode: 'onChange',
+    defaultValues: {
+      address: '',
+      amount: 0,
+    }
   });
+
+  function submitTransaction(data: SendFormValues) {
+    // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
+    console.log('submit', data)
+    toast.success('Sent Success');
+  }
 
   return (
     <div className={styles['container']}>
-      <section className={styles['section']}>
-        <Typo.Title>Address</Typo.Title>
-        <div className={'mt-[6px]'}>
-          <Textarea
-            state={address.state}
-            placeholder="Enter SUI address"
-          />
-          {address.errMsg && (
-            <Hints className={'mt-[6px]'}>{address.errMsg}</Hints>
-          )}
-        </div>
-      </section>
+      <form
+        onSubmit={handleSubmit(submitTransaction)}
+      >
+        <section className={styles['section']}>
+          <Typo.Title>Address</Typo.Title>
+          <div className={'mt-[6px]'}>
+            <Textarea
+              placeholder="Enter SUI address"
+              state={formState.errors['address'] ? 'error' : (
+                formState.dirtyFields['address']
+                  ? 'success' : 'default'
+              )}
+              {...register(
+                'address', {
+                  required: 'address should not be empty',
+                  validate: (val) => {
+                    return isValidSuiAddress(val) || 'this is not a valid address';
+                  }
+                }
+              )}
+            />
+            {/*<Hints className={'mt-[6px]'}>{'23 transactions in 1 week, view in explorer'}</Hints>*/}
+            <ErrorMessage
+              errors={formState.errors}
+              name={'address'}
+              render={(error) => (
+                <Hints state={'error'} className={'mt-[6px]'}>{error.message}</Hints>
+              )}
+            />
+          </div>
+        </section>
 
-      <section className={classnames(styles['section'], 'mt-[20px]')}>
-        <Typo.Title>Amount</Typo.Title>
-        <div className={'mt-[6px]'}>
-          <InputGroup
-            state={'default'}
-            placeholder={'Please enter the amount'}
-            suffix={(
-              <div className={styles['input-suffix']}>
-                <WaterDropIcon size={'small'} />
-                <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
-              </div>
-            )}
-          />
-          <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>
-        </div>
-      </section>
+        <section className={classnames(styles['section'], 'mt-[20px]')}>
+          <Typo.Title>Amount</Typo.Title>
+          <div className={'mt-[6px]'}>
+            <InputGroup
+              type={'number'}
+              state={formState.errors['amount'] ? 'error' : (
+                formState.dirtyFields['amount']
+                 ? 'success' : 'default'
+              )}
+              placeholder={'Please enter the amount'}
+              suffix={(
+                <div className={styles['input-suffix']}>
+                  <WaterDropIcon size={'small'}/>
+                  <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
+                </div>
+              )}
+              {...register(
+                'amount', {
+                  required: 'amount should not be empty',
+                  valueAsNumber: true,
+                  validate: (val) => {
+                    return val > 0 || 'amount should be greater than 0';
+                  },
+                }
+              )}
+            />
+            <ErrorMessage
+              errors={formState.errors}
+              name={'amount'}
+              render={(error) => (
+                <Hints state={'error'} className={'mt-[6px]'}>{error.message}</Hints>
+              )}
+            />
+            <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>
+          </div>
+        </section>
 
-      <section className={styles['section']}>
-        <Divider type={'horizontal'} />
-        <Typo.Title>Gas fee</Typo.Title>
-        <div className={'flex items-center'}>
-          <WaterDropIcon size={'small'} />
-          <Typo.Normal className={'ml-[6px]'}>0.0012 SUI ≈ 12 USD</Typo.Normal>
-        </div>
+        <section className={styles['section']}>
+          <Divider type={'horizontal'}/>
+          <Typo.Title>Gas fee</Typo.Title>
+          <div className={'flex items-center'}>
+            <WaterDropIcon size={'small'}/>
+            <Typo.Normal className={'ml-[6px]'}>0.0012 SUI ≈ 12 USD</Typo.Normal>
+          </div>
 
-        <Button state={'primary'} className={'mt-[20px]'}>Send</Button>
-        <Button
-          className={'mt-[10px]'}
-          onClick={() => {navi('/')}}
-        >Cancel</Button>
-      </section>
+          <Button type={'submit'} state={'primary'} className={'mt-[20px]'}>Send</Button>
+          <Button
+            className={'mt-[10px]'}
+            onClick={() => {navi('/')}}
+          >Cancel</Button>
+        </section>
+      </form>
+
     </div>
   )
 }
