@@ -3,10 +3,33 @@ import reactLogo from './assets/react.svg'
 import './App.css'
 // import {createNewWallet} from "@suiet/core";
 
+export class ChromeStorage {
+  get(key) {
+    return localStorage.getItem(key);
+  }
+  getSync(key) {
+    return localStorage.getItem(key);
+  }
+  remove(key) {
+    return localStorage.removeItem(key);
+  }
+  removeSync(key) {
+    return localStorage.removeItem(key);
+  }
+
+  set(key, value) {
+    return localStorage.setItem(key, value);
+  }
+  setSync(key, value) {
+    return localStorage.setItem(key, value);
+  }
+}
+
 function App() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
+    const storage = new ChromeStorage();
     // createNewWallet()
   }, [])
 
