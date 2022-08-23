@@ -6,6 +6,8 @@ import {withSus} from './components/TheSuspense';
 import './App.css';
 import {fetchPassword} from "./utils/auth";
 import CreateNewWallet from "./pages/OnBoarding/CreateNewWallet";
+import {ToastContainer} from "react-toastify";
+import './styles/react-toastify.scss';
 
 const MainPage = lazy(() => import('./pages/MainPage'));
 const WelcomePage = lazy(() => import('./pages/OnBoarding/Welcome'));
@@ -55,6 +57,15 @@ function App() {
     })();
   }, [])
 
+  // const contextClass: Record<string, any> = {
+  //   success: "bg-blue-600",
+  //   error: "bg-red-600",
+  //   info: "bg-gray-600",
+  //   warning: "bg-orange-400",
+  //   default: "bg-indigo-600",
+  //   dark: "bg-white-600 font-gray-300",
+  // };
+
   return (
     <AppContext.Provider value={appContext}>
       <div className="app">
@@ -79,6 +90,7 @@ function App() {
             <Route path="create-new-wallet" element={withSus(<CreateNewWallet />)}/>
           </Route>
         </Routes>
+        <ToastContainer />
       </div>
     </AppContext.Provider>
   );
