@@ -31,22 +31,9 @@ const PhraseDisplay = (props: PhraseDisplayProps) => {
   )
 }
 
-const SavePhrase = (props: CreateWalletStepProps) => {
-  const [phrases, setPhrases] = useState([
-    'scrub',
-    'slogan',
-    'secret',
-    'letter',
-    'arrow',
-    'forget',
-    'betray',
-    'mom',
-    'often',
-    'response',
-    'fit',
-    'camp'
-  ]);
-
+const SavePhrase = (props: CreateWalletStepProps & {
+  phrases: string[];
+}) => {
   return (
     <div className={styles['container']}>
       <Typo.Title className={
@@ -56,7 +43,7 @@ const SavePhrase = (props: CreateWalletStepProps) => {
         )
       }>Backup your wallet</Typo.Title>
       <section className={'mt-[45px] w-full px-[22px]'}>
-        <PhraseDisplay phrases={phrases}></PhraseDisplay>
+        <PhraseDisplay phrases={props.phrases}></PhraseDisplay>
         <LinkButton
           to={'/settings'}
           theme={'primary'}
