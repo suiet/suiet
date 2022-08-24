@@ -1,0 +1,21 @@
+@import "../../../styles/variables";
+
+.container {
+  @apply flex flex-col items-center;
+  box-sizing: border-box;
+  width: 362px;
+  height: 573px;
+}
+
+.container .step-title {
+  text-align: center;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 38px;
+  color: $gray-900;
+}
+
+.container .phrase-textarea {
+  height: 128px;
+}
