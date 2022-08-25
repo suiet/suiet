@@ -14,7 +14,7 @@ type PhraseDisplayProps = Extendable & {
 const PhraseDisplay = (props: PhraseDisplayProps) => {
   function renderPhraseCol(start: number, end: number) {
     return props.phrases.slice(start, end).map((p, index) => (
-      <Typo.Small className={styles['phrase-item']}>{`${index + 1 + start}. ${p}`}</Typo.Small>
+      <Typo.Small key={p + index} className={styles['phrase-item']}>{`${index + 1 + start}. ${p}`}</Typo.Small>
     ));
   }
 

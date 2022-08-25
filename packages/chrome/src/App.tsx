@@ -1,4 +1,4 @@
-import React, {lazy} from 'react';
+import React, {lazy, useEffect} from 'react';
 import {Navigate, Route, Routes, useNavigate} from 'react-router-dom';
 import './App.css';
 import {ToastContainer} from "react-toastify";
@@ -6,8 +6,13 @@ import './styles/react-toastify.scss';
 
 import AppLayout from './components/AppLayout';
 import {withSus} from './components/TheSuspense';
-import {fetchPassword} from "./utils/auth";
-import RequireAuth from "./components/RequireAuth";
+import RequireAuth from "./components/RequireInit";
+import {getWallets} from "./utils/mock";
+import {isNonEmptyArray} from "./utils/check";
+import {useDispatch, useSelector} from "react-redux";
+import appContext, {updateInitialized} from "./store/app-context";
+import RequireInit from "./components/RequireInit";
+import {RootState} from "./store";
 
 const MainPage = lazy(() => import('./pages/MainPage'));
 const WelcomePage = lazy(() => import('./pages/OnBoarding/Welcome'));
@@ -22,10 +27,35 @@ const ImportWallet = lazy(() => import("./pages/OnBoarding/ImportWallet"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 
 function App() {
+  const appContext = useSelector((state: RootState) => state.appContext)
+  const dispatch = useDispatch();
+
+  async function initStates() {
+    const wallets = await getWallets();
+    if (isNonEmptyArray(wallets)) {
+      await dispatch(updateInitialized(true));
+    }
+  }
+
+  useEffect(() => {
+    initStates();
+  }, [])
+
+
+  useEffect(() => {
+    console.log('appContext', appContext)
+  }, [appContext])
+
   return (
     <div className="app">
       <Routes>
-        <Route path="/" element={<RequireAuth><AppLayout/></RequireAuth>}>
+        <Route path="/" element={
+          <RequireInit>
+            <RequireAuth>
+              <AppLayout/>
+            </RequireAuth>
+          </RequireInit>
+        }>
           <Route index element={<Navigate to="/home"/>}/>
           <Route path="home" element={withSus(<MainPage/>)}/>
           <Route path={'send'} element={withSus(<SendPage/>)} />
