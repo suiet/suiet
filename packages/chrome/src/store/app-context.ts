@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface AppContextState {
+  initialized: boolean;
   token: string;
   walletId: string;
   accountId: string;
@@ -8,6 +9,7 @@ export interface AppContextState {
 }
 
 const initialState: AppContextState = {
+  initialized: false,
   token: '',
   walletId: "",
   accountId: "",
@@ -18,6 +20,9 @@ export const appContextSlice = createSlice({
   name: 'appContext',
   initialState,
   reducers: {
+    updateInitialized(state, action: PayloadAction<boolean>) {
+      state.initialized = action.payload;
+    },
     updateToken(state, action: PayloadAction<string>) {
       state.token = action.payload;
     },
@@ -34,6 +39,7 @@ export const appContextSlice = createSlice({
 })
 
 export const {
+  updateInitialized,
   updateToken,
   updateWalletId,
   updateAccountId,

@@ -84,3 +84,7 @@ function decryptPassword(verifyString: string) {
 export function verifyPassword(password: string, verifyString: string) {
   return decryptPassword(verifyString) === password;
 }
+
+export async function getWallets() {
+  return []
+}
