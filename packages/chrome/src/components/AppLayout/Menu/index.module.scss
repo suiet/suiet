@@ -13,15 +13,20 @@
   @apply flex justify-center items-center;
   width: 105px;
   height: 56px;
+  cursor: pointer;
 
   &--active {
     background: $gray-100;
     border-radius: 16px;
+
+    & > .menu-icon {
+      stroke: $gray-900;
+    }
   }
 }
 
 .menu-icon {
   width: 20px;
   height: 20px;
-  color: $gray-300;
+  stroke: $gray-300;
 }
