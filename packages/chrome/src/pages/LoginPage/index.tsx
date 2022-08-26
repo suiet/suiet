@@ -8,6 +8,7 @@ import {useAuth} from "../../hooks/useAuth";
 import {useForm} from 'react-hook-form'
 import {ErrorMessage} from "@hookform/error-message";
 import React from "react";
+import {getPasswordValidation} from "../../utils/form";
 
 type FormData = {
   password: string;
@@ -37,9 +38,7 @@ const LoginPage = () => {
           <div>
             <Typo.Small className={styles['pwd']}>Password</Typo.Small>
             <Input
-              {...register('password', {
-                required: 'Password should not be empty'
-              })}
+              {...register('password', getPasswordValidation())}
               className={'mt-[6px]'}
               placeholder={'Please enter the password'}
             />
