@@ -41,11 +41,6 @@ function App() {
     initStates();
   }, [])
 
-
-  useEffect(() => {
-    console.log('appContext', appContext)
-  }, [appContext])
-
   return (
     <div className="app">
       <Routes>
