@@ -4,8 +4,9 @@ import LinkButton from "../LinkButton";
 import classnames from "classnames";
 import {Extendable} from "../../../types";
 import CopyIcon from "../../../components/CopyIcon";
-import {useState} from "react";
 import {CreateWalletStepProps} from "./index";
+import copy from 'copy-to-clipboard';
+import toast from "../../../components/toast";
 
 type PhraseDisplayProps = Extendable & {
   phrases: string[];
@@ -18,6 +19,12 @@ const PhraseDisplay = (props: PhraseDisplayProps) => {
     ));
   }
 
+  function copyPhrase() {
+    const phraseStr = props.phrases.join(' ')
+    copy(phraseStr);
+    toast.success('Copied Phrases')
+  }
+
   return (
     <div className={styles['phrase']}>
       <div>
@@ -26,7 +33,10 @@ const PhraseDisplay = (props: PhraseDisplayProps) => {
       <div className={'ml-[69px]'}>
         {renderPhraseCol(6, 12)}
       </div>
-      <CopyIcon className={styles['icon-copy']}></CopyIcon>
+      <CopyIcon
+        className={styles['icon-copy']}
+        onClick={copyPhrase}
+      />
     </div>
   )
 }

@@ -4,7 +4,9 @@ import {ReactComponent as IconCopy} from "../../assets/icons/copy.svg";
 import {Extendable} from "../../types";
 import styles from './index.module.scss';
 
-const CopyIcon = (props: Extendable) => {
+const CopyIcon = (props: Extendable & {
+  onClick?: () => void;
+}) => {
   return (
     <IconCopy
       {...props}

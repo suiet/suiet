@@ -4,11 +4,10 @@ import {Extendable} from "../../types";
 import classnames from "classnames";
 import IconInputSuccess from '../../assets/icons/input-success.svg';
 import IconInputFail from '../../assets/icons/input-fail.svg';
-
-type State = 'success' | 'error' | 'default';
+import {InputState} from "../Input";
 
 export type TextareaProps = Extendable & TextareaHTMLAttributes<HTMLElement> & {
-  state?: State;
+  state?: InputState;
   elClassName?: string;
   elStyle?: CSSProperties;
 };
@@ -28,7 +27,7 @@ const stateMap = {
   },
 }
 
-function hasState(state: State) {
+function hasInputState(state: InputState) {
   return state !== 'default';
 }
 
@@ -53,7 +52,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((props, re
         ref={ref}
         className={
           classnames(styles['textarea'],
-            hasState(state) ? [
+            hasInputState(state) ? [
             styles['textarea-state'],
             styles[`textarea-state--${state}`],
           ] : '',
@@ -62,7 +61,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((props, re
         style={elStyle}
       >
       </textarea>
-      {hasState(state) && (
+      {hasInputState(state) && (
         <div className={styles['icon']}>
           <img src={stateMetrics.icon} alt={stateMetrics.alt} />
         </div>

@@ -5,10 +5,10 @@ import classnames from "classnames";
 import IconInputSuccess from '../../assets/icons/input-success.svg';
 import IconInputFail from '../../assets/icons/input-fail.svg';
 
-type State = 'success' | 'error' | 'default';
+export type InputState = 'success' | 'error' | 'default';
 
 export type InputProps = Extendable & InputHTMLAttributes<HTMLElement> & {
-  state?: State;
+  state?: InputState;
   elClassName?: string;
   elStyle?: CSSProperties;
   suffix?: ReactNode;
@@ -65,7 +65,7 @@ export const InputGroup = React.forwardRef<HTMLInputElement, InputProps>((props,
   )
 })
 
-function hasState(state: State) {
+function hasInputState(state: InputState) {
   return state !== 'default';
 }
 
@@ -90,7 +90,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
         ref={ref}
         className={
           classnames(styles['input'],
-            hasState(state) ? [
+            hasInputState(state) ? [
             styles['input-state'],
             styles[`input-state--${state}`],
           ] : '',
@@ -99,7 +99,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
         style={elStyle}
       >
       </input>
-      {hasState(state) && (
+      {hasInputState(state) && (
         <div className={styles['icon']}>
           <img src={stateMetrics.icon} alt={stateMetrics.alt} />
         </div>
