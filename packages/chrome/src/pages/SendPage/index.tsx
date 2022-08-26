@@ -1,6 +1,5 @@
 import classnames from 'classnames';
 import React from 'react';
-import {Extendable} from '../../types';
 import styles from './index.module.scss';
 import Textarea from "../../components/Textarea";
 import {InputGroup} from "../../components/Input";
@@ -13,20 +12,6 @@ import {isValidSuiAddress} from "@mysten/sui.js";
 import {useForm} from "react-hook-form";
 import {ErrorMessage} from '@hookform/error-message';
 import toast from "../../components/toast";
-
-const Hints = (props: Extendable & { state?: 'default' | 'error' }) => {
-  const {state = 'default', ...restProps} = props;
-  return (
-    <small
-      {...restProps}
-      className={classnames(
-        styles['hints'],
-        state ? styles[`hints--${state}`] : '',
-        props.className
-      )}>
-    </small>
-  )
-}
 
 interface SendFormValues {
   address: string;
@@ -77,12 +62,12 @@ const SendPage = () => {
                 }
               )}
             />
-            {/*<Hints className={'mt-[6px]'}>{'23 transactions in 1 week, view in explorer'}</Hints>*/}
+            {/*<Typo.Hints className={'mt-[6px]'}>{'23 transactions in 1 week, view in explorer'}</Typo.Hints>*/}
             <ErrorMessage
               errors={formState.errors}
               name={'address'}
               render={(error) => (
-                <Hints state={'error'} className={'mt-[6px]'}>{error.message}</Hints>
+                <Typo.Hints state={'error'} className={'mt-[6px]'}>{error.message}</Typo.Hints>
               )}
             />
           </div>
@@ -118,7 +103,7 @@ const SendPage = () => {
               errors={formState.errors}
               name={'amount'}
               render={(error) => (
-                <Hints state={'error'} className={'mt-[6px]'}>{error.message}</Hints>
+                <Typo.Hints state={'error'} className={'mt-[6px]'}>{error.message}</Typo.Hints>
               )}
             />
             <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>

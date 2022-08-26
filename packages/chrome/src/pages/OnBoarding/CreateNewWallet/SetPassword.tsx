@@ -5,7 +5,11 @@ import LinkButton from "../LinkButton";
 import Input from "../../../components/Input";
 import {CreateWalletStepProps} from "./index";
 
-const SavePassword = (props: CreateWalletStepProps) => {
+export type SavePasswordProps = {
+  onNext: (password: string) => void;
+}
+
+const SavePassword = (props: SavePasswordProps) => {
   return (
     <div className={styles['container']}>
       <Typo.Title className={
@@ -26,7 +30,7 @@ const SavePassword = (props: CreateWalletStepProps) => {
             styles['step-button'],
             'mt-[16px]'
           )}
-          onClick={props.onNext}
+          onClick={() => {props.onNext('123456')}}
         >
           Next
         </LinkButton>
