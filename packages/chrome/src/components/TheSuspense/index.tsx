@@ -1,9 +1,10 @@
 import React, {ReactNode, Suspense} from 'react';
 import {Extendable} from "../../types";
+import FullPageLoading from "../Loading";
 
 const TheSuspense = (props: Extendable) => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FullPageLoading />}>
       {props.children}
     </Suspense>
   );
