@@ -4,23 +4,26 @@ import classnames from "classnames";
 import styles from "./index.module.scss";
 import {Extendable} from "../../../types";
 
+type ButtonType = 'button' | 'submit' | 'link';
+
 export type LinkButtonProps = Extendable & {
   theme?: 'primary' | 'default';
-  type?: 'button' | 'link';
+  type?: ButtonType;
   to?: string;
   onClick?: () => void;
 };
 
 const LinkButton = (props: LinkButtonProps) => {
-  const {type = 'default', theme = 'default'} = props;
+  const {type = 'button', theme = 'default'} = props;
 
   const button = (
     <button
+      type={type !== 'link' ? type : undefined}
       onClick={props.onClick}
       className={classnames(
-      styles['link-btn'],
-      styles[`link-btn--${theme}`],
-      props.className)}
+        styles['link-btn'],
+        styles[`link-btn--${theme}`],
+        props.className)}
     >{props.children}</button>
   );
 
