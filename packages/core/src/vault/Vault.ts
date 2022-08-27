@@ -1,4 +1,4 @@
-import * as bip39 from "bip39"
+import * as bip39 from "@scure/bip39"
 import { Ed25519HdKey } from "./hdkey";
 import { decryptMnemonic } from "../crypto"
 import { SHA3 } from "sha3"
@@ -14,7 +14,7 @@ export class Vault {
     public static async create(path: string, token: Buffer, encryptedMnemonic: string): Promise<Vault> {
         const mnemonic = decryptMnemonic(token, encryptedMnemonic);
         const seed = await bip39.mnemonicToSeed(mnemonic);
-        const master = await Ed25519HdKey.fromMasterSeed(seed);
+        const master = await Ed25519HdKey.fromMasterSeed(Buffer.from(seed));
         const hdKey = await master.derive(path)
         return new Vault(hdKey)
     }
