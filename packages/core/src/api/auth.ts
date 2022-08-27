@@ -1,4 +1,4 @@
 export interface IAuthApi {
-  generateToken: (password: string) => string;
-  validateToken: (encrypted: string) => boolean;
+  updatePassword: (oldPassword: string | null, newPassword: string) => Promise<void>;
+  loadTokenWithPassword: (password: string) => Promise<string>;
 }

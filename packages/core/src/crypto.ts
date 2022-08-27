@@ -5,12 +5,22 @@ import { ModeOfOperation } from "aes-js"
 import * as randomBytes from "randombytes"
 import { Cipher } from "./storage/types";
 import { Buffer } from "buffer";
+import { Storage } from "./storage/Storage"
 
 const WALLET_MASTER_SECRET = "suiet wallet";
+const COIN_TYPE_SUI = '784'
 
 type Token = {
     token: Buffer,
     cipher: Cipher,
+}
+
+export function generateMnemonic(): string {
+    return bip39.generateMnemonic();
+}
+
+export function validateMnemonic(mnemonic: string): boolean {
+    return bip39.validateMnemonic(mnemonic);
 }
 
 export function encryptMnemonic(token: Buffer, mnemonic: string): Buffer {
@@ -33,11 +43,11 @@ export function decryptMnemonic(token: Buffer, encryptedMnemonic: string): strin
 
 export function newToken(password: string): Token {
     const salt = randomBytes.default(32)
-    const key = pbkdf2Sync(password, salt, 10000, 256 / 8, "sha512");
-    let aesCtr = new ModeOfOperation.ctr(key);
+    const token = password2Token(password, salt);
+    let aesCtr = new ModeOfOperation.ctr(token);
     const secretBytes = new fastTextEncoding.TextEncoderClass().encode(WALLET_MASTER_SECRET);
     return {
-        token: key,
+        token: token,
         cipher: {
             data: Buffer.from(aesCtr.encrypt(secretBytes)).toString("hex"),
             salt: salt.toString("hex"),
@@ -45,12 +55,18 @@ export function newToken(password: string): Token {
     }
 }
 
-export function verifyToken(password: string, cipher: Cipher): boolean {
-    const salt = Buffer.from(cipher.salt, "hex");
-    const key = pbkdf2Sync(password, salt, 10000, 256 / 8, "sha512");
-    let aesCtr = new ModeOfOperation.ctr(key);
+export function password2Token(password: string, salt: Buffer) {
+    return pbkdf2Sync(password, salt, 10000, 256 / 8, "sha512");
+}
+
+export function validateToken(token: Buffer, cipher: Cipher): boolean {
+    let aesCtr = new ModeOfOperation.ctr(token);
     const data = Buffer.from(cipher.data, "hex");
     const secretBytes = aesCtr.decrypt(data);
     const secret = new fastTextEncoding.TextDecoderClass().decode(secretBytes);
     return secret === WALLET_MASTER_SECRET;
+}
+
+export function derivationHdPath(id: number) {
+    return `m/44'/${COIN_TYPE_SUI}'/${id}'`
 }

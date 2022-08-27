@@ -1,4 +1,4 @@
-import { Ed25519HdKey } from "../src/vault/HdKey"
+import { Ed25519HdKey } from "../src/vault/hdkey"
 import { Buffer } from "buffer"
 
 // Test vectors from SLIP-0010.
