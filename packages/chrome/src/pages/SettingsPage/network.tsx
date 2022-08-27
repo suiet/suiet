@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import { useState } from 'react';
 import './common.scss';
 import './network.scss';
-
+import Button from '../../components/Button';
 const networkType = ['devnet', 'mainnet'];
 
 interface NetworkProps {
@@ -32,8 +32,10 @@ function Network() {
         );
       })}
       <div>+ Add new custom network</div>
-      <div className={classnames('setting-btn', 'wallet-save')}>Save</div>
-      <div className={classnames('setting-btn', 'wallet-cancel')}>Cancel</div>
+      <div className="flex flex-col gap-2 mt-2">
+        <Button state="primary">Save</Button>
+        <Button>Cancel</Button>
+      </div>
     </div>
   );
 }
