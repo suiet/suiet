@@ -4,9 +4,18 @@ import Wallet from './wallet';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Network from './network';
 import Security from './security';
+import {useDispatch} from "react-redux";
+import {resetAppContext} from "../../store/app-context";
+import {AppDispatch} from "../../store";
 
 function SettingPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  async function handleResetApp() {
+    await dispatch(resetAppContext()).unwrap();
+  }
+
   return (
     <div className="settings-container">
       <Routes>
@@ -37,6 +46,12 @@ function SettingPage() {
                 className="settings-item"
               >
                 <span className="icon-security"></span>Security
+              </div>
+              <div
+                onClick={() => handleResetApp()}
+                className="settings-item"
+              >
+                <span className="icon-security"></span>Reset App
               </div>
               <div className="app-version">version v0.0.1</div>
             </>
