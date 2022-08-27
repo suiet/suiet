@@ -24,6 +24,24 @@ export type GlobalMeta = {
     nextWalletId: number,
 }
 
+export type TxnHistroyEntry = {
+    from: string,
+    to: string,
+    object: TxnObject,
+}
+
+export type TxnObject = {
+    id: string,
+}
+
+export type CoinTxnObject = {
+    id: "coin",
+    name: string,
+    symbol: string,
+    number: number,
+    decimals: number,
+}
+
 export function toWalletIdString(id: number): string {
     return `wallet-${id}`
 }
