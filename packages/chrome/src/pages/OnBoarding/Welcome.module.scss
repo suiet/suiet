@@ -1,13 +1,10 @@
 @import "../../styles/variables";
 
 .main-page {
-  // @apply flex flex-col items-center;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 362px;
-  height: 573px;
-  margin: auto;
+
 }
 
 .main-page .suiet-title {
@@ -15,6 +12,7 @@
   font-style: normal;
   font-weight: 700;
   font-size: 48px;
+  line-height: 48px;
 }
 
 .main-page .suiet-desc {

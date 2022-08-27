@@ -1,6 +1,6 @@
 import styles from "./index.module.scss";
 import Typo from "../../../components/Typo";
-import LinkButton from "../LinkButton";
+import Button from "../../../components/Button";
 import classnames from "classnames";
 import {Extendable} from "../../../types";
 import CopyIcon from "../../../components/CopyIcon";
@@ -54,9 +54,8 @@ const SavePhrase = (props: CreateWalletStepProps & {
       }>Backup your wallet</Typo.Title>
       <section className={'mt-[45px] w-full px-[22px]'}>
         <PhraseDisplay phrases={props.phrases}></PhraseDisplay>
-        <LinkButton
-          to={'/settings'}
-          theme={'primary'}
+        <Button
+          state={'primary'}
           className={classnames(
             styles['step-button'],
             'mt-[32px]'
@@ -64,7 +63,7 @@ const SavePhrase = (props: CreateWalletStepProps & {
           onClick={props.onNext}
         >
           I've saved the Phrase
-        </LinkButton>
+        </Button>
       </section>
     </div>
   )

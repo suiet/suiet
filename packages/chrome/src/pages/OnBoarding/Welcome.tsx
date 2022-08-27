@@ -37,7 +37,7 @@ const Welcome = () => {
             'text-black',
           )
         }>Suiet</Typo.Title>
-        <Typo.Normal className={classnames(styles['suiet-desc'])}>The wallet for Everyone</Typo.Normal>
+        <Typo.Normal className={classnames(styles['suiet-desc'])}>The wallet for everyone</Typo.Normal>
         <section className={'mt-16 flex flex-row items-start gap-4'}>
           <LinkButton
             theme={'primary'}
