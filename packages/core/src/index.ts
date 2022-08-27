@@ -1,1 +1,1 @@
-export * from './storage/Storage';
+export { CoreApi } from './api';
