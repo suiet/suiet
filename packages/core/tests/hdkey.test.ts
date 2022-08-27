@@ -1,4 +1,5 @@
 import { Ed25519HdKey } from "../src/vault/HdKey"
+import { Buffer } from "buffer"
 
 // Test vectors from SLIP-0010.
 // https://github.com/satoshilabs/slips/blob/master/slip-0010.md
@@ -116,17 +117,17 @@ const testVectors = [
 ]
 
 
-test('HD key derivation tests', () => {
+test('HD key derivation tests', async () => {
     for (const testVectorBatch of testVectors) {
         const result: any[] = [];
         const parents: Ed25519HdKey[] = [];
         for (const childIndex of testVectorBatch.path.split('/')) {
             if (childIndex == 'm') {
-                const hdKey = Ed25519HdKey.fromMasterSeed(Buffer.from(testVectorBatch.seed, 'hex'));
+                const hdKey = await Ed25519HdKey.fromMasterSeed(Buffer.from(testVectorBatch.seed, 'hex'));
                 result.push({
                     chainCode: hdKey.chainCode.toString('hex'),
                     private: hdKey.getPrivateKey().toString('hex'),
-                    public: Ed25519HdKey.publicKeyToString(hdKey.getPublicKey()),
+                    public: hdKey.getPublicHexString(),
                 });
                 parents.push(hdKey);
             } else {
@@ -141,11 +142,11 @@ test('HD key derivation tests', () => {
                 }
 
                 const parent = parents[result.length - 1];
-                const hdKey = parent.deriveChild(idx);
+                const hdKey = await parent.deriveChild(idx);
                 result.push({
                     chainCode: hdKey.chainCode.toString('hex'),
                     private: hdKey.getPrivateKey().toString('hex'),
-                    public: Ed25519HdKey.publicKeyToString(hdKey.getPublicKey()),
+                    public: hdKey.getPublicHexString(),
                 });
                 parents.push(hdKey);
             }
