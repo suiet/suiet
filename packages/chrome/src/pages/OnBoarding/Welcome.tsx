@@ -3,6 +3,7 @@ import Typo from "../../components/Typo";
 import LinkButton from "./LinkButton";
 import classnames from "classnames";
 import {useNavigate} from "react-router-dom";
+import LogoGrey from '../../assets/icons/logo-grey.svg';
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -16,26 +17,40 @@ const Welcome = () => {
   }
 
   return (
-    <div className={styles['main-page']}>
-      <Typo.Title className={
-        classnames(
-          styles['suiet-title'],
-          'mt-[160px]'
-        )
-      }>Suiet</Typo.Title>
-      <Typo.Normal className={styles['suiet-desc']}>The wallet for Everyone</Typo.Normal>
-      <section className={'mt-[117px] w-full px-[22px]'}>
-        <LinkButton
-          theme={'primary'}
-          className={'w-full'}
-          onClick={handleCreateNewWallet}
-        >Create New
-        </LinkButton>
-        <LinkButton
-          className={'mt-[16px] w-full'}
-          onClick={handleImportWallet}
-        >Import Wallet</LinkButton>
-      </section>
+    <div className={classnames(styles['main-page'], 'mx-[32px]')}>
+      <div className={classnames(
+        'w-[298px]',
+        'mx-auto')}>
+        <img className={classnames(
+            'mt-16'
+          )} src={LogoGrey}></img>
+        <Typo.Title className={
+          classnames(
+            styles['suiet-title'],
+            'mt-8',
+            'text-gray-200',
+          )
+        }>Welcome</Typo.Title>
+        <Typo.Title className={
+          classnames(
+            styles['suiet-title'],
+            'text-black',
+          )
+        }>Suiet</Typo.Title>
+        <Typo.Normal className={classnames(styles['suiet-desc'])}>The wallet for Everyone</Typo.Normal>
+        <section className={'mt-16 flex flex-row items-start gap-4'}>
+          <LinkButton
+            theme={'primary'}
+            className={'w-full'}
+            onClick={handleCreateNewWallet}
+          >Create New
+          </LinkButton>
+          <LinkButton
+            className={'mt-[16px] w-full'}
+            onClick={handleImportWallet}
+          >Import Wallet</LinkButton>
+        </section>
+      </div>
     </div>
   )
 }

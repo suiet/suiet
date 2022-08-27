@@ -3,6 +3,8 @@ import {Link} from "react-router-dom";
 import classnames from "classnames";
 import styles from "./index.module.scss";
 import {Extendable} from "../../../types";
+import PlusPrimary from '../../../assets/icons/plus-primary.svg';
+import PlusSecondary from '../../../assets/icons/plus-secondary.svg';
 
 type ButtonType = 'button' | 'submit' | 'link';
 
@@ -27,9 +29,14 @@ const LinkButton = (props: LinkButtonProps) => {
     >{props.children}</button>
   );
 
+
+
   if (type === 'link') {
     return (
       <Link to={props.to || ''} className={'w-full'}>
+        {theme === "primary" ?
+          <img className="ml-[6px]" src={PlusPrimary} alt="plus primary" /> :
+          <img className="ml-[6px]" src={PlusSecondary} alt="plus secondary" />}
         {button}
       </Link>
     )

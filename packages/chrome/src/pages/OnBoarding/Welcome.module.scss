@@ -1,25 +1,27 @@
 @import "../../styles/variables";
 
 .main-page {
-  @apply flex flex-col items-center;
-  box-sizing: border-box;
+  // @apply flex flex-col items-center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 362px;
   height: 573px;
-  background: radial-gradient(100% 100% at 6.22% 0%, rgba(0, 137, 255, 0.27) 0%, rgba(93, 200, 223, 0) 100%);
+  margin: auto;
 }
 
 .main-page .suiet-title {
-  text-align: center;
-  font-weight: 300;
-  font-size: 56px;
-  line-height: 68px;
-  color: $primary-900;
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 48px;
 }
 
 .main-page .suiet-desc {
+  font-family: 'Work Sans';
   font-style: normal;
-  font-weight: 300;
-  font-size: 24px;
-  line-height: 29px;
-  color: $primary-900;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 4px;
+  color: $gray-300;
 }
