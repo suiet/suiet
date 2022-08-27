@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './transactionDetail.scss';
+import Button from '../../components/Button';
 
 function TransactionDetail() {
   const navigate = useNavigate();
@@ -23,14 +24,9 @@ function TransactionDetail() {
           <span>iqAK3FwSZUSNZ...fY6a</span>
         </div>
       </div>
-      <div
-        className="transaction-detail-btn"
-        onClick={() => {
+      <Button onClick={() => {
           navigate('/transaction/flow');
-        }}
-      >
-        Back to list
-      </div>
+        }}> Back to list </Button>
     </div>
   );
 }

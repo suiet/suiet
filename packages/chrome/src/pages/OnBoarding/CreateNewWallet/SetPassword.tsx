@@ -1,7 +1,7 @@
 import styles from "./index.module.scss";
 import Typo from "../../../components/Typo";
 import classnames from "classnames";
-import LinkButton from "../LinkButton";
+import Button from "../../../components/Button";
 import Input from "../../../components/Input";
 import {CreateWalletStepProps} from "./index";
 import {useForm} from "react-hook-form";
@@ -50,16 +50,16 @@ const SavePassword = (props: SavePasswordProps) => {
             )}
           />
         </div>
-        <LinkButton
+        <Button
           type={'submit'}
-          theme={'primary'}
+          state={'primary'}
           className={classnames(
             styles['step-button'],
             'mt-[16px]'
           )}
         >
           Next
-        </LinkButton>
+        </Button>
         </form>
       </section>
     </div>

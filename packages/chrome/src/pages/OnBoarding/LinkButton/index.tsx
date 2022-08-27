@@ -3,9 +3,8 @@ import {Link} from "react-router-dom";
 import classnames from "classnames";
 import styles from "./index.module.scss";
 import {Extendable} from "../../../types";
-import PlusPrimary from '../../../assets/icons/plus-primary.svg';
 import PlusSecondary from '../../../assets/icons/plus-secondary.svg';
-
+import PlusPrimary from '../../../assets/icons/plus-primary.svg'
 type ButtonType = 'button' | 'submit' | 'link';
 
 export type LinkButtonProps = Extendable & {
@@ -34,9 +33,12 @@ const LinkButton = (props: LinkButtonProps) => {
   if (type === 'link') {
     return (
       <Link to={props.to || ''} className={'w-full'}>
+         <img className={classnames(
+            'mt-16'
+          )} src={PlusPrimary}></img>
         {theme === "primary" ?
-          <img className="ml-[6px]" src={PlusPrimary} alt="plus primary" /> :
-          <img className="ml-[6px]" src={PlusSecondary} alt="plus secondary" />}
+          <img src={PlusPrimary} /> :
+          <img src={PlusSecondary}/>}
         {button}
       </Link>
     )
