@@ -15,7 +15,9 @@ export default defineConfig({
   },
   plugins: [
     nodePolyfills(),
-    resolvePlugin(),
+    resolvePlugin({
+      browser: true,
+    }),
     typescript({
       tsconfig: path.resolve(__dirname, 'tsconfig.json')
     }),
