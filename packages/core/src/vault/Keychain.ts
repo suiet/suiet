@@ -16,7 +16,8 @@ export class Keychain {
             const encryptedMnemonic = this.context.wallet.encryptedMnemonic;
             const mnemonic = decryptMnemonic(password, encryptedMnemonic);
             const seed = await bip39.mnemonicToSeed(mnemonic);
-            this.hdKey = Ed25519HdKey.fromMasterSeed(seed).derive(this.context.acount.hdPath)
+            const master = await Ed25519HdKey.fromMasterSeed(seed);
+            this.hdKey = await master.derive(this.context.acount.hdPath)
         }
         return this.hdKey
     }
