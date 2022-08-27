@@ -2,23 +2,31 @@
 
 .link-btn {
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 16px 28px;
-  border: 1px solid #FFFFFF;
-  background: #FFFFFF;
-  box-shadow: $shadow-xs;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: left;
+  margin: 0;
+  padding: 24px;
+  gap: 24px;
+  
+  width: 143px;
+  height: 180px;
+  
   border-radius: 16px;
-  color: $primary-700;
 
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 28px;
+
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 23px;
 
   &--primary {
-    background: $primary-500;
-    border: 1px solid $primary-500;
-    color: $white;
+    background: $primary-50;
+    color: black;
   }
+
+  background-color: $gray-100;
+  color: $gray-600;
 }
