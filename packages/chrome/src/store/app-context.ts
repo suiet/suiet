@@ -1,4 +1,4 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface AppContextState {
   initialized: boolean;
@@ -15,6 +15,16 @@ const initialState: AppContextState = {
   accountId: "",
   networkId: "",
 }
+
+// thunks
+export const resetAppContext = createAsyncThunk('appContext/reset',
+  async (_, thunkApi) => {
+    console.log('thunk api called')
+    await thunkApi.dispatch(updateInitialized(false));
+    await thunkApi.dispatch(updateToken(''));
+    // db clear
+  }
+)
 
 export const appContextSlice = createSlice({
   name: 'appContext',
@@ -35,6 +45,9 @@ export const appContextSlice = createSlice({
     updateNetworkId(state, action: PayloadAction<string>) {
       state.networkId = action.payload;
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(resetAppContext.fulfilled, () => {});
   }
 })
 
