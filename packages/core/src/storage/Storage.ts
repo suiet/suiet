@@ -1,4 +1,6 @@
 import { Account, Wallet, GlobalMeta } from "./types";
+import { platform } from "../utils/platform"
+import { IndexedDBStorage } from "./indexeddb"
 
 export interface Storage {
     getWallets(): Promise<Array<Wallet>>;
@@ -17,4 +19,11 @@ export interface Storage {
 
     loadMeta(): Promise<GlobalMeta | null>;
     saveMeta(meta: GlobalMeta): Promise<void>;
+}
+
+export function getStorage(): Storage | undefined {
+    if (platform.isBrowser) {
+        return new IndexedDBStorage();
+    }
+    return undefined
 }

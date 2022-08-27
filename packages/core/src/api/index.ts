@@ -2,7 +2,7 @@ import { CreateWalletParams, IWalletApi, toWalletIdString, toWalletNameString, W
 import { Account, IAccountApi, toAccountIdString, toAccountNameString } from "./account";
 import { INetworkApi } from "./network";
 import { IAuthApi } from "./auth";
-import { Storage } from "../storage/Storage"
+import { Storage, getStorage } from "../storage/Storage"
 import { Vault } from "../vault/Vault";
 import { Buffer } from "buffer"
 import * as crypto from "../crypto"
@@ -16,7 +16,11 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     this.vaults = {};
   }
 
-  static newApi(storage: Storage): CoreApi {
+  public static newApi(): CoreApi {
+    const storage = getStorage();
+    if (!storage) {
+      throw new Error("Platform not supported");
+    }
     return new CoreApi(storage);
   }
 

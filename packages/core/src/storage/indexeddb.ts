@@ -21,11 +21,9 @@ export class IndexedDBStorage implements Storage {
         reject(new Error('Failed to create indexedDB'));
       }
       request.onupgradeneeded = (event) => {
-        // console.log('onupgradeneeded', event, request.result)
         IndexedDBStorage.init(request.result);
       }
       request.onsuccess = (event) => {
-        // console.log('onsuccess', event, request.result)
         resolve(request.result);
       }
     })
