@@ -29,10 +29,17 @@ const SavePassword = (props: SavePasswordProps) => {
       <Typo.Title className={
         classnames(
           styles['step-title'],
-          'mt-[80px]'
+          'mt-[80px]',
+          'w-full'
         )
-      }>Set wallet password</Typo.Title>
-      <section className={'mt-[214px] w-full px-[22px]'}>
+      }>Set <br /> wallet <br /> password</Typo.Title>
+      <Typo.Normal className={classnames(
+        'mt-4',
+        'w-full',
+        'text-base',
+        'text-left')}>Used to unlock your wallet.</Typo.Normal>
+
+      <section className={'mt-12 w-full'}>
         <form onSubmit={handleSubmit(unlock)}>
         <div>
           <Typo.Small className={styles['pwd']}>Password</Typo.Small>
@@ -54,8 +61,8 @@ const SavePassword = (props: SavePasswordProps) => {
           type={'submit'}
           state={'primary'}
           className={classnames(
-            styles['step-button'],
-            'mt-[16px]'
+            'w-full',
+            'mt-8'
           )}
         >
           Next

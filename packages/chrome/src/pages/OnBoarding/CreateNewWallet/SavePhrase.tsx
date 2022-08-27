@@ -15,7 +15,10 @@ type PhraseDisplayProps = Extendable & {
 const PhraseDisplay = (props: PhraseDisplayProps) => {
   function renderPhraseCol(start: number, end: number) {
     return props.phrases.slice(start, end).map((p, index) => (
-      <Typo.Small key={p + index} className={styles['phrase-item']}>{`${index + 1 + start}. ${p}`}</Typo.Small>
+      <div className="block">
+        <p className={classnames('inline-block','text-gray-300','w-4','text-right')}>{`${index + 1 + start}`}</p>
+        <p className={classnames('inline-block', 'ml-3')}>{`${p}`}</p>
+      </div>
     ));
   }
 
@@ -26,15 +29,27 @@ const PhraseDisplay = (props: PhraseDisplayProps) => {
   }
 
   return (
-    <div className={styles['phrase']}>
+    <div className={classnames('flex',
+      'flex-row',
+      'place-content-around',
+      'bg-gray-50',
+      'gap-5',
+      'relative',
+      'rounded-lg',
+      'py-5')}>
       <div>
         {renderPhraseCol(0, 6)}
       </div>
-      <div className={'ml-[69px]'}>
+      <div className={classnames()}>
         {renderPhraseCol(6, 12)}
       </div>
       <CopyIcon
-        className={styles['icon-copy']}
+        
+        className={classnames(
+          'absolute',
+          'right-4',
+          'top-4'
+        )}
         onClick={copyPhrase}
       />
     </div>
@@ -49,10 +64,16 @@ const SavePhrase = (props: CreateWalletStepProps & {
       <Typo.Title className={
         classnames(
           styles['step-title'],
-          'mt-[80px]'
+          'mt-12',
+          'w-full'
         )
-      }>Backup your wallet</Typo.Title>
-      <section className={'mt-[45px] w-full px-[22px]'}>
+      }>Backup <br />your <br />wallet</Typo.Title>
+      <Typo.Normal className={classnames(
+        'mt-2',
+        'w-full',
+        'text-base',
+        'text-left')}>Copy and save your recovery phrase</Typo.Normal>
+      <section className={'mt-[45px] w-full'}>
         <PhraseDisplay phrases={props.phrases}></PhraseDisplay>
         <Button
           state={'primary'}

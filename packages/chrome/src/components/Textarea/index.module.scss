@@ -19,13 +19,13 @@
   line-height: 24px;
 
   background: #FFFFFF;
-  border: 1px solid $gray-300;
+  border: 1px solid $gray-200;
   box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
   border-radius: 8px;
   color: $gray-900;
 
   &::placeholder {
-    color: $gray-500;
+    color: $gray-300;
   }
 
   &:focus {

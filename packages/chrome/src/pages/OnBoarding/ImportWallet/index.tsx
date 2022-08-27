@@ -18,19 +18,22 @@ const ImportWallet = () => {
       <Typo.Title className={
         classnames(
           styles['step-title'],
-          'mt-[80px]'
+          'mt-12',
+          'w-full'
         )
-      }>Import Wallet</Typo.Title>
-
-      <section className={'mt-[32px] w-full px-[22px]'}>
+      }>Import<br/>Your<br/>Wallet</Typo.Title>
+      <Typo.Normal className={classnames(
+        'mt-2',
+        'w-full',
+        'text-base',
+        'text-left')}>Using recovery phrase or secret key</Typo.Normal>
+      <section className={'mt-[32px] w-full'}>
         <div>
-          <Typo.Normal>Recovery Phrase or Private Key</Typo.Normal>
           <Textarea
             className={'mt-[6px]'}
             elClassName={styles['phrase-textarea']}
-            placeholder={'Paste here...'}
+            placeholder={'paste recovery phrase or private key...'}
           />
-          <Typo.Hints className={'mt-[6px]'}>Displayed when you first created your wallet.</Typo.Hints>
         </div>
       </section>
 
