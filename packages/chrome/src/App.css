@@ -3,4 +3,11 @@
   background-color: #fff;
   box-shadow: 0px 20px 24px -4px rgba(58, 76, 112, 0.04),
     0px 8px 8px -4px rgba(58, 76, 112, 0.03);
+
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('./assets/font/worksans/WorkSans-VariableFont_wght.ttf') format("truetype-variations");
+  font-weight: 1 999;
 }

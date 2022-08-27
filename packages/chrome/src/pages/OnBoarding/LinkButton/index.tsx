@@ -25,7 +25,11 @@ const LinkButton = (props: LinkButtonProps) => {
         styles['link-btn'],
         styles[`link-btn--${theme}`],
         props.className)}
-    >{props.children}</button>
+    >
+      {theme === 'primary' ? <img className={classnames(
+      )} src={PlusPrimary}></img> :  <img className={classnames(
+        )} src={PlusSecondary}></img> }
+    {props.children}</button>
   );
 
 
@@ -33,12 +37,6 @@ const LinkButton = (props: LinkButtonProps) => {
   if (type === 'link') {
     return (
       <Link to={props.to || ''} className={'w-full'}>
-         <img className={classnames(
-            'mt-16'
-          )} src={PlusPrimary}></img>
-        {theme === "primary" ?
-          <img src={PlusPrimary} /> :
-          <img src={PlusSecondary}/>}
         {button}
       </Link>
     )
