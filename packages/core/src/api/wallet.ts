@@ -1,5 +1,5 @@
 export interface CreateWalletParams {
-  password: string;
+  token: string;
   mnemonic?: string;
   name?: string;
   avatar?: string;
@@ -9,19 +9,26 @@ export interface Wallet {
   id: string;
   name: string;
   accounts: Array<string>;
-  nextAccountIds: Record<string, number>; // purpose + cointype => index
+  nextAccountId: number;
   avatar?: string;
 }
 
 export interface IWalletApi {
-  generateMnemonic: () => Promise<string>;
-  validateMnemonic: (mnemonic: string) => Promise<void>;
-  revealMnemonic: (walletId: string, password: string) => Promise<string>;
+  validateMnemonic: (mnemonic: string) => boolean;
+  revealMnemonic: (walletId: string, token: string) => Promise<string>;
 
   createWallet: (params: CreateWalletParams) => Promise<Wallet>;
-  validateWalletNumber: () => Promise<void>;
   getWallets: () => Promise<Wallet[]>;
-  getWallet: (walletId: string) => Promise<Wallet>;
-  updateWallet: (walletId: string, meta: { name?: string, avatar?: string; }) => Promise<void>;
-  deleteWallet: (walletId: string) => Promise<void>;
+  getWallet: (walletId: string) => Promise<Wallet | null>;
+  updateWallet: (walletId: string, meta: { name?: string, avatar?: string; }, token: string) => Promise<void>;
+  deleteWallet: (walletId: string, token: string) => Promise<void>;
 }
+
+export function toWalletIdString(id: number): string {
+  return `wallet-${id}`
+}
+
+export function toWalletNameString(id: number): string {
+  return `Wallet #${id}`
+}
+

@@ -8,10 +8,3 @@ type UnsignedTx = {
 	data: Base64DataBuffer,
 	token?: string,
 }
-
-export type Context = {
-	networkId: string,
-	acount: Account,
-	wallet: Wallet,
-	token: Buffer,
-}
