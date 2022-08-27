@@ -11,6 +11,7 @@
     "test:watch": "jest --watch",
     "clean": "rimraf dist/"
   },
+  "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
     "dist"
