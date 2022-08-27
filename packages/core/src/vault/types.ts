@@ -13,6 +13,5 @@ export type Context = {
 	networkId: string,
 	acount: Account,
 	wallet: Wallet,
-	provider: Provider,
-	txnSerializer: TxnDataSerializer,
+	token: Buffer,
 }

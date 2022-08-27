@@ -1,6 +1,7 @@
-import { encryptMnemonic, generateMnemonic } from './mnemoinc';
+import { encryptMnemonic } from './crypto';
 import { Storage } from './storage/Storage';
 import { toWalletIdString, toWalletNameString, Wallet as StorageWallet, Account as StorageAccount, toAccountIdString, toAccountNameString } from './storage/types';
+import * as bip39 from "bip39"
 
 
 export class Wallet {
@@ -13,7 +14,7 @@ export class Wallet {
     }
 
     public static async createAndSave(password: string, storage: Storage): Promise<Wallet> {
-        const mnemonic = generateMnemonic();
+        const mnemonic = bip39.generateMnemonic();
         const encryptedMnemonic = encryptMnemonic(password, mnemonic);
         let meta = await storage.loadMeta();
         const walletId = meta.nextWalletId;
