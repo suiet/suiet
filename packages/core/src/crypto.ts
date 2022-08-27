@@ -1,4 +1,3 @@
-// import "fast-text-encoding"
 import * as bip39 from "@scure/bip39"
 import { Sha256, Pbkdf2HmacSha256 } from "asmcrypto.js"
 import { ModeOfOperation } from "aes-js"
@@ -19,7 +18,6 @@ const WALLET_MASTER_SECRET = "suiet wallet";
 const COIN_TYPE_SUI = '784';
 const PBKDF2_NUM_OF_ITERATIONS = 5000;
 const PBKDF2_KEY_LENGTH = 32;
-const BIP32_ALL_WORDLISTS = bip39AllWordlists();
 
 type Token = {
     token: Buffer,
@@ -27,11 +25,7 @@ type Token = {
 }
 
 export function generateMnemonic(): string {
-    return bip39.generateMnemonic(BIP32_ALL_WORDLISTS);
-}
-
-export function validateMnemonic(mnemonic: string): boolean {
-    return bip39.validateMnemonic(mnemonic, BIP32_ALL_WORDLISTS);
+    return bip39.generateMnemonic(enWordlist);
 }
 
 export function encryptMnemonic(token: Buffer, mnemonic: string): Buffer {
@@ -46,7 +40,7 @@ export function decryptMnemonic(token: Buffer, encryptedMnemonic: string): strin
     const encryptedBytes = Buffer.from(encryptedMnemonic, "hex")
     const mnemonicBytes = aesCtr.decrypt(encryptedBytes);
     const mnemonic = new TextDecoder().decode(mnemonicBytes);
-    if (!bip39.validateMnemonic(mnemonic, BIP32_ALL_WORDLISTS)) {
+    if (!validateMnemonic(mnemonic)) {
         throw new Error("Invalid password")
     }
     return mnemonic
@@ -88,17 +82,24 @@ export function derivationHdPath(id: number) {
     return `m/44'/${COIN_TYPE_SUI}'/${id}'`
 }
 
-function bip39AllWordlists(): string[] {
-    const all = [
-        ...czWordlist,
-        ...enWordlist,
-        ...frWordlist,
-        ...itWordlist,
-        ...jpWordlist,
-        ...krWordlist,
-        ...szhWordlist,
-        ...spWordlist,
-        ...tzhWordlist
-    ]
-    return all;
+const BIP32_ALL_WORDLISTS = [
+    czWordlist,
+    enWordlist,
+    frWordlist,
+    itWordlist,
+    jpWordlist,
+    krWordlist,
+    szhWordlist,
+    spWordlist,
+    tzhWordlist
+]
+
+export function validateMnemonic(mnemonic: string): boolean {
+    for (const wl of BIP32_ALL_WORDLISTS) {
+        if (bip39.validateMnemonic(mnemonic, wl)) {
+            return true;
+        }
+    }
+
+    return false;
 }
