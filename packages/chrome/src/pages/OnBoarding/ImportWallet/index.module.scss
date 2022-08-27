@@ -3,19 +3,23 @@
 .container {
   @apply flex flex-col items-center;
   box-sizing: border-box;
-  width: 362px;
+  width: 298px;
   height: 573px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .container .step-title {
   text-align: center;
+  text-align: left;
+  font-family: 'Work Sans';
   font-style: normal;
-  font-weight: 500;
-  font-size: 30px;
-  line-height: 38px;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 36px;
   color: $gray-900;
 }
 
 .container .phrase-textarea {
-  height: 128px;
+  height: 192px;
 }

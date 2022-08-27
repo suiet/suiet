@@ -9,18 +9,11 @@
 .normal {
   font-style: normal;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 16px;
+  color: $gray-300;
   line-height: 20px;
-  color: $gray-700;
 }
 
-.small {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-  color: $gray-500;
-}
 
 .hints {
   display: block;
