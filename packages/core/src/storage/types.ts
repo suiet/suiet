@@ -5,12 +5,7 @@ export type Wallet = {
     name: string,
     accounts: Array<string>,
     nextAccountId: number,
-    encryptedMnemonic: EncryptedMnemonic,
-}
-
-export type EncryptedMnemonic = {
-    encryptedHex: string,
-    saltHex: string,
+    encryptedMnemonic: string,
 }
 
 export type Account = {
@@ -22,6 +17,12 @@ export type Account = {
 
 export type GlobalMeta = {
     nextWalletId: number,
+    cipher: Cipher,
+}
+
+export type Cipher = {
+    data: string,
+    salt: string,
 }
 
 export type TxnHistroyEntry = {
