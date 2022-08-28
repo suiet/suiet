@@ -1,0 +1,12 @@
+@mixin ellipsis() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin multiline-ellipsis($lineClamp: 2) {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: $lineClamp;
+  -webkit-box-orient: vertical;
+}

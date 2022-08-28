@@ -1,6 +1,7 @@
 @import "../../../styles/variables";
 
 .main-content {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding-bottom: 32px;

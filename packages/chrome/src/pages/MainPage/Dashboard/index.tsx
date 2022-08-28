@@ -10,10 +10,14 @@ import Typo from "../../../components/Typo";
 import TestQrCode from '../../../assets/test-qrcode.png';
 import QRCodeSVG from "qrcode.react";
 import classnames from "classnames";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import toast from "../../../components/toast";
 import {ReactComponent as IconSuccess} from "../../../assets/icons/toast-success.svg";
 import copy from "copy-to-clipboard";
+import {useAccount} from "../../../hooks/useAccount";
+import {useSelector} from "react-redux";
+import {RootState} from "../../../store";
+import {addressEllipsis} from "../../../utils/format";
 
 export type ReceiveButtonProps = {
   address: string;
@@ -55,23 +59,25 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
 }
 
 function MainPage() {
-  const [address, setAddress] = useState('0x2152fabcd01f6');
+  const context = useSelector((state: RootState) => state.appContext)
+  const {account} = useAccount(context.wallId, context.accountId);
 
   return (
     <div className={styles['main-content']}>
       <div className={styles['balance']}>1.002 SUI</div>
       <div className={styles['address']}>
-        <span>0x2152f....01f6</span>   
-        <CopyIcon className={'ml-[5px]'} />
+        <span>{addressEllipsis(account.address)}</span>
+        <CopyIcon className={'ml-[5px]'}
+          copyStr={account.address}
+          onCopied={() => toast.success('Copied Address')}
+        />
       </div>
       <div className={styles['operations']}>
-        <div className={styles['airdrop']} onClick={() => {
-          toast.success('Hi')
-        }}>
+        <div className={styles['airdrop']} onClick={() => {}}>
           <img src={IconDownDouble} className={styles['icon']} />
           Airdrop
         </div>
-        <ReceiveButton address={address} />
+        <ReceiveButton address={account.address} />
         <Link to={'/send'}>
           <div className={styles['send']}>
             <img src={IconTrendUp} className={styles['icon']} />

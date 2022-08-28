@@ -1,6 +1,9 @@
 export interface Account {
+  id: string;
   name: string;
   address: string;
+  pubkey: string;
+  hdPath: string;
 }
 
 export interface IAccountApi {
@@ -16,5 +19,5 @@ export function toAccountIdString(walletId: string, id: number): string {
 }
 
 export function toAccountNameString(walletName: string, id: number): string {
-  return `${walletName} Account #${id}`
+  return `Account #${id}`
 }

@@ -19,9 +19,22 @@ const initialState: AppContextState = {
 // thunks
 export const resetAppContext = createAsyncThunk('appContext/reset',
   async (_, thunkApi) => {
-    console.log('thunk api called')
     await thunkApi.dispatch(updateInitialized(false));
     await thunkApi.dispatch(updateToken(''));
+    await thunkApi.dispatch(updateAccountId(''));
+    await thunkApi.dispatch(updateWalletId(''));
+    await thunkApi.dispatch(updateNetworkId(''));
+    // db clear
+  }
+)
+
+export const initAppContext = createAsyncThunk('appContext/reset',
+  async (_, thunkApi) => {
+    await thunkApi.dispatch(updateInitialized(false));
+    await thunkApi.dispatch(updateToken(''));
+    await thunkApi.dispatch(updateAccountId(''));
+    await thunkApi.dispatch(updateWalletId(''));
+    await thunkApi.dispatch(updateNetworkId(''));
     // db clear
   }
 )
