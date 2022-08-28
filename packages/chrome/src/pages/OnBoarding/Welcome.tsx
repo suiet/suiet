@@ -30,7 +30,7 @@ const Welcome = () => {
             'mt-8',
             'text-gray-200',
           )
-        }>Welcome</Typo.Title>
+        }>Welcome to</Typo.Title>
         <Typo.Title className={
           classnames(
             styles['suiet-title'],

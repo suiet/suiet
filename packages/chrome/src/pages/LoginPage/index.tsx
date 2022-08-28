@@ -40,7 +40,7 @@ const LoginPage = () => {
             <Input
               {...register('password', getPasswordValidation())}
               className={'mt-[6px]'}
-              placeholder={'Please enter the password'}
+              placeholder={'Set up your wallet password'}
             />
             <ErrorMessage
               errors={formState.errors}
