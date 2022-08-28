@@ -1,6 +1,9 @@
 export interface Account {
+  id: string;
   name: string;
   address: string;
+  pubkey: string;
+  hdPath: string;
 }
 
 export interface IAccountApi {

@@ -4,7 +4,7 @@ import './App.css';
 import {ToastContainer} from "react-toastify";
 import './styles/react-toastify.scss';
 
-import AppLayout from './components/AppLayout';
+import AppLayout from './pages/AppLayout';
 import {withSus} from './components/TheSuspense';
 import RequireAuth from "./components/RequireInit";
 import {getWallets} from "./utils/mock";
