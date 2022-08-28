@@ -64,7 +64,7 @@ function MainPage() {
 
   return (
     <div className={styles['main-content']}>
-      <div className={styles['balance']}>1.002 SUI</div>
+      <div className={styles['balance']}>1000 SUI</div>
       <div className={styles['address']}>
         <span>{addressEllipsis(account.address)}</span>
         <CopyIcon className={'ml-[5px]'}

@@ -6,13 +6,21 @@ import Network from './network';
 import Security from './security';
 import {useDispatch, useSelector} from "react-redux";
 import {resetAppContext} from "../../store/app-context";
-import {AppDispatch, RootState} from "../../store";
-import {coreApi} from "@suiet/core";
+import {AppDispatch} from "../../store";
+import { useAccount } from "../../hooks/useAccount";
+import { RootState } from "../../store";
+import CopyIcon from "../../components/CopyIcon";
+import toast from "../../components/toast";
+import { addressEllipsis } from "../../utils/format";
+import { coreApi } from "@suiet/core";
 
 function SettingPage() {
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
+  const context = useSelector((state: RootState) => state.appContext)
+  const {account} = useAccount(context.wallId, context.accountId);
+
 
   async function handleResetApp() {
     await coreApi.resetAppData(token)
@@ -21,6 +29,13 @@ function SettingPage() {
 
   return (
     <div className="settings-container">
+      <div className='address'>
+        <span>{addressEllipsis(account.address)}</span>
+        <CopyIcon className={'ml-[5px]'}
+          copyStr={account.address}
+          onCopied={() => toast.success('Copied Address')}
+        />
+      </div>
       <Routes>
         <Route
           path="/"

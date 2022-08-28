@@ -2,11 +2,13 @@
 
 .overlay {
   position: absolute;
+  top:0;
   display: flex;
   justify-content: center;
   align-items: center;
   width: $full-width;
   height: $full-height;
+  margin: auto;
 }
 
 .content {
