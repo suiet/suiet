@@ -3,6 +3,35 @@
     padding: 17px 21px 0;
   }
 
+  &-avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    gap: 10px;
+
+    width: 64px;
+    height: 82px;
+
+    background: #ffffff;
+
+    border: 1px solid #eaecf0;
+    border-radius: 8px;
+
+    &.active {
+      .wallet-check {
+        background-image: url('./assets/check.svg');
+      }
+    }
+  }
+
+  &-check {
+    width: 16px;
+    height: 16px;
+    background: url(./assets/not-check.svg) no-repeat center;
+    background-size: contain;
+  }
+
   &-item-title {
     font-weight: 500;
     font-size: 14px;
