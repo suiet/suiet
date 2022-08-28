@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Suiet Wallet",
-  "description": "An awesome wallet for Sui",
-  "version": "1.0.0",
+  "name": "Suiet",
+  "description": "The wallet for everyone, built on Sui blockchain",
+  "version": "0.0.1",
   "icons": {
     "128": "logo.png"
   },
