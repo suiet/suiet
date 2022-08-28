@@ -5,26 +5,40 @@ import json from "@rollup/plugin-json";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 import {defineConfig} from "rollup";
 import { babel } from '@rollup/plugin-babel';
+import { terser } from "rollup-plugin-terser";
 import * as path from "path";
 
-export default defineConfig({
+const config = defineConfig({
   input: 'src/index.ts',
   output: {
-    format: 'es',
     dir: 'dist',
+    format: 'es',
   },
   plugins: [
+    // polyfill nodejs built-in and global modules
     nodePolyfills(),
+    // fetch node_modules contents
     resolvePlugin({
-      browser: true,
+      browser: true,  // specify that it's built for browser
     }),
+    // compile ts files
     typescript({
       tsconfig: path.resolve(__dirname, 'tsconfig.json')
     }),
+    // convert commonjs module to es module for rollup to bundle
     cjs2es(), // must place before babel
+    // compile js to es5 compatible, friendly to browsers
     babel({
-      babelHelpers: 'bundled'
+      babelHelpers: 'bundled',
+      exclude: '**/node_modules/**'
     }),
+    // enable json loading
     json(),
   ]
 })
+
+if (process.env.NODE_ENV === 'production') {
+  config.plugins.push(terser());  // minify output files
+}
+
+export default config;
