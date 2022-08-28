@@ -40,7 +40,7 @@ export class IndexedDBStorage implements Storage {
       (db) => new Promise((resolve, reject) => {
         const request = db.transaction([StoreName.WALLETS], 'readwrite')
           .objectStore(StoreName.WALLETS)
-          .add(wallet, id);
+          .add(wallet);
 
         request.onsuccess = (event) => {
           resolve();
@@ -53,7 +53,20 @@ export class IndexedDBStorage implements Storage {
   }
 
   updateWallet(id: string, wallet: Wallet): Promise<void> {
-    return this.addWallet(id, wallet);
+    return this.connection.then(
+      (db) => new Promise((resolve, reject) => {
+        const request = db.transaction([StoreName.WALLETS], 'readwrite')
+          .objectStore(StoreName.WALLETS)
+          .put(wallet);
+
+        request.onsuccess = (event) => {
+          resolve();
+        }
+        request.onerror = (event) => {
+          reject(event);
+        }
+      })
+    );
   }
 
   deleteWallet(id: string): Promise<void> {
@@ -113,7 +126,7 @@ export class IndexedDBStorage implements Storage {
       (db) => new Promise((resolve, reject) => {
         const request = db.transaction([StoreName.ACCOUNTS], 'readwrite')
           .objectStore(StoreName.ACCOUNTS)
-          .add({ walletId, account }, accountId);
+          .add(account);
 
         request.onsuccess = (event) => {
           resolve();
@@ -126,7 +139,20 @@ export class IndexedDBStorage implements Storage {
   }
 
   updateAccount(walletId: string, accountId: string, account: Account): Promise<void> {
-    return this.addAccount(walletId, accountId, account)
+    return this.connection.then(
+      (db) => new Promise((resolve, reject) => {
+        const request = db.transaction([StoreName.ACCOUNTS], 'readwrite')
+          .objectStore(StoreName.ACCOUNTS)
+          .put(account);
+
+        request.onsuccess = (event) => {
+          resolve();
+        }
+        request.onerror = (event) => {
+          reject(event);
+        }
+      })
+    );
   }
 
   deleteAccount(walletId: string, accountId: string): Promise<void> {
@@ -175,7 +201,7 @@ export class IndexedDBStorage implements Storage {
           wallet.accounts.forEach((aId) => {
             const getAccountRequest = accountStore.get(aId);
             getAccountRequest.onsuccess = (event) => {
-              const account = getWalletRequest.result as Account;
+              const account = getAccountRequest.result as Account;
               if (typeof wallet === 'undefined') {
                 reject(new Error('Failed to get accounts, data potentially inconsistent.'));
               }
@@ -266,7 +292,7 @@ export class IndexedDBStorage implements Storage {
     accountId: string,
   ): void {
     wallet.accounts = wallet.accounts.filter((aId) => aId !== accountId);
-    transaction.objectStore(StoreName.WALLETS).put(wallet, wallet.id);
+    transaction.objectStore(StoreName.WALLETS).put(wallet);
     transaction.objectStore(StoreName.ACCOUNTS).delete(accountId);
   }
 }

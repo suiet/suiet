@@ -21,7 +21,7 @@ export class Vault {
 
     public getAddress(): string {
         const publicHash = new SHA3(256).update(this.hdKey.getPublicKey()).digest()
-        return Buffer.from(publicHash.slice(0, 20)).toString('hex')
+        return "0x" + Buffer.from(publicHash.slice(0, 20)).toString('hex')
     }
 
     public getPublicKey(): string {

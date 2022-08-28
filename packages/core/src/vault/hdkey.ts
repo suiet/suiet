@@ -22,7 +22,7 @@ export class Ed25519HdKey {
     }
 
     public getPublicKey(): Buffer {
-        return this.keyPair.getPublic()
+        return Buffer.from(this.keyPair.getPublic())
     }
 
     public getPublicHexString(): string {
@@ -51,7 +51,7 @@ export class Ed25519HdKey {
         const parts = path.replace(/^[mM]'?\//, '').split('/');
         let key: Ed25519HdKey = this;
 
-        parts.forEach(async (part) => {
+        for (const part of parts) {
             const m = /^(\d+)('?)$/.exec(part);
             if (!m || m.length !== 3) {
                 throw new Error(`Invalid child index: ${part}`);
@@ -60,7 +60,7 @@ export class Ed25519HdKey {
                 ? parseInt(m[1]) + 2 ** 31
                 : parseInt(m[1]);
             key = await key.deriveChild(idx);
-        })
+        }
 
         return key;
     }
