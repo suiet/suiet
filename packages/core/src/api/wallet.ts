@@ -1,11 +1,11 @@
-export interface CreateWalletParams {
+export type CreateWalletParams = {
   token: string;
   mnemonic?: string;
   name?: string;
   avatar?: string;
 }
 
-export interface Wallet {
+export type Wallet = {
   id: string;
   name: string;
   accounts: Array<string>;

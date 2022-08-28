@@ -146,7 +146,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     if (meta.name) {
       account.name = meta.name;
     }
-    await this.storage.updateWallet
+    await this.storage.updateAccount(walletId, accountId, account);
   }
 
   async getAccounts(walletId: string): Promise<Account[]> {
