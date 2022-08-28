@@ -1,27 +1,25 @@
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
 import {updateToken} from "../store/app-context";
-import {useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
+import {coreApi} from "@suiet/core";
 
-function requestToken(password: string): string {
-  return 'TOKEN'; // TODO
-}
-
-function validateToken(token: string): boolean {
-  return token !== ''; // TODO
+function validateToken(token: unknown) {
+  return typeof token === 'string' && token !== '';
 }
 
 export function useAuth() {
   const token = useSelector((state: RootState) => state.appContext.token)
-  const isAuthed = useMemo(() => validateToken(token), [token])
+  const isAuthed = useMemo(() => validateToken(token), [token]);
   const dispatch = useDispatch();
 
   return {
     token,
     isAuthed,
-    login: async (password: string) => {
-      const token = requestToken(password);
+    login: async function (password: string): Promise<string> {
+      const token = await coreApi.loadTokenWithPassword(password);
       await dispatch(updateToken(token));
+      return token;
     },
     logout: async () => {
       await dispatch(updateToken(''));

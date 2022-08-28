@@ -2,6 +2,8 @@ import { Account, GlobalMeta, Wallet } from "./types";
 import { Storage } from "./Storage";
 
 const GLOBAL_META_ID = 'suiet-meta';
+const DB_NAME = 'Suiet'
+const DB_VERSION = 4
 
 enum StoreName {
   META = 'meta',
@@ -13,8 +15,12 @@ export class IndexedDBStorage implements Storage {
   private readonly connection: Promise<IDBDatabase>;
 
   constructor() {
-    this.connection = new Promise((resolve, reject) => {
-      const request = indexedDB.open('Suiet', 4);
+    this.connection = IndexedDBStorage.openDbConnection();
+  }
+
+  static openDbConnection(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = (event) => {
         console.error(event);
@@ -229,8 +235,6 @@ export class IndexedDBStorage implements Storage {
           .get(accountId);
 
         request.onsuccess = (event) => {
-          console.log('accountId', accountId)
-          console.log('request.result', request.result)
           resolve(request.result);
         }
         request.onerror = (event) => {
@@ -243,7 +247,7 @@ export class IndexedDBStorage implements Storage {
   loadMeta(): Promise<GlobalMeta> {
     return this.connection.then(
       (db) => new Promise((resolve, reject) => {
-        const request = db.transaction([StoreName.META], 'readwrite')
+        const request = db.transaction([StoreName.META])
           .objectStore(StoreName.META)
           .get(GLOBAL_META_ID);
 
@@ -285,6 +289,40 @@ export class IndexedDBStorage implements Storage {
           reject(event);
         }
       })
+    );
+  }
+
+  clearMeta(): Promise<void> {
+    return this.connection.then(
+      (db) => new Promise((resolve, reject) => {
+        const request = db.transaction([StoreName.META], 'readwrite')
+          .objectStore(StoreName.META)
+          .delete(GLOBAL_META_ID);
+
+        request.onsuccess = (event) => {
+          resolve(request.result);
+        }
+        request.onerror = (event) => {
+          reject(event);
+        }
+      })
+    );
+  }
+
+  reset(): Promise<void> {
+    return this.connection.then(
+      (db) =>
+        new Promise((resolve, reject) => {
+          db.close();
+          const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
+          deleteRequest.onerror = (event) => {
+            reject(new Error('Failed to delete db.'));
+          };
+          deleteRequest.onsuccess = (event) => {
+            console.log('db deleted', event)
+            resolve();
+          };
+        })
     );
   }
 
