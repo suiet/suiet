@@ -19,5 +19,5 @@ export function toAccountIdString(walletId: string, id: number): string {
 }
 
 export function toAccountNameString(walletName: string, id: number): string {
-  return `${walletName} Account #${id}`
+  return `Account #${id}`
 }
