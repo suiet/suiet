@@ -12,7 +12,7 @@ const TokenItem = () => {
       <div className="flex items-center">
         <TokenIcon icon={IconWaterDrop} alt="water-drop" />
         <strong className={classnames(styles['token-name'], 'ml-[12px]')}>SUI</strong>
-        <p className={classnames(styles['token-amonut'], 'ml-[120px]')}>1.002</p>
+        <p className={classnames(styles['token-amonut'], 'ml-[120px]')}>1000</p>
       </div>
     </div>
   )

@@ -9,6 +9,7 @@
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
+    "dev:install": "npm run build -w @suiet/core && npm run build -w @suiet/chrome-ext",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
