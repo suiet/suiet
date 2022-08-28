@@ -13,7 +13,6 @@ export function useAccount(walletId: string, accountId: string) {
 
   async function fetchAccount(walletId: string, accountId: string) {
     const account = await coreApi.getAccount(walletId, accountId);
-    console.log('fetchAccount', account)
     if (!account) {
       throw new Error('fetch account failed');
     }
