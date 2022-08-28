@@ -18,10 +18,15 @@ type FormData = {
 }
 
 const SavePassword = (props: SavePasswordProps) => {
-  const {register, handleSubmit, formState} = useForm<FormData>()
+  const {register, handleSubmit, formState} = useForm<FormData>({
+    mode: 'onChange',
+    defaultValues: {
+      password: ''
+    }
+  })
 
   async function unlock(data: FormData) {
-    props.onNext('123456')
+    props.onNext(data.password);
   }
 
   return (
@@ -44,7 +49,15 @@ const SavePassword = (props: SavePasswordProps) => {
         <div>
           <Typo.Small className={styles['pwd']}>Password</Typo.Small>
           <Input
-            {...register('password', getPasswordValidation())}
+            {...register('password', {
+              required: 'Password should not be empty',
+              validate: (val: string) => {
+                const result = val.length < 6 ? 'Password should be longer than 6' : true
+                console.log('validate', result)
+                return result
+              }
+            })}
+            type={'password'}
             state={getInputStateByFormState(formState, 'password')}
             className={'mt-[6px]'}
             placeholder={'Please enter the password'}

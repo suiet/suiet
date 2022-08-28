@@ -38,7 +38,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   }
 
   async createWallet(params: CreateWalletParams): Promise<Wallet> {
-    validateToken(this.storage, params.token);
+    await this.validateToken(params.token);
     let mnemonic;
     if (params.mnemonic) {
       mnemonic = params.mnemonic;
@@ -91,7 +91,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   }
 
   async updateWallet(walletId: string, meta: { name?: string | undefined; avatar?: string | undefined; }, token: string) {
-    validateToken(this.storage, token);
+    await this.validateToken(token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error("Wallet Not Exist")
@@ -105,13 +105,13 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   }
 
   async deleteWallet(walletId: string, token: string) {
-    validateToken(this.storage, token);
+    await this.validateToken(token);
     return await this.storage.deleteWallet(walletId);
   }
 
   // Implement Account API
   async createAccount(walletId: string, token: string): Promise<Account> {
-    validateToken(this.storage, token);
+    await this.validateToken(token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error("Wallet Not Exist")
@@ -138,7 +138,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   }
 
   async updateAccount(walletId: string, accountId: string, meta: { name?: string | undefined; }, token: string): Promise<void> {
-    validateToken(this.storage, token);
+    await this.validateToken(token);
     let account = await this.storage.getAccount(walletId, accountId);
     if (!account) {
       throw new Error("Account Not Exist");
@@ -158,7 +158,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   }
 
   async removeAccount(walletId: string, accountId: string, token: string): Promise<void> {
-    validateToken(this.storage, token);
+    await this.validateToken(token);
     return await this.storage.deleteAccount(walletId, accountId);
   }
 
@@ -198,6 +198,28 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
       throw new Error("Invalid password");
     }
     return token.toString('hex')
+  }
+
+  async clearToken() {
+    const meta = await this.storage.loadMeta();
+    if (!meta) return;
+
+    try {
+      await this.storage.clearMeta();
+    } catch (e) {
+      console.error(e);
+      throw new Error('Clear meta failed')
+    }
+  }
+
+  async resetAppData(token: string) {
+    await this.validateToken(token);
+    await this.storage.reset();
+    this.storage = getStorage() as Storage;
+  }
+
+  async validateToken(token: string) {
+    return validateToken(this.storage, token);
   }
 }
 

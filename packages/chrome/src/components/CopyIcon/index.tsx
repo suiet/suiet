@@ -1,4 +1,4 @@
-import React from "react";
+import React, {CSSProperties, useCallback} from "react";
 import classnames from "classnames";
 import {ReactComponent as IconCopy} from "../../assets/icons/copy.svg";
 import {Extendable} from "../../types";
@@ -9,24 +9,32 @@ const CopyIcon = (props: Extendable & {
   copyStr?: string;
   onClick?: () => void;
   onCopied?: () => void;
+  elClassName?: string;
+  elStyle?: CSSProperties;
 }) => {
+  const {copyStr = '', onCopied, onClick} = props;
 
-  const handleClick = () => {
-    if (props.onClick) return props.onClick();
-    if (!props.copyStr) return;
-    copy(props.copyStr);
-    if (props.onCopied) props.onCopied();
-  }
+  const handleClick = useCallback(() => {
+    if (onClick) return onClick();
+    if (!copyStr) return;
+    copy(copyStr);
+    if (onCopied) onCopied();
+  }, [copyStr, onCopied, onClick]);
 
   return (
-    <IconCopy
-      {...props}
+    <div
       onClick={handleClick}
-      className={classnames(
-        styles['icon-copy'],
-        props.className
-      )}
-    />
+      className={props.className}
+      style={props.style}
+    >
+      <IconCopy
+        className={classnames(
+          styles['icon-copy'],
+          props.elClassName
+        )}
+        style={props.elStyle}
+      />
+    </div>
   )
 }
 
