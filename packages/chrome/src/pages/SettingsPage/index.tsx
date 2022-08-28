@@ -4,15 +4,18 @@ import Wallet from './wallet';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Network from './network';
 import Security from './security';
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {resetAppContext} from "../../store/app-context";
-import {AppDispatch} from "../../store";
+import {AppDispatch, RootState} from "../../store";
+import {coreApi} from "@suiet/core";
 
 function SettingPage() {
   const navigate = useNavigate();
+  const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
 
   async function handleResetApp() {
+    await coreApi.resetAppData(token)
     await dispatch(resetAppContext()).unwrap();
   }
 

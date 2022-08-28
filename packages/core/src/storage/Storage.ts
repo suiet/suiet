@@ -19,6 +19,9 @@ export interface Storage {
 
     loadMeta(): Promise<GlobalMeta | null>;
     saveMeta(meta: GlobalMeta): Promise<void>;
+    clearMeta(): Promise<void>;
+
+    reset(): Promise<void>;
 }
 
 export function getStorage(): Storage | undefined {

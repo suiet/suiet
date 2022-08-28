@@ -9,6 +9,7 @@ import {useForm} from 'react-hook-form'
 import {ErrorMessage} from "@hookform/error-message";
 import React from "react";
 import {getPasswordValidation} from "../../utils/form";
+import Button from "../../components/Button";
 
 type FormData = {
   password: string;
@@ -39,6 +40,7 @@ const LoginPage = () => {
             <Typo.Small className={styles['pwd']}>Password</Typo.Small>
             <Input
               {...register('password', getPasswordValidation())}
+              type={'password'}
               className={'mt-[6px]'}
               placeholder={'Please enter the password'}
             />
@@ -50,16 +52,16 @@ const LoginPage = () => {
               )}
             />
           </div>
-          <LinkButton
+          <Button
             type={'submit'}
-            theme={'primary'}
+            state={'primary'}
             className={classnames(
               styles['step-button'],
               'mt-[16px]'
             )}
           >
             Unlock
-          </LinkButton>
+          </Button>
         </form>
       </section>
     </div>
