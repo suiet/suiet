@@ -229,6 +229,8 @@ export class IndexedDBStorage implements Storage {
           .get(accountId);
 
         request.onsuccess = (event) => {
+          console.log('accountId', accountId)
+          console.log('request.result', request.result)
           resolve(request.result);
         }
         request.onerror = (event) => {

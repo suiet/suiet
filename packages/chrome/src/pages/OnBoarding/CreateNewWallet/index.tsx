@@ -21,19 +21,15 @@ const CreateNewWallet = () => {
   async function handleSetPassword(password: string) {
     await coreApi.updatePassword(null, password);
     const token = await coreApi.loadTokenWithPassword(password);
-    console.log('token', token)
 
     const wallet = await coreApi.createWallet({
       token: token,
     })
-    console.log('wallet', wallet)
 
     const rawPhrases = await coreApi.revealMnemonic(wallet.id, token);
-    console.log('rawPhrases', rawPhrases)
     setPhrases(rawPhrases.split(' '));
 
     const accounts = await coreApi.getAccounts(wallet.id);
-    console.log('accounts', accounts)
     if (!isNonEmptyArray(accounts)) {
       toast.success('Cannot find any account')
       throw new Error('Cannot find any account');
@@ -41,7 +37,7 @@ const CreateNewWallet = () => {
     const defaultAccount = accounts[0];
 
     await dispatch(updateToken(token));
-    await dispatch(updateAccountId(defaultAccount.address))
+    await dispatch(updateAccountId(defaultAccount.id))
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateInitialized(true));
 
