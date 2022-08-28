@@ -57,10 +57,11 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     const accountIdStr = toAccountIdString(walletIdStr, 0);
     const wallet = {
       id: toWalletIdString(walletId),
-      name: toWalletNameString(walletId),
+      name: params.name ? params.name : toWalletNameString(walletId),
       accounts: [accountIdStr],
       nextAccountId: 1,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
+      avatar: params.avatar ? params.avatar : undefined
     }
     const hdPath = crypto.derivationHdPath(0);
     const vault = await Vault.create(hdPath, token, wallet.encryptedMnemonic);
@@ -132,7 +133,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     }
     // TODO: save these states transactionally.
     await this.storage.addAccount(wallet.id, account.id, account)
-    await this.storage.addWallet(wallet.id, wallet)
+    await this.storage.updateWallet(wallet.id, wallet)
     return account;
   }
 

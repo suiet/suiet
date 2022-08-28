@@ -3,7 +3,7 @@ import typescript from "@rollup/plugin-typescript";
 import cjs2es from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import nodePolyfills from "rollup-plugin-polyfill-node";
-import {defineConfig} from "rollup";
+import { defineConfig } from "rollup";
 import { babel } from '@rollup/plugin-babel';
 import { terser } from "rollup-plugin-terser";
 import * as path from "path";
