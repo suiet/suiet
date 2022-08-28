@@ -8,7 +8,7 @@ export const success = (content: string, options?: ToastOptions) => {
     closeButton: false,
     icon: <IconSuccess />,
     hideProgressBar: true,
-    autoClose: 3000,
+    autoClose: 2000,
     ...options,
   })
 };

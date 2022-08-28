@@ -10,4 +10,5 @@ type Network = {
 export interface INetworkApi {
   getNetworks: (enabledOnly: boolean) => Promise<Array<Network>>;
   getNetwork: (networkId: string) => Promise<Network>;
+  addCustomNetwork: (network: Network) => Promise<void>;
 }
