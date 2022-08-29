@@ -102,6 +102,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     if (meta.avatar) {
       wallet.avatar = meta.avatar;
     }
+    return await this.storage.updateWallet(walletId, wallet);
   }
 
   async deleteWallet(walletId: string, token: string) {
