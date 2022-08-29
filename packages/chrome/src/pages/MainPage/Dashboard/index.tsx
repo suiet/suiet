@@ -34,7 +34,7 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
       )}
       trigger={(
         <div className={styles['receive']}>
-          <img src={IconQrCode} className={styles['icon']} />
+          {/* <img src={IconQrCode} className={styles['icon']} /> */}
           <span>Receive</span>
         </div>
       )}
@@ -74,13 +74,13 @@ function MainPage() {
       </div>
       <div className={styles['operations']}>
         <div className={styles['airdrop']} onClick={() => {}}>
-          <img src={IconDownDouble} className={styles['icon']} />
+          {/* <img src={IconDownDouble} className={styles['icon']} /> */}
           Airdrop
         </div>
         <ReceiveButton address={account.address} />
         <Link to={'/send'}>
           <div className={styles['send']}>
-            <img src={IconTrendUp} className={styles['icon']} />
+            {/* <img src={IconTrendUp} className={styles['icon']} /> */}
             Send
           </div>
         </Link>

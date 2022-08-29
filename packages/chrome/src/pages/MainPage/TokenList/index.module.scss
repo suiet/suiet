@@ -4,17 +4,16 @@ $icon-size: 40px;
 
 .token-item {
   @apply box-border flex items-center;
-  height: 72px;
-  padding: 0 24px;
-  border-bottom: 1px solid #EFF1F5;
-  
-  &:first-of-type {
-    border-top: 1px solid #EFF1F5;
-  }
+  padding: 24px;
+  margin: 12px 12px;
+
+  background: $primary-25;
+  border-radius: 16px;
+  transition: 0.2s;
 
   &:hover {
     /* Gray/50 */
-    background: #F9FAFB;
+    background: $primary-50;
   }
 }
 

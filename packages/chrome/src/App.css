@@ -2,6 +2,7 @@ body {
   background-color: rgba(0, 0, 0, 0.05);
   position: relative;
   font-family: 'Work Sans';
+  font-size: 14px;
 }
 .app {
   position: relative;
