@@ -1,11 +1,22 @@
-import { CreateWalletParams, IWalletApi, toWalletIdString, toWalletNameString, Wallet } from "./wallet";
-import { Account, IAccountApi, toAccountIdString, toAccountNameString } from "./account";
-import { INetworkApi } from "./network";
-import { IAuthApi } from "./auth";
-import { Storage, getStorage } from "../storage/Storage"
-import { Vault } from "../vault/Vault";
-import { Buffer } from "buffer"
-import * as crypto from "../crypto"
+import {
+  CreateWalletParams,
+  IWalletApi,
+  toWalletIdString,
+  toWalletNameString,
+  Wallet,
+} from './wallet';
+import {
+  Account,
+  IAccountApi,
+  toAccountIdString,
+  toAccountNameString,
+} from './account';
+import { INetworkApi } from './network';
+import { IAuthApi } from './auth';
+import { Storage, getStorage } from '../storage/Storage';
+import { Vault } from '../vault/Vault';
+import { Buffer } from 'buffer';
+import * as crypto from '../crypto';
 
 export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   storage: Storage;
@@ -19,7 +30,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   public static newApi(): CoreApi {
     const storage = getStorage();
     if (!storage) {
-      throw new Error("Platform not supported");
+      throw new Error('Platform not supported');
     }
     return new CoreApi(storage);
   }
@@ -32,9 +43,12 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   async revealMnemonic(walletId: string, token: string): Promise<string> {
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error("Wallet Not Exist")
+      throw new Error('Wallet Not Exist');
     }
-    return crypto.decryptMnemonic(Buffer.from(token, "hex"), wallet.encryptedMnemonic)
+    return crypto.decryptMnemonic(
+      Buffer.from(token, 'hex'),
+      wallet.encryptedMnemonic
+    );
   }
 
   async createWallet(params: CreateWalletParams): Promise<Wallet> {
@@ -45,15 +59,15 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     } else {
       mnemonic = crypto.generateMnemonic();
     }
-    const token = Buffer.from(params.token, "hex")
+    const token = Buffer.from(params.token, 'hex');
     const encryptedMnemonic = crypto.encryptMnemonic(token, mnemonic);
     let meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error("Password not initialized")
+      throw new Error('Password not initialized');
     }
     const walletId = meta.nextWalletId;
     meta.nextWalletId += 1;
-    const walletIdStr = toWalletIdString(walletId)
+    const walletIdStr = toWalletIdString(walletId);
     const accountIdStr = toAccountIdString(walletIdStr, 0);
     const wallet = {
       id: toWalletIdString(walletId),
@@ -61,8 +75,8 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
       accounts: [accountIdStr],
       nextAccountId: 1,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
-      avatar: params.avatar ? params.avatar : undefined
-    }
+      avatar: params.avatar ? params.avatar : undefined,
+    };
     const hdPath = crypto.derivationHdPath(0);
     const vault = await Vault.create(hdPath, token, wallet.encryptedMnemonic);
     this.vaults[accountIdStr] = vault;
@@ -72,12 +86,12 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
       pubkey: vault.getPublicKey(),
       address: vault.getAddress(),
       hdPath: hdPath,
-    }
+    };
 
     // TODO: save these states transactionally.
     await this.storage.saveMeta(meta);
-    await this.storage.addAccount(wallet.id, account.id, account)
-    await this.storage.addWallet(wallet.id, wallet)
+    await this.storage.addAccount(wallet.id, account.id, account);
+    await this.storage.addWallet(wallet.id, wallet);
 
     return wallet;
   }
@@ -87,14 +101,18 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
   }
 
   async getWallet(walletId: string): Promise<Wallet | null> {
-    return await this.storage.getWallet(walletId)
+    return await this.storage.getWallet(walletId);
   }
 
-  async updateWallet(walletId: string, meta: { name?: string | undefined; avatar?: string | undefined; }, token: string) {
+  async updateWallet(
+    walletId: string,
+    meta: { name?: string | undefined; avatar?: string | undefined },
+    token: string
+  ) {
     await this.validateToken(token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error("Wallet Not Exist")
+      throw new Error('Wallet Not Exist');
     }
     if (meta.name) {
       wallet.name = meta.name;
@@ -115,7 +133,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     await this.validateToken(token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error("Wallet Not Exist")
+      throw new Error('Wallet Not Exist');
     }
 
     const accountId = wallet.nextAccountId;
@@ -123,7 +141,11 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     const accountIdStr = toAccountIdString(wallet.id, accountId);
     const hdPath = crypto.derivationHdPath(accountId);
     wallet.accounts.push(accountIdStr);
-    const vault = await Vault.create(hdPath, Buffer.from(token, "hex"), wallet.encryptedMnemonic);
+    const vault = await Vault.create(
+      hdPath,
+      Buffer.from(token, 'hex'),
+      wallet.encryptedMnemonic
+    );
     this.vaults[accountIdStr] = vault;
     const account = {
       id: accountIdStr,
@@ -131,18 +153,23 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
       pubkey: vault.getPublicKey(),
       address: vault.getAddress(),
       hdPath: hdPath,
-    }
+    };
     // TODO: save these states transactionally.
-    await this.storage.addAccount(wallet.id, account.id, account)
-    await this.storage.updateWallet(wallet.id, wallet)
+    await this.storage.addAccount(wallet.id, account.id, account);
+    await this.storage.updateWallet(wallet.id, wallet);
     return account;
   }
 
-  async updateAccount(walletId: string, accountId: string, meta: { name?: string | undefined; }, token: string): Promise<void> {
+  async updateAccount(
+    walletId: string,
+    accountId: string,
+    meta: { name?: string | undefined },
+    token: string
+  ): Promise<void> {
     await this.validateToken(token);
     let account = await this.storage.getAccount(walletId, accountId);
     if (!account) {
-      throw new Error("Account Not Exist");
+      throw new Error('Account Not Exist');
     }
     if (meta.name) {
       account.name = meta.name;
@@ -154,27 +181,37 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     return await this.storage.getAccounts(walletId);
   }
 
-  async getAccount(walletId: string, accountId: string): Promise<Account | null> {
+  async getAccount(
+    walletId: string,
+    accountId: string
+  ): Promise<Account | null> {
     return await this.storage.getAccount(walletId, accountId);
   }
 
-  async removeAccount(walletId: string, accountId: string, token: string): Promise<void> {
+  async removeAccount(
+    walletId: string,
+    accountId: string,
+    token: string
+  ): Promise<void> {
     await this.validateToken(token);
     return await this.storage.deleteAccount(walletId, accountId);
   }
 
   // Implement Auth API
-  async updatePassword(oldPassword: string | null, newPassword: string): Promise<void> {
+  async updatePassword(
+    oldPassword: string | null,
+    newPassword: string
+  ): Promise<void> {
     const meta = await this.storage.loadMeta();
     if (meta) {
       // Verify old password before update.
       if (!oldPassword) {
-        throw new Error("Empty old password")
+        throw new Error('Empty old password');
       }
-      const currentSalt = Buffer.from(meta.cipher.salt, "hex")
+      const currentSalt = Buffer.from(meta.cipher.salt, 'hex');
       const currentToken = crypto.password2Token(oldPassword, currentSalt);
       if (!crypto.validateToken(currentToken, meta.cipher)) {
-        throw new Error("Invalid old password");
+        throw new Error('Invalid old password');
       }
     }
     const { cipher } = crypto.newToken(newPassword);
@@ -185,20 +222,20 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     if (meta) {
       newMeta.nextWalletId = meta.nextWalletId;
     }
-    await this.storage.saveMeta(newMeta)
+    await this.storage.saveMeta(newMeta);
   }
 
   async loadTokenWithPassword(password: string): Promise<string> {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error("Password uninitialized")
+      throw new Error('Password uninitialized');
     }
-    const salt = Buffer.from(meta.cipher.salt, "hex")
+    const salt = Buffer.from(meta.cipher.salt, 'hex');
     const token = crypto.password2Token(password, salt);
     if (!crypto.validateToken(token, meta.cipher)) {
-      throw new Error("Invalid password");
+      throw new Error('Invalid password');
     }
-    return token.toString('hex')
+    return token.toString('hex');
   }
 
   async clearToken() {
@@ -209,7 +246,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
       await this.storage.clearMeta();
     } catch (e) {
       console.error(e);
-      throw new Error('Clear meta failed')
+      throw new Error('Clear meta failed');
     }
   }
 
@@ -227,9 +264,9 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
 export async function validateToken(storage: Storage, token: string) {
   const meta = await storage.loadMeta();
   if (!meta) {
-    throw new Error("Empty old password")
+    throw new Error('Empty old password');
   }
-  if (!crypto.validateToken(Buffer.from(token, "hex"), meta.cipher)) {
-    throw new Error("Invalid old password");
+  if (!crypto.validateToken(Buffer.from(token, 'hex'), meta.cipher)) {
+    throw new Error('Invalid old password');
   }
 }
