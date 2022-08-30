@@ -9,9 +9,6 @@
   margin-right: auto;
 
   .step-title {
-    text-align: center;
-    text-align: left;
-    font-family: 'Work Sans';
     font-style: normal;
     font-weight: 700;
     font-size: 36px;
@@ -26,4 +23,33 @@
     line-height: 20px;
     color: $gray-400;
   }
+}
+
+
+
+
+.phrase {
+  @apply flex;
+  position: relative;
+
+  padding: 24px 32px;
+
+  background: #EDFCFF;
+  border-radius: 12px;
+}
+
+.phrase-item {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 32px;
+  color: $primary-800;
+}
+
+.icon-copy {
+  position: absolute;
+  right: 13px;
+  top: 15px;
+  stroke: $primary-400;
+  stroke-width: 2px;
 }

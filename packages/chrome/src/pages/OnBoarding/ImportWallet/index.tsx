@@ -1,4 +1,3 @@
-import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import classnames from "classnames";
 import styles from "./index.module.scss";
