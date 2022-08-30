@@ -19,7 +19,7 @@ function SettingPage() {
   const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
   const context = useSelector((state: RootState) => state.appContext)
-  const {account} = useAccount(context.wallId, context.accountId);
+  const {account} = useAccount(context.accountId);
 
 
   async function handleResetApp() {
