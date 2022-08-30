@@ -1,10 +1,9 @@
-import SetPassword from "./SetPassword";
-import SavePhrase from "./SavePhrase";
-import {useEffect, useState} from "react";
+import SetPassword from "../SetPassword";
+import SavePhrase from "../SavePhrase";
+import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {
-  resetAppContext,
   updateAccountId,
   updateInitialized,
   updateToken,
@@ -15,14 +14,9 @@ import toast from "../../../components/toast";
 import {coreApi} from "@suiet/core";
 import {AppDispatch} from "../../../store";
 
-export interface CreateWalletStepProps {
-  onNext: () => void;
-}
-
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
   const [phrases, setPhrases] = useState<string[]>([]);
-  const [confirmCreate, setConfirmCreate] = useState(false);
   const navigation = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -53,23 +47,8 @@ const CreateNewWallet = () => {
   }
 
   async function handleSavePhrase() {
-    setConfirmCreate(true);
     navigation('/home');
   }
-
-  // useEffect(() => {
-  //   return () => {
-  //     // if not confirmed when leaving,
-  //     // consider user miss to remember mnemonic, abandon the pre-create wallet data
-  //     if (!confirmCreate) {
-  //       console.log('not confirmed!, reset all data')
-  //       // clear db data
-  //       coreApi.resetAppData(tmpContext.token).then(() => {
-  //         dispatch(resetAppContext()); // clear memory data
-  //       });
-  //     }
-  //   }
-  // }, [confirmCreate])
 
   switch(step) {
     case 2: return <SavePhrase phrases={phrases} onNext={handleSavePhrase} />;

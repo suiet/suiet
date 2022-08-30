@@ -7,19 +7,35 @@ import Icon from "../Icon";
 import {ReactComponent as IconEdit} from '../../assets/icons/edit.svg';
 import {createPortal} from "react-dom";
 import {sleep} from "../../utils/time";
+import {addressEllipsis} from "../../utils/format";
 
-const WalletItem = () => {
+export type WalletData = {
+  id: string;
+  name: string;
+  accountAddress: string;
+  avatar: string | undefined;
+}
+
+type WalletItemProps = {
+  data: WalletData;
+}
+
+const WalletItem = (props: WalletItemProps) => {
+  const {data} = props;
   return (
-    <div className={styles['wallet-item']}>
+    <div className={classnames(
+      styles['wallet-item']
+    )}>
       <div className={styles['wallet-item-avatar']}></div>
       <div className={'ml-[8px]'}>
         <Typo.Title className={styles['wallet-item-name']}>
-          Wallet $1
+          {data.name}
         </Typo.Title>
         <Typo.Small className={styles['wallet-item-address']}>
-          0x2152f....01f6
+          {addressEllipsis(data.accountAddress)}
         </Typo.Small>
       </div>
+
       <Icon className={classnames(
         styles['icon'],
         'ml-auto'
@@ -29,11 +45,16 @@ const WalletItem = () => {
 }
 
 export type WalletSwitcherProps = {
+  wallets: WalletData[];
   onClickLayer?: () => void;
+  onClickNew?: () => void;
+  onClickImport?: () => void;
 }
 
 const WalletSwitcher = (props: WalletSwitcherProps) => {
   const [leaving, setLeaving] = useState(false);
+
+  const {wallets = []} = props
 
   function renderSwitcher() {
     return (
@@ -61,19 +82,19 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
                 styles['header-desc'],
                 'mt-[2px]',
               )
-            }>4 Wallets</Typo.Small>
+            }>{wallets.length} Wallets</Typo.Small>
           </header>
           <section className={classnames(
             styles['wallet-item-container'],
             'mt-[20px]'
           )}>
-            <WalletItem />
-            <WalletItem />
-            <WalletItem />
+            {wallets.map((data) => (
+              <WalletItem key={data.id} data={data} />
+            ))}
           </section>
           <section className={styles['actions']}>
-            <Button className={styles['btn']} state={'primary'}>New</Button>
-            <Button className={styles['btn']}>Import</Button>
+            <Button className={styles['btn']} state={'primary'} onClick={props.onClickNew}>New</Button>
+            <Button className={styles['btn']} onClick={props.onClickImport}>Import</Button>
           </section>
         </div>
       </div>

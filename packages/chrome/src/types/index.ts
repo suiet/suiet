@@ -5,6 +5,6 @@ export interface StyleExtendable {
   style?: CSSProperties;
 }
 
-export type Extendable = StyleExtendable & {
- children?: ReactNode;
+export type Extendable<T = ReactNode> = StyleExtendable & {
+ children?: T;
 }

@@ -1,20 +1,32 @@
 import {FormState} from "react-hook-form";
 import {InputState} from "../components/Input";
+import {RegisterOptions} from "react-hook-form/dist/types/validator";
 
-export function getPasswordValidation() {
+export function getPasswordValidation(params: {
+  previousPassword?: string;
+} = {}): RegisterOptions {
   return {
     required: 'Password should not be empty',
     validate: (val: string) => {
-      const result = val.length < 6 ? 'Password should be longer than 6' : true
-      console.log('validate', result)
-      return result
+      if (val.length < 6) return 'Password should be longer than 6';
+      if (params?.previousPassword && val !== params.previousPassword) {
+        return 'passwords are not the same, please retry'
+      }
+      return true;
+    }
+  }
+}
+
+export function getConfirmPasswordValidation() {
+  return {
+    required: 'Password should not be empty',
+    validate: (val: string) => {
+      return val.length < 6 ? 'Password should be longer than 6' : true
     }
   }
 }
 
 export function getInputStateByFormState(formState: FormState<any>, field: string): InputState {
-  console.log('formState.errors', formState.errors)
-  console.log('formState.dirtyFields', formState.dirtyFields)
   return formState.errors[field] ? 'error' : (
     formState.dirtyFields[field]
       ? 'success' : 'default'

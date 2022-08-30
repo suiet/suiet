@@ -46,51 +46,54 @@
 
     box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px #F2F4F7;
   }
+}
 
 
-  &--primary {
-    color: $white;
-    background: $primary-500;
-    border: 1px solid $primary-500;
 
-    &:hover {
-      background: $primary-700;
-      border: none;
-    }
-    &:active {
-    /* Primary/600 */
 
-      background: $primary-600;
-      /* Primary/600 */
+.button.button--primary {
+  color: $white;
+  background: $primary-500;
+  border: 1px solid $primary-500;
 
-      border: 1px solid $primary-600;
-      /* Shadow/xs focused 4px primary-100 */
-
-      box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px $primary-100;
-    }
+  &:hover {
+    background: $primary-700;
+    border: none;
   }
 
-
-  &--danger {
-    color: $error-600;
-    background: $error-50;
-    border: 1px solid $error-50;
-
-    &:hover {
-      background: $error-100;
-      border: none;
-    }
-
-    &:active {
+  &:active {
     /* Primary/600 */
 
-      background: $error-50;
-      /* Primary/600 */
+    background: $primary-600;
+    /* Primary/600 */
 
-      border: none;
-      /* Shadow/xs focused 4px primary-100 */
+    border: 1px solid $primary-600;
+    /* Shadow/xs focused 4px primary-100 */
 
-      box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px $error-100;
-    }
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px $primary-100;
+  }
+}
+
+
+.button.button--danger {
+  color: $error-600;
+  background: $error-50;
+  border: 1px solid $error-50;
+
+  &:hover {
+    background: $error-100;
+    border: none;
+  }
+
+  &:active {
+    /* Primary/600 */
+
+    background: $error-50;
+    /* Primary/600 */
+
+    border: none;
+    /* Shadow/xs focused 4px primary-100 */
+
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px $error-100;
   }
 }
