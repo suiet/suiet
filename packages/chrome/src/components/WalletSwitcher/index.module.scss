@@ -1,0 +1,143 @@
+@import "../../styles/variables";
+
+$container-px: 16px;
+$switcher-width: 244px;
+$ani-duration: 0.2s;
+
+.switcher-layer {
+  z-index: $drawer-zindex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  transition: all $ani-duration ease-in;
+
+  &--move-in {
+    background: rgba(239, 241, 245, 0.1);
+    backdrop-filter: blur(10px);
+  }
+  &--move-out {
+    background: transparent;
+    backdrop-filter: blur(0);
+  }
+}
+
+.header {
+  padding: 0 $container-px;
+}
+.header-title {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 21px;
+}
+.header-desc {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  color: $gray-300;
+}
+
+.switcher {
+  display: flex;
+  flex-direction: column;;
+  width: $switcher-width;
+  height: 100vh;
+  padding: 20px 0 16px;
+  background: $white;
+
+  &--move-in {
+    animation: move-in $ani-duration ease-in;
+    animation-fill-mode: forwards;
+  }
+  &--move-out {
+    animation: move-out $ani-duration ease-in ;
+    animation-fill-mode: forwards;
+  }
+}
+
+@keyframes move-in {
+  from {
+    transform: translateX(-$switcher-width);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes move-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-$switcher-width);
+  }
+}
+
+.wallet-item-container {
+  width: 100%;
+  padding: 0 $container-px;
+}
+
+.wallet-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16px;
+
+  width: 100%;
+  height: 64px;
+  border-radius: 16px;
+  background: $gray-50;
+
+  &--active {
+    background: $gray-50;
+  }
+
+  & + & {
+    margin-top: 2px;
+  }
+}
+.wallet-item-avatar {
+  width: 24px;
+  height: 24px;
+
+  background: linear-gradient(135deg, #10C0F7 0%, #C0C7FF 100%);
+  border-radius: 12px;
+}
+.wallet-item-info {
+
+}
+.wallet-item-name {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 16px;
+  color: $gray-900;
+}
+.wallet-item-address {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: $gray-400;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  padding: 0 $container-px;
+  margin-top: auto;
+}
+.btn {
+  & + & {
+    margin-left: 8px;
+  }
+}
+
+.icon {
+  padding: 6px;
+
+}

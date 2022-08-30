@@ -38,6 +38,11 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
           <span>Receive</span>
         </div>
       )}
+      contentProps={{
+        onOpenAutoFocus: (e) => {
+          e.preventDefault()  // prevent autofocus on the close btn
+        },
+      }}
     >
       <div className={'flex flex-col items-center mt-[22px]'}>
         <div className={'flex flex-col items-center'}>
