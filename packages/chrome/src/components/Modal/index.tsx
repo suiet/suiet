@@ -1,12 +1,13 @@
 import React, {ReactNode} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import {DialogProps} from "@radix-ui/react-dialog";
+import {DialogContentProps, DialogProps} from "@radix-ui/react-dialog";
 import styles from './index.module.scss';
-import IconClose from '../../assets/icons/close.svg';
+import {ReactComponent as IconClose} from '../../assets/icons/close.svg';
 
 export type ModalProps = DialogProps & {
   title: string | ReactNode;
   trigger: ReactNode;
+  contentProps?: DialogContentProps;
 };
 
 const Modal = (props: ModalProps) => {
@@ -14,12 +15,13 @@ const Modal = (props: ModalProps) => {
     children,
     trigger,
     title,
+    contentProps,
     ...restProps
   } = props;
 
   return (
     <Dialog.Root {...restProps}>
-      <Dialog.Trigger asChild>
+      <Dialog.Trigger >
         {trigger}
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -28,11 +30,12 @@ const Modal = (props: ModalProps) => {
         >
           <Dialog.Content
             className={styles['content']}
+            {...contentProps}
           >
             <div className={'flex justify-between items-center'}>
               <Dialog.Title className={styles['title']}>{title}</Dialog.Title>
               <Dialog.Close className={styles['close']}>
-                <img src={IconClose} style={{outline:"none"}} alt="close"/>
+                <IconClose />
               </Dialog.Close>
             </div>
             {children}
