@@ -1,33 +1,5 @@
 @import "../../../styles/variables";
 
-.container {
-  @apply flex flex-col items-center;
-  box-sizing: border-box;
-  width: 298px;
-  height: 573px;
-  margin-left: auto;
-  margin-right: auto;
-
-  .step-title {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 36px;
-    line-height: 36px;
-    color: $gray-900;
-  }
-  
-  .pwd {
-    font-style: normal;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    color: $gray-400;
-  }
-}
-
-
-
-
 .phrase {
   @apply flex;
   position: relative;

@@ -14,6 +14,7 @@ import {Wallet} from "@suiet/core/dist/api/wallet";
 import {coreApi} from "@suiet/core";
 import {isNonEmptyArray} from "../../../utils/check";
 import {Account} from "@suiet/core/dist/api/account";
+import {useNavigate} from "react-router-dom";
 
 const Avatar = ({ avatar }: { avatar: string }) => {
   return (
@@ -43,7 +44,7 @@ function useWalletAccountMap(wallets: Wallet[]) {
         return searchDefaultAccount(wallet.id);
       }))
       wallets.forEach((wallet, index) => {
-        map.set(wallet.id, accounts[0]);
+        map.set(wallet.id, accounts[index]);
       })
       setWalletAccountMap(map);
     })()
@@ -52,9 +53,15 @@ function useWalletAccountMap(wallets: Wallet[]) {
   return walletAccountMap;
 }
 
-function Header() {
+export type HeaderProps = {
+  walletSwitch?: boolean;
+}
+
+function Header(props: HeaderProps) {
+  const {walletSwitch = false} = props;
   const context = useSelector((state: RootState) => state.appContext);
-  const [doSwitch, setDoSwitch] = useState<boolean>(false);
+  const [doSwitch, setDoSwitch] = useState<boolean>(walletSwitch);
+  const navigate = useNavigate();
   const { account } = useAccount(context.wallId, context.accountId);
   const { wallet } = useWallet(context.walletId);
 
@@ -89,6 +96,12 @@ function Header() {
       {doSwitch && <WalletSwitcher
         wallets={walletDataList}
         onClickLayer={() => {setDoSwitch(false)}}
+        onClickNew={() => {
+          // navigate('/onboard/create-new-wallet')
+        }}
+        onClickImport={() => {
+          navigate('/onboard/import-wallet')
+        }}
       ></WalletSwitcher>}
     </div>
   );

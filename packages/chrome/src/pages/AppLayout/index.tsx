@@ -1,14 +1,15 @@
 import Header from "./Header";
 import Menu from "./Menu";
 import styles from "./index.module.scss";
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import {Outlet, useLocation} from "react-router-dom";
 
 function AppLayout() {
-  const [activeTab, setActiveTab] = useState();
+  const location = useLocation();
+  const state = (location.state || {}) as Record<string, any>;
+
   return (
     <div className={styles['main-page']}>
-      <Header />
+      <Header walletSwitch={state?.walletSwitch} />
       {/* child route view */}
       <Outlet />
       <Menu className="mt-auto" />
