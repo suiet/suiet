@@ -4,7 +4,7 @@ import classnames from "classnames";
 import Button from "../../../components/Button";
 import Input from "../../../components/Input";
 import {useForm} from "react-hook-form";
-import React, {useRef, useState} from "react";
+import React, {useState} from "react";
 import {getInputStateByFormState, getPasswordValidation} from "../../../utils/form";
 import Form from "../../../components/form/Form";
 import FormControl from "../../../components/form/FormControl";
@@ -27,10 +27,6 @@ const SavePassword = (props: SavePasswordProps) => {
   })
   const [password, setPassword] = useState('')
 
-  async function unlock(data: FormData) {
-    props.onNext(data.password);
-  }
-
   return (
     <div className={commonStyles['container']}>
       <Typo.Title className={
@@ -47,7 +43,9 @@ const SavePassword = (props: SavePasswordProps) => {
         'text-left')}>Used to unlock your wallet.</Typo.Normal>
 
       <section className={'mt-12 w-full'}>
-        <Form form={form} onSubmit={unlock}>
+        <Form form={form} onSubmit={(data) => {
+          props.onNext(data.password);
+        }}>
           <div>
             <Typo.Small>Password</Typo.Small>
             <FormControl
