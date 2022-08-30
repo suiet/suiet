@@ -55,10 +55,7 @@ const LoginPage = () => {
           <Button
             type={'submit'}
             state={'primary'}
-            className={classnames(
-              styles['step-button'],
-              'mt-[16px]'
-            )}
+            className={'mt-[16px]'}
           >
             Unlock
           </Button>
