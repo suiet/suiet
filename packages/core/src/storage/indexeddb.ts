@@ -227,9 +227,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  getAccount(walletId: string, accountId: string): Promise<Account | null> {
+  getAccount(accountId: string): Promise<Account | null> {
     return this.connection.then(
       (db) => new Promise((resolve, reject) => {
+        console.log('accountId', accountId)
         const request = db.transaction([StoreName.ACCOUNTS])
           .objectStore(StoreName.ACCOUNTS)
           .get(accountId);

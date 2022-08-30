@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {Account} from "@suiet/core/dist/api/account";
 import {coreApi} from "@suiet/core";
 
-export function useAccount(walletId: string, accountId: string) {
+export function useAccount(accountId: string) {
   const [account, setAccount] = useState<Account>({
     id: "",
     name: "",
@@ -11,8 +11,8 @@ export function useAccount(walletId: string, accountId: string) {
     pubkey: ""
   });
 
-  async function fetchAccount(walletId: string, accountId: string) {
-    const account = await coreApi.getAccount(walletId, accountId);
+  async function fetchAccount(accountId: string) {
+    const account = await coreApi.getAccount(accountId);
     if (!account) {
       throw new Error('fetch account failed');
     }
@@ -20,8 +20,8 @@ export function useAccount(walletId: string, accountId: string) {
   }
 
   useEffect(() => {
-    fetchAccount(walletId, accountId);
-  }, [walletId, accountId]);
+    fetchAccount(accountId);
+  }, [accountId]);
 
   return {
     account,
