@@ -16,9 +16,16 @@ export type WalletData = {
   avatar: string | undefined;
 }
 
-const WalletItem = ({data}: {data: WalletData}) => {
+type WalletItemProps = {
+  data: WalletData;
+}
+
+const WalletItem = (props: WalletItemProps) => {
+  const {data} = props;
   return (
-    <div className={styles['wallet-item']}>
+    <div className={classnames(
+      styles['wallet-item']
+    )}>
       <div className={styles['wallet-item-avatar']}></div>
       <div className={'ml-[8px]'}>
         <Typo.Title className={styles['wallet-item-name']}>
@@ -28,6 +35,7 @@ const WalletItem = ({data}: {data: WalletData}) => {
           {addressEllipsis(data.accountAddress)}
         </Typo.Small>
       </div>
+
       <Icon className={classnames(
         styles['icon'],
         'ml-auto'

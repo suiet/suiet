@@ -90,9 +90,8 @@ $ani-duration: 0.2s;
   width: 100%;
   height: 64px;
   border-radius: 16px;
-  background: $gray-50;
 
-  &--active {
+  &:hover {
     background: $gray-50;
   }
 
@@ -138,6 +137,10 @@ $ani-duration: 0.2s;
 }
 
 .icon {
+  display: none;
   padding: 6px;
-
+  cursor: pointer;
+}
+.wallet-item:hover .icon {
+  display: block;
 }
