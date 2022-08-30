@@ -51,6 +51,8 @@ function App() {
           <Route path="import-wallet" element={withSus(<ImportWallet />)}/>
         </Route>
         <Route path={'login'} element={withSus(<LoginPage />)} />
+        {/* 404 redirect */}
+        <Route path={'*'} element={<Navigate to="/home"/>} />
       </Routes>
       <ToastContainer />
     </div>

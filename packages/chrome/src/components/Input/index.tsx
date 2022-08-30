@@ -7,7 +7,7 @@ import IconInputFail from '../../assets/icons/input-fail.svg';
 
 export type InputState = 'success' | 'error' | 'default';
 
-export type InputProps = Extendable & InputHTMLAttributes<HTMLElement> & {
+export type InputProps = Extendable & InputHTMLAttributes<HTMLInputElement> & {
   state?: InputState;
   elClassName?: string;
   elStyle?: CSSProperties;
@@ -65,8 +65,8 @@ export const InputGroup = React.forwardRef<HTMLInputElement, InputProps>((props,
   )
 })
 
-function hasInputState(state: InputState) {
-  return state !== 'default';
+function showInputState(state: InputState, disabled = false) {
+  return !disabled && state !== 'default';
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
@@ -78,6 +78,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
     elStyle,
     ...inputProps
   } = props;
+
   const stateMetrics = stateMap[state] || stateMap['default'];
 
   return (
@@ -90,7 +91,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
         ref={ref}
         className={
           classnames(styles['input'],
-            hasInputState(state) ? [
+            showInputState(state, props.disabled) ? [
             styles['input-state'],
             styles[`input-state--${state}`],
           ] : '',
@@ -99,7 +100,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
         style={elStyle}
       >
       </input>
-      {hasInputState(state) && (
+      {showInputState(state) && (
         <div className={styles['icon']}>
           <img src={stateMetrics.icon} alt={stateMetrics.alt} />
         </div>

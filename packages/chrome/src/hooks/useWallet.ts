@@ -12,12 +12,11 @@ export function useWallet(walletId: string) {
   });
 
   async function fetchWallet(walletId: string) {
-    const account = await coreApi.getWallet(walletId);
-    console.log('fetchAccount', account);
-    if (!account) {
-      throw new Error('fetch account failed');
+    const wallet = await coreApi.getWallet(walletId);
+    if (!wallet) {
+      throw new Error('fetch wallet failed');
     }
-    setWallet(account);
+    setWallet(wallet);
   }
 
   useEffect(() => {

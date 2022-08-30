@@ -1,46 +1,67 @@
-import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import classnames from "classnames";
-import styles from "./index.module.scss";
-import Typo from "../../../components/Typo";
-import Textarea from "../../../components/Textarea";
-import Button from "../../../components/Button";
+import {coreApi} from "@suiet/core";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "../../../store";
+import {useState} from "react";
+import SetPassword from "../SetPassword";
+import ImportPhrase from "../ImportPhrase";
+import {isNonEmptyArray} from "../../../utils/check";
+import toast from "../../../components/toast";
+import {updateAccountId, updateInitialized, updateToken, updateWalletId} from "../../../store/app-context";
 
 const ImportWallet = () => {
-  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [secret, setSecret] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
 
-  function handleConfirm() {
-    navigate('/home')
+  const navigate = useNavigate();
+  const appContext = useSelector((state: RootState) => state.appContext)
+
+  async function createWalletAndAccount(token: string, mnemonic: string) {
+    const wallet = await coreApi.createWallet({
+      token: token,
+      mnemonic: mnemonic,
+    });
+    const accounts = await coreApi.getAccounts(wallet.id);
+    if (!isNonEmptyArray(accounts)) {
+      toast.success('Cannot find any account')
+      throw new Error('Cannot find any account');
+    }
+    const defaultAccount = accounts[0];
+    await dispatch(updateWalletId(wallet.id));
+    await dispatch(updateAccountId(defaultAccount.id));
+
+    toast.success('Wallet Created!')
   }
 
-  return (
-    <div className={styles['container']}>
-      <Typo.Title className={
-        classnames(
-          styles['step-title'],
-          'mt-12',
-          'w-full'
-        )
-      }>Import<br/>Your<br/>Wallet</Typo.Title>
-      <Typo.Normal className={classnames(
-        'mt-2',
-        'w-full',
-        'text-base',
-        'text-left')}>Using recovery phrase or secret key</Typo.Normal>
-      <section className={'mt-[32px] w-full'}>
-        <div>
-          <Textarea
-            className={'mt-[6px]'}
-            elClassName={styles['phrase-textarea']}
-            placeholder={'paste recovery phrase or private key...'}
-          />
-        </div>
-      </section>
+  async function handleImport(_secret: string) {
+    if (!appContext.token) {
+      // first time to import
+      setSecret(_secret);
+      setStep(2);
+      return;
+    }
 
+    // already has token
+    await createWalletAndAccount(appContext.token, _secret);
+    navigate('/', {
+      state: { walletSwitch: true }  // open the wallet switcher
+    });
+  }
 
-      <Button state={'primary'} className={'mt-[84px]'} onClick={handleConfirm}>Confirm</Button>
-    </div>
-  )
+  async function handleSetPassword(password: string) {
+    await coreApi.updatePassword(null, password);
+    const token = await coreApi.loadTokenWithPassword(password);
+    await createWalletAndAccount(token, secret);
+    await dispatch(updateToken(token));
+    await dispatch(updateInitialized(true));
+    navigate('/');
+  }
+
+  switch (step) {
+    case 2: return <SetPassword onNext={handleSetPassword} />
+    default: return <ImportPhrase onImported={handleImport} />
+  }
 }
 
 export default ImportWallet;

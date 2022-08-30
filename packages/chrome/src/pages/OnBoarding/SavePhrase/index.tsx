@@ -1,10 +1,9 @@
-import styles from "./index.module.scss";
+import commonStyles from "../common.module.scss";
 import Typo from "../../../components/Typo";
 import Button from "../../../components/Button";
 import classnames from "classnames";
 import {Extendable} from "../../../types";
 import CopyIcon from "../../../components/CopyIcon";
-import {CreateWalletStepProps} from "./index";
 import copy from 'copy-to-clipboard';
 import toast from "../../../components/toast";
 
@@ -57,14 +56,15 @@ const PhraseDisplay = (props: PhraseDisplayProps) => {
   )
 }
 
-const SavePhrase = (props: CreateWalletStepProps & {
+const SavePhrase = (props: {
   phrases: string[];
+  onNext: () => void;
 }) => {
   return (
-    <div className={styles['container']}>
+    <div className={commonStyles['container']}>
       <Typo.Title className={
         classnames(
-          styles['step-title'],
+          commonStyles['step-title'],
           'mt-12',
           'w-full'
         )
@@ -78,10 +78,7 @@ const SavePhrase = (props: CreateWalletStepProps & {
         <PhraseDisplay phrases={props.phrases}></PhraseDisplay>
         <Button
           state={'primary'}
-          className={classnames(
-            styles['step-button'],
-            'mt-[32px]'
-          )}
+          className={'mt-[32px]'}
           onClick={props.onNext}
         >
           I've saved the Phrase
