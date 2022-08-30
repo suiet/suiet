@@ -7,12 +7,9 @@ import Modal from "../../../components/Modal";
 import WaterDropIcon from "../../../components/WaterDropIcon";
 import CopyIcon from "../../../components/CopyIcon";
 import Typo from "../../../components/Typo";
-import TestQrCode from '../../../assets/test-qrcode.png';
 import QRCodeSVG from "qrcode.react";
 import classnames from "classnames";
-import {useEffect, useState} from "react";
 import toast from "../../../components/toast";
-import {ReactComponent as IconSuccess} from "../../../assets/icons/toast-success.svg";
 import copy from "copy-to-clipboard";
 import {useAccount} from "../../../hooks/useAccount";
 import {useSelector} from "react-redux";
@@ -65,7 +62,7 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
 
 function MainPage() {
   const context = useSelector((state: RootState) => state.appContext)
-  const {account} = useAccount(context.wallId, context.accountId);
+  const {account} = useAccount(context.accountId);
 
   return (
     <div className={styles['main-content']}>

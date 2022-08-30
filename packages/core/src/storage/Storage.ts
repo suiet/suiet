@@ -11,7 +11,7 @@ export interface Storage {
     deleteWallet(id: string): Promise<void>;
 
     getAccounts(walletId: string): Promise<Array<Account>>;
-    getAccount(walletId: string, accountId: string): Promise<Account | null>;
+    getAccount(accountId: string): Promise<Account | null>;
 
     addAccount(walletId: string, accountId: string, account: Account): Promise<void>;
     updateAccount(walletId: string, accountId: string, account: Account): Promise<void>;

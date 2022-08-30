@@ -1,8 +1,8 @@
 import styles from './index.module.scss';
 import IconArrowDown from '../../../assets/icons/arrow-down.svg';
 import classnames from 'classnames';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../../store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../store';
 import {useAccount} from '../../../hooks/useAccount';
 import {addressEllipsis} from '../../../utils/format';
 import React, {useEffect, useMemo, useState} from 'react';
@@ -15,6 +15,7 @@ import {coreApi} from "@suiet/core";
 import {isNonEmptyArray} from "../../../utils/check";
 import {Account} from "@suiet/core/dist/api/account";
 import {useNavigate} from "react-router-dom";
+import {updateAccountId, updateNetworkId, updateWalletId} from "../../../store/app-context";
 
 const Avatar = ({ avatar }: { avatar: string }) => {
   return (
@@ -57,14 +58,12 @@ export type HeaderProps = {
   walletSwitch?: boolean;
 }
 
-function Header(props: HeaderProps) {
-  const {walletSwitch = false} = props;
-  const context = useSelector((state: RootState) => state.appContext);
-  const [doSwitch, setDoSwitch] = useState<boolean>(walletSwitch);
-  const navigate = useNavigate();
-  const { account } = useAccount(context.wallId, context.accountId);
-  const { wallet } = useWallet(context.walletId);
-
+const WalletSwitcherInstance = (props: {
+  onSelect: (id:string, wallet: WalletData) => void;
+  onClickLayer: () => void;
+  onClickImport: () => void;
+  onClickNew: () => void;
+}) => {
   const { wallets } = useWallets();
   const walletAccountMap  = useWalletAccountMap(wallets);
   const walletDataList = useMemo(() => {
@@ -73,12 +72,42 @@ function Header(props: HeaderProps) {
   }, [wallets, walletAccountMap])
 
   function walletDataAdapter(wallet: Wallet): WalletData {
+    const account = walletAccountMap.get(wallet.id);
     return {
       id: wallet.id,
       name: wallet.name,
       avatar: wallet.avatar,
-      accountAddress: walletAccountMap.get(wallet.id)?.address || '',
+      accountId: account?.id || '',
+      accountAddress: account?.address || '',
     }
+  }
+
+  return (
+    <WalletSwitcher
+      wallets={walletDataList}
+      onSelect={props.onSelect}
+      onClickLayer={props.onClickLayer}
+      onClickNew={props.onClickNew}
+      onClickImport={props.onClickImport}
+    ></WalletSwitcher>
+  )
+}
+
+function Header(props: HeaderProps) {
+  const {walletSwitch = false} = props;
+  const context = useSelector((state: RootState) => state.appContext);
+  const [doSwitch, setDoSwitch] = useState<boolean>(walletSwitch);
+  const navigate = useNavigate();
+  const { account } = useAccount(context.accountId);
+  const { wallet } = useWallet(context.walletId);
+  const dispatch = useDispatch<AppDispatch>()
+
+  async function switchWallet(id: string, data: WalletData) {
+    await Promise.all([
+      dispatch(updateWalletId(id)),
+      dispatch(updateAccountId(data.accountId))
+    ])
+    setDoSwitch(false);
   }
 
   return (
@@ -93,16 +122,12 @@ function Header(props: HeaderProps) {
       </div>
       <div className={styles['net']}>devnet</div>
 
-      {doSwitch && <WalletSwitcher
-        wallets={walletDataList}
+      {doSwitch && <WalletSwitcherInstance
+        onSelect={switchWallet}
         onClickLayer={() => {setDoSwitch(false)}}
-        onClickNew={() => {
-          // navigate('/onboard/create-new-wallet')
-        }}
-        onClickImport={() => {
-          navigate('/onboard/import-wallet')
-        }}
-      ></WalletSwitcher>}
+        onClickNew={() => {}}
+        onClickImport={() => {navigate('/onboard/import-wallet')}}
+      />}
     </div>
   );
 }

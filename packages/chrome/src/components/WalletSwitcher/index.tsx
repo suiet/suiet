@@ -12,20 +12,25 @@ import {addressEllipsis} from "../../utils/format";
 export type WalletData = {
   id: string;
   name: string;
+  accountId: string;
   accountAddress: string;
   avatar: string | undefined;
 }
 
 type WalletItemProps = {
   data: WalletData;
+  onClick: (id: string, data: WalletData) => void;
 }
 
 const WalletItem = (props: WalletItemProps) => {
   const {data} = props;
   return (
-    <div className={classnames(
-      styles['wallet-item']
-    )}>
+    <div
+      className={classnames(
+        styles['wallet-item']
+      )}
+      onClick={() => {props.onClick(data.id, data)}}
+    >
       <div className={styles['wallet-item-avatar']}></div>
       <div className={'ml-[8px]'}>
         <Typo.Title className={styles['wallet-item-name']}>
@@ -46,6 +51,7 @@ const WalletItem = (props: WalletItemProps) => {
 
 export type WalletSwitcherProps = {
   wallets: WalletData[];
+  onSelect: (id:string, wallet: WalletData) => void;
   onClickLayer?: () => void;
   onClickNew?: () => void;
   onClickImport?: () => void;
@@ -89,7 +95,13 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
             'mt-[20px]'
           )}>
             {wallets.map((data) => (
-              <WalletItem key={data.id} data={data} />
+              <WalletItem
+                key={data.id}
+                data={data}
+                onClick={(id, data) => {
+                  if (props.onSelect) props.onSelect(id, data);
+                }}
+              />
             ))}
           </section>
           <section className={styles['actions']}>
