@@ -167,7 +167,7 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     token: string
   ): Promise<void> {
     await this.validateToken(token);
-    let account = await this.storage.getAccount(walletId, accountId);
+    let account = await this.storage.getAccount(accountId);
     if (!account) {
       throw new Error('Account Not Exist');
     }
@@ -181,11 +181,8 @@ export class CoreApi implements IWalletApi, IAccountApi, IAuthApi {
     return await this.storage.getAccounts(walletId);
   }
 
-  async getAccount(
-    walletId: string,
-    accountId: string
-  ): Promise<Account | null> {
-    return await this.storage.getAccount(walletId, accountId);
+  async getAccount(accountId: string): Promise<Account | null> {
+    return await this.storage.getAccount(accountId);
   }
 
   async removeAccount(
