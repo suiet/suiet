@@ -1,5 +1,4 @@
 import {useNavigate} from "react-router-dom";
-import {useForm} from "react-hook-form";
 import {coreApi} from "@suiet/core";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../store";
@@ -17,12 +16,6 @@ const ImportWallet = () => {
 
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext)
-  const form = useForm({
-    mode: "onBlur",
-    defaultValues: {
-      secret: ''
-    }
-  })
 
   async function createWalletAndAccount(token: string, mnemonic: string) {
     const wallet = await coreApi.createWallet({
@@ -37,6 +30,8 @@ const ImportWallet = () => {
     const defaultAccount = accounts[0];
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
+
+    toast.success('Wallet Created!')
   }
 
   async function handleImport(_secret: string) {
@@ -49,7 +44,9 @@ const ImportWallet = () => {
 
     // already has token
     await createWalletAndAccount(appContext.token, _secret);
-    navigate('/');
+    navigate('/', {
+      state: { walletSwitch: true }  // open the wallet switcher
+    });
   }
 
   async function handleSetPassword(password: string) {

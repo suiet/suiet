@@ -45,8 +45,10 @@ const WalletItem = (props: WalletItemProps) => {
 }
 
 export type WalletSwitcherProps = {
-  onClickLayer?: () => void;
   wallets: WalletData[];
+  onClickLayer?: () => void;
+  onClickNew?: () => void;
+  onClickImport?: () => void;
 }
 
 const WalletSwitcher = (props: WalletSwitcherProps) => {
@@ -91,8 +93,8 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
             ))}
           </section>
           <section className={styles['actions']}>
-            <Button className={styles['btn']} state={'primary'}>New</Button>
-            <Button className={styles['btn']}>Import</Button>
+            <Button className={styles['btn']} state={'primary'} onClick={props.onClickNew}>New</Button>
+            <Button className={styles['btn']} onClick={props.onClickImport}>Import</Button>
           </section>
         </div>
       </div>

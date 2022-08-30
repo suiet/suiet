@@ -1,4 +1,5 @@
-const mockMnemonic = 'seed sock milk update focus rotate barely fade car face mechanic mercy';
+const mockMnemonic1 = 'seed sock milk update focus rotate barely fade car face mechanic mercy';
+const mockMnemonic2 = 'mansion head pool photo forward plug click tired mean menu warrior immense';
 
 export class MockStorage {
   addAccount(walletId: string, accountId: string, account: any): Promise<void> {
@@ -70,7 +71,7 @@ export class MockWallet {
 }
 
 export function decryptMnemonic(password: string, encryptedMnemonic: any): string {
-  return mockMnemonic;
+  return mockMnemonic1;
 }
 
 export function encryptPassword(password: string) {
