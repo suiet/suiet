@@ -73,7 +73,7 @@ function Wallet() {
                   name,
                 })
               );
-              await coreApi.updateWallet(
+              await coreApi.wallet.updateWallet(
                 context.walletId,
                 {
                   name,

@@ -19,7 +19,7 @@ import {
 const persistConfig = {
   key: 'root',
   storage: new ChromeStorage(),
-  whitelist: ['appContext, wallet'],
+  whitelist: ['appContext', 'wallet'],
 };
 
 const allReducers = combineReducers({
