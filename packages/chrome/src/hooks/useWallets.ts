@@ -6,8 +6,7 @@ export function useWallets() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
 
   async function fetchWallets() {
-    const wallets = await coreApi.getWallets();
-    console.log('fetchWallets', wallets);
+    const wallets = await coreApi.wallet.getWallets();
     if (!wallets) {
       throw new Error('fetch wallets failed');
     }

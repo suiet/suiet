@@ -11,7 +11,7 @@ function RequireInit({children}: any) {
   const dispatch = useDispatch<AppDispatch>();
 
   async function adjustInitializedStatus() {
-    const wallets = await coreApi.getWallets();
+    const wallets = await coreApi.wallet.getWallets();
     if (isNonEmptyArray(wallets)) {
       if (!initialized) {
         await dispatch(updateInitialized(true));
