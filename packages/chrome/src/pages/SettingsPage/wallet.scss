@@ -1,3 +1,5 @@
+@import '../../styles/variables';
+
 .wallet {
   &-setting-container {
     padding: 17px 21px 0;
@@ -36,7 +38,8 @@
     font-weight: 500;
     font-size: 14px;
     line-height: 20px;
-    color: #344054;
+    color: $gray-400;
+    margin-bottom: 6px;
   }
 
   &-name-input {
@@ -51,8 +54,9 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
-    color: #101828;
+    color: $gray-900;
     margin-top: 6px;
+    border-radius: 16px;
   }
 
   &-save {

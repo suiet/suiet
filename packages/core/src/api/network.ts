@@ -1,4 +1,4 @@
-type Network = {
+export type Network = {
   id: string;
   name: string;
   shortName: string;

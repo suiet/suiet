@@ -1,4 +1,7 @@
 import { TxnHistroyEntry } from "../storage/types";
+import { Network } from "./network"
+import { Provider } from "../provider";
+import { isMergeCoinTransaction } from "@mysten/sui.js";
 
 export type TransferCoinParams = {
     name: string,
@@ -19,25 +22,43 @@ export type TxHistroyEntry = {
     object: Object,
 }
 
-export type Object = {
+export type CoinObject = {
     id: string,
-} & (
-        | {
-            type: "coin",
-            name: string,
-            symbol: string,
-            amount: bigint,
-            decimals: number,
-        }
-        | {
-            type: "nft",
-            objectId: string,
-        }
-    );
+    type: "coin",
+    symbol: string,
+    balance: bigint,
+}
+
+export type Object = CoinObject;
 
 export interface ITransactionApi {
     transferCoin: (params: TransferCoinParams) => Promise<void>;
     transferObject: (params: TransferObjectParams) => Promise<void>;
-    getTransactionHistory: () => Promise<Array<TxnHistroyEntry>>;
-    getOwnedObjects: () => Promise<Object>;
+    getTransactionHistory: (network: Network, address: string) => Promise<Array<TxnHistroyEntry>>;
+    getOwnedObjects: (network: Network, address: string) => Promise<Object[]>;
+}
+
+export class TransactionApi implements ITransactionApi {
+    async transferCoin(params: TransferCoinParams): Promise<void> {
+
+    }
+    async transferObject(params: TransferObjectParams): Promise<void> { }
+    async getTransactionHistory(network: Network, address: string): Promise<TxnHistroyEntry[]> {
+        const provider = new Provider(network);
+        const histroy = await provider.getTransactionsForAddress(address);
+        return histroy;
+    }
+
+    async getOwnedObjects(network: Network, address: string): Promise<Object[]> {
+        const provider = new Provider(network);
+        const coins = await provider.getOwnedCoins(address);
+        return coins.map(coin => {
+            return {
+                type: "coin",
+                id: coin.objectId,
+                symbol: coin.symbol,
+                balance: coin.balance
+            }
+        })
+    }
 }
