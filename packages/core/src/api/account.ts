@@ -15,7 +15,7 @@ export interface IAccountApi {
   createAccount: (walletId: string, token: string) => Promise<Account>;
   updateAccount: (walletId: string, accountId: string, meta: { name?: string; }, token: string) => Promise<void>;
   getAccounts: (walletId: string) => Promise<Array<Account>>;
-  getAccount: (walletId: string, accountId: string) => Promise<Account | null>;
+  getAccount: (accountId: string) => Promise<Account | null>;
   removeAccount: (walletId: string, accountId: string, token: string) => Promise<void>;
 }
 
@@ -68,7 +68,7 @@ export class AccountApi implements IAccountApi {
     return await this.storage.getAccounts(walletId);
   }
 
-  async getAccount(walletId: string, accountId: string): Promise<Account | null> {
+  async getAccount(accountId: string): Promise<Account | null> {
     return await this.storage.getAccount(accountId);
   }
 
