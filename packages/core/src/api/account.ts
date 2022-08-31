@@ -1,4 +1,4 @@
-import { validateToken } from "./index"
+import { validateToken } from "./util"
 import * as crypto from "../crypto"
 import { Vault } from "../vault/Vault";
 import { Storage } from "../storage/Storage"
@@ -54,7 +54,7 @@ export class AccountApi implements IAccountApi {
 
   async updateAccount(walletId: string, accountId: string, meta: { name?: string | undefined; }, token: string): Promise<void> {
     await validateToken(this.storage, token);
-    let account = await this.storage.getAccount(walletId, accountId);
+    let account = await this.storage.getAccount(accountId);
     if (!account) {
       throw new Error("Account Not Exist");
     }
@@ -69,7 +69,7 @@ export class AccountApi implements IAccountApi {
   }
 
   async getAccount(walletId: string, accountId: string): Promise<Account | null> {
-    return await this.storage.getAccount(walletId, accountId);
+    return await this.storage.getAccount(accountId);
   }
 
   async removeAccount(walletId: string, accountId: string, token: string): Promise<void> {

@@ -1,4 +1,4 @@
-import { validateToken } from "./index"
+import { validateToken } from "./util"
 import * as crypto from "../crypto"
 import { Vault } from "../vault/Vault";
 import { Storage } from "../storage/Storage"

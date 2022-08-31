@@ -6,6 +6,7 @@ import { AuthApi, IAuthApi } from "./auth";
 import { Storage, getStorage } from "../storage/Storage"
 import { Buffer } from "buffer"
 import * as crypto from "../crypto"
+import { validateToken } from "./util"
 
 export class CoreApi {
   storage: Storage;
@@ -50,15 +51,5 @@ export class CoreApi {
 
   async validateToken(token: string) {
     return validateToken(this.storage, token);
-  }
-}
-
-export async function validateToken(storage: Storage, token: string) {
-  const meta = await storage.loadMeta();
-  if (!meta) {
-    throw new Error('Empty old password');
-  }
-  if (!crypto.validateToken(Buffer.from(token, 'hex'), meta.cipher)) {
-    throw new Error('Invalid old password');
   }
 }
