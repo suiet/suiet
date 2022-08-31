@@ -2,7 +2,7 @@
   &-container {
     padding: 17px 21px 0;
     .setting-desc {
-      margin-bottom: 30px;
+      margin-bottom: 36px;
     }
   }
 }
@@ -18,12 +18,14 @@
     background: #e9f6fa;
     border: 1px solid #eaecf0;
     border-radius: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
     color: #344054;
     position: relative;
+    cursor: pointer;
+
     &.active {
       border: 1px solid #3ea2f8;
       color: #2d7ed5;

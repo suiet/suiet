@@ -1,5 +1,4 @@
-@import "../../styles/variables";
-
+@import '../../styles/variables';
 
 .address {
   @apply flex justify-center items-center;
@@ -7,16 +6,32 @@
   font-size: 12px;
   line-height: 16px;
   color: $gray-400;
-  margin-top: 7px;
-  margin-bottom: 19px;
+  margin-bottom: 48px;
   text-align: center;
+}
+
+.wallet-avatar {
+  width: 56px;
+  height: 56px;
+  margin: 24px auto 6px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.wallet-name {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 36px;
+  /* identical to box height, or 150% */
+  text-align: center;
+  color: #000000;
 }
 
 .settings-container {
   .settings-item {
     display: flex;
     padding: 24px;
-    margin: 6px 16px;
+    margin: 12px 16px;
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
@@ -24,6 +39,7 @@
     background-color: $gray-50;
     border-radius: 16px;
     cursor: pointer;
+    position: relative;
 
     &:hover {
       /* Gray/50 */
@@ -37,25 +53,35 @@
 
   .icon-wallet,
   .icon-network,
-  .icon-security {
+  .icon-security,
+  .icon-right-arrow {
     width: 24px;
     height: 24px;
     background: no-repeat center;
     background-size: cover;
     display: inline-block;
-    margin-right: 9px;
+    margin-right: 16px;
   }
 
   .icon-wallet {
-    background-image: url("./assets/wallet.svg");
+    background-image: url('./assets/wallet.svg');
   }
 
   .icon-network {
-    background-image: url("./assets/net.svg");
+    background-image: url('./assets/net.svg');
   }
 
   .icon-security {
-    background-image: url("./assets/security.svg");
+    background-image: url('./assets/security.svg');
+  }
+
+  .icon-right-arrow {
+    background-image: url('./assets/right-arrow.svg');
+    position: absolute;
+    right: 24px;
+    margin: auto;
+    top: 0;
+    bottom: 0;
   }
 }
 

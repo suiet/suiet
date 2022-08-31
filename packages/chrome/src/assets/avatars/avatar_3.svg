@@ -1,11 +1,9 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="32" height="32" rx="16" fill="#ECE9FE"/>
-<g clip-path="url(#clip0_557_11661)">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M16 9.9887L13.3333 8V13.3333H8L9.9887 16L8 18.6666H13.3333V13.3333H18.6666V8L16 9.9887ZM22.0113 16L24 13.3333H18.6666V18.6666H13.3333V24L16 22.0113L18.6666 24V18.6666H24L22.0113 16Z" fill="#6927DA"/>
-</g>
+<rect width="32" height="32" rx="16" fill="url(#paint0_linear_641_16848)"/>
 <defs>
-<clipPath id="clip0_557_11661">
-<rect width="16" height="16" fill="white" transform="translate(8 8)"/>
-</clipPath>
+<linearGradient id="paint0_linear_641_16848" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+<stop stop-color="#76F710"/>
+<stop offset="1" stop-color="#FFD3C0"/>
+</linearGradient>
 </defs>
 </svg>

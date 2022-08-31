@@ -3,6 +3,7 @@ import { Ed25519HdKey } from "./hdkey";
 import { decryptMnemonic } from "../crypto"
 import { SHA3 } from "sha3"
 import { Buffer } from "buffer"
+import { UnsignedTx, SignedTx } from "./types"
 
 export class Vault {
     hdKey: Ed25519HdKey;
@@ -27,4 +28,15 @@ export class Vault {
     public getPublicKey(): string {
         return this.hdKey.getPublicHexString()
     }
+
+    public async signTransaction(unsigned: UnsignedTx): Promise<SignedTx> {
+        const signature = this.hdKey.sign(Buffer.from(unsigned.data.getData()))
+        return {
+            txid: unsigned.txid,
+            data: unsigned.data,
+            signature: signature,
+            pubKey: this.hdKey.getPublicKey()
+        }
+    }
+
 }
