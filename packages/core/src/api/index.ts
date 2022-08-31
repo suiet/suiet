@@ -1,6 +1,7 @@
 import { IWalletApi, WalletApi } from "./wallet";
 import { AccountApi, IAccountApi } from "./account";
 import { INetworkApi } from "./network";
+import { ITransactionApi, TransactionApi } from "./txn"
 import { AuthApi, IAuthApi } from "./auth";
 import { Storage, getStorage } from "../storage/Storage"
 import { Buffer } from "buffer"
@@ -11,12 +12,14 @@ export class CoreApi {
   wallet: IWalletApi;
   account: IAccountApi;
   auth: IAuthApi;
+  txn: ITransactionApi;
 
   constructor(storage: Storage) {
     this.storage = storage;
     this.wallet = new WalletApi(storage);
     this.account = new AccountApi(storage);
     this.auth = new AuthApi(storage);
+    this.txn = new TransactionApi;
   }
 
   public static newApi(): CoreApi {
