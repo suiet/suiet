@@ -3,8 +3,7 @@
 .menu {
   @apply flex justify-between items-center;
   box-sizing: border-box;
-  width: 362px;
-  height: 72px;
+  height: $menu-height;
   padding: 8px 16px;
   border-top: 1px solid #DCDFEA;
 }

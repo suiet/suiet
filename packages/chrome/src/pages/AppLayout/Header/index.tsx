@@ -19,6 +19,7 @@ import {
   updateWalletId,
 } from '../../../store/app-context';
 import {PageEntry} from "../../../hooks/usePageEntry";
+import {Extendable} from "../../../types";
 
 const Avatar = ({ avatar }: { avatar: string }) => {
   return (
@@ -61,7 +62,7 @@ function useWalletAccountMap(wallets: Wallet[]) {
   return walletAccountMap;
 }
 
-export type HeaderProps = {
+export type HeaderProps = Extendable & {
   openSwitcher?: boolean;
 }
 
@@ -120,7 +121,7 @@ function Header(props: HeaderProps) {
   }
 
   return (
-    <div className={styles['header-container']}>
+    <div className={classnames(styles['header-container'], props.className)}>
       <Avatar avatar={wallet.avatar || '1'} />
       <div
         className={styles['account']}

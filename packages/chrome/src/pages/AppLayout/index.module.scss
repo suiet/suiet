@@ -5,4 +5,42 @@
   width: $full-width;
   min-height: $full-height;
   overflow-y: auto;
+
+  &--default {
+    & .main {
+      height: $full-height - $header-height - $menu-height;
+      overflow-y: auto;
+    }
+  }
+
+  &--without-header {
+    & .header {
+      display: none;
+    }
+    & .main {
+      height: $full-height - $menu-height;
+      overflow-y: auto;
+    }
+  }
+  &--without-menu {
+    & .menu {
+      display: none;
+    }
+    & .main {
+      height: $full-height - $header-height;
+      overflow-y: auto;
+    }
+  }
+  &--empty {
+    & .header {
+      display: none;
+    }
+    & .menu {
+      display: none;
+    }
+    & .main {
+      height: $full-height;
+      overflow-y: auto;
+    }
+  }
 }
