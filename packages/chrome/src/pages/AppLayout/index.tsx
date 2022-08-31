@@ -9,7 +9,7 @@ function AppLayout() {
 
   return (
     <div className={styles['main-page']}>
-      <Header walletSwitch={state?.walletSwitch} />
+      <Header openSwitcher={state?.openSwitcher} />
       {/* child route view */}
       <Outlet />
       <Menu className="mt-auto" />

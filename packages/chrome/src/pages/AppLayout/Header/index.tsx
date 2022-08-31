@@ -16,6 +16,7 @@ import {isNonEmptyArray} from "../../../utils/check";
 import {Account} from "@suiet/core/dist/api/account";
 import {useNavigate} from "react-router-dom";
 import {updateAccountId, updateNetworkId, updateWalletId} from "../../../store/app-context";
+import {PageEntry} from "../../../hooks/usePageEntry";
 
 const Avatar = ({ avatar }: { avatar: string }) => {
   return (
@@ -55,7 +56,7 @@ function useWalletAccountMap(wallets: Wallet[]) {
 }
 
 export type HeaderProps = {
-  walletSwitch?: boolean;
+  openSwitcher?: boolean;
 }
 
 const WalletSwitcherInstance = (props: {
@@ -94,9 +95,9 @@ const WalletSwitcherInstance = (props: {
 }
 
 function Header(props: HeaderProps) {
-  const {walletSwitch = false} = props;
+  const {openSwitcher = false} = props;
   const context = useSelector((state: RootState) => state.appContext);
-  const [doSwitch, setDoSwitch] = useState<boolean>(walletSwitch);
+  const [doSwitch, setDoSwitch] = useState<boolean>(openSwitcher);
   const navigate = useNavigate();
   const { account } = useAccount(context.accountId);
   const { wallet } = useWallet(context.walletId);
@@ -125,8 +126,12 @@ function Header(props: HeaderProps) {
       {doSwitch && <WalletSwitcherInstance
         onSelect={switchWallet}
         onClickLayer={() => {setDoSwitch(false)}}
-        onClickNew={() => {}}
-        onClickImport={() => {navigate('/onboard/import-wallet')}}
+        onClickNew={() => {navigate('/onboard/create-new-wallet', {
+          state: { pageEntry: PageEntry.SWITCHER }
+        })}}
+        onClickImport={() => {navigate('/onboard/import-wallet', {
+          state: { pageEntry: PageEntry.SWITCHER }
+        })}}
       />}
     </div>
   );
