@@ -14,7 +14,7 @@ type PhraseDisplayProps = Extendable & {
 const PhraseDisplay = (props: PhraseDisplayProps) => {
   function renderPhraseCol(start: number, end: number) {
     return props.phrases.slice(start, end).map((p, index) => (
-      <div className={classnames('py-1')}>
+      <div key={p} className={classnames('py-1')}>
         <p className={classnames('inline-block','text-gray-300','w-4','text-right','select-none')}>{`${index + 1 + start}`}</p>
         <p className={classnames('inline-block','text-gray-700', 'ml-3','w-20','font-mono')}>{`${p}`}</p>
       </div>
