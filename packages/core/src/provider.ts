@@ -1,6 +1,5 @@
 import {
     getObjectExistsResponse,
-    Coin,
     JsonRpcProvider,
     MergeCoinTransaction,
     RpcTxnDataSerializer,
@@ -16,9 +15,9 @@ import {
     isTransferSuiTransaction,
     getExecutionStatusType,
     getMoveObject,
+    isSuiMoveObject,
 } from "@mysten/sui.js"
-import { TxnHistroyEntry } from "./storage/types";
-import type { TxObjectType, TxStatus } from "./storage/types";
+import { TxnHistroyEntry, CoinObject as StorageCoinObject } from "./storage/types";
 import { SignedTx } from "./vault/types"
 import { Vault } from "./vault/Vault";
 import { Network } from "./api/network"
@@ -42,11 +41,31 @@ export class Provider {
         return active_validators as Array<SuiMoveObject>;
     }
 
-    public async getOwnedObjects(address: string): Promise<SuiObject[]> {
+    async getOwnedObjects(address: string): Promise<SuiObject[]> {
         const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
         const objectIds = objectInfos.map(obj => obj.objectId);
         const resps = await this.provider.getObjectBatch(objectIds);
         return resps.filter(resp => resp.status === "Exists").map(resp => getObjectExistsResponse(resp) as SuiObject);
+    }
+
+    public async getOwnedCoins(address: string): Promise<CoinObject[]> {
+        const objects = await this.getOwnedObjects(address);
+        const res = objects
+            .map(item => getMoveObject(item))
+            .filter(item => item && Coin.isCoin(item))
+            .map(item => {
+                const obj = item as SuiMoveObject;
+                const arg = Coin.getCoinTypeArg(obj);
+                const symbol = arg ? Coin.getCoinSymbol(arg) : "";
+                const balance = Coin.getBalance(obj);
+                const id = Coin.getID(obj);
+                return {
+                    objectId: id,
+                    symbol: symbol,
+                    balance: balance,
+                }
+            });
+        return res;
     }
 
     public async getTransactionsForAddress(address: string): Promise<TxnHistroyEntry[]> {
@@ -65,36 +84,33 @@ export class Provider {
                         from: data.sender,
                         to: transferSui.recipient,
                         object: {
-                            type: 'sui' as TxObjectType,
-                            amount: transferSui.amount,
+                            type: 'coin' as 'coin',
+                            balance: transferSui.amount ? BigInt(transferSui.amount) : BigInt(0),
+                            symbol: 'SUI',
                         }
                     })
                 } else {
                     const transferObject = getTransferObjectTransaction(tx);
                     if (transferObject) {
-                        const obj = await this.provider.getObject(transferObject.objectRef.objectId)
-                        if (Coin.isCoin(obj)) {
+                        const resp = await this.provider.getObject(transferObject.objectRef.objectId)
+                        const obj = getMoveObject(resp);
+                        if (obj && Coin.isCoin(obj)) {
                             const balance = Coin.getBalance(obj);
-                            const amount = balance?.toNumber() ?? 0;
-                            const moveObj = getMoveObject(obj);
-                            if (moveObj) {
-                                const res = moveObj.type.match(COIN_TYPE_ARG_REGEX);
-                                const symbol = res ? res[1].substring(res[1].lastIndexOf(':') + 1) : "";
-                                // TODO: for now provider does not support to get histrorical object data,
-                                // so the record here may not be accurate.
-                                results.push({
-                                    timestamp_ms: effect.timestamp_ms,
-                                    txStatus: getExecutionStatusType(effect),
-                                    from: data.sender,
-                                    to: transferObject.recipient,
-                                    object: {
-                                        id: transferObject.objectRef.objectId,
-                                        type: 'coin' as TxObjectType,
-                                        amount: amount,
-                                        symbol: symbol,
-                                    }
-                                })
-                            }
+                            const arg = Coin.getCoinTypeArg(obj);
+                            const symbol = arg ? Coin.getCoinSymbol(arg) : "";
+                            // TODO: for now provider does not support to get histrorical object data,
+                            // so the record here may not be accurate.
+                            results.push({
+                                timestamp_ms: effect.timestamp_ms,
+                                txStatus: getExecutionStatusType(effect),
+                                from: data.sender,
+                                to: transferObject.recipient,
+                                object: {
+                                    type: 'coin' as 'coin',
+                                    balance: balance,
+                                    symbol: symbol,
+                                }
+                            })
                         }
                         // TODO: handle more object types
                     }
@@ -102,6 +118,38 @@ export class Provider {
             }
         }
         return results;
+    }
+}
+
+class Coin {
+    public static isCoin(obj: SuiMoveObject) {
+        return obj.type.startsWith(COIN_TYPE);
+    }
+
+    public static getCoinTypeArg(obj: SuiMoveObject) {
+        const res = obj.type.match(COIN_TYPE_ARG_REGEX);
+        return res ? res[1] : null;
+    }
+
+    public static isSUI(obj: SuiMoveObject) {
+        const arg = Coin.getCoinTypeArg(obj);
+        return arg ? Coin.getCoinSymbol(arg) === 'SUI' : false;
+    }
+
+    public static getCoinSymbol(coinTypeArg: string) {
+        return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
+    }
+
+    public static getBalance(obj: SuiMoveObject): bigint {
+        return BigInt(obj.fields.balance);
+    }
+
+    public static getID(obj: SuiMoveObject): string {
+        return obj.fields.id.id;
+    }
+
+    public static getCoinTypeFromArg(coinTypeArg: string) {
+        return `${COIN_TYPE}<${coinTypeArg}>`;
     }
 }
 
@@ -121,21 +169,6 @@ export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
 export const GAS_TYPE_ARG = '0x2::sui::SUI';
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
-
-type MergeSplitCoinTx = {
-    gasCost: number,
-} & (
-        | {
-            type: "merge",
-            primary: CoinObject,
-            toMerge: CoinObject,
-        }
-        | {
-            type: "split",
-            coinId: string,
-            splitAmounts: bigint[],
-        }
-    )
 
 type MergeCoins = {
     primary: string,
