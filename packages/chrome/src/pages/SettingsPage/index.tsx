@@ -91,9 +91,9 @@ function SettingPage() {
                 <span className="icon-security"></span>Security
                 <span className="icon-right-arrow" />
               </div>
-              {/* <div onClick={() => handleResetApp()} className="settings-item">
+              <div onClick={() => handleResetApp()} className="settings-item">
                 <span className="icon-security"></span>Reset App
-              </div> */}
+              </div>
               <div className="app-version">version v0.0.1</div>
             </>
           }

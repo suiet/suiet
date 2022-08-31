@@ -1,27 +1,35 @@
 @import "../../../styles/variables";
 
 .phrase {
-  @apply flex;
-  position: relative;
-
-  padding: 24px 32px;
-
-  background: #EDFCFF;
-  border-radius: 12px;
-}
-
-.phrase-item {
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 32px;
-  color: $primary-800;
+  @apply flex flex-row  justify-evenly relative rounded-lg;
+  background-color: $gray-50;
 }
 
 .icon-copy {
   position: absolute;
-  right: 13px;
-  top: 15px;
-  stroke: $primary-400;
-  stroke-width: 2px;
+  right: 8px;
+  top: 8px;
+}
+
+.phrase-wrap {
+  @apply flex flex-wrap justify-between items-center;
+  padding: 16px;
+}
+
+.phrase-item {
+  @apply flex items-center;
+  width: 78px;
+  height: 28px;
+  //padding: 8px 0;
+}
+
+.phrase-order {
+  @apply inline-block text-gray-300 text-right select-none;
+}
+
+.phrase-word {
+  @apply font-mono;
+  display: inline-block;
+  margin-left: 8px;
+  color: $gray-700;
 }

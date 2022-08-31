@@ -1,7 +1,33 @@
 @import "styles/tailwind.css";
 
-.app {
-  width: 362px;
-  height: 573px;
-  margin: auto;
+body {
+    background-color: rgba(0, 0, 0, 0.05);
+    position: relative;
+    font-family: 'Work Sans';
+    font-size: 14px;
+}
+
+@font-face {
+    font-family: 'Work Sans';
+    src: url('./assets/font/worksans/WorkSans-VariableFont_wght.ttf') format("truetype-variations");
+    font-weight: 1 999;
+}
+
+/* aboreto-regular - latin */
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./assets/font/ibm-plex-mono/IBMPlexMono-Regular.eot'); /* IE9 Compat Modes */
+    src: local(''),
+    url('./assets/font/ibm-plex-mono/IBMPlexMono-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */ url('./assets/font/ibm-plex-mono/IBMPlexMono-Regular.woff2') format('woff2'), /* Super Modern Browsers */ url('./assets/font/ibm-plex-mono/IBMPlexMono-Regular.woff') format('woff'), /* Modern Browsers */ url('./assets/font/ibm-plex-mono/IBMPlexMono-Regular.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: bold;
+    font-weight: 700;
+    src: url('./assets/font/ibm-plex-mono/IBMPlexMono-Bold.eot'); /* IE9 Compat Modes */
+    src: local(''),
+    url('./assets/font/ibm-plex-mono/IBMPlexMono-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */ url('./assets/font/ibm-plex-mono/IBMPlexMono-Bold.woff2') format('woff2'), /* Super Modern Browsers */ url('./assets/font/ibm-plex-mono/IBMPlexMono-Bold.woff') format('woff'), /* Modern Browsers */ url('./assets/font/ibm-plex-mono/IBMPlexMono-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
 }

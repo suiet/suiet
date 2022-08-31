@@ -1,4 +1,5 @@
 import classnames from "classnames";
+import commonStyles from "../common.module.scss";
 import styles from "./index.module.scss";
 import Typo from "../../../components/Typo";
 import Textarea from "../../../components/Textarea";
@@ -30,41 +31,39 @@ const ImportPhrase = ({onImported}: ImportPhraseProps) => {
   }
 
   return (
-    <div className={styles['container']}>
-      <Typo.Title className={
-        classnames(
-          styles['step-title'],
-          'mt-12',
-          'w-full'
-        )
-      }>Import<br/>Your<br/>Wallet</Typo.Title>
-      <Typo.Normal
-        className={classnames(
-          'mt-2',
-          'w-full',
-          'text-base',
-          'text-left')}
-      >Using recovery phrase or secret key</Typo.Normal>
+    <div className={commonStyles['container']}>
+      <Typo.Title className={commonStyles['step-title']}>
+        Input<br/>Recovery<br/>Phrase
+      </Typo.Title>
+      <Typo.Normal className={commonStyles['step-desc']}>
+        From an existing wallet.
+      </Typo.Normal>
 
 
-      <section className={'mt-[32px] w-full'}>
+      <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
           <FormControl
             name={'secret'}
             registerOptions={{
               required: 'Phrase should not be empty',
               validate: (val: string) => {
-                return coreApi.validateMnemonic(val) ? true : 'Phrase is not valid';
+                return coreApi.wallet.validateMnemonic(val) ? true : 'Phrase is not valid';
               }
             }}
           >
             <Textarea
               state={getInputStateByFormState(form.formState, 'secret')}
               className={'mt-[6px]'}
-              elClassName={styles['phrase-textarea']}
+              elStyle={{
+                height: '154px'
+              }}
               placeholder={'paste recovery phrase or private key...'}
             />
           </FormControl>
+          <Typo.Hints className={'mt-[6px]'}>
+            Displayed when you first created your wallet.
+          </Typo.Hints>
+
           <Button
             type={'submit'}
             state={'primary'}

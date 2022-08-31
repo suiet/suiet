@@ -1,5 +1,6 @@
 import * as crypto from "../crypto"
 import { Storage } from "../storage/Storage"
+import {Buffer} from "buffer";
 
 export async function validateToken(storage: Storage, token: string) {
 	const meta = await storage.loadMeta();
