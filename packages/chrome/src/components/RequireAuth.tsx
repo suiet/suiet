@@ -6,8 +6,6 @@ function RequireAuth({children}: any) {
   const { isAuthed } = useAuth();
   const location = useLocation();
 
-  console.log('isAuthed', isAuthed)
-
   return isAuthed ? children : (
     <Navigate to={'/login'} replace state={{ path: location.pathname }} />
   )

@@ -3,6 +3,7 @@ import * as crypto from "../crypto"
 import { Vault } from "../vault/Vault";
 import { Storage } from "../storage/Storage"
 import { toAccountIdString, toAccountNameString } from "./account";
+import {Buffer} from "buffer";
 
 export type CreateWalletParams = {
   token: string;
