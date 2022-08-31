@@ -1,0 +1,34 @@
+@import "../../styles/variables";
+
+$nav-height: 56px;
+
+.nav {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 56px;
+}
+
+.icon-back {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  background: $gray-100;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.nav-title {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 28px;
+  color: $gray-700;
+}

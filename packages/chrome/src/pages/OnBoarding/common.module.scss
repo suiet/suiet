@@ -2,17 +2,20 @@
 
 .container {
   @apply flex flex-col items-center;
-  box-sizing: border-box;
-  width: 298px;
-  height: 573px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 32px 32px 0;
 
   .step-title {
+    width: 100%;
     font-style: normal;
     font-weight: 700;
     font-size: 36px;
     line-height: 36px;
     color: $gray-900;
+  }
+
+  .step-desc {
+    @apply text-base text-left;
+    width: 100%;
+    margin-top: 8px;
   }
 }

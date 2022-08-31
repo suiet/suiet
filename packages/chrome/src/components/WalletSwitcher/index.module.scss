@@ -78,6 +78,8 @@ $ani-duration: 0.2s;
 
 .wallet-item-container {
   width: 100%;
+  height: 440px;
+  overflow-y: auto;
   padding: 0 $container-px;
 }
 
