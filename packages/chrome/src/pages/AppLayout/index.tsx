@@ -1,7 +1,7 @@
-import Header from "./Header";
-import Menu from "./Menu";
-import styles from "./index.module.scss";
-import {Outlet, useLocation} from "react-router-dom";
+import Header from './Header';
+import Menu from './Menu';
+import styles from './index.module.scss';
+import { Outlet, useLocation } from 'react-router-dom';
 
 function AppLayout() {
   const location = useLocation();
@@ -9,10 +9,10 @@ function AppLayout() {
 
   return (
     <div className={styles['main-page']}>
-      <Header walletSwitch={state?.walletSwitch} />
+      {!state.hideApplayout && <Header walletSwitch={state?.walletSwitch} />}
       {/* child route view */}
       <Outlet />
-      <Menu className="mt-auto" />
+      {!state.hideApplayout && <Menu className="mt-auto" />}
     </div>
   );
 }
