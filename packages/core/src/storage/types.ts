@@ -24,29 +24,38 @@ export type Cipher = {
     salt: string,
 }
 
+export type TxStatus = 'success' | 'failure';
+
 export type TxnHistroyEntry = {
-    status: "pending" | "completed" | "failed",
+    txStatus: TxStatus,
     from: string,
     to: string,
-    object: TxnObject,
+    object: TxObject,
+    timestamp_ms: number | null,
 }
 
-export type TxnObject = {
+
+export type TxObjectType = 'sui' | 'coin' | 'nft';
+
+export type TxObject = {
+    type: TxObjectType,
+} & (
+        | SuiObject
+        | CoinObject
+        | NftObject
+    )
+
+export type SuiObject = {
+    amount: number | null,
+}
+
+export type CoinObject = {
+    symbol: string,
+    amount: number | null,
+    decimals: number,
+}
+
+export type NftObject = {
+    name: string,
     id: string,
-}
-
-export type CoinTxnObject = {
-    id: "coin",
-    name: string, // sui
-    symbol: string, // SUI
-    number: number, // 12345 => 12.345
-    decimals: number, // 3
-}
-
-export type NftTxnObject = {
-    id: "coin",
-    name: string, // sui
-    symbol: string, // SUI
-    number: number, // 12345 => 12.345
-    decimals: number, // 3
 }

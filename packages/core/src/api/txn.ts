@@ -1,4 +1,6 @@
 import { TxnHistroyEntry } from "../storage/types";
+import { Network } from "./network"
+import { Provider } from "../provider";
 
 export type TransferCoinParams = {
     name: string,
@@ -38,6 +40,17 @@ export type Object = {
 export interface ITransactionApi {
     transferCoin: (params: TransferCoinParams) => Promise<void>;
     transferObject: (params: TransferObjectParams) => Promise<void>;
-    getTransactionHistory: () => Promise<Array<TxnHistroyEntry>>;
+    getTransactionHistory: (network: Network, address: string) => Promise<Array<TxnHistroyEntry>>;
+    getOwnedObjects: () => Promise<Object>;
+}
+
+export class TransactionApi implements ITransactionApi {
+    transferCoin: (params: TransferCoinParams) => Promise<void>;
+    transferObject: (params: TransferObjectParams) => Promise<void>;
+    async getTransactionHistory(network: Network, address: string): Promise<TxnHistroyEntry[]> {
+        const provider = new Provider(network);
+        const histroy = await provider.getTransactionsForAddress(address);
+        return histroy;
+    }
     getOwnedObjects: () => Promise<Object>;
 }
