@@ -20,7 +20,7 @@ type FormData = {
 
 const SavePassword = (props: SavePasswordProps) => {
   const form = useForm<FormData>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
       password: ''
     }
@@ -29,20 +29,14 @@ const SavePassword = (props: SavePasswordProps) => {
 
   return (
     <div className={commonStyles['container']}>
-      <Typo.Title className={
-        classnames(
-          commonStyles['step-title'],
-          'mt-[80px]',
-          'w-full'
-        )
-      }>Set <br /> wallet <br /> password</Typo.Title>
-      <Typo.Normal className={classnames(
-        'mt-4',
-        'w-full',
-        'text-base',
-        'text-left')}>Used to unlock your wallet.</Typo.Normal>
+      <Typo.Title className={commonStyles['step-title']}>
+        Set <br/> wallet <br/> password
+      </Typo.Title>
+      <Typo.Normal className={commonStyles['step-desc']}>
+        Used to unlock your wallet.
+      </Typo.Normal>
 
-      <section className={'mt-12 w-full'}>
+      <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={(data) => {
           props.onNext(data.password);
         }}>
@@ -85,7 +79,7 @@ const SavePassword = (props: SavePasswordProps) => {
           <Button
             type={'submit'}
             state={'primary'}
-            className={'mt-8'}
+            className={'mt-[28px]'}
           >Next</Button>
         </Form>
       </section>
