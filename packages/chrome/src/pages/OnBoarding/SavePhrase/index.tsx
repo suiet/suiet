@@ -1,4 +1,5 @@
 import commonStyles from "../common.module.scss";
+import styles from "./index.module.scss";
 import Typo from "../../../components/Typo";
 import Button from "../../../components/Button";
 import classnames from "classnames";
@@ -14,43 +15,24 @@ type PhraseDisplayProps = Extendable & {
 const PhraseDisplay = (props: PhraseDisplayProps) => {
   function renderPhraseCol(start: number, end: number) {
     return props.phrases.slice(start, end).map((p, index) => (
-      <div key={p} className={classnames('py-1')}>
-        <p className={classnames('inline-block','text-gray-300','w-4','text-right','select-none')}>{`${index + 1 + start}`}</p>
-        <p className={classnames('inline-block','text-gray-700', 'ml-3','w-20','font-mono')}>{`${p}`}</p>
+      <div key={p} className={styles['phrase-item']}>
+        <span className={styles['phrase-order']}>{`${index + 1 + start}`}</span>
+        <span className={styles['phrase-word']}>{`${p}`}</span>
       </div>
     ));
   }
 
-  function copyPhrase() {
-    const phraseStr = props.phrases.join(' ')
-    copy(phraseStr);
-    toast.success('Copied Phrases')
-  }
-
   return (
-    <div className={classnames('flex',
-      'flex-row',
-      'justify-evenly',
-      'justify-items-center',
-      'bg-gray-50',
-      'relative',
-      'rounded-lg',
-      'py-5')}>
-      <div>
-        {renderPhraseCol(0, 6)}
-      </div>
-      <div className={classnames()}>
-        {renderPhraseCol(6, 12)}
+    <div className={styles['phrase']}>
+      <div className={styles['phrase-wrap']}>
+        {renderPhraseCol(0, 12)}
       </div>
       <CopyIcon
-        className={classnames(
-          'absolute',
-          'right-4',
-          'top-4',
-          'w-4',
-          'h-4'
-        )}
-        onClick={copyPhrase}
+        copyStr={props.phrases?.join(' ') || ''}
+        onCopied={() => {
+          toast.success('Copied Phrases')
+        }}
+        className={styles['icon-copy']}
       />
     </div>
   )
@@ -62,26 +44,20 @@ const SavePhrase = (props: {
 }) => {
   return (
     <div className={commonStyles['container']}>
-      <Typo.Title className={
-        classnames(
-          commonStyles['step-title'],
-          'mt-12',
-          'w-full'
-        )
-      }>Backup<br />your<br />wallet</Typo.Title>
-      <Typo.Normal className={classnames(
-        'mt-2',
-        'w-full',
-        'text-base',
-        'text-left')}>Copy and save your recovery phrase</Typo.Normal>
-      <section className={'mt-[45px] w-full'}>
+      <Typo.Title className={commonStyles['step-title']}>
+        Backup<br/>Your<br/>Wallet
+      </Typo.Title>
+      <Typo.Normal className={commonStyles['step-desc']}>
+        Copy and save your recovery phrase.
+      </Typo.Normal>
+      <section className={'mt-[24px]'}>
         <PhraseDisplay phrases={props.phrases}></PhraseDisplay>
         <Button
           state={'primary'}
           className={'mt-[32px]'}
           onClick={props.onNext}
         >
-          I've saved the Phrase
+          Confirm and Create
         </Button>
       </section>
     </div>

@@ -3,5 +3,6 @@
 .main-page {
   @apply flex flex-col;
   width: $full-width;
-  height: $full-height;
+  min-height: $full-height;
+  overflow-y: auto;
 }

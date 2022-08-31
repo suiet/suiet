@@ -1,7 +1,7 @@
 import SetPassword from '../SetPassword';
 import SavePhrase from '../SavePhrase';
 import {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   updateAccountId,
@@ -9,12 +9,13 @@ import {
   updateToken,
   updateWalletId,
 } from '../../../store/app-context';
-import { isNonEmptyArray } from '../../../utils/check';
+import {isNonEmptyArray} from '../../../utils/check';
 import toast from '../../../components/toast';
-import { coreApi } from '@suiet/core';
-import { updateWallet } from '../../../store/wallet';
+import {coreApi} from '@suiet/core';
+import {updateWallet} from '../../../store/wallet';
 import {AppDispatch, RootState} from "../../../store";
 import {PageEntry, usePageEntry} from "../../../hooks/usePageEntry";
+import Nav from "../../../components/Nav";
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
@@ -61,7 +62,7 @@ const CreateNewWallet = () => {
 
   async function handleSavePhrase() {
     if (pageEntry === PageEntry.SWITCHER) {
-      navigate('/home', { state: { openSwitcher: true } });
+      navigate('/home', {state: {openSwitcher: true}});
       return;
     }
     navigate('/home');
@@ -81,12 +82,36 @@ const CreateNewWallet = () => {
     }
   }, [pageEntry]);
 
-  switch (step) {
-    case 2:
-      return <SavePhrase phrases={phrases} onNext={handleSavePhrase} />;
-    default:
-      return <SetPassword onNext={handleSetPassword} />;
+  function renderContent() {
+    switch (step) {
+      case 2:
+        return <SavePhrase phrases={phrases} onNext={handleSavePhrase}/>;
+      default:
+        return <SetPassword onNext={handleSetPassword}/>;
+    }
   }
+
+  return (
+    <div>
+      <Nav
+        title={'New Wallet'}
+        onNavBack={() => {
+          if (pageEntry === PageEntry.SWITCHER) {
+            navigate('/', {
+              state: {openSwitcher: true}  // open the wallet switcher
+            });
+            return
+          }
+          if (step > 1) {
+            setStep((step) => step - 1);
+            return;
+          }
+          navigate('/onboard/welcome')
+        }}
+      />
+      {renderContent()}
+    </div>
+  )
 };
 
 export default CreateNewWallet;

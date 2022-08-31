@@ -1,20 +1,16 @@
-import { useNavigate } from 'react-router-dom';
-import { coreApi } from '@suiet/core';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../store';
-import { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
+import {coreApi} from '@suiet/core';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../../store';
+import {useState} from 'react';
 import SetPassword from '../SetPassword';
 import ImportPhrase from '../ImportPhrase';
-import { isNonEmptyArray } from '../../../utils/check';
+import {isNonEmptyArray} from '../../../utils/check';
 import toast from '../../../components/toast';
-import {
-  updateAccountId,
-  updateInitialized,
-  updateToken,
-  updateWalletId,
-} from '../../../store/app-context';
-import { updateWallet } from '../../../store/wallet';
+import {updateAccountId, updateInitialized, updateToken, updateWalletId,} from '../../../store/app-context';
+import {updateWallet} from '../../../store/wallet';
 import {PageEntry, usePageEntry} from "../../../hooks/usePageEntry";
+import Nav from "../../../components/Nav";
 
 const ImportWallet = () => {
   const [step, setStep] = useState(1);
@@ -48,6 +44,7 @@ const ImportWallet = () => {
   }
 
   async function handleImport(_secret: string) {
+    // TODO: check duplicated wallet
     if (pageEntry === PageEntry.SWITCHER && appContext.token) {
       // already has token
       await createWalletAndAccount(appContext.token, _secret);
@@ -71,12 +68,35 @@ const ImportWallet = () => {
     navigate('/');
   }
 
-  switch (step) {
-    case 2:
-      return <SetPassword onNext={handleSetPassword} />;
-    default:
-      return <ImportPhrase onImported={handleImport} />;
+  function renderContent() {
+    switch (step) {
+      case 2:
+        return <SetPassword onNext={handleSetPassword} />;
+      default:
+        return <ImportPhrase onImported={handleImport} />;
+    }
   }
+  return (
+    <div>
+      <Nav
+        title={'Import Wallet'}
+        onNavBack={() => {
+          if (step > 1) {
+            setStep((step) => step - 1);
+            return;
+          }
+          if (pageEntry === PageEntry.SWITCHER) {
+            navigate('/', {
+              state: {openSwitcher: true}  // open the wallet switcher
+            });
+            return
+          }
+          navigate('/onboard/welcome')
+        }}
+      />
+      {renderContent()}
+    </div>
+  )
 };
 
 export default ImportWallet;

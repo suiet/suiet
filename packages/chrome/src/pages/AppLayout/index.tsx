@@ -1,7 +1,7 @@
 import Header from './Header';
 import Menu from './Menu';
 import styles from './index.module.scss';
-import { Outlet, useLocation } from 'react-router-dom';
+import {Outlet, useLocation} from 'react-router-dom';
 
 function AppLayout() {
   const location = useLocation();
