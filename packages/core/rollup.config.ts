@@ -14,6 +14,7 @@ const config = defineConfig({
     dir: 'dist',
     format: 'es',
   },
+  external: ['@mysten/sui.js'],
   plugins: [
     // polyfill nodejs built-in and global modules
     nodePolyfills(),
