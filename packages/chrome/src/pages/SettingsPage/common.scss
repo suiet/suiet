@@ -1,16 +1,25 @@
 .setting-title {
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 32px;
-  color: #101828;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 36px;
+  color: #000000;
+  margin-top: 37px;
 }
 
 .setting-desc {
-  font-weight: 400;
+  font-weight: 600;
   font-size: 16px;
-  line-height: 24px;
-  color: #667085;
-  margin-top: 4px;
+  line-height: 20px;
+  color: #b9c0d4;
+  margin-top: 8px;
+}
+
+.setting-cancel {
+  width: 32px;
+  height: 32px;
+  background: url('./assets/cancel.svg') no-repeat center;
+  background-size: cover;
+  cursor: pointer;
 }
 
 .setting-btn {

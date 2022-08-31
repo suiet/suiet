@@ -2,19 +2,21 @@ import './wallet.scss';
 import './common.scss';
 import classnames from 'classnames';
 import Button from '../../components/Button';
-import { RootState } from '../../store';
-import { useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
 import { avatarMap } from '../../constants/avatar';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { coreApi } from '@suiet/core';
-import { useWallet } from '../../hooks/useWallet';
+import { updateWallet } from '../../store/wallet';
 
 function Wallet() {
-  const context = useSelector((state: RootState) => state.appContext);
-  const { wallet } = useWallet(context.walletId);
+  const { context, wallet } = useSelector((state: RootState) => ({
+    context: state.appContext,
+    wallet: state.wallet,
+  }));
   const [name, setName] = useState('');
-
+  const dispatch = useDispatch<AppDispatch>();
   const [avatar, setAvatar] = useState('1');
   const navigate = useNavigate();
 
@@ -25,15 +27,18 @@ function Wallet() {
 
   return (
     <div className="wallet-setting-container">
-      <div className="setting-title">wallet</div>
+      <div className="flex justify-end items-center h-14">
+        <div className="setting-cancel" onClick={() => navigate('..')}></div>
+      </div>
+      <div className="setting-title">Edit Wallet</div>
       <div className="setting-desc">Manage your wallet informations here.</div>
       <div
         className="wallet-item-title"
         style={{
-          marginTop: 27,
+          marginTop: 36,
         }}
       >
-        icon
+        Icon
       </div>
       <div className="flex gap-4 mb-4">
         {[1, 2, 3, 4].map((num) => {
@@ -57,11 +62,17 @@ function Wallet() {
         value={name}
         onChange={(v) => setName(v.target.value)}
       />
-      <div className="flex flex-col gap-2 mt-2">
+      <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
         <Button
           state="primary"
           onClick={async () => {
             try {
+              dispatch(
+                updateWallet({
+                  avatar,
+                  name,
+                })
+              );
               await coreApi.updateWallet(
                 context.walletId,
                 {
@@ -77,13 +88,6 @@ function Wallet() {
           }}
         >
           Save
-        </Button>
-        <Button
-          onClick={() => {
-            navigate('..');
-          }}
-        >
-          Cancel
         </Button>
       </div>
     </div>
