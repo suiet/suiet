@@ -45,12 +45,14 @@ export interface ITransactionApi {
 }
 
 export class TransactionApi implements ITransactionApi {
-    transferCoin: (params: TransferCoinParams) => Promise<void>;
-    transferObject: (params: TransferObjectParams) => Promise<void>;
+    async transferCoin(params: TransferCoinParams): Promise<void> {
+
+    }
+    async transferObject(params: TransferObjectParams): Promise<void> { }
     async getTransactionHistory(network: Network, address: string): Promise<TxnHistroyEntry[]> {
         const provider = new Provider(network);
         const histroy = await provider.getTransactionsForAddress(address);
         return histroy;
     }
-    getOwnedObjects: () => Promise<Object>;
+    async getOwnedObjects(): Promise<Object> { throw new Error("Unimplemented") }
 }
