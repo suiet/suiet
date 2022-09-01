@@ -17,7 +17,7 @@ export function useAuth() {
     token,
     isAuthed,
     login: async function (password: string): Promise<string> {
-      const token = await coreApi.loadTokenWithPassword(password);
+      const token = await coreApi.auth.loadTokenWithPassword(password);
       await dispatch(updateToken(token));
       return token;
     },
