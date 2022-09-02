@@ -1,0 +1,6 @@
+**/dist/
+**/coverage/
+**/node_modules/
+*.config.ts
+*.d.ts
+*.test.ts

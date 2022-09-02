@@ -59,7 +59,7 @@ const SendPage = () => {
                 },
               })}
             />
-            {/*<Typo.Hints className={'mt-[6px]'}>{'23 transactions in 1 week, view in explorer'}</Typo.Hints>*/}
+            {/* <Typo.Hints className={'mt-[6px]'}>{'23 transactions in 1 week, view in explorer'}</Typo.Hints> */}
             <ErrorMessage
               errors={formState.errors}
               name={'address'}

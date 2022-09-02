@@ -15,7 +15,7 @@ export type CreateWalletParams = {
 export type Wallet = {
   id: string;
   name: string;
-  accounts: Array<string>;
+  accounts: string[];
   nextAccountId: number;
   avatar?: string;
 };
@@ -68,7 +68,7 @@ export class WalletApi {
     }
     const token = Buffer.from(params.token, 'hex');
     const encryptedMnemonic = crypto.encryptMnemonic(token, mnemonic);
-    let meta = await this.storage.loadMeta();
+    const meta = await this.storage.loadMeta();
     if (!meta) {
       throw new Error('Password not initialized');
     }
@@ -92,7 +92,7 @@ export class WalletApi {
       name: toAccountNameString(wallet.name, 0),
       pubkey: vault.getPublicKey(),
       address: vault.getAddress(),
-      hdPath: hdPath,
+      hdPath,
     };
 
     // TODO: save these states transactionally.

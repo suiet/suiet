@@ -6,9 +6,8 @@ import Network from './network';
 import Security from './security';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetAppContext } from '../../store/app-context';
-import { AppDispatch } from '../../store';
+import { AppDispatch, RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import { RootState } from '../../store';
 import CopyIcon from '../../components/CopyIcon';
 import toast from '../../components/toast';
 import { addressEllipsis } from '../../utils/format';
@@ -91,7 +90,10 @@ function SettingPage() {
                 <span className="icon-security"></span>Security
                 <span className="icon-right-arrow" />
               </div>
-              <div onClick={() => handleResetApp()} className="settings-item">
+              <div
+                onClick={async () => await handleResetApp()}
+                className="settings-item"
+              >
                 <span className="icon-security"></span>Reset App
               </div>
               <div className="app-version">version v0.0.1</div>

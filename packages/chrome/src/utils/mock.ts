@@ -4,20 +4,24 @@ const mockMnemonic2 =
   'mansion head pool photo forward plug click tired mean menu warrior immense';
 
 export class MockStorage {
-  addAccount(walletId: string, accountId: string, account: any): Promise<void> {
-    return Promise.resolve(undefined);
+  async addAccount(
+    walletId: string,
+    accountId: string,
+    account: any
+  ): Promise<void> {
+    return await Promise.resolve(undefined);
   }
 
-  addWallet(id: string, wallet: any): Promise<void> {
-    return Promise.resolve(undefined);
+  async addWallet(id: string, wallet: any): Promise<void> {
+    return await Promise.resolve(undefined);
   }
 
-  deleteAccount(walletId: string, accountId: string): Promise<void> {
-    return Promise.resolve(undefined);
+  async deleteAccount(walletId: string, accountId: string): Promise<void> {
+    return await Promise.resolve(undefined);
   }
 
-  getWallet(id: string): Promise<any> {
-    return Promise.resolve({
+  async getWallet(id: string): Promise<any> {
+    return await Promise.resolve({
       id: '1',
       name: 'test',
       accounts: [],
@@ -29,18 +33,18 @@ export class MockStorage {
     });
   }
 
-  getWallets(): Promise<Array<any>> {
-    return Promise.resolve([]);
+  async getWallets(): Promise<any[]> {
+    return await Promise.resolve([]);
   }
 
-  loadMeta(): Promise<any> {
-    return Promise.resolve({
+  async loadMeta(): Promise<any> {
+    return await Promise.resolve({
       nextWalletId: 2,
     });
   }
 
-  saveMeta(meta: any): Promise<void> {
-    return Promise.resolve(undefined);
+  async saveMeta(meta: any): Promise<void> {
+    return await Promise.resolve(undefined);
   }
 }
 
@@ -64,11 +68,11 @@ export class MockWallet {
       saltHex: '',
     };
     const walletId = 1;
-    let wallet = {
+    const wallet = {
       id: 'wallet-' + walletId,
       name: 'name-' + walletId,
       nextAccountId: 0,
-      encryptedMnemonic: encryptedMnemonic,
+      encryptedMnemonic,
       accounts: [],
     };
     return new MockWallet(storage, wallet);

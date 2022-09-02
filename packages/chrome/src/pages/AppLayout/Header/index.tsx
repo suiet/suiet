@@ -46,7 +46,7 @@ function useWalletAccountMap(wallets: Wallet[]) {
       const map = new Map<string, Account>();
       const accounts = await Promise.all(
         wallets.map(async (wallet) => {
-          return searchDefaultAccount(wallet.id);
+          return await searchDefaultAccount(wallet.id);
         })
       );
       wallets.forEach((wallet, index) => {
@@ -82,8 +82,8 @@ const WalletSwitcherInstance = (props: {
       id: wallet.id,
       name: wallet.name,
       avatar: wallet.avatar,
-      accountId: account?.id || '',
-      accountAddress: account?.address || '',
+      accountId: account?.id ?? '',
+      accountAddress: account?.address ?? '',
     };
   }
 

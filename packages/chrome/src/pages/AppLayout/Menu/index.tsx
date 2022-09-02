@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom';
-import type { StyleExtendable } from '../../../types';
+import type { Extendable, StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
 import { ReactComponent as IconHome } from '../../../assets/icons/home.svg';
 import { ReactComponent as IconTx } from '../../../assets/icons/transactions.svg';
@@ -34,7 +34,7 @@ const MenuItem = (props: MenuItemProps) => {
   );
 };
 
-const Menu: React.FC<MenuProps> = (props) => {
+const Menu: React.FC<MenuProps> = (props: Extendable) => {
   return (
     <div
       className={classnames(styles['menu'], props.className)}

@@ -56,7 +56,7 @@ export class Ed25519HdKey {
       if (!m || m.length !== 3) {
         throw new Error(`Invalid child index: ${part}`);
       }
-      const idx = m[2] == "'" ? parseInt(m[1]) + 2 ** 31 : parseInt(m[1]);
+      const idx = m[2] === "'" ? parseInt(m[1]) + 2 ** 31 : parseInt(m[1]);
       key = await key.deriveChild(idx);
     }
 

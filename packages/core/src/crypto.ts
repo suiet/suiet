@@ -29,7 +29,7 @@ export function generateMnemonic(): string {
 }
 
 export function encryptMnemonic(token: Buffer, mnemonic: string): Buffer {
-  let aesCtr = new ModeOfOperation.ctr(token);
+  const aesCtr = new ModeOfOperation.ctr(token);
   const mnemonicBytes = new TextEncoder().encode(mnemonic);
   return Buffer.from(aesCtr.encrypt(mnemonicBytes));
 }
@@ -38,7 +38,7 @@ export function decryptMnemonic(
   token: Buffer,
   encryptedMnemonic: string
 ): string {
-  let aesCtr = new ModeOfOperation.ctr(token);
+  const aesCtr = new ModeOfOperation.ctr(token);
   const encryptedBytes = Buffer.from(encryptedMnemonic, 'hex');
   const mnemonicBytes = aesCtr.decrypt(encryptedBytes);
   const mnemonic = new TextDecoder().decode(mnemonicBytes);
@@ -51,10 +51,10 @@ export function decryptMnemonic(
 export function newToken(password: string): Token {
   const salt = randomBytes(32);
   const token = password2Token(password, salt);
-  let aesCtr = new ModeOfOperation.ctr(token);
+  const aesCtr = new ModeOfOperation.ctr(token);
   const secretBytes = new TextEncoder().encode(WALLET_MASTER_SECRET);
   return {
-    token: token,
+    token,
     cipher: {
       data: Buffer.from(aesCtr.encrypt(secretBytes)).toString('hex'),
       salt: salt.toString('hex'),
@@ -71,7 +71,7 @@ export function password2Token(password: string, salt: Buffer) {
 }
 
 export function validateToken(token: Buffer, cipher: Cipher): boolean {
-  let aesCtr = new ModeOfOperation.ctr(token);
+  const aesCtr = new ModeOfOperation.ctr(token);
   const data = Buffer.from(cipher.data, 'hex');
   const secretBytes = aesCtr.decrypt(data);
   const secret = new TextDecoder().decode(secretBytes);

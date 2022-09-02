@@ -10,7 +10,6 @@ module.exports = {
     'standard-with-typescript',
     'plugin:prettier/recommended',
   ],
-  overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -22,9 +21,22 @@ module.exports = {
   },
   plugins: ['react'],
   rules: {
+    '@typescript-eslint/no-unused-vars': 1,
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/no-floating-promises': 0,
     '@typescript-eslint/consistent-type-definitions': 0,
     '@typescript-eslint/strict-boolean-expressions': 0,
+    '@typescript-eslint/no-extraneous-class': 0,
+    '@typescript-eslint/no-this-alias': 0,
+    '@typescript-eslint/restrict-plus-operands': 0,
+    '@typescript-eslint/dot-notation': 0,
+    '@typescript-eslint/no-misused-promises': 0,
+    'react/display-name': 0,
+    'new-cap': 'off',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
 };

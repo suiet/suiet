@@ -1,26 +1,16 @@
 import {
   getObjectExistsResponse,
   JsonRpcProvider,
-  MergeCoinTransaction,
   RpcTxnDataSerializer,
   SuiMoveObject,
   SuiObject,
-  TxnDataSerializer,
-  getTransactionKindName,
   getTransferObjectTransaction,
   getTransferSuiTransaction,
-  getTransactions,
-  getTransactionDigest,
   getTransactionData,
-  isTransferSuiTransaction,
   getExecutionStatusType,
   getMoveObject,
-  isSuiMoveObject,
 } from '@mysten/sui.js';
-import {
-  TxnHistroyEntry,
-  CoinObject as StorageCoinObject,
-} from './storage/types';
+import { TxnHistroyEntry } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 import { Network } from './api/network';
@@ -35,13 +25,13 @@ export class Provider {
     this.provider = new JsonRpcProvider(network.rpcURL);
   }
 
-  public async getActiveValidators(): Promise<Array<SuiMoveObject>> {
+  public async getActiveValidators(): Promise<SuiMoveObject[]> {
     const contents = await this.provider.getObject(SUI_SYSTEM_STATE_OBJECT_ID);
     const data = (contents.details as SuiObject).data;
     const validators = (data as SuiMoveObject).fields.validators;
-    const active_validators = (validators as SuiMoveObject).fields
+    const activeValidators = (validators as SuiMoveObject).fields
       .active_validators;
-    return active_validators as Array<SuiMoveObject>;
+    return activeValidators as SuiMoveObject[];
   }
 
   async getOwnedObjects(address: string): Promise<SuiObject[]> {
@@ -66,8 +56,8 @@ export class Provider {
         const id = Coin.getID(obj);
         return {
           objectId: id,
-          symbol: symbol,
-          balance: balance,
+          symbol,
+          balance,
         };
       });
     return res;
@@ -120,8 +110,8 @@ export class Provider {
                 to: transferObject.recipient,
                 object: {
                   type: 'coin' as 'coin',
-                  balance: balance,
-                  symbol: symbol,
+                  balance,
+                  symbol,
                 },
               });
             }
@@ -212,9 +202,9 @@ export class CoinProvider {
       return coinWithSufficientBalance;
     }
     // merge coins with sufficient balance.
-    let primaryCoin = coins[coins.length - 1];
+    const primaryCoin = coins[coins.length - 1];
     let estimatedBalance = primaryCoin.balance;
-    let coinsToMerge = [];
+    const coinsToMerge = [];
     for (let i = coins.length - 2; i > 0; i--) {
       estimatedBalance += coins[i].balance;
       coinsToMerge.push(coins[i].objectId);
@@ -222,7 +212,7 @@ export class CoinProvider {
         return {
           primary: primaryCoin.objectId,
           mergeCoins: coinsToMerge,
-          estimatedBalance: estimatedBalance,
+          estimatedBalance,
         };
       }
     }

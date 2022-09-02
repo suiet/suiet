@@ -35,9 +35,9 @@ export class AuthApi {
       }
     }
     const { cipher } = crypto.newToken(newPassword);
-    let newMeta = {
+    const newMeta = {
       nextWalletId: 0,
-      cipher: cipher,
+      cipher,
     };
     if (meta) {
       newMeta.nextWalletId = meta.nextWalletId;

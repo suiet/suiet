@@ -27,8 +27,8 @@ const ImportWallet = () => {
 
   async function createWalletAndAccount(token: string, mnemonic: string) {
     const wallet = await coreApi.wallet.createWallet({
-      token: token,
-      mnemonic: mnemonic,
+      token,
+      mnemonic,
     });
     const accounts = await coreApi.account.getAccounts(wallet.id);
     if (!isNonEmptyArray(accounts)) {
@@ -38,7 +38,7 @@ const ImportWallet = () => {
     const defaultAccount = accounts[0];
     dispatch(
       updateWallet({
-        avatar: wallet.avatar || '1',
+        avatar: wallet.avatar ?? '1',
         name: wallet.name,
       })
     );

@@ -12,7 +12,6 @@ export async function fetchPassword(): Promise<string> {
 
 export async function storePassword(value: string): Promise<void> {
   await chrome.storage.managed.set({ [StorageKey.PASSWORD]: value });
-  return;
 }
 
 export async function fetchWalletCredentials(walletId: number) {
