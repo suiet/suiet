@@ -6,11 +6,30 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.36.1",
+    "eslint": "^8.23.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard-with-typescript": "^22.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.1",
+    "eslint-plugin-react": "^7.31.1",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.2"
+  },
   "scripts": {
-    "dev:install": "npm run build -w @suiet/core && npm run build -w @suiet/chrome-ext",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "run-p dev:core dev:chrome",
+    "dev:chrome": "npm run dev -w @suiet/chrome-ext",
+    "build:chrome": "npm run build -w @suiet/chrome-ext",
+    "dev:core": "npm run dev -w @suiet/core",
+    "build:core": "npm run build -w @suiet/core",
+    "build": "run-s build:core build:chrome",
+    "prettier": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -20,5 +39,8 @@
   "bugs": {
     "url": "https://github.com/suiet/suiet/issues"
   },
-  "homepage": "https://github.com/suiet/suiet#readme"
+  "homepage": "https://github.com/suiet/suiet#readme",
+  "lint-staged": {
+    "*.{jsx?,tsx?}": "eslint --fix"
+  }
 }

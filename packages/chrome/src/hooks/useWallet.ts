@@ -13,7 +13,7 @@ export function useWallet(walletId: string) {
 
   async function fetchWallet(walletId: string) {
     const wallet = await coreApi.wallet.getWallet(walletId);
-    if (!wallet) {
+    if (wallet === null) {
       throw new Error('fetch wallet failed');
     }
     setWallet(wallet);
