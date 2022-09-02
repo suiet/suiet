@@ -30,7 +30,7 @@
     "dev:core": "npm run dev -w @suiet/core",
     "build:core": "npm run build -w @suiet/core",
     "build": "run-s build:core build:chrome",
-    "prettier": "prettier --write .",
+    "prettier": "prettier --write --ignore-unknown .",
     "lint": "eslint --ext=.js,.js,.tsx,.ts .",
     "lint:fix": "eslint --fix --ext=.js,.js,.tsx,.ts ."
   },
@@ -44,6 +44,7 @@
   },
   "homepage": "https://github.com/suiet/suiet#readme",
   "lint-staged": {
+    "*": "prettier --write",
     "*.{jsx?,tsx?}": "eslint --fix"
   }
 }
