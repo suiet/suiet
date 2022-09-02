@@ -1,11 +1,11 @@
-@import "../../../styles/variables";
+@import '../../../styles/variables';
 
 .menu {
   @apply flex justify-between items-center;
   box-sizing: border-box;
   height: $menu-height;
   padding: 8px 16px;
-  border-top: 1px solid #DCDFEA;
+  border-top: 1px solid #dcdfea;
 }
 
 .menu-item {

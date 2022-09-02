@@ -1,5 +1,5 @@
-import React, {CSSProperties, ReactNode} from 'react';
-import {Extendable} from "../../types";
+import React, { CSSProperties, ReactNode } from 'react';
+import { Extendable } from '../../types';
 
 export type IconProps = Extendable & {
   icon: string | ReactNode;
@@ -7,7 +7,7 @@ export type IconProps = Extendable & {
   onClick?: () => void;
   elClassName?: string;
   elStyle?: CSSProperties;
-}
+};
 
 /**
  * Wrap icon such as svg/img
@@ -15,7 +15,7 @@ export type IconProps = Extendable & {
  * @constructor
  */
 const Icon = (props: IconProps) => {
-  const {icon, alt='icon'} = props;
+  const { icon, alt = 'icon' } = props;
   return (
     <div
       onClick={props.onClick}

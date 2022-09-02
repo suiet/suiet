@@ -24,9 +24,14 @@ function TransactionDetail() {
           <span>iqAK3FwSZUSNZ...fY6a</span>
         </div>
       </div>
-      <Button onClick={() => {
+      <Button
+        onClick={() => {
           navigate('/transaction/flow');
-        }}> Back to list </Button>
+        }}
+      >
+        {' '}
+        Back to list{' '}
+      </Button>
     </div>
   );
 }

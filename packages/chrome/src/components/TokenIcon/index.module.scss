@@ -1,4 +1,4 @@
-@import "../../styles/variables.scss";
+@import '../../styles/variables.scss';
 
 $icon-size: 40px;
 $icon-wrap-size--sm: 16px;
@@ -8,15 +8,15 @@ $icon-size--sm: 10px;
   @apply box-border flex items-center;
   height: 72px;
   padding: 0 24px;
-  border-bottom: 1px solid #EFF1F5;
-  
+  border-bottom: 1px solid #eff1f5;
+
   &:first-of-type {
-    border-top: 1px solid #EFF1F5;
+    border-top: 1px solid #eff1f5;
   }
 
   &:hover {
     /* Gray/50 */
-    background: #F9FAFB;
+    background: #f9fafb;
   }
 }
 

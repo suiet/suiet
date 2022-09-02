@@ -1,15 +1,15 @@
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store";
-import {updateToken} from "../store/app-context";
-import {useEffect, useMemo, useState} from "react";
-import {coreApi} from "@suiet/core";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { updateToken } from '../store/app-context';
+import { useEffect, useMemo, useState } from 'react';
+import { coreApi } from '@suiet/core';
 
 function validateToken(token: unknown) {
   return typeof token === 'string' && token !== '';
 }
 
 export function useAuth() {
-  const token = useSelector((state: RootState) => state.appContext.token)
+  const token = useSelector((state: RootState) => state.appContext.token);
   const isAuthed = useMemo(() => validateToken(token), [token]);
   const dispatch = useDispatch();
 
@@ -23,6 +23,6 @@ export function useAuth() {
     },
     logout: async () => {
       await dispatch(updateToken(''));
-    }
-  }
+    },
+  };
 }

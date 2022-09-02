@@ -1,7 +1,7 @@
-import {Extendable} from "../../types";
-import {CSSProperties, ReactNode} from "react";
-import styles from "./index.module.scss";
-import classnames from "classnames";
+import { Extendable } from '../../types';
+import { CSSProperties, ReactNode } from 'react';
+import styles from './index.module.scss';
+import classnames from 'classnames';
 
 type Size = 'normal' | 'small';
 
@@ -11,15 +11,15 @@ export type TokenIconProps = Extendable & {
   alt?: string;
   elClassName?: string;
   elStyle?: CSSProperties;
-}
+};
 
 const TokenIcon = (props: TokenIconProps) => {
-  const {size = 'normal', icon} = props;
+  const { size = 'normal', icon } = props;
   return (
     <div
       className={classnames(
         styles['icon-wrap'],
-        {[styles[`icon-wrap--${size}`]]: size !== 'normal'},
+        { [styles[`icon-wrap--${size}`]]: size !== 'normal' },
         props.className
       )}
       style={props.style}
@@ -30,8 +30,8 @@ const TokenIcon = (props: TokenIconProps) => {
           alt={props.alt || 'icon'}
           className={classnames(
             styles['icon'],
-            {[styles[`icon--${size}`]]: size !== 'normal'},
-            props.elClassName,
+            { [styles[`icon--${size}`]]: size !== 'normal' },
+            props.elClassName
           )}
           style={props.elStyle}
         />
@@ -39,7 +39,7 @@ const TokenIcon = (props: TokenIconProps) => {
         icon
       )}
     </div>
-  )
-}
+  );
+};
 
 export default TokenIcon;

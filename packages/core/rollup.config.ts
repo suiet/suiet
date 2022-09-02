@@ -1,12 +1,12 @@
-import resolvePlugin from "@rollup/plugin-node-resolve";
-import typescript from "@rollup/plugin-typescript";
-import cjs2es from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
-import nodePolyfills from "rollup-plugin-polyfill-node";
-import { defineConfig } from "rollup";
+import resolvePlugin from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
+import cjs2es from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+import { defineConfig } from 'rollup';
 import { babel } from '@rollup/plugin-babel';
-import { terser } from "rollup-plugin-terser";
-import * as path from "path";
+import { terser } from 'rollup-plugin-terser';
+import * as path from 'path';
 
 const config = defineConfig({
   input: 'src/index.ts',
@@ -17,15 +17,15 @@ const config = defineConfig({
   },
   external: [
     '@mysten/sui.js',
-    "@scure/bip39",
-    "aes-js",
-    "asmcrypto.js",
-    "buffer",
-    "elliptic",
-    "fast-text-encoding",
-    "js-crypto-hmac",
-    "randombytes",
-    "sha3",
+    '@scure/bip39',
+    'aes-js',
+    'asmcrypto.js',
+    'buffer',
+    'elliptic',
+    'fast-text-encoding',
+    'js-crypto-hmac',
+    'randombytes',
+    'sha3',
   ],
   plugins: [
     // polyfill nodejs built-in and global modules
@@ -34,26 +34,26 @@ const config = defineConfig({
     }),
     // fetch node_modules contents
     resolvePlugin({
-      browser: true,  // specify that it's built for browser
+      browser: true, // specify that it's built for browser
     }),
     // compile ts files
     typescript({
-      tsconfig: path.resolve(__dirname, 'tsconfig.json')
+      tsconfig: path.resolve(__dirname, 'tsconfig.json'),
     }),
     // convert commonjs module to es module for rollup to bundle
     cjs2es(), // must place before babel
     // compile js to es5 compatible, friendly to browsers
     babel({
       babelHelpers: 'bundled',
-      exclude: '**/node_modules/**'
+      exclude: '**/node_modules/**',
     }),
     // enable json loading
     json(),
-  ]
-})
+  ],
+});
 
 if (process.env.NODE_ENV === 'production') {
-  config.plugins.push(terser());  // minify output files
+  config.plugins.push(terser()); // minify output files
 }
 
 export default config;

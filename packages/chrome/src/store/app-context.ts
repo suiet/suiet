@@ -1,5 +1,5 @@
-import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {coreApi} from "@suiet/core";
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { coreApi } from '@suiet/core';
 
 export interface AppContextState {
   initialized: boolean;
@@ -12,13 +12,14 @@ export interface AppContextState {
 const initialState: AppContextState = {
   initialized: false,
   token: '',
-  walletId: "",
-  accountId: "",
-  networkId: "",
-}
+  walletId: '',
+  accountId: '',
+  networkId: '',
+};
 
 // thunks
-export const resetAppContext = createAsyncThunk('appContext/reset',
+export const resetAppContext = createAsyncThunk(
+  'appContext/reset',
   async (_, thunkApi) => {
     // memory clear
     await thunkApi.dispatch(updateInitialized(false));
@@ -26,9 +27,8 @@ export const resetAppContext = createAsyncThunk('appContext/reset',
     await thunkApi.dispatch(updateAccountId(''));
     await thunkApi.dispatch(updateWalletId(''));
     await thunkApi.dispatch(updateNetworkId(''));
-
   }
-)
+);
 
 export const appContextSlice = createSlice({
   name: 'appContext',
@@ -48,12 +48,12 @@ export const appContextSlice = createSlice({
     },
     updateNetworkId(state, action: PayloadAction<string>) {
       state.networkId = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(resetAppContext.fulfilled, () => {});
-  }
-})
+  },
+});
 
 export const {
   updateInitialized,

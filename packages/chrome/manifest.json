@@ -7,7 +7,5 @@
     "128": "logo.png"
   },
   "action": { "default_popup": "index.html" },
-  "permissions": [
-    "storage"
-  ]
+  "permissions": ["storage"]
 }

@@ -1,9 +1,9 @@
-import React, {lazy} from 'react';
-import {Navigate, RouteObject} from "react-router-dom";
-import RequireInit from "../components/RequireInit";
-import RequireAuth from "../components/RequireAuth";
-import AppLayout from "../pages/AppLayout";
-import {withSus} from "../components/TheSuspense";
+import React, { lazy } from 'react';
+import { Navigate, RouteObject } from 'react-router-dom';
+import RequireInit from '../components/RequireInit';
+import RequireAuth from '../components/RequireAuth';
+import AppLayout from '../pages/AppLayout';
+import { withSus } from '../components/TheSuspense';
 
 const MainPage = lazy(() => import('../pages/MainPage'));
 const WelcomePage = lazy(() => import('../pages/OnBoarding/Welcome'));
@@ -13,9 +13,11 @@ const TransacationFlowPage = lazy(() => import('../pages/TransactionFlow'));
 const TransacationDetail = lazy(
   () => import('../pages/TransactionFlow/transactionDetail')
 );
-const CreateNewWallet = lazy(() => import("../pages/OnBoarding/CreateNewWallet"));
-const ImportWallet = lazy(() => import("../pages/OnBoarding/ImportWallet"));
-const LoginPage = lazy(() => import("../pages/LoginPage"));
+const CreateNewWallet = lazy(
+  () => import('../pages/OnBoarding/CreateNewWallet')
+);
+const ImportWallet = lazy(() => import('../pages/OnBoarding/ImportWallet'));
+const LoginPage = lazy(() => import('../pages/LoginPage'));
 
 const routesConfig: RouteObject[] = [
   {
@@ -23,66 +25,66 @@ const routesConfig: RouteObject[] = [
     element: (
       <RequireInit>
         <RequireAuth>
-          <AppLayout/>
+          <AppLayout />
         </RequireAuth>
       </RequireInit>
     ),
     children: [
       {
         index: true,
-        element: (<Navigate to="/home"/>)
+        element: <Navigate to="/home" />,
       },
       {
         path: 'home',
-        element: withSus(<MainPage />)
+        element: withSus(<MainPage />),
       },
       {
         path: 'send',
-        element: withSus(<SendPage/>)
+        element: withSus(<SendPage />),
       },
       {
         path: 'transaction/flow',
-        element: withSus(<TransacationFlowPage/>)
+        element: withSus(<TransacationFlowPage />),
       },
       {
         path: 'transaction/detail/:id',
-        element: withSus(<TransacationDetail/>)
+        element: withSus(<TransacationDetail />),
       },
       {
         path: 'settings/*',
-        element: withSus(<SettingPage/>)
+        element: withSus(<SettingPage />),
       },
-    ]
+    ],
   },
   {
     path: 'onboard',
     children: [
       {
         index: true,
-        element: (<Navigate to="/onboard/welcome"/>)
+        element: <Navigate to="/onboard/welcome" />,
       },
       {
         path: 'welcome',
-        element: withSus(<WelcomePage/>)
+        element: withSus(<WelcomePage />),
       },
       {
         path: 'create-new-wallet',
-        element: withSus(<CreateNewWallet/>)
+        element: withSus(<CreateNewWallet />),
       },
       {
         path: 'import-wallet',
-        element: withSus(<ImportWallet/>)
+        element: withSus(<ImportWallet />),
       },
-    ]
+    ],
   },
   {
     path: 'login',
-    element: withSus(<LoginPage />)
+    element: withSus(<LoginPage />),
   },
   {
     path: '*',
-    element: (<Navigate to="/home"/>)
-  }
-]
+    element: <Navigate to="/home" />,
+  },
+];
 
 export default routesConfig;

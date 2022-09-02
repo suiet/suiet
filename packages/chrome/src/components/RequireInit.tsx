@@ -1,13 +1,20 @@
-import React, {useEffect} from 'react';
-import {Navigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../store";
-import {coreApi} from "@suiet/core";
-import {isNonEmptyArray} from "../utils/check";
-import {resetAppContext, updateAccountId, updateInitialized, updateWalletId} from "../store/app-context";
+import React, { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
+import { coreApi } from '@suiet/core';
+import { isNonEmptyArray } from '../utils/check';
+import {
+  resetAppContext,
+  updateAccountId,
+  updateInitialized,
+  updateWalletId,
+} from '../store/app-context';
 
-function RequireInit({children}: any) {
-  const initialized = useSelector((state: RootState) => state.appContext.initialized);
+function RequireInit({ children }: any) {
+  const initialized = useSelector(
+    (state: RootState) => state.appContext.initialized
+  );
   const dispatch = useDispatch<AppDispatch>();
 
   async function adjustInitializedStatus() {
@@ -40,9 +47,7 @@ function RequireInit({children}: any) {
     adjustInitializedStatus();
   }, []);
 
-  return initialized ? children : (
-    <Navigate to={'/onboard'} replace />
-)
+  return initialized ? children : <Navigate to={'/onboard'} replace />;
 }
 
 export default RequireInit;

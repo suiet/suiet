@@ -1,4 +1,4 @@
-@import "../../../styles/variables";
+@import '../../../styles/variables';
 
 .main-content {
   position: relative;
@@ -45,9 +45,9 @@
 
     color: $gray-700;
     font-weight: 500;
-    
+
     background: $gray-100;
-    border: 1px solid #EFF1F5;
+    border: 1px solid #eff1f5;
     border-radius: 100px;
 
     flex: none;
@@ -60,8 +60,6 @@
       /* Gray/300 */
     }
     &:active {
-  
-
       background: $gray-200;
 
       box-shadow: 0px 1px 1px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px $gray-50;

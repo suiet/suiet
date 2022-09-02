@@ -2,10 +2,10 @@ import classnames from 'classnames';
 import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom';
 import type { StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
-import {ReactComponent as IconHome} from '../../../assets/icons/home.svg';
-import {ReactComponent as IconTx} from '../../../assets/icons/transactions.svg';
-import {ReactComponent as IconSettings} from '../../../assets/icons/settings.svg';
-import {ReactNode} from "react";
+import { ReactComponent as IconHome } from '../../../assets/icons/home.svg';
+import { ReactComponent as IconTx } from '../../../assets/icons/transactions.svg';
+import { ReactComponent as IconSettings } from '../../../assets/icons/settings.svg';
+import { ReactNode } from 'react';
 
 export type MenuProps = StyleExtendable;
 type MenuItemProps = StyleExtendable & {
