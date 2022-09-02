@@ -13,11 +13,25 @@ const config = defineConfig({
   output: {
     dir: 'dist',
     format: 'es',
+    sourcemap: true,
   },
-  external: ['@mysten/sui.js'],
+  external: [
+    '@mysten/sui.js',
+    "@scure/bip39",
+    "aes-js",
+    "asmcrypto.js",
+    "buffer",
+    "elliptic",
+    "fast-text-encoding",
+    "js-crypto-hmac",
+    "randombytes",
+    "sha3",
+  ],
   plugins: [
     // polyfill nodejs built-in and global modules
-    nodePolyfills(),
+    nodePolyfills({
+      // include: ['process']
+    }),
     // fetch node_modules contents
     resolvePlugin({
       browser: true,  // specify that it's built for browser
