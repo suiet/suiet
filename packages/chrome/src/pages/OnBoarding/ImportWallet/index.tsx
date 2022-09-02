@@ -1,23 +1,28 @@
-import {useNavigate} from 'react-router-dom';
-import {coreApi} from '@suiet/core';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../../../store';
-import {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { coreApi } from '@suiet/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../store';
+import { useState } from 'react';
 import SetPassword from '../SetPassword';
 import ImportPhrase from '../ImportPhrase';
-import {isNonEmptyArray} from '../../../utils/check';
+import { isNonEmptyArray } from '../../../utils/check';
 import toast from '../../../components/toast';
-import {updateAccountId, updateInitialized, updateToken, updateWalletId,} from '../../../store/app-context';
-import {updateWallet} from '../../../store/wallet';
-import {PageEntry, usePageEntry} from "../../../hooks/usePageEntry";
-import Nav from "../../../components/Nav";
+import {
+  updateAccountId,
+  updateInitialized,
+  updateToken,
+  updateWalletId,
+} from '../../../store/app-context';
+import { updateWallet } from '../../../store/wallet';
+import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
+import Nav from '../../../components/Nav';
 
 const ImportWallet = () => {
   const [step, setStep] = useState(1);
   const [secret, setSecret] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const appContext = useSelector((state: RootState) => state.appContext)
+  const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
 
   async function createWalletAndAccount(token: string, mnemonic: string) {
@@ -49,7 +54,7 @@ const ImportWallet = () => {
       // already has token
       await createWalletAndAccount(appContext.token, _secret);
       navigate('/', {
-        state: { openSwitcher: true }  // open the wallet switcher
+        state: { openSwitcher: true }, // open the wallet switcher
       });
       return;
     }
@@ -87,16 +92,16 @@ const ImportWallet = () => {
           }
           if (pageEntry === PageEntry.SWITCHER) {
             navigate('/', {
-              state: {openSwitcher: true}  // open the wallet switcher
+              state: { openSwitcher: true }, // open the wallet switcher
             });
-            return
+            return;
           }
-          navigate('/onboard/welcome')
+          navigate('/onboard/welcome');
         }}
       />
       {renderContent()}
     </div>
-  )
+  );
 };
 
 export default ImportWallet;

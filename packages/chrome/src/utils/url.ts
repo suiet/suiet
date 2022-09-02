@@ -4,7 +4,7 @@ export function detectNestedPath(path: unknown) {
       isNested: false,
       paths: [],
       lastPath: '',
-    }
+    };
   }
   let _path = path.startsWith('/') ? path.slice(1) : path;
   const match = /^[a-zA-Z_]*\/.*$/.exec(_path);

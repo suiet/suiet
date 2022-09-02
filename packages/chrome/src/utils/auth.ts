@@ -2,7 +2,7 @@
 
 enum StorageKey {
   PASSWORD = 'PASSWORD',
-  WALLETS = 'WALLETS'
+  WALLETS = 'WALLETS',
 }
 
 export async function fetchPassword(): Promise<string> {
@@ -11,7 +11,7 @@ export async function fetchPassword(): Promise<string> {
 }
 
 export async function storePassword(value: string): Promise<void> {
-  await chrome.storage.managed.set({ [StorageKey.PASSWORD]: value});
+  await chrome.storage.managed.set({ [StorageKey.PASSWORD]: value });
   return;
 }
 
@@ -25,19 +25,24 @@ export async function fetchWalletCredentials(walletId: number) {
   }
 }
 
-export async function storeWalletCredentials(walletId: number, credentials: any) {
+export async function storeWalletCredentials(
+  walletId: number,
+  credentials: any
+) {
   const result = await chrome.storage.managed.get(StorageKey.WALLETS);
   let allWallets;
   try {
     allWallets = JSON.parse(result[StorageKey.WALLETS]);
   } catch {
-    allWallets = {}
+    allWallets = {};
   }
   Object.assign(allWallets, {
     [walletId]: {
       walletId,
       credentials,
-    }
-  })
-  await chrome.storage.managed.set({ [StorageKey.WALLETS]: JSON.stringify(allWallets) })
+    },
+  });
+  await chrome.storage.managed.set({
+    [StorageKey.WALLETS]: JSON.stringify(allWallets),
+  });
 }

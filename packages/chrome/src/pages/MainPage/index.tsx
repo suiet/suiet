@@ -1,10 +1,10 @@
-import TokenList from "./TokenList";
-import Dashboard from "./Dashboard";
+import TokenList from './TokenList';
+import Dashboard from './Dashboard';
 
 function MainPage() {
   return (
     <div>
-      <Dashboard /> 
+      <Dashboard />
       <TokenList />
     </div>
   );

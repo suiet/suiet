@@ -1,7 +1,7 @@
 import TransactionItem from './TransactionItem';
 import './index.scss';
 import { useNavigate } from 'react-router-dom';
-import classnames from 'classnames'
+import classnames from 'classnames';
 const list = [
   {
     id: 1,
@@ -26,7 +26,7 @@ const list = [
 function TransacationFlow() {
   const navigate = useNavigate();
   return (
-    <div className={classnames('mx-6','rounded-lg','bg-slate-50')}>
+    <div className={classnames('mx-6', 'rounded-lg', 'bg-slate-50')}>
       <div className="transaction-time">last week</div>
       <div>
         {list.map(({ to, type, amount, id }, index) => {

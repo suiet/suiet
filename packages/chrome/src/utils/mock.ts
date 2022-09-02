@@ -1,5 +1,7 @@
-const mockMnemonic1 = 'seed sock milk update focus rotate barely fade car face mechanic mercy';
-const mockMnemonic2 = 'mansion head pool photo forward plug click tired mean menu warrior immense';
+const mockMnemonic1 =
+  'seed sock milk update focus rotate barely fade car face mechanic mercy';
+const mockMnemonic2 =
+  'mansion head pool photo forward plug click tired mean menu warrior immense';
 
 export class MockStorage {
   addAccount(walletId: string, accountId: string, account: any): Promise<void> {
@@ -42,7 +44,7 @@ export class MockStorage {
   }
 }
 
-export const storage = new MockStorage()
+export const storage = new MockStorage();
 
 export class MockWallet {
   storage: Storage;
@@ -53,7 +55,10 @@ export class MockWallet {
     this.wallet = wallet;
   }
 
-  public static async createAndSave(password: string, storage: Storage): Promise<any> {
+  public static async createAndSave(
+    password: string,
+    storage: Storage
+  ): Promise<any> {
     const encryptedMnemonic = {
       encryptedHex: '',
       saltHex: '',
@@ -64,22 +69,25 @@ export class MockWallet {
       name: 'name-' + walletId,
       nextAccountId: 0,
       encryptedMnemonic: encryptedMnemonic,
-      accounts: []
-    }
-    return new MockWallet(storage, wallet)
+      accounts: [],
+    };
+    return new MockWallet(storage, wallet);
   }
 }
 
-export function decryptMnemonic(password: string, encryptedMnemonic: any): string {
+export function decryptMnemonic(
+  password: string,
+  encryptedMnemonic: any
+): string {
   return mockMnemonic1;
 }
 
 export function encryptPassword(password: string) {
-  return 'abcdefg'
+  return 'abcdefg';
 }
 
 function decryptPassword(verifyString: string) {
-  return '123456'
+  return '123456';
 }
 
 export function verifyPassword(password: string, verifyString: string) {
@@ -87,5 +95,5 @@ export function verifyPassword(password: string, verifyString: string) {
 }
 
 export async function getWallets() {
-  return []
+  return [];
 }

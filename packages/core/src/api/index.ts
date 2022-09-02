@@ -1,12 +1,12 @@
-import { IWalletApi, WalletApi } from "./wallet";
-import { AccountApi, IAccountApi } from "./account";
-import { INetworkApi } from "./network";
-import { ITransactionApi, TransactionApi } from "./txn"
-import { AuthApi, IAuthApi } from "./auth";
-import { Storage, getStorage } from "../storage/Storage"
-import { Buffer } from "buffer"
-import * as crypto from "../crypto"
-import { validateToken } from "./util"
+import { IWalletApi, WalletApi } from './wallet';
+import { AccountApi, IAccountApi } from './account';
+import { INetworkApi } from './network';
+import { ITransactionApi, TransactionApi } from './txn';
+import { AuthApi, IAuthApi } from './auth';
+import { Storage, getStorage } from '../storage/Storage';
+import { Buffer } from 'buffer';
+import * as crypto from '../crypto';
+import { validateToken } from './util';
 
 export class CoreApi {
   storage: Storage;
@@ -20,7 +20,7 @@ export class CoreApi {
     this.wallet = new WalletApi(storage);
     this.account = new AccountApi(storage);
     this.auth = new AuthApi(storage);
-    this.txn = new TransactionApi;
+    this.txn = new TransactionApi();
   }
 
   public static newApi(): CoreApi {

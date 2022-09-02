@@ -1,8 +1,8 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { crx } from "@crxjs/vite-plugin";
-import manifest from "./manifest.json";
-import viteSvgr from "vite-plugin-svgr";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { crx } from '@crxjs/vite-plugin';
+import manifest from './manifest.json';
+import viteSvgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,11 +17,7 @@ export default defineConfig({
   define: {
     // handle "process is not defined" for importing sui sdk
     // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
-    'process.env': {}
+    'process.env': {},
   },
-  plugins: [
-    react(),
-    crx({ manifest }),
-    viteSvgr()
-  ],
+  plugins: [react(), crx({ manifest }), viteSvgr()],
 });

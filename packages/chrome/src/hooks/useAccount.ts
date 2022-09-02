@@ -1,14 +1,14 @@
-import {useEffect, useState} from "react";
-import {Account} from "@suiet/core/dist/api/account";
-import {coreApi} from "@suiet/core";
+import { useEffect, useState } from 'react';
+import { Account } from '@suiet/core/dist/api/account';
+import { coreApi } from '@suiet/core';
 
 export function useAccount(accountId: string) {
   const [account, setAccount] = useState<Account>({
-    id: "",
-    name: "",
-    address: "",
-    hdPath: "",
-    pubkey: ""
+    id: '',
+    name: '',
+    address: '',
+    hdPath: '',
+    pubkey: '',
   });
 
   async function fetchAccount(accountId: string) {
@@ -26,5 +26,5 @@ export function useAccount(accountId: string) {
   return {
     account,
     fetchAccount,
-  }
+  };
 }

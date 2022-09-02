@@ -3,5 +3,5 @@ export function sleep(duration = 0) {
     setTimeout(function () {
       resolve(undefined);
     }, duration);
-  })
+  });
 }

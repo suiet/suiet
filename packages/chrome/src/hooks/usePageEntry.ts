@@ -1,10 +1,10 @@
-import {useEffect, useState} from "react";
-import {has} from "lodash-es";
-import {useLocation} from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { has } from 'lodash-es';
+import { useLocation } from 'react-router-dom';
 
 export enum PageEntry {
   ONBOARD,
-  SWITCHER
+  SWITCHER,
 }
 
 /**

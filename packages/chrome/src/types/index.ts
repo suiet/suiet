@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, ReactNode } from 'react';
 
 export interface StyleExtendable {
   className?: string;
@@ -6,5 +6,5 @@ export interface StyleExtendable {
 }
 
 export type Extendable<T = ReactNode> = StyleExtendable & {
- children?: T;
-}
+  children?: T;
+};

@@ -1,12 +1,12 @@
 import Header from './Header';
 import Menu from './Menu';
 import styles from './index.module.scss';
-import {Outlet, useLocation} from 'react-router-dom';
-import classnames from "classnames";
-import {useEffect, useState} from "react";
+import { Outlet, useLocation } from 'react-router-dom';
+import classnames from 'classnames';
+import { useEffect, useState } from 'react';
 
 export enum LayoutMode {
-  DEFAULT= 'default',
+  DEFAULT = 'default',
   WITHOUT_HEADER = 'without-header',
   WITHOUT_MENU = 'without-menu',
   EMPTY = 'empty',
@@ -23,17 +23,16 @@ function AppLayout() {
     } else {
       setLayoutMode(LayoutMode.DEFAULT);
     }
-  }, [state])
+  }, [state]);
 
   return (
-    <div className={classnames(
-      styles['main-page'],
-      styles[`main-page--${layoutMode}`]
-    )}>
-      <Header
-        className={styles['header']}
-        openSwitcher={state?.openSwitcher}
-      />
+    <div
+      className={classnames(
+        styles['main-page'],
+        styles[`main-page--${layoutMode}`]
+      )}
+    >
+      <Header className={styles['header']} openSwitcher={state?.openSwitcher} />
       {/* child route view */}
       <main className={styles['main']}>
         <Outlet />

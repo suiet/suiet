@@ -1,16 +1,16 @@
-import { validateToken } from "./util"
-import * as crypto from "../crypto"
-import { Vault } from "../vault/Vault";
-import { Storage } from "../storage/Storage"
-import { toAccountIdString, toAccountNameString } from "./account";
-import {Buffer} from "buffer";
+import { validateToken } from './util';
+import * as crypto from '../crypto';
+import { Vault } from '../vault/Vault';
+import { Storage } from '../storage/Storage';
+import { toAccountIdString, toAccountNameString } from './account';
+import { Buffer } from 'buffer';
 
 export type CreateWalletParams = {
   token: string;
   mnemonic?: string;
   name?: string;
   avatar?: string;
-}
+};
 
 export type Wallet = {
   id: string;
@@ -18,7 +18,7 @@ export type Wallet = {
   accounts: Array<string>;
   nextAccountId: number;
   avatar?: string;
-}
+};
 
 export interface IWalletApi {
   validateMnemonic: (mnemonic: string) => boolean;
@@ -27,7 +27,11 @@ export interface IWalletApi {
   createWallet: (params: CreateWalletParams) => Promise<Wallet>;
   getWallets: () => Promise<Wallet[]>;
   getWallet: (walletId: string) => Promise<Wallet | null>;
-  updateWallet: (walletId: string, meta: { name?: string, avatar?: string; }, token: string) => Promise<void>;
+  updateWallet: (
+    walletId: string,
+    meta: { name?: string; avatar?: string },
+    token: string
+  ) => Promise<void>;
   deleteWallet: (walletId: string, token: string) => Promise<void>;
 }
 
@@ -46,9 +50,12 @@ export class WalletApi {
   async revealMnemonic(walletId: string, token: string): Promise<string> {
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error("Wallet Not Exist")
+      throw new Error('Wallet Not Exist');
     }
-    return crypto.decryptMnemonic(Buffer.from(token, "hex"), wallet.encryptedMnemonic)
+    return crypto.decryptMnemonic(
+      Buffer.from(token, 'hex'),
+      wallet.encryptedMnemonic
+    );
   }
 
   async createWallet(params: CreateWalletParams): Promise<Wallet> {
@@ -59,15 +66,15 @@ export class WalletApi {
     } else {
       mnemonic = crypto.generateMnemonic();
     }
-    const token = Buffer.from(params.token, "hex")
+    const token = Buffer.from(params.token, 'hex');
     const encryptedMnemonic = crypto.encryptMnemonic(token, mnemonic);
     let meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error("Password not initialized")
+      throw new Error('Password not initialized');
     }
     const walletId = meta.nextWalletId;
     meta.nextWalletId += 1;
-    const walletIdStr = toWalletIdString(walletId)
+    const walletIdStr = toWalletIdString(walletId);
     const accountIdStr = toAccountIdString(walletIdStr, 0);
     const wallet = {
       id: toWalletIdString(walletId),
@@ -75,8 +82,8 @@ export class WalletApi {
       accounts: [accountIdStr],
       nextAccountId: 1,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
-      avatar: params.avatar ? params.avatar : undefined
-    }
+      avatar: params.avatar ? params.avatar : undefined,
+    };
     const hdPath = crypto.derivationHdPath(0);
     const vault = await Vault.create(hdPath, token, wallet.encryptedMnemonic);
     // TODO: cache vaults
@@ -86,12 +93,12 @@ export class WalletApi {
       pubkey: vault.getPublicKey(),
       address: vault.getAddress(),
       hdPath: hdPath,
-    }
+    };
 
     // TODO: save these states transactionally.
     await this.storage.saveMeta(meta);
-    await this.storage.addAccount(wallet.id, account.id, account)
-    await this.storage.addWallet(wallet.id, wallet)
+    await this.storage.addAccount(wallet.id, account.id, account);
+    await this.storage.addWallet(wallet.id, wallet);
 
     return wallet;
   }
@@ -101,14 +108,18 @@ export class WalletApi {
   }
 
   async getWallet(walletId: string): Promise<Wallet | null> {
-    return await this.storage.getWallet(walletId)
+    return await this.storage.getWallet(walletId);
   }
 
-  async updateWallet(walletId: string, meta: { name?: string | undefined; avatar?: string | undefined; }, token: string) {
+  async updateWallet(
+    walletId: string,
+    meta: { name?: string | undefined; avatar?: string | undefined },
+    token: string
+  ) {
     await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error("Wallet Not Exist")
+      throw new Error('Wallet Not Exist');
     }
     if (meta.name) {
       wallet.name = meta.name;
@@ -126,10 +137,9 @@ export class WalletApi {
 }
 
 export function toWalletIdString(id: number): string {
-  return `wallet-${id}`
+  return `wallet-${id}`;
 }
 
 export function toWalletNameString(id: number): string {
-  return `Wallet #${id}`
+  return `Wallet #${id}`;
 }
-

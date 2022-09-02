@@ -3,5 +3,5 @@ export function isBrowser() {
 }
 
 export const platform = {
-  isBrowser: isBrowser()
-}
+  isBrowser: isBrowser(),
+};

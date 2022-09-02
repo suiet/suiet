@@ -1,4 +1,4 @@
-@import "../../../styles/variables";
+@import '../../../styles/variables';
 
 .link-btn {
   display: flex;
@@ -9,12 +9,11 @@
   margin: 0;
   padding: 24px;
   gap: 24px;
-  
+
   width: 143px;
   height: 180px;
-  
-  border-radius: 16px;
 
+  border-radius: 16px;
 
   font-family: 'Work Sans';
   font-style: normal;
@@ -40,8 +39,8 @@
     }
 
     &:active {
-      box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px $primary-400;
+      box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05),
+        0px 0px 0px 4px $primary-400;
     }
   }
-
 }
