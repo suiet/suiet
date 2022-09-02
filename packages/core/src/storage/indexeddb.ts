@@ -18,8 +18,8 @@ export class IndexedDBStorage implements Storage {
     this.connection = IndexedDBStorage.openDbConnection();
   }
 
-  static openDbConnection(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
+  static async openDbConnection(): Promise<IDBDatabase> {
+    return await new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = (event) => {
@@ -41,10 +41,10 @@ export class IndexedDBStorage implements Storage {
     db.createObjectStore(StoreName.ACCOUNTS, { keyPath: 'id' });
   }
 
-  addWallet(id: string, wallet: Wallet): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async addWallet(id: string, wallet: Wallet): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.WALLETS], 'readwrite')
             .objectStore(StoreName.WALLETS)
@@ -60,10 +60,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  updateWallet(id: string, wallet: Wallet): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async updateWallet(id: string, wallet: Wallet): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.WALLETS], 'readwrite')
             .objectStore(StoreName.WALLETS)
@@ -79,10 +79,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  deleteWallet(id: string): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async deleteWallet(id: string): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.WALLETS], 'readwrite')
             .objectStore(StoreName.WALLETS)
@@ -98,10 +98,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  getWallet(id: string): Promise<Wallet> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async getWallet(id: string): Promise<Wallet> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.WALLETS])
             .objectStore(StoreName.WALLETS)
@@ -117,10 +117,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  getWallets(): Promise<Array<Wallet>> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async getWallets(): Promise<Wallet[]> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.WALLETS])
             .objectStore(StoreName.WALLETS)
@@ -136,15 +136,15 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  addAccount(
+  async addAccount(
     walletId: string,
     accountId: string,
     account: Account
   ): Promise<void> {
     // TODO: wallet and account should be updated with atomicity.
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.ACCOUNTS], 'readwrite')
             .objectStore(StoreName.ACCOUNTS)
@@ -160,14 +160,14 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  updateAccount(
+  async updateAccount(
     walletId: string,
     accountId: string,
     account: Account
   ): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.ACCOUNTS], 'readwrite')
             .objectStore(StoreName.ACCOUNTS)
@@ -183,10 +183,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  deleteAccount(walletId: string, accountId: string): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async deleteAccount(walletId: string, accountId: string): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const transaction = db.transaction(
             [StoreName.ACCOUNTS, StoreName.WALLETS],
             'readwrite'
@@ -218,15 +218,15 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  getAccounts(walletId: string): Promise<Account[]> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async getAccounts(walletId: string): Promise<Account[]> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const transaction = db.transaction(
             [StoreName.ACCOUNTS, StoreName.WALLETS],
             'readonly'
           );
-          let accounts: Array<Account> = [];
+          const accounts: Account[] = [];
           const walletStore = transaction.objectStore(StoreName.WALLETS);
           const accountStore = transaction.objectStore(StoreName.ACCOUNTS);
           const getWalletRequest = walletStore.get(walletId);
@@ -261,10 +261,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  getAccount(accountId: string): Promise<Account | null> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async getAccount(accountId: string): Promise<Account | null> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           console.log('accountId', accountId);
           const request = db
             .transaction([StoreName.ACCOUNTS])
@@ -281,10 +281,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  loadMeta(): Promise<GlobalMeta> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async loadMeta(): Promise<GlobalMeta> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.META])
             .objectStore(StoreName.META)
@@ -300,10 +300,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  saveMeta(meta: GlobalMeta): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async saveMeta(meta: GlobalMeta): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const transaction = db.transaction([StoreName.META], 'readwrite');
           const metaStore = transaction.objectStore(StoreName.META);
 
@@ -332,10 +332,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  clearMeta(): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async clearMeta(): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           const request = db
             .transaction([StoreName.META], 'readwrite')
             .objectStore(StoreName.META)
@@ -351,10 +351,10 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
-  reset(): Promise<void> {
-    return this.connection.then(
-      (db) =>
-        new Promise((resolve, reject) => {
+  async reset(): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
           db.close();
           const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
           deleteRequest.onerror = (event) => {

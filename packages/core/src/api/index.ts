@@ -50,6 +50,6 @@ export class CoreApi {
   }
 
   async validateToken(token: string) {
-    return validateToken(this.storage, token);
+    return await validateToken(this.storage, token);
   }
 }

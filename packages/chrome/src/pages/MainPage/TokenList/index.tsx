@@ -20,7 +20,7 @@ const TokenItem = () => {
   );
 };
 
-const TokenList: React.FC<TokenListProps> = (props) => {
+const TokenList = (props: TokenListProps) => {
   return (
     <div className={classnames(props.className)} style={props.style}>
       <TokenItem />

@@ -27,7 +27,7 @@ const CreateNewWallet = () => {
 
   async function createWalletAndAccount(token: string) {
     const wallet = await coreApi.wallet.createWallet({
-      token: token,
+      token,
     });
 
     const rawPhrases = await coreApi.wallet.revealMnemonic(wallet.id, token);
@@ -41,7 +41,7 @@ const CreateNewWallet = () => {
     const defaultAccount = accounts[0];
     dispatch(
       updateWallet({
-        avatar: wallet.avatar || '1',
+        avatar: wallet.avatar ?? '1',
         name: wallet.name,
       })
     );
@@ -69,7 +69,7 @@ const CreateNewWallet = () => {
   }
 
   async function handleCreateFromSwitcher(token: string) {
-    if (!token) new Error('token should not be empty');
+    if (!token) throw new Error('token should not be empty');
 
     await createWalletAndAccount(token);
     setStep((s) => s + 1);

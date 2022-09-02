@@ -38,7 +38,7 @@ const LinkButton = (props: LinkButtonProps) => {
 
   if (type === 'link') {
     return (
-      <Link to={props.to || ''} className={'w-full'}>
+      <Link to={props.to ?? ''} className={'w-full'}>
         {button}
       </Link>
     );

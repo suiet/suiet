@@ -37,7 +37,7 @@ export interface ITransactionApi {
   getTransactionHistory: (
     network: Network,
     address: string
-  ) => Promise<Array<TxnHistroyEntry>>;
+  ) => Promise<TxnHistroyEntry[]>;
   getOwnedObjects: (network: Network, address: string) => Promise<Object[]>;
 }
 

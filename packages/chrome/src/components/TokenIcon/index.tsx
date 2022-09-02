@@ -27,7 +27,7 @@ const TokenIcon = (props: TokenIconProps) => {
       {typeof icon === 'string' ? (
         <img
           src={icon}
-          alt={props.alt || 'icon'}
+          alt={props.alt ?? 'icon'}
           className={classnames(
             styles['icon'],
             { [styles[`icon--${size}`]]: size !== 'normal' },

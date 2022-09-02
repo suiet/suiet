@@ -19,7 +19,7 @@ export interface IAccountApi {
     meta: { name?: string },
     token: string
   ) => Promise<void>;
-  getAccounts: (walletId: string) => Promise<Array<Account>>;
+  getAccounts: (walletId: string) => Promise<Account[]>;
   getAccount: (accountId: string) => Promise<Account | null>;
   removeAccount: (
     walletId: string,
@@ -57,7 +57,7 @@ export class AccountApi implements IAccountApi {
       name: toAccountNameString(wallet.name, 0),
       pubkey: vault.getPublicKey(),
       address: vault.getAddress(),
-      hdPath: hdPath,
+      hdPath,
     };
     // TODO: save these states transactionally.
     await this.storage.addAccount(wallet.id, account.id, account);
@@ -72,7 +72,7 @@ export class AccountApi implements IAccountApi {
     token: string
   ): Promise<void> {
     await validateToken(this.storage, token);
-    let account = await this.storage.getAccount(accountId);
+    const account = await this.storage.getAccount(accountId);
     if (!account) {
       throw new Error('Account Not Exist');
     }

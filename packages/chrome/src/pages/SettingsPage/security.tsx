@@ -4,7 +4,7 @@ import './security.scss';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 
-export default function () {
+export default function Security() {
   const navigate = useNavigate();
   return (
     <div className="security-setting-container">

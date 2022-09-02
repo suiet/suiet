@@ -5,19 +5,25 @@ import RequireAuth from '../components/RequireAuth';
 import AppLayout from '../pages/AppLayout';
 import { withSus } from '../components/TheSuspense';
 
-const MainPage = lazy(() => import('../pages/MainPage'));
-const WelcomePage = lazy(() => import('../pages/OnBoarding/Welcome'));
-const SettingPage = lazy(() => import('../pages/SettingsPage'));
-const SendPage = lazy(() => import('../pages/SendPage'));
-const TransacationFlowPage = lazy(() => import('../pages/TransactionFlow'));
+const MainPage = lazy(async () => await import('../pages/MainPage'));
+const WelcomePage = lazy(
+  async () => await import('../pages/OnBoarding/Welcome')
+);
+const SettingPage = lazy(async () => await import('../pages/SettingsPage'));
+const SendPage = lazy(async () => await import('../pages/SendPage'));
+const TransacationFlowPage = lazy(
+  async () => await import('../pages/TransactionFlow')
+);
 const TransacationDetail = lazy(
-  () => import('../pages/TransactionFlow/transactionDetail')
+  async () => await import('../pages/TransactionFlow/transactionDetail')
 );
 const CreateNewWallet = lazy(
-  () => import('../pages/OnBoarding/CreateNewWallet')
+  async () => await import('../pages/OnBoarding/CreateNewWallet')
 );
-const ImportWallet = lazy(() => import('../pages/OnBoarding/ImportWallet'));
-const LoginPage = lazy(() => import('../pages/LoginPage'));
+const ImportWallet = lazy(
+  async () => await import('../pages/OnBoarding/ImportWallet')
+);
+const LoginPage = lazy(async () => await import('../pages/LoginPage'));
 
 const routesConfig: RouteObject[] = [
   {

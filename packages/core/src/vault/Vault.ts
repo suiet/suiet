@@ -38,7 +38,7 @@ export class Vault {
     return {
       txid: unsigned.txid,
       data: unsigned.data,
-      signature: signature,
+      signature,
       pubKey: this.hdKey.getPublicKey(),
     };
   }
