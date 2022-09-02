@@ -17,10 +17,12 @@
 
     background: #ffffff;
 
-    border: 1px solid #eaecf0;
+    border: 2px solid #eaecf0;
     border-radius: 8px;
 
     &.active {
+      border: 2px solid $primary-400;
+      background-color: $primary-50;
       .wallet-check {
         background-image: url('./assets/check.svg');
       }
