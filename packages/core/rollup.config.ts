@@ -15,18 +15,7 @@ const config = defineConfig({
     format: 'es',
     sourcemap: true,
   },
-  external: [
-    '@mysten/sui.js',
-    '@scure/bip39',
-    'aes-js',
-    'asmcrypto.js',
-    'buffer',
-    'elliptic',
-    'fast-text-encoding',
-    'js-crypto-hmac',
-    'randombytes',
-    'sha3',
-  ],
+  external: ['@mysten/sui.js'],
   plugins: [
     // polyfill nodejs built-in and global modules
     nodePolyfills({
