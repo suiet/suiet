@@ -1,3 +1,4 @@
+@import '../../styles/variables';
 .network-setting {
   &-container {
     padding: 17px 21px 0;
@@ -15,7 +16,7 @@
     padding: 16px 20px 16px 16px;
     width: 316px;
     height: 60px;
-    background: #e9f6fa;
+    background: $gray-50;
     border: 1px solid #eaecf0;
     border-radius: 8px;
     margin-bottom: 16px;
@@ -28,6 +29,7 @@
 
     &.active {
       border: 1px solid #3ea2f8;
+      background: #e9f6fa;
       color: #2d7ed5;
       .network-selection-icon {
         background: url(./assets/network-type-icon-a.svg) no-repeat center;

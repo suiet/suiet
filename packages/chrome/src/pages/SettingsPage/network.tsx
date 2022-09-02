@@ -39,7 +39,8 @@ function Network() {
           </div>
         );
       })}
-      <div>+ Add new custom network</div>
+      {/* not supported yet */}
+      {/* <div>+ Add new custom network</div> */}
       <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
         <Button state="primary" onClick={() => navigate('..')}>
           Save
