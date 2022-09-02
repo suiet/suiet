@@ -18,7 +18,7 @@ export class IndexedDBStorage implements Storage {
     this.connection = IndexedDBStorage.openDbConnection();
   }
 
-  static async openDbConnection(): Promise<IDBDatabase> {
+  public static async openDbConnection(): Promise<IDBDatabase> {
     return await new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -35,7 +35,7 @@ export class IndexedDBStorage implements Storage {
     });
   }
 
-  static init(db: IDBDatabase) {
+  private static init(db: IDBDatabase) {
     db.createObjectStore(StoreName.META, { keyPath: 'id' });
     db.createObjectStore(StoreName.WALLETS, { keyPath: 'id' });
     db.createObjectStore(StoreName.ACCOUNTS, { keyPath: 'id' });

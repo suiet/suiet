@@ -5,7 +5,7 @@ import { Extendable } from '../../../types';
 export const FormContext = React.createContext<UseFormReturn<any> | null>(null);
 
 export type FormProps<TFieldValues> = Extendable & {
-  form: UseFormReturn<TFieldValues>;
+  form: UseFormReturn<any>;
   onSubmit: (data: TFieldValues) => void | Promise<void>;
 };
 

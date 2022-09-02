@@ -1,7 +1,6 @@
 <a href="https://suiet.app"><p align="center">
 <img width="480" src="./assets/LogoWithSlogen.png?raw=trueg"/>
-
-</p></a>
+</a>
 
 # Suiet, the wallet designed for everyone
 
@@ -29,9 +28,12 @@ npm install
 
 ### 🏁 Run app in your browser
 
-Go to chrome extension dir the start the App:
+Run the following command at the root path of the project
 
 ```bash
-cd packages/chrome
 npm start
 ```
+
+Then load the extension dist folder `packages/chrome/dist` in Chrome [#detail](https://developer.chrome.com/docs/extensions/mv3/faq/#:~:text=You%20can%20start%20by%20turning,a%20packaged%20extension%2C%20and%20more.)
+
+And you can use the app in your chrome under development mode.

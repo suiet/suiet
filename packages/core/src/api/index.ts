@@ -23,6 +23,14 @@ export class CoreApi {
     this.txn = new TransactionApi();
   }
 
+  private init(storage: Storage) {
+    this.storage = storage;
+    this.wallet = new WalletApi(storage);
+    this.account = new AccountApi(storage);
+    this.auth = new AuthApi(storage);
+    this.txn = new TransactionApi();
+  }
+
   public static newApi(): CoreApi {
     const storage = getStorage();
     if (!storage) {
@@ -46,7 +54,12 @@ export class CoreApi {
   async resetAppData(token: string) {
     await this.validateToken(token);
     await this.storage.reset();
-    this.storage = getStorage() as Storage;
+
+    const storage = getStorage();
+    if (!storage) {
+      throw new Error('Platform not supported');
+    }
+    this.init(storage);
   }
 
   async validateToken(token: string) {

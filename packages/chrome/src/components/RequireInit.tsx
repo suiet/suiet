@@ -19,20 +19,21 @@ function RequireInit({ children }: any) {
 
   async function adjustInitializedStatus() {
     const wallets = await coreApi.wallet.getWallets();
-    if (!isNonEmptyArray(wallets) && initialized) {
-      // no wallets, reset app
-      await dispatch(resetAppContext());
+    if (!isNonEmptyArray(wallets)) {
+      if (initialized) {
+        // no wallets, reset app
+        await dispatch(resetAppContext());
+      }
       return;
     }
 
     const [firstWallet] = wallets;
-    const [firstAccountId] = firstWallet?.accounts;
-    if (!firstWallet?.id || !firstAccountId) {
+    if (!firstWallet?.id || !isNonEmptyArray(firstWallet?.accounts)) {
       // wallet account missing, data may be messed up, reset app
       await dispatch(resetAppContext());
       return;
     }
-
+    const [firstAccountId] = firstWallet.accounts;
     // if wallet data is correct, but context data is not, re-initialize app
     if (!initialized) {
       // if db has data but context is incorrect, then update
