@@ -44,7 +44,7 @@ const SettingMain = () => {
           onClick={() => {
             navigate('wallet', {
               state: {
-                hideApplayout: true,
+                hideAppLayout: true,
               },
             });
           }}
@@ -57,7 +57,7 @@ const SettingMain = () => {
           onClick={() => {
             navigate('network', {
               state: {
-                hideApplayout: true,
+                hideAppLayout: true,
               },
             });
           }}
@@ -70,7 +70,7 @@ const SettingMain = () => {
           onClick={() => {
             navigate('security', {
               state: {
-                hideApplayout: true,
+                hideAppLayout: true,
               },
             });
           }}
