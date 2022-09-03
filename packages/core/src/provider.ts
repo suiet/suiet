@@ -51,16 +51,18 @@ export class Provider {
     await this.provider.syncAccountState(address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
-      .map((item) => getMoveObject(item))
-      .filter((item) => item && Coin.isCoin(item))
+      .map((item) => ({
+        id: item.reference.objectId,
+        object: getMoveObject(item),
+      }))
+      .filter((item) => item.object && Coin.isCoin(item.object))
       .map((item) => {
-        const obj = item as SuiMoveObject;
+        const obj = item.object as SuiMoveObject;
         const arg = Coin.getCoinTypeArg(obj);
         const symbol = arg ? Coin.getCoinSymbol(arg) : '';
         const balance = Coin.getBalance(obj);
-        const id = Coin.getID(obj);
         return {
-          objectId: id,
+          objectId: item.id,
           symbol,
           balance,
         };
@@ -208,6 +210,7 @@ export class CoinProvider {
     amount: bigint,
     vault: Vault
   ): Promise<CoinObject> {
+    console.log('merge coin');
     coins.sort((a, b) => (a.balance - b.balance > 0 ? 1 : -1));
     const coinWithSufficientBalance = coins.find(
       (coin) => coin.balance >= amount
@@ -252,6 +255,7 @@ export class CoinProvider {
   }
 
   async splitCoinForBalance(coin: CoinObject, amount: bigint, vault: Vault) {
+    console.log('split coin', coin, amount);
     const address = vault.getAddress();
     await this.provider.syncAccountState(address);
     const data = await this.serializer.newSplitCoin(address, {
@@ -296,6 +300,7 @@ export class CoinProvider {
     recipient: string,
     vault: Vault
   ) {
+    console.log('transfer sui');
     const address = vault.getAddress();
     await this.provider.syncAccountState(address);
     const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
@@ -311,6 +316,9 @@ export class CoinProvider {
   }
 
   async executeTransaction(txn: SignedTx) {
+    console.log('data', txn.signature.toString('base64'));
+    console.log('signature', txn.signature.toString('base64'));
+    console.log('pubkey', txn.pubKey.toString('base64'));
     return await this.provider.executeTransaction(
       txn.data.toString(),
       'ED25519',
