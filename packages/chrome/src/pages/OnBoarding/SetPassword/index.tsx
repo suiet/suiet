@@ -11,6 +11,7 @@ import {
 } from '../../../utils/form';
 import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
+import { useLocation } from 'react-router-dom';
 
 export type SavePasswordProps = {
   onNext: (password: string, oldPassword?: string) => void;
@@ -28,6 +29,8 @@ const SavePassword = (props: SavePasswordProps) => {
       password: '',
     },
   });
+  const location = useLocation();
+  const state = (location.state || {}) as Record<string, any>;
   const [password, setPassword] = useState('');
   const [oldPassword, setOldPassword] = useState('');
 
@@ -47,24 +50,29 @@ const SavePassword = (props: SavePasswordProps) => {
             props.onNext(data.password, oldPassword);
           }}
         >
-          <div>
-            <Typo.Small>Old Password</Typo.Small>
-            <FormControl
-              name={'oldpassword'}
-              registerOptions={getPasswordValidation()}
-            >
-              <Input
-                type={'password'}
-                state={getInputStateByFormState(form.formState, 'oldpassword')}
-                className={'mt-[6px]'}
-                placeholder={'Please enter the password'}
-                onInput={(e) => {
-                  const target = e.target as any;
-                  setOldPassword(target.value);
-                }}
-              />
-            </FormControl>
-          </div>
+          {state.hasOldPassword && (
+            <div>
+              <Typo.Small>Old Password</Typo.Small>
+              <FormControl
+                name={'oldpassword'}
+                registerOptions={getPasswordValidation()}
+              >
+                <Input
+                  type={'password'}
+                  state={getInputStateByFormState(
+                    form.formState,
+                    'oldpassword'
+                  )}
+                  className={'mt-[6px]'}
+                  placeholder={'Please enter the password'}
+                  onInput={(e) => {
+                    const target = e.target as any;
+                    setOldPassword(target.value);
+                  }}
+                />
+              </FormControl>
+            </div>
+          )}
           <div>
             <Typo.Small>Password</Typo.Small>
             <FormControl

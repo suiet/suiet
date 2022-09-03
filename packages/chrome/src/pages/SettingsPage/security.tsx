@@ -46,6 +46,7 @@ function MainPage() {
               navigate('password', {
                 state: {
                   hideApplayout: true,
+                  hasOldPassword: true
                 },
               })
             }

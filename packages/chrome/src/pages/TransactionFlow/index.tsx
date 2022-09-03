@@ -2,7 +2,9 @@ import TransactionItem from './TransactionItem';
 import './index.scss';
 import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
-import Empty from './empty';
+import Empty from './Empty';
+import { coreApi } from '@suiet/core';
+
 const list = [
   {
     id: 1,
