@@ -15,6 +15,7 @@ import { useAccount } from '../../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { addressEllipsis } from '../../../utils/format';
+import Address from '../../../components/Address';
 
 export type ReceiveButtonProps = {
   address: string;
@@ -48,16 +49,7 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
             scan to receive
           </Typo.Normal>
         </div>
-        <div className={'flex items-center mt-[21px]'}>
-          <Typo.Small>0x2152f01152f01f6152f01f6f6</Typo.Small>
-          <CopyIcon
-            className={'ml-[5px]'}
-            onClick={() => {
-              copy(props.address);
-              toast.success('Copied Address');
-            }}
-          ></CopyIcon>
-        </div>
+        <Address value={props.address} className={'mt-[21px]'} />
       </div>
     </Modal>
   );
@@ -70,14 +62,7 @@ function MainPage() {
   return (
     <div className={styles['main-content']}>
       <div className={styles['balance']}>1000 SUI</div>
-      <div className={styles['address']}>
-        <span>{addressEllipsis(account.address)}</span>
-        <CopyIcon
-          className={'ml-[5px]'}
-          copyStr={account.address}
-          onCopied={() => toast.success('Copied Address')}
-        />
-      </div>
+      <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
         <div className={styles['airdrop']} onClick={() => {}}>
           {/* <img src={IconDownDouble} className={styles['icon']} /> */}
