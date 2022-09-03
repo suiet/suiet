@@ -10,6 +10,8 @@ import { useAccount } from '../../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import Address from '../../../components/Address';
+import { useCoinBalance } from '../../../hooks/useCoinBalance';
+import { useWallet } from '../../../hooks/useWallet';
 
 export type ReceiveButtonProps = {
   address: string;
@@ -52,20 +54,16 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
 function MainPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { account } = useAccount(context.accountId);
+  const balance = useCoinBalance(account.address, 'SUI', {
+    networkId: context.networkId,
+  });
 
   return (
     <div className={styles['main-content']}>
-      <div className={styles['balance']}>1000 SUI</div>
+      <div className={styles['balance']}>{balance} SUI</div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
-        <div
-          className={styles['airdrop']}
-          onClick={() => {
-            message.error('haha');
-            // message.info('haha');
-            // message.success('haha')
-          }}
-        >
+        <div className={styles['airdrop']} onClick={() => {}}>
           {/* <img src={IconDownDouble} className={styles['icon']} /> */}
           Airdrop
         </div>

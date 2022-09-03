@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   updateAccountId,
   updateInitialized,
+  updateNetworkId,
   updateToken,
   updateWalletId,
 } from '../../../store/app-context';
@@ -49,6 +50,7 @@ const CreateNewWallet = () => {
     await dispatch(updateToken(token));
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
+    await dispatch(updateNetworkId('devnet'));
     await dispatch(updateInitialized(true));
   }
 

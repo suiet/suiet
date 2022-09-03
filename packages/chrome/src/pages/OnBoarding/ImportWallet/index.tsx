@@ -10,6 +10,7 @@ import message from '../../../components/message';
 import {
   updateAccountId,
   updateInitialized,
+  updateNetworkId,
   updateToken,
   updateWalletId,
 } from '../../../store/app-context';
@@ -53,6 +54,7 @@ const ImportWallet = () => {
     if (pageEntry === PageEntry.SWITCHER && appContext.token) {
       // already has token
       await createWalletAndAccount(appContext.token, _secret);
+      await dispatch(updateNetworkId('devnet'));
       navigate('/', {
         state: { openSwitcher: true }, // open the wallet switcher
       });

@@ -4,6 +4,7 @@ import { ITransactionApi, TransactionApi } from './txn';
 import { AuthApi, IAuthApi } from './auth';
 import { Storage, getStorage } from '../storage/Storage';
 import { validateToken } from './util';
+import { INetworkApi, NetworkApi } from './network';
 
 export class CoreApi {
   storage: Storage;
@@ -11,6 +12,7 @@ export class CoreApi {
   account: IAccountApi;
   auth: IAuthApi;
   txn: ITransactionApi;
+  network: INetworkApi;
 
   constructor(storage: Storage) {
     this.storage = storage;
@@ -18,6 +20,7 @@ export class CoreApi {
     this.account = new AccountApi(storage);
     this.auth = new AuthApi(storage);
     this.txn = new TransactionApi(storage);
+    this.network = new NetworkApi();
   }
 
   private init(storage: Storage) {
