@@ -5,6 +5,18 @@ import { validateToken } from './util';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 
+export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
+  ['SUI', {
+    symbol: 'SUI',
+    packageId: '0x2',
+  }],
+]);
+
+export type CoinPackageIdPair = {
+  symbol: string,
+  packageId: string,
+}
+
 export type TransferCoinParams = {
   symbol: string;
   amount: bigint;
@@ -38,6 +50,7 @@ export type CoinObject = {
 export type Object = CoinObject;
 
 export interface ITransactionApi {
+  supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (params: TransferCoinParams) => Promise<void>;
   transferObject: (params: TransferObjectParams) => Promise<void>;
   getTransactionHistory: (
@@ -56,6 +69,9 @@ export class TransactionApi implements ITransactionApi {
 
   constructor(storage: Storage) {
     this.storage = storage;
+  }
+  async supportedCoins(): Promise<CoinPackageIdPair[]> {
+    return Array.from(DEFAULT_SUPPORTED_COINS.values());
   }
 
   async transferCoin(params: TransferCoinParams): Promise<void> {
