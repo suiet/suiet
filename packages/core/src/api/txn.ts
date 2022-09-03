@@ -103,7 +103,7 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  async transferObject(params: TransferObjectParams): Promise<void> {}
+  async transferObject(params: TransferObjectParams): Promise<void> { }
 
   async getTransactionHistory(
     network: Network,
@@ -118,7 +118,8 @@ export class TransactionApi implements ITransactionApi {
     network: Network,
     address: string
   ): Promise<Array<{ symbol: string; balance: bigint }>> {
-    const objects = await this.getOwnedObjects(network, address);
+    const provider = new Provider(network.rpcURL);
+    const objects = await provider.getOwnedCoins(address);
     const result = new Map();
     for (const object of objects) {
       result.has(object.symbol)
