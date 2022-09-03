@@ -8,7 +8,7 @@ import { Buffer } from 'buffer';
 export type CreateWalletParams = {
   token: string;
   mnemonic?: string;
-  private?: string,
+  private?: string;
   name?: string;
   avatar?: string;
 };
@@ -24,7 +24,7 @@ export type Wallet = {
 export interface IWalletApi {
   validateMnemonic: (mnemonic: string) => boolean;
   revealMnemonic: (walletId: string, token: string) => Promise<string>;
-  revealPrivate: (walletId: string, token: string,) => Promise<string>;
+  revealPrivate: (walletId: string, token: string) => Promise<string>;
 
   createWallet: (params: CreateWalletParams) => Promise<Wallet>;
   getWallets: () => Promise<Wallet[]>;
@@ -60,7 +60,7 @@ export class WalletApi implements IWalletApi {
     );
   }
 
-  async revealPrivate(walletId: string, token: string,): Promise<string> {
+  async revealPrivate(walletId: string, token: string): Promise<string> {
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet Not Exist');
