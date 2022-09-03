@@ -103,7 +103,7 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  async transferObject(params: TransferObjectParams): Promise<void> { }
+  async transferObject(params: TransferObjectParams): Promise<void> {}
 
   async getTransactionHistory(
     network: Network,
