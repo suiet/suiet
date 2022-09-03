@@ -5,7 +5,7 @@ import { SHA3 } from 'sha3';
 import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx } from './types';
 
-const ED25519_ADDRESS_PREFIX = 0x0;
+const ED25519_ADDRESS_PREFIX = 0x00;
 
 export class Vault {
   hdKey: Ed25519HdKey;
@@ -36,7 +36,7 @@ export class Vault {
   public getAddress(): string {
     const keyWithPrefix = new Uint8Array(32 + 1);
     keyWithPrefix.set([ED25519_ADDRESS_PREFIX]);
-    keyWithPrefix.set(this.hdKey.getPrivateKey(), 1);
+    keyWithPrefix.set(this.hdKey.getPublicKey(), 1);
     const publicHash = new SHA3(256)
       .update(Buffer.from(keyWithPrefix))
       .digest();
@@ -44,15 +44,20 @@ export class Vault {
   }
 
   public getPublicKey(): string {
-    return this.hdKey.getPublicHexString();
+    const pubKey = this.hdKey.getPublicHexString();
+    return pubKey;
   }
 
   public async signTransaction(unsigned: UnsignedTx): Promise<SignedTx> {
-    const signature = this.hdKey.sign(Buffer.from(unsigned.data.getData()));
+    const signature = await this.hdKey.sign(
+      Buffer.from(unsigned.data.getData())
+    );
+    const pubKey = await this.hdKey.getPublicKey();
+
     return {
       data: unsigned.data,
       signature,
-      pubKey: this.hdKey.getPublicKey(),
+      pubKey,
     };
   }
 }

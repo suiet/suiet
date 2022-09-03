@@ -140,6 +140,9 @@ export class Provider {
     const coins = (await this.getOwnedCoins(vault.getAddress())).filter(
       (coin) => coin.symbol === symbol
     );
+    if (coins.length === 0) {
+      throw new Error('no coin to transfer');
+    }
     if (symbol === GAS_SYMBOL) {
       await this.coin.transferSui(coins, amount, recipient, vault);
     } else {
@@ -210,7 +213,6 @@ export class CoinProvider {
     amount: bigint,
     vault: Vault
   ): Promise<CoinObject> {
-    console.log('merge coin');
     coins.sort((a, b) => (a.balance - b.balance > 0 ? 1 : -1));
     const coinWithSufficientBalance = coins.find(
       (coin) => coin.balance >= amount
@@ -255,7 +257,6 @@ export class CoinProvider {
   }
 
   async splitCoinForBalance(coin: CoinObject, amount: bigint, vault: Vault) {
-    console.log('split coin', coin, amount);
     const address = vault.getAddress();
     await this.provider.syncAccountState(address);
     const data = await this.serializer.newSplitCoin(address, {
@@ -268,7 +269,7 @@ export class CoinProvider {
     const obj = getCoinAfterSplit(resp) as SuiObject;
     const balance = Coin.getBalance(getMoveObject(obj) as SuiMoveObject);
     if (balance !== amount) {
-      throw new Error('Merge coins failed caused by transactions conflicted');
+      throw new Error('Split coin failed caused by transactions conflicted');
     }
     coin.balance = amount;
     return coin;
@@ -300,7 +301,6 @@ export class CoinProvider {
     recipient: string,
     vault: Vault
   ) {
-    console.log('transfer sui');
     const address = vault.getAddress();
     await this.provider.syncAccountState(address);
     const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
@@ -316,9 +316,6 @@ export class CoinProvider {
   }
 
   async executeTransaction(txn: SignedTx) {
-    console.log('data', txn.signature.toString('base64'));
-    console.log('signature', txn.signature.toString('base64'));
-    console.log('pubkey', txn.pubKey.toString('base64'));
     return await this.provider.executeTransaction(
       txn.data.toString(),
       'ED25519',
