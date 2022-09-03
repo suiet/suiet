@@ -13,26 +13,34 @@ export function useCoinBalance(
     Map<string, { symbol: string; balance: bigint }>
   >(new Map());
   const { networkId = 'devnet' } = opts;
-  console.log('input: ', address, symbol, opts);
+
+  async function fetchCoinsBalanceMap(address: string, networkId: string) {
+    const network = await coreApi.network.getNetwork(networkId);
+    if (!network) {
+      console.error(`fetch network failed: ${networkId}`);
+      return;
+    }
+
+    const coinsBalance = await coreApi.txn.getCoinsBalance(network, address);
+    if (!coinsBalance) {
+      console.error(`fetch coinsBalance failed: ${address}, ${networkId}`);
+      return;
+    }
+    const map = new Map();
+    coinsBalance.forEach((item) => {
+      map.set(item.symbol, item);
+    });
+    setCoinsBalanceMap(map);
+  }
 
   useEffect(() => {
-    (async function () {
-      const network = await coreApi.network.getNetwork(networkId);
-      console.log('network', network);
-      if (!network) return;
-      const coinsBalance = await coreApi.txn.getCoinsBalance(network, address);
-      console.log('coinsBalance', coinsBalance);
-      const map = new Map();
-      coinsBalance.forEach((item) => {
-        map.set(item.symbol, item);
-      });
-      setCoinsBalanceMap(map);
-    })();
+    if (!address || !networkId) return;
+    fetchCoinsBalanceMap(address, networkId);
   }, [address, networkId]);
 
   useEffect(() => {
     const result = coinsBalanceMap.get(symbol);
-    setBalance(String(result?.balance) ?? '0');
+    setBalance(result?.balance ? String(result?.balance) : '0');
   }, [coinsBalanceMap, symbol]);
 
   return balance;
