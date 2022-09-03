@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import './index.scss';
 import Wallet from './wallet';
 import { Route, Routes, useNavigate } from 'react-router-dom';
@@ -13,6 +12,7 @@ import toast from '../../components/toast';
 import { addressEllipsis } from '../../utils/format';
 import { coreApi } from '@suiet/core';
 import { avatarMap } from '../../constants/avatar';
+import { isDev } from '../../utils/env';
 
 function SettingPage() {
   const navigate = useNavigate();
@@ -90,12 +90,15 @@ function SettingPage() {
                 <span className="icon-security"></span>Security
                 <span className="icon-right-arrow" />
               </div>
-              <div
-                onClick={async () => await handleResetApp()}
-                className="settings-item"
-              >
-                <span className="icon-security"></span>Reset App
-              </div>
+              {/* dev use */}
+              {isDev && (
+                <div
+                  onClick={async () => await handleResetApp()}
+                  className="settings-item"
+                >
+                  <span className="icon-security"></span>Reset App
+                </div>
+              )}
               <div className="app-version">version v0.0.1</div>
             </>
           }
