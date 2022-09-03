@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import { addressEllipsis } from '../../utils/format';
 import Address from '../Address';
+import Avatar from '../Avatar';
 
 export type WalletData = {
   id: string;
@@ -32,7 +33,7 @@ const WalletItem = (props: WalletItemProps) => {
         props.onClick(data.id, data);
       }}
     >
-      <div className={styles['wallet-item-avatar']}></div>
+      <Avatar model={data.avatar} size={'sm'}></Avatar>
       <div className={'ml-[8px]'}>
         <Typo.Title className={styles['wallet-item-name']}>
           {data.name}

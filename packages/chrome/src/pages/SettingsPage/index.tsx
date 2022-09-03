@@ -32,7 +32,7 @@ const SettingMain = () => {
   return (
     <div className={styles['container']}>
       <div className={'flex flex-col items-center'}>
-        <Avatar size={'large'}></Avatar>
+        <Avatar size={'lg'} model={wallet.avatar}></Avatar>
         <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
           {wallet.name}
         </div>

@@ -1,3 +1,4 @@
+$size-small: 24px;
 $size-normal: 32px;
 $size-large: 56px;
 
@@ -6,7 +7,12 @@ $size-large: 56px;
   height: $size-normal;
   border-radius: 999px;
 
-  &-size--large {
+  &-size--sm {
+    width: $size-small;
+    height: $size-small;
+  }
+
+  &-size--lg {
     width: $size-large;
     height: $size-large;
   }
@@ -21,6 +27,6 @@ $size-large: 56px;
     background: linear-gradient(135deg, #76f710 0%, #ffd3c0 100%);
   }
   &-model--4 {
-    background: linear-gradient(135deg, #76f710 0%, #ffd3c0 100%);
+    background: linear-gradient(135deg, #3078e3 0%, #fac3f7 100%);
   }
 }

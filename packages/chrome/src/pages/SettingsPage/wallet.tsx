@@ -4,11 +4,11 @@ import classnames from 'classnames';
 import Button from '../../components/Button';
 import { AppDispatch, RootState } from '../../store';
 import { useDispatch, useSelector } from 'react-redux';
-import { avatarMap } from '../../constants/avatar';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { coreApi } from '@suiet/core';
 import { updateWallet } from '../../store/wallet';
+import Avatar from '../../components/Avatar';
 
 function Wallet() {
   const { context, wallet } = useSelector((state: RootState) => ({
@@ -50,7 +50,7 @@ function Wallet() {
                 active: num.toString() === avatar,
               })}
             >
-              <img src={avatarMap[num]} />
+              <Avatar model={num} />
               <div className="wallet-check" />
             </div>
           );

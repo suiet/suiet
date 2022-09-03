@@ -3,17 +3,20 @@ import classnames from 'classnames';
 import { Extendable } from '../../types';
 
 export type AvatarProps = Extendable & {
-  size?: 'normal' | 'large';
-  model?: 1 | 2 | 3 | 4;
+  size?: 'md' | 'lg' | 'sm';
+  model?: number | string;
 };
 
 const Avatar = (props: AvatarProps) => {
-  const { size = 'normal', model = 1 } = props;
+  const { size = 'md' } = props;
+  let _model = Number(props.model);
+  _model = _model >= 1 && _model <= 4 ? _model : 1;
+
   return (
     <div
       className={classnames(styles['avatar'], [
         styles[`avatar-size--${size}`],
-        styles[`avatar-model--${model}`],
+        styles[`avatar-model--${_model}`],
         props.className,
       ])}
       style={props.style}
