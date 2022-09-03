@@ -18,14 +18,7 @@ import { updateAccountId, updateWalletId } from '../../../store/app-context';
 import { PageEntry } from '../../../hooks/usePageEntry';
 import { Extendable } from '../../../types';
 import Address from '../../../components/Address';
-
-const Avatar = ({ avatar }: { avatar: string }) => {
-  return (
-    <div className={styles['avatar']}>
-      {avatar && <img src={avatarMap[avatar]} alt="avatar" />}
-    </div>
-  );
-};
+import Avatar from '../../../components/Avatar';
 
 function useWalletAccountMap(wallets: Wallet[]) {
   const [walletAccountMap, setWalletAccountMap] = useState<
@@ -120,14 +113,14 @@ function Header(props: HeaderProps) {
 
   return (
     <div className={classnames(styles['header-container'], props.className)}>
-      <Avatar avatar={wallet.avatar || '1'} />
+      <Avatar size={'sm'} model={wallet.avatar} />
       <div
         className={styles['account']}
         onClick={() => {
           setDoSwitch(true);
         }}
       >
-        <span className={styles['account-name']}>{account.name}</span>
+        <span className={styles['account-name']}>{wallet.name}</span>
         <img className="ml-[6px]" src={IconArrowRight} alt="arrow right" />
       </div>
       <Address
