@@ -24,8 +24,14 @@ const SettingMain = () => {
   }));
   const { account } = useAccount(context.accountId);
 
-  async function handleResetApp() {
+  // reset redux & db
+  async function handleResetAppData() {
     await coreApi.resetAppData(token);
+    await dispatch(resetAppContext()).unwrap();
+  }
+
+  // reset redux only
+  async function handleResetAppContext() {
     await dispatch(resetAppContext()).unwrap();
   }
 
@@ -81,13 +87,22 @@ const SettingMain = () => {
         </div>
         {/* dev use */}
         {isDev && (
-          <div
-            onClick={async () => await handleResetApp()}
-            className={styles['settings-item']}
-          >
-            <span className={styles['icon-security']}></span>
-            Reset App
-          </div>
+          <>
+            <div
+              onClick={handleResetAppContext}
+              className={styles['settings-item']}
+            >
+              <span className={styles['icon-security']}></span>
+              Reset Context
+            </div>
+            <div
+              onClick={handleResetAppData}
+              className={styles['settings-item']}
+            >
+              <span className={styles['icon-security']}></span>
+              Reset All
+            </div>
+          </>
         )}
       </section>
 
