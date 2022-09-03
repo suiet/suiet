@@ -33,6 +33,10 @@
       background-image: url('./assets/airdrop.svg');
     }
 
+    &.fail {
+      background-image: url('./assets/fail.svg');
+    }
+
     &::after {
       display: block;
       content: '';
@@ -71,7 +75,7 @@
     color: #3fb534;
 
     &.sent {
-      color: #ff4974;
+      color: #FF9823;
     }
   }
 }
