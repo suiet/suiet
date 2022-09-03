@@ -22,6 +22,7 @@ export type WalletData = {
 type WalletItemProps = {
   data: WalletData;
   onClick: (id: string, data: WalletData) => void;
+  onEdit: (id: string, data: WalletData) => void;
 };
 
 const WalletItem = (props: WalletItemProps) => {
@@ -29,9 +30,7 @@ const WalletItem = (props: WalletItemProps) => {
   return (
     <div
       className={classnames(styles['wallet-item'])}
-      onClick={() => {
-        props.onClick(data.id, data);
-      }}
+      onClick={() => props?.onClick && props.onClick(data.id, data)}
     >
       <Avatar model={data.avatar} size={'sm'}></Avatar>
       <div className={'ml-[8px]'}>
@@ -48,6 +47,7 @@ const WalletItem = (props: WalletItemProps) => {
       <Icon
         className={classnames(styles['icon'], 'ml-auto')}
         icon={<IconEdit />}
+        onClick={() => props?.onEdit && props.onEdit(data.id, data)}
       />
     </div>
   );
@@ -56,6 +56,7 @@ const WalletItem = (props: WalletItemProps) => {
 export type WalletSwitcherProps = {
   wallets: WalletData[];
   onSelect: (id: string, wallet: WalletData) => void;
+  onEdit: (id: string, wallet: WalletData) => void;
   onClickLayer?: () => void;
   onClickNew?: () => void;
   onClickImport?: () => void;
@@ -106,9 +107,8 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
               <WalletItem
                 key={data.id}
                 data={data}
-                onClick={(id, data) => {
-                  if (props.onSelect) props.onSelect(id, data);
-                }}
+                onClick={props.onSelect}
+                onEdit={props.onEdit}
               />
             ))}
           </section>

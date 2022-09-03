@@ -59,6 +59,7 @@ export type HeaderProps = Extendable & {
 
 const WalletSwitcherInstance = (props: {
   onSelect: (id: string, wallet: WalletData) => void;
+  onEdit: (id: string, wallet: WalletData) => void;
   onClickLayer: () => void;
   onClickImport: () => void;
   onClickNew: () => void;
@@ -85,6 +86,7 @@ const WalletSwitcherInstance = (props: {
     <WalletSwitcher
       wallets={walletDataList}
       onSelect={props.onSelect}
+      onEdit={props.onEdit}
       onClickLayer={props.onClickLayer}
       onClickNew={props.onClickNew}
       onClickImport={props.onClickImport}
@@ -111,6 +113,14 @@ function Header(props: HeaderProps) {
     setDoSwitch(false);
   }
 
+  async function editWallet() {
+    navigate('/settings/wallet', {
+      state: {
+        hideAppLayout: true,
+      },
+    });
+  }
+
   return (
     <div className={classnames(styles['header-container'], props.className)}>
       <Avatar size={'sm'} model={wallet.avatar} />
@@ -133,6 +143,7 @@ function Header(props: HeaderProps) {
       {doSwitch && (
         <WalletSwitcherInstance
           onSelect={switchWallet}
+          onEdit={editWallet}
           onClickLayer={() => {
             setDoSwitch(false);
           }}
