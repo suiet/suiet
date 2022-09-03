@@ -20,7 +20,7 @@ export class CoreApi {
     this.wallet = new WalletApi(storage);
     this.account = new AccountApi(storage);
     this.auth = new AuthApi(storage);
-    this.txn = new TransactionApi();
+    this.txn = new TransactionApi(storage);
   }
 
   private init(storage: Storage) {
@@ -28,7 +28,7 @@ export class CoreApi {
     this.wallet = new WalletApi(storage);
     this.account = new AccountApi(storage);
     this.auth = new AuthApi(storage);
-    this.txn = new TransactionApi();
+    this.txn = new TransactionApi(storage);
   }
 
   public static newApi(): CoreApi {

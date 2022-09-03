@@ -60,7 +60,7 @@ export class TransactionApi implements ITransactionApi {
 
   async transferCoin(params: TransferCoinParams): Promise<void> {
     await validateToken(this.storage, params.token);
-    const provider = new Provider(params.network);
+    const provider = new Provider(params.network.rpcURL);
     const wallet = await this.storage.getWallet(params.walletId);
     if (!wallet) {
       throw new Error('Wallet not found');
@@ -83,13 +83,13 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  async transferObject(params: TransferObjectParams): Promise<void> {}
+  async transferObject(params: TransferObjectParams): Promise<void> { }
 
   async getTransactionHistory(
     network: Network,
     address: string
   ): Promise<TxnHistroyEntry[]> {
-    const provider = new Provider(network);
+    const provider = new Provider(network.rpcURL);
     const histroy = await provider.getTransactionsForAddress(address);
     return histroy;
   }
@@ -112,7 +112,7 @@ export class TransactionApi implements ITransactionApi {
   }
 
   async getOwnedObjects(network: Network, address: string): Promise<Object[]> {
-    const provider = new Provider(network);
+    const provider = new Provider(network.rpcURL);
     const coins = await provider.getOwnedCoins(address);
     return coins.map((coin) => {
       return {

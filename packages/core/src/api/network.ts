@@ -1,19 +1,33 @@
 export type Network = {
   id: string;
   name: string;
-  shortName: string;
-  shortCode?: string;
   rpcURL: string;
-  isTestnet: boolean;
 };
 
 export interface INetworkApi {
   getNetworks: (enabledOnly: boolean) => Promise<Network[]>;
-  getNetwork: (networkId: string) => Promise<Network>;
+  getNetwork: (networkId: string) => Promise<Network | undefined>;
   // addCustomNetwork: (network: Network) => Promise<void>;
 }
 
-const networks = new Map([
-  ['devnet', 'xxxx'],
-  ['local', 'xxxx'],
+const DEFAULT_NETWORKS = new Map([
+  ['devnet', {
+    id: 'devnet',
+    name: 'devnet',
+    rpcURL: '',
+  }],
+  ['local', {
+    id: 'local',
+    name: 'local',
+    rpcURL: '',
+  }],
 ]);
+
+export class NetworkApi implements INetworkApi {
+  async getNetworks(enabledOnly: boolean): Promise<Network[]> {
+    return Array.from(DEFAULT_NETWORKS.values())
+  }
+  async getNetwork(networkId: string): Promise<Network | undefined> {
+    return DEFAULT_NETWORKS.get(networkId)
+  }
+}

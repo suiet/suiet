@@ -4,6 +4,7 @@ import { decryptMnemonic } from '../crypto';
 import { SHA3 } from 'sha3';
 import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx } from './types';
+import * as crypto from "../crypto"
 
 export class Vault {
   hdKey: Ed25519HdKey;
@@ -22,6 +23,14 @@ export class Vault {
     const master = await Ed25519HdKey.fromMasterSeed(Buffer.from(seed));
     const hdKey = await master.derive(path);
     return new Vault(hdKey);
+  }
+
+  // Used for testing
+  public static async generate(): Promise<Vault> {
+    const mnemonic = crypto.generateMnemonic();
+    const seed = await bip39.mnemonicToSeed(mnemonic);
+    const master = await Ed25519HdKey.fromMasterSeed(Buffer.from(seed));
+    return new Vault(master);
   }
 
   public getAddress(): string {
