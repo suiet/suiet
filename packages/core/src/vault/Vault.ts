@@ -4,7 +4,7 @@ import { decryptMnemonic } from '../crypto';
 import { SHA3 } from 'sha3';
 import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx } from './types';
-import * as crypto from "../crypto"
+import * as crypto from '../crypto';
 
 export class Vault {
   hdKey: Ed25519HdKey;
@@ -46,7 +46,7 @@ export class Vault {
     const signature = this.hdKey.sign(Buffer.from(unsigned.data.getData()));
     return {
       data: unsigned.data,
-      signature: signature,
+      signature,
       pubKey: this.hdKey.getPublicKey(),
     };
   }

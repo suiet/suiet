@@ -6,16 +6,19 @@ import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
-  ['SUI', {
-    symbol: 'SUI',
-    packageId: '0x2',
-  }],
+  [
+    'SUI',
+    {
+      symbol: 'SUI',
+      packageId: '0x2',
+    },
+  ],
 ]);
 
 export type CoinPackageIdPair = {
-  symbol: string,
-  packageId: string,
-}
+  symbol: string;
+  packageId: string;
+};
 
 export type TransferCoinParams = {
   symbol: string;
@@ -56,12 +59,12 @@ export interface ITransactionApi {
   getTransactionHistory: (
     network: Network,
     address: string
-  ) => Promise<Array<TxnHistroyEntry>>;
+  ) => Promise<TxnHistroyEntry[]>;
   getOwnedObjects: (network: Network, address: string) => Promise<Object[]>;
   getCoinsBalance: (
     network: Network,
     address: string
-  ) => Promise<{ symbol: string; balance: bigint }[]>;
+  ) => Promise<Array<{ symbol: string; balance: bigint }>>;
 }
 
 export class TransactionApi implements ITransactionApi {
@@ -70,6 +73,7 @@ export class TransactionApi implements ITransactionApi {
   constructor(storage: Storage) {
     this.storage = storage;
   }
+
   async supportedCoins(): Promise<CoinPackageIdPair[]> {
     return Array.from(DEFAULT_SUPPORTED_COINS.values());
   }
@@ -99,7 +103,7 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  async transferObject(params: TransferObjectParams): Promise<void> { }
+  async transferObject(params: TransferObjectParams): Promise<void> {}
 
   async getTransactionHistory(
     network: Network,
@@ -113,7 +117,7 @@ export class TransactionApi implements ITransactionApi {
   async getCoinsBalance(
     network: Network,
     address: string
-  ): Promise<{ symbol: string; balance: bigint }[]> {
+  ): Promise<Array<{ symbol: string; balance: bigint }>> {
     const objects = await this.getOwnedObjects(network, address);
     const result = new Map();
     for (const object of objects) {

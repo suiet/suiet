@@ -12,13 +12,9 @@ import {
   getCoinAfterMerge,
   getCoinAfterSplit,
 } from '@mysten/sui.js';
-import {
-  TxnHistroyEntry,
-  CoinObject as StorageCoinObject,
-} from './storage/types';
+import { TxnHistroyEntry } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
-import { Network } from './api/network';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
@@ -32,16 +28,16 @@ export class Provider {
     this.coin = new CoinProvider(endpoint);
   }
 
-  public async getActiveValidators(): Promise<Array<SuiMoveObject>> {
+  public async getActiveValidators(): Promise<SuiMoveObject[]> {
     const contents = await this.provider.getObject(SUI_SYSTEM_STATE_OBJECT_ID);
     const data = (contents.details as SuiObject).data;
     const validators = (data as SuiMoveObject).fields.validators;
-    const active_validators = (validators as SuiMoveObject).fields
+    const activeValidators = (validators as SuiMoveObject).fields
       .active_validators;
-    return active_validators as Array<SuiMoveObject>;
+    return activeValidators as SuiMoveObject[];
   }
 
-  async getOwnedObjects(address: string): Promise<SuiObject[]> {
+  public async getOwnedObjects(address: string): Promise<SuiObject[]> {
     const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
     const objectIds = objectInfos.map((obj) => obj.objectId);
     const resps = await this.provider.getObjectBatch(objectIds);
@@ -63,8 +59,8 @@ export class Provider {
         const id = Coin.getID(obj);
         return {
           objectId: id,
-          symbol: symbol,
-          balance: balance,
+          symbol,
+          balance,
         };
       });
     return res;
@@ -117,8 +113,8 @@ export class Provider {
                 to: transferObject.recipient,
                 object: {
                   type: 'coin' as 'coin',
-                  balance: balance,
-                  symbol: symbol,
+                  balance,
+                  symbol,
                 },
               });
             }
@@ -137,9 +133,9 @@ export class Provider {
     vault: Vault
   ) {
     const coins = (await this.getOwnedCoins(vault.getAddress())).filter(
-      (coin) => coin.symbol == symbol
+      (coin) => coin.symbol === symbol
     );
-    if (symbol == GAS_SYMBOL) {
+    if (symbol === GAS_SYMBOL) {
       await this.coin.transferSui(coins, amount, recipient, vault);
     } else {
       await this.coin.transferCoin(coins, amount, recipient, vault);
@@ -217,9 +213,9 @@ export class CoinProvider {
       return coinWithSufficientBalance;
     }
     // merge coins with sufficient balance.
-    let primaryCoin = coins[coins.length - 1];
+    const primaryCoin = coins[coins.length - 1];
     let expectedBalance = primaryCoin.balance;
-    let coinsToMerge = [];
+    const coinsToMerge = [];
     for (let i = coins.length - 2; i > 0; i--) {
       expectedBalance += coins[i].balance;
       coinsToMerge.push(coins[i].objectId);
@@ -237,13 +233,15 @@ export class CoinProvider {
         coinToMerge: coin,
         gasBudget: DEFAULT_GAS_BUDGET_FOR_MERGE,
       });
-      const signedTx = await vault.signTransaction({ data: data });
+      const signedTx = await vault.signTransaction({ data });
       const resp = await this.executeTransaction(signedTx);
-      const obj = getCoinAfterMerge(resp)!;
+      const obj = getCoinAfterMerge(resp) as SuiObject;
       primaryCoin.objectId = obj.reference.objectId;
-      primaryCoin.balance = Coin.getBalance(getMoveObject(obj)!);
+      primaryCoin.balance = Coin.getBalance(
+        getMoveObject(obj) as SuiMoveObject
+      );
     }
-    if (primaryCoin.balance != expectedBalance) {
+    if (primaryCoin.balance !== expectedBalance) {
       throw new Error('Merge coins failed caused by transactions conflicted');
     }
     return primaryCoin;
@@ -256,11 +254,11 @@ export class CoinProvider {
       splitAmounts: [Number(coin.balance - amount)],
       gasBudget: DEFAULT_GAS_BUDGET_FOR_SPLIT,
     });
-    const signedTx = await vault.signTransaction({ data: data });
+    const signedTx = await vault.signTransaction({ data });
     const resp = await this.executeTransaction(signedTx);
-    const obj = getCoinAfterSplit(resp)!;
-    const balance = Coin.getBalance(getMoveObject(obj)!);
-    if (balance != amount) {
+    const obj = getCoinAfterSplit(resp) as SuiObject;
+    const balance = Coin.getBalance(getMoveObject(obj) as SuiMoveObject);
+    if (balance !== amount) {
       throw new Error('Merge coins failed caused by transactions conflicted');
     }
     coin.balance = amount;
@@ -280,9 +278,9 @@ export class CoinProvider {
     const data = await this.serializer.newTransferObject(address, {
       objectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
-      recipient: recipient,
+      recipient,
     });
-    const signedTx = await vault.signTransaction({ data: data });
+    const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
     await this.executeTransaction(signedTx);
   }
@@ -300,9 +298,9 @@ export class CoinProvider {
     const data = await this.serializer.newTransferSui(address, {
       suiObjectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
-      recipient: recipient,
+      recipient,
     });
-    const signedTx = await vault.signTransaction({ data: data });
+    const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
     await this.executeTransaction(signedTx);
   }

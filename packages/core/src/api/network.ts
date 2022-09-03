@@ -11,23 +11,30 @@ export interface INetworkApi {
 }
 
 const DEFAULT_NETWORKS = new Map([
-  ['devnet', {
-    id: 'devnet',
-    name: 'devnet',
-    rpcURL: 'https://gateway.devnet.sui.io:443',
-  }],
-  ['local', {
-    id: 'local',
-    name: 'local',
-    rpcURL: '',
-  }],
+  [
+    'devnet',
+    {
+      id: 'devnet',
+      name: 'devnet',
+      rpcURL: 'https://gateway.devnet.sui.io:443',
+    },
+  ],
+  [
+    'local',
+    {
+      id: 'local',
+      name: 'local',
+      rpcURL: '',
+    },
+  ],
 ]);
 
 export class NetworkApi implements INetworkApi {
   async getNetworks(enabledOnly: boolean): Promise<Network[]> {
-    return Array.from(DEFAULT_NETWORKS.values())
+    return Array.from(DEFAULT_NETWORKS.values());
   }
+
   async getNetwork(networkId: string): Promise<Network | undefined> {
-    return DEFAULT_NETWORKS.get(networkId)
+    return DEFAULT_NETWORKS.get(networkId);
   }
 }

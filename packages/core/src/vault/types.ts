@@ -1,9 +1,4 @@
-import {
-  Base64DataBuffer,
-  Coin,
-  Provider,
-  TxnDataSerializer,
-} from '@mysten/sui.js';
+import { Base64DataBuffer, Coin } from '@mysten/sui.js';
 
 export type UnsignedTx = {
   data: Base64DataBuffer;
