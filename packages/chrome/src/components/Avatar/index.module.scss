@@ -1,0 +1,26 @@
+$size-normal: 32px;
+$size-large: 56px;
+
+.avatar {
+  width: $size-normal;
+  height: $size-normal;
+  border-radius: 999px;
+
+  &-size--large {
+    width: $size-large;
+    height: $size-large;
+  }
+
+  &-model--1 {
+    background: linear-gradient(135deg, #10c0f7 0%, #c0c7ff 100%);
+  }
+  &-model--2 {
+    background: linear-gradient(135deg, #19ce8d 0%, #c1d6ff 100%);
+  }
+  &-model--3 {
+    background: linear-gradient(135deg, #76f710 0%, #ffd3c0 100%);
+  }
+  &-model--4 {
+    background: linear-gradient(135deg, #76f710 0%, #ffd3c0 100%);
+  }
+}

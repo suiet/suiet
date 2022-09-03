@@ -1,8 +1,11 @@
 @import '../../styles/variables';
 
+.container {
+  padding: 24px 0;
+}
+
 .address {
   @apply flex justify-center items-center;
-  margin-bottom: 48px;
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
@@ -10,46 +13,17 @@
   text-align: center;
 }
 
-.wallet-avatar {
-  width: 56px;
-  height: 56px;
-  margin: 24px auto 6px;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
 .wallet-name {
   font-weight: 700;
   font-size: 24px;
   line-height: 36px;
-  /* identical to box height, or 150% */
   text-align: center;
   color: #000000;
 }
 
 .settings-container {
-  .settings-item {
-    display: flex;
-    padding: 24px;
-    margin: 12px 16px;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    color: #000000;
-    background-color: $gray-50;
-    border-radius: 16px;
-    cursor: pointer;
-    position: relative;
-
-    &:hover {
-      /* Gray/50 */
-      background: $gray-100;
-    }
-
-    &:active {
-      background-color: $gray-200;
-    }
-  }
+  padding: 0 16px;
+  margin-top: 48px;
 
   .icon-wallet,
   .icon-network,
@@ -82,6 +56,32 @@
     margin: auto;
     top: 0;
     bottom: 0;
+  }
+}
+
+.settings-item {
+  display: flex;
+  padding: 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #000000;
+  background-color: $gray-50;
+  border-radius: 16px;
+  cursor: pointer;
+  position: relative;
+
+  & + & {
+    margin-top: 12px;
+  }
+
+  &:hover {
+    /* Gray/50 */
+    background: $gray-100;
+  }
+
+  &:active {
+    background-color: $gray-200;
   }
 }
 
