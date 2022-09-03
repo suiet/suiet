@@ -29,7 +29,7 @@ const SavePassword = (props: SavePasswordProps) => {
     },
   });
   const [password, setPassword] = useState('');
-  const [oldPassword, setOldPassword] = useState('')
+  const [oldPassword, setOldPassword] = useState('');
 
   return (
     <div className={commonStyles['container']}>
@@ -46,25 +46,25 @@ const SavePassword = (props: SavePasswordProps) => {
           onSubmit={(data) => {
             props.onNext(data.password, oldPassword);
           }}
-        >          
-        <div>
-          <Typo.Small>Old Password</Typo.Small>
-          <FormControl
-            name={'oldpassword'}
-            registerOptions={getPasswordValidation()}
-          >
-            <Input
-              type={'password'}
-              state={getInputStateByFormState(form.formState, 'oldpassword')}
-              className={'mt-[6px]'}
-              placeholder={'Please enter the password'}
-              onInput={(e) => {
-                const target = e.target as any;
-                setOldPassword(target.value);
-              }}
-            />
-          </FormControl>
-        </div>
+        >
+          <div>
+            <Typo.Small>Old Password</Typo.Small>
+            <FormControl
+              name={'oldpassword'}
+              registerOptions={getPasswordValidation()}
+            >
+              <Input
+                type={'password'}
+                state={getInputStateByFormState(form.formState, 'oldpassword')}
+                className={'mt-[6px]'}
+                placeholder={'Please enter the password'}
+                onInput={(e) => {
+                  const target = e.target as any;
+                  setOldPassword(target.value);
+                }}
+              />
+            </FormControl>
+          </div>
           <div>
             <Typo.Small>Password</Typo.Small>
             <FormControl

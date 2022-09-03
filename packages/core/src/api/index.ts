@@ -1,11 +1,8 @@
 import { IWalletApi, WalletApi } from './wallet';
 import { AccountApi, IAccountApi } from './account';
-import { INetworkApi } from './network';
 import { ITransactionApi, TransactionApi } from './txn';
 import { AuthApi, IAuthApi } from './auth';
 import { Storage, getStorage } from '../storage/Storage';
-import { Buffer } from 'buffer';
-import * as crypto from '../crypto';
 import { validateToken } from './util';
 
 export class CoreApi {

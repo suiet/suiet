@@ -1,27 +1,27 @@
 @import '../../styles/variables';
 
 .img {
-    width: 56px;
-    height: 56px;
-    background: url('./assets/empty.svg') no-repeat center;
-    background-size: cover;
-    margin-top: 116px;
+  width: 56px;
+  height: 56px;
+  background: url('./assets/empty.svg') no-repeat center;
+  background-size: cover;
+  margin-top: 116px;
 }
 
 .title {
-    font-weight: 700;
-    font-size: 36px;
-    line-height: 36px;
-    text-align: center;
-    color: #000000;
-    margin-top: 31px;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 36px;
+  text-align: center;
+  color: #000000;
+  margin-top: 31px;
 }
 
 .description {
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 20px;
-    text-align: center;
-    color: $gray-300;
-    margin-top: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  text-align: center;
+  color: $gray-300;
+  margin-top: 8px;
 }
