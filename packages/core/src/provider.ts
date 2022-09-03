@@ -48,7 +48,6 @@ export class Provider {
   }
 
   public async getOwnedCoins(address: string): Promise<CoinObject[]> {
-    console.log('sdk address', address);
     await this.provider.syncAccountState(address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
