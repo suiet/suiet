@@ -51,7 +51,7 @@ function TransacationFlow() {
 }
 
 function TransactionPage() {
-  return <Empty />;
+  // return <Empty />;
   return (
     <div className="bg-gray-100 h-full w-full p-4">
       <TransacationFlow />

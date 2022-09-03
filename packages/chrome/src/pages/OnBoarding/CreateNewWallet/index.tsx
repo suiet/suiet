@@ -6,11 +6,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   updateAccountId,
   updateInitialized,
+  updateNetworkId,
   updateToken,
   updateWalletId,
 } from '../../../store/app-context';
 import { isNonEmptyArray } from '../../../utils/check';
-import toast from '../../../components/toast';
+import message from '../../../components/message';
 import { coreApi } from '@suiet/core';
 import { updateWallet } from '../../../store/wallet';
 import { AppDispatch, RootState } from '../../../store';
@@ -35,7 +36,7 @@ const CreateNewWallet = () => {
 
     const accounts = await coreApi.account.getAccounts(wallet.id);
     if (!isNonEmptyArray(accounts)) {
-      toast.success('Cannot find any account');
+      message.success('Cannot find any account');
       throw new Error('Cannot find any account');
     }
     const defaultAccount = accounts[0];
@@ -49,6 +50,7 @@ const CreateNewWallet = () => {
     await dispatch(updateToken(token));
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
+    await dispatch(updateNetworkId('devnet'));
     await dispatch(updateInitialized(true));
   }
 

@@ -1,21 +1,17 @@
 import styles from './index.module.scss';
-import IconDownDouble from '../../../assets/icons/down-double.svg';
-import IconQrCode from '../../../assets/icons/qrcode.svg';
-import IconTrendUp from '../../../assets/icons/trendup.svg';
 import { Link } from 'react-router-dom';
 import Modal from '../../../components/Modal';
 import WaterDropIcon from '../../../components/WaterDropIcon';
-import CopyIcon from '../../../components/CopyIcon';
 import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
-import toast from '../../../components/toast';
-import copy from 'copy-to-clipboard';
+import message from '../../../components/message';
 import { useAccount } from '../../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-import { addressEllipsis } from '../../../utils/format';
 import Address from '../../../components/Address';
+import { useCoinBalance } from '../../../hooks/useCoinBalance';
+import { useWallet } from '../../../hooks/useWallet';
 
 export type ReceiveButtonProps = {
   address: string;
@@ -58,10 +54,13 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
 function MainPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { account } = useAccount(context.accountId);
+  const balance = useCoinBalance(account.address, 'SUI', {
+    networkId: context.networkId,
+  });
 
   return (
     <div className={styles['main-content']}>
-      <div className={styles['balance']}>1000 SUI</div>
+      <div className={styles['balance']}>{balance} SUI</div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
         <div className={styles['airdrop']} onClick={() => {}}>
