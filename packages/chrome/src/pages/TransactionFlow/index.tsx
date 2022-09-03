@@ -4,7 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
 import Empty from './Empty';
 import { coreApi } from '@suiet/core';
-
+import { useAccount } from '../../hooks/useAccount';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { TxHistroyEntry } from '@suiet/core/dist/api/txn';
+import { useEffect, useState } from 'react';
 const list = [
   {
     id: 1,
@@ -26,7 +30,9 @@ const list = [
   },
 ];
 
-function TransacationFlow() {
+function nomalizeHistory(history: TxHistroyEntry[]) {}
+
+function TransacationFlow({ history }: { history: TxHistroyEntry[] }) {
   const navigate = useNavigate();
   return (
     <div className={classnames('mb-4', 'px-4 py-6', 'rounded-2xl', 'bg-white')}>
@@ -51,10 +57,27 @@ function TransacationFlow() {
 }
 
 function TransactionPage() {
-  // return <Empty />;
-  return (
+  const context = useSelector((state: RootState) => state.appContext);
+  const { account } = useAccount(context.accountId);
+  const [history, setHistory] = useState<TxHistroyEntry[] | null>(null);
+  useEffect(() => {
+    async function getHistory() {
+      const hs = await coreApi.txn.getTransactionHistory(
+        'devnet',
+        account.address
+      );
+      setHistory(hs);
+    }
+    getHistory();
+  }, []);
+
+  if (history === null) return null;
+
+  return history.length > 0 ? (
+    <Empty />
+  ) : (
     <div className="bg-gray-100 h-full w-full p-4">
-      <TransacationFlow />
+      <TransacationFlow history={history} />
     </div>
   );
 }
