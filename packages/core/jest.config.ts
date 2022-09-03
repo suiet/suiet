@@ -6,6 +6,10 @@
 export default {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
+  moduleNameMapper: {
+    // '^uuid$': '<rootDir>/node_modules/uuid/dist/index.js',
+    '^uuid$': require.resolve('uuid'),
+  },
 
   // Stop running tests after `n` failures
   // bail: 0,
@@ -144,7 +148,7 @@ export default {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: 'jsdom',
+  testEnvironment: 'node',
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -175,10 +179,10 @@ export default {
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  // transformIgnorePatterns: [
-  //   "/node_modules/",
-  //   "\\.pnp\\.[^\\/]+$"
-  // ],
+  transformIgnorePatterns: [
+    "/node_modules/",
+    "\\.pnp\\.[^\\/]+$"
+  ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
