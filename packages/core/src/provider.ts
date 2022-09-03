@@ -27,9 +27,9 @@ export class Provider {
   provider: JsonRpcProvider;
   coin: CoinProvider;
 
-  constructor(network: Network) {
-    this.provider = new JsonRpcProvider(network.rpcURL);
-    this.coin = new CoinProvider(network.rpcURL);
+  constructor(endpoint: string) {
+    this.provider = new JsonRpcProvider(endpoint);
+    this.coin = new CoinProvider(endpoint);
   }
 
   public async getActiveValidators(): Promise<Array<SuiMoveObject>> {
