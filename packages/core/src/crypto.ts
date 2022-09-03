@@ -28,6 +28,10 @@ export function generateMnemonic(): string {
   return bip39.generateMnemonic(enWordlist);
 }
 
+export function mnemonicToSeed(mnemonic: string): Buffer {
+  return Buffer.from(bip39.mnemonicToSeedSync(mnemonic));
+}
+
 export function encryptMnemonic(token: Buffer, mnemonic: string): Buffer {
   const aesCtr = new ModeOfOperation.ctr(token);
   const mnemonicBytes = new TextEncoder().encode(mnemonic);

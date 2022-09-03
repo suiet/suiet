@@ -23,6 +23,7 @@ export type Wallet = {
 export interface IWalletApi {
   validateMnemonic: (mnemonic: string) => boolean;
   revealMnemonic: (walletId: string, token: string) => Promise<string>;
+  revealSeed: (walletId: string, token: string,) => Promise<string>;
 
   createWallet: (params: CreateWalletParams) => Promise<Wallet>;
   getWallets: () => Promise<Wallet[]>;
@@ -35,7 +36,7 @@ export interface IWalletApi {
   deleteWallet: (walletId: string, token: string) => Promise<void>;
 }
 
-export class WalletApi {
+export class WalletApi implements IWalletApi {
   storage: Storage;
 
   constructor(storage: Storage) {
@@ -56,6 +57,18 @@ export class WalletApi {
       Buffer.from(token, 'hex'),
       wallet.encryptedMnemonic
     );
+  }
+
+  async revealSeed(walletId: string, token: string,): Promise<string> {
+    const wallet = await this.storage.getWallet(walletId);
+    if (!wallet) {
+      throw new Error('Wallet Not Exist');
+    }
+    const mnemonic = crypto.decryptMnemonic(
+      Buffer.from(token, 'hex'),
+      wallet.encryptedMnemonic
+    );
+    return crypto.mnemonicToSeed(mnemonic).toString('hex');
   }
 
   async createWallet(params: CreateWalletParams): Promise<Wallet> {
