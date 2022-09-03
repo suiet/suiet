@@ -4,7 +4,6 @@ import { decryptMnemonic } from '../crypto';
 import { SHA3 } from 'sha3';
 import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx } from './types';
-import * as crypto from '../crypto';
 
 const ED25519_ADDRESS_PREFIX = 0x0;
 
@@ -28,8 +27,7 @@ export class Vault {
   }
 
   // Used for testing
-  public static async generate(): Promise<Vault> {
-    const mnemonic = crypto.generateMnemonic();
+  public static async fromMnemonic(mnemonic: string): Promise<Vault> {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const master = await Ed25519HdKey.fromMasterSeed(Buffer.from(seed));
     return new Vault(master);
