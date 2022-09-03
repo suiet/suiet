@@ -14,7 +14,7 @@ const DEFAULT_NETWORKS = new Map([
   ['devnet', {
     id: 'devnet',
     name: 'devnet',
-    rpcURL: '',
+    rpcURL: 'https://gateway.devnet.sui.io:443',
   }],
   ['local', {
     id: 'local',
