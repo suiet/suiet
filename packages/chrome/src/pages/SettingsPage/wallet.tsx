@@ -2,28 +2,34 @@ import './wallet.scss';
 import './common.scss';
 import classnames from 'classnames';
 import Button from '../../components/Button';
-import { AppDispatch, RootState } from '../../store';
-import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { coreApi } from '@suiet/core';
-import { updateWallet } from '../../store/wallet';
 import Avatar from '../../components/Avatar';
+import message from '../../components/message';
+import { useWallet } from '../../hooks/useWallet';
 
 function Wallet() {
-  const { context, wallet } = useSelector((state: RootState) => ({
+  const { context } = useSelector((state: RootState) => ({
     context: state.appContext,
-    wallet: state.wallet,
   }));
   const [name, setName] = useState('');
-  const dispatch = useDispatch<AppDispatch>();
   const [avatar, setAvatar] = useState('1');
   const navigate = useNavigate();
+  const { data: wallet, updateWallet } = useWallet(context.walletId);
+
+  async function updateWalletInfo() {
+    await updateWallet(context.walletId, { name, avatar });
+    message.success(`Updated Wallet: ${name}`);
+    navigate('..');
+  }
 
   useEffect(() => {
+    if (!wallet) return;
     setName(wallet.name);
-    setAvatar(wallet.avatar || '1');
-  }, [wallet.name, wallet.avatar]);
+    setAvatar(wallet.avatar ?? '1');
+  }, [wallet]);
 
   return (
     <div className="wallet-setting-container">
@@ -63,30 +69,7 @@ function Wallet() {
         onChange={(v) => setName(v.target.value)}
       />
       <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
-        <Button
-          state="primary"
-          onClick={async () => {
-            try {
-              dispatch(
-                updateWallet({
-                  avatar,
-                  name,
-                })
-              );
-              await coreApi.wallet.updateWallet(
-                context.walletId,
-                {
-                  name,
-                  avatar,
-                },
-                context.token
-              );
-              navigate('..');
-            } catch (e) {
-              console.error(e);
-            }
-          }}
-        >
+        <Button state="primary" onClick={updateWalletInfo}>
           Save
         </Button>
       </div>

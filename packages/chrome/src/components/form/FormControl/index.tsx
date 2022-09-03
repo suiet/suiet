@@ -23,7 +23,7 @@ const FormControl = (props: FormControlProps) => {
 
   if (!props.children) return null;
   return (
-    <div>
+    <div className={props.className} style={props.style}>
       {React.cloneElement(props.children, {
         ...formContext?.register(props.name, props.registerOptions),
       })}

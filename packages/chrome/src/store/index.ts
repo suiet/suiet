@@ -1,10 +1,5 @@
-import {
-  combineReducers,
-  configureStore,
-  getDefaultMiddleware,
-} from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import appContextReducer from './app-context';
-import walletReducer from './wallet';
 import { ChromeStorage } from './persist-storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import {
@@ -24,7 +19,6 @@ const persistConfig = {
 
 const allReducers = combineReducers({
   appContext: appContextReducer,
-  wallet: walletReducer,
 });
 
 function createStore() {
