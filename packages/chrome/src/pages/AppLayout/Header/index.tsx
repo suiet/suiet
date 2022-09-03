@@ -110,6 +110,7 @@ function Header(props: HeaderProps) {
       dispatch(updateAccountId(data.accountId)),
     ]);
     setDoSwitch(false);
+    navigate('/');
   }
 
   async function editWallet() {
