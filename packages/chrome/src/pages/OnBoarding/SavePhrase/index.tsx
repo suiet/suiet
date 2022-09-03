@@ -12,7 +12,7 @@ type PhraseDisplayProps = Extendable & {
   phrases: string[];
 };
 
-const PhraseDisplay = (props: PhraseDisplayProps) => {
+export const PhraseDisplay = (props: PhraseDisplayProps) => {
   function renderPhraseCol(start: number, end: number) {
     return props.phrases.slice(start, end).map((p, index) => (
       <div key={p} className={styles['phrase-item']}>
