@@ -105,7 +105,7 @@ function SettingPage() {
         <Route path="/" element={<SettingMain />} />
         <Route path="wallet" element={<Wallet />} />
         <Route path="network" element={<Network />} />
-        <Route path="security" element={<Security />} />
+        <Route path="security/*" element={<Security />} />
       </Routes>
     </div>
   );
