@@ -4,6 +4,7 @@ import { Provider } from '../provider';
 import { validateToken } from './util';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
+import { Buffer } from 'buffer';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [

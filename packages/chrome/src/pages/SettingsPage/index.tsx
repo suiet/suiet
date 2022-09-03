@@ -13,15 +13,16 @@ import Address from '../../components/Address';
 import Avatar from '../../components/Avatar';
 import classnames from 'classnames';
 import manifest from '../../utils/manifest';
+import { useWallet } from '../../hooks/useWallet';
 
 const SettingMain = () => {
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
-  const { context, wallet } = useSelector((state: RootState) => ({
+  const { context } = useSelector((state: RootState) => ({
     context: state.appContext,
-    wallet: state.wallet,
   }));
+  const { data: wallet } = useWallet(context.walletId);
   const { account } = useAccount(context.accountId);
 
   // reset redux & db
@@ -38,9 +39,9 @@ const SettingMain = () => {
   return (
     <div className={styles['container']}>
       <div className={'flex flex-col items-center'}>
-        <Avatar size={'lg'} model={wallet.avatar}></Avatar>
+        <Avatar size={'lg'} model={wallet?.avatar}></Avatar>
         <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
-          {wallet.name}
+          {wallet?.name}
         </div>
         <Address value={account.address} className={styles['address']} />
       </div>

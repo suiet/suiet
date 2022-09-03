@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { useState } from 'react';
 import SetPassword from '../OnBoarding/SetPassword';
-import { updateWallet } from '../../store/wallet';
 import copy from 'copy-to-clipboard';
 import {
   updateAccountId,
@@ -17,6 +16,7 @@ import {
   updateToken,
   updateWalletId,
 } from '../../store/app-context';
+import { useWallet } from '../../hooks/useWallet';
 
 function MainPage() {
   const navigate = useNavigate();
@@ -152,6 +152,9 @@ function MainPage() {
 function PasswordSetting() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const context = useSelector((state: RootState) => state.appContext);
+  const { updateWallet } = useWallet(context.walletId);
+
   async function createWalletAndAccount(token: string) {
     const wallet = await coreApi.wallet.createWallet({
       token,
@@ -159,12 +162,10 @@ function PasswordSetting() {
 
     const accounts = await coreApi.account.getAccounts(wallet.id);
     const defaultAccount = accounts[0];
-    dispatch(
-      updateWallet({
-        avatar: wallet.avatar ?? '1',
-        name: wallet.name,
-      })
-    );
+    await updateWallet(wallet.id, {
+      avatar: wallet.avatar ?? '1',
+      name: wallet.name,
+    });
 
     await dispatch(updateToken(token));
     await dispatch(updateWalletId(wallet.id));

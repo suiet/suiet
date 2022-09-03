@@ -4,9 +4,7 @@ import classnames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
-import { addressEllipsis } from '../../../utils/format';
-import React, { useEffect, useMemo, useState } from 'react';
-import { avatarMap } from '../../../constants/avatar';
+import { useEffect, useMemo, useState } from 'react';
 import WalletSwitcher, { WalletData } from '../../../components/WalletSwitcher';
 import { useWallets } from '../../../hooks/useWallets';
 import { Wallet } from '@suiet/core/dist/api/wallet';
@@ -19,6 +17,7 @@ import { PageEntry } from '../../../hooks/usePageEntry';
 import { Extendable } from '../../../types';
 import Address from '../../../components/Address';
 import Avatar from '../../../components/Avatar';
+import { useWallet } from '../../../hooks/useWallet';
 
 function useWalletAccountMap(wallets: Wallet[]) {
   const [walletAccountMap, setWalletAccountMap] = useState<
@@ -96,14 +95,14 @@ const WalletSwitcherInstance = (props: {
 
 function Header(props: HeaderProps) {
   const { openSwitcher = false } = props;
-  const { context, wallet } = useSelector((state: RootState) => ({
+  const { context } = useSelector((state: RootState) => ({
     context: state.appContext,
-    wallet: state.wallet,
   }));
   const [doSwitch, setDoSwitch] = useState<boolean>(openSwitcher);
   const navigate = useNavigate();
   const { account } = useAccount(context.accountId);
   const dispatch = useDispatch<AppDispatch>();
+  const { data: wallet } = useWallet(context.walletId);
 
   async function switchWallet(id: string, data: WalletData) {
     await Promise.all([
@@ -123,14 +122,14 @@ function Header(props: HeaderProps) {
 
   return (
     <div className={classnames(styles['header-container'], props.className)}>
-      <Avatar size={'sm'} model={wallet.avatar} />
+      <Avatar size={'sm'} model={wallet?.avatar} />
       <div
         className={styles['account']}
         onClick={() => {
           setDoSwitch(true);
         }}
       >
-        <span className={styles['account-name']}>{wallet.name}</span>
+        <span className={styles['account-name']}>{wallet?.name}</span>
         <img className="ml-[6px]" src={IconArrowRight} alt="arrow right" />
       </div>
       <Address

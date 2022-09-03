@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Typo from '../Typo';
 import styles from './index.module.scss';
 import classnames from 'classnames';
@@ -7,7 +7,6 @@ import Icon from '../Icon';
 import { ReactComponent as IconEdit } from '../../assets/icons/edit.svg';
 import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
-import { addressEllipsis } from '../../utils/format';
 import Address from '../Address';
 import Avatar from '../Avatar';
 

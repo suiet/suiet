@@ -1,5 +1,4 @@
 import classnames from 'classnames';
-import React from 'react';
 import styles from './index.module.scss';
 import Textarea from '../../components/Textarea';
 import { InputGroup } from '../../components/Input';
@@ -10,8 +9,17 @@ import { useNavigate } from 'react-router-dom';
 import WaterDropIcon from '../../components/WaterDropIcon';
 import { isValidSuiAddress } from '@mysten/sui.js';
 import { useForm } from 'react-hook-form';
-import { ErrorMessage } from '@hookform/error-message';
 import message from '../../components/message';
+import Form from '../../components/form/Form';
+import FormControl from '../../components/form/FormControl';
+import { getInputStateByFormState } from '../../utils/form';
+import { coreApi } from '@suiet/core';
+import { CoinSymbol } from '../../hooks/useCoinBalance';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { useNetwork } from '../../hooks/useNetwork';
+import { useWallet } from '../../hooks/useWallet';
+import { useAccount } from '../../hooks/useAccount';
 
 interface SendFormValues {
   address: string;
@@ -20,8 +28,12 @@ interface SendFormValues {
 
 const SendPage = () => {
   const navi = useNavigate();
+  const appContext = useSelector((state: RootState) => state.appContext);
+  const { data: network } = useNetwork(appContext.networkId);
+  const { data: wallet } = useWallet(appContext.walletId);
+  const { account } = useAccount(appContext.accountId);
 
-  const { register, handleSubmit, formState } = useForm<SendFormValues>({
+  const form = useForm<SendFormValues>({
     mode: 'onChange',
     defaultValues: {
       address: '',
@@ -29,61 +41,70 @@ const SendPage = () => {
     },
   });
 
-  function submitTransaction(data: SendFormValues) {
+  async function submitTransaction(data: SendFormValues) {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     console.log('submit', data);
-    message.success('Sent Success');
+    if (!network) throw new Error('require network selected');
+
+    const params = {
+      network,
+      symbol: CoinSymbol.SUI,
+      amount: BigInt(data.amount),
+      recipient: data.address,
+      walletId: appContext.walletId,
+      accountId: appContext.accountId,
+      token: appContext.token,
+    };
+
+    console.log('current account', account);
+    console.log('send input: ', params);
+    try {
+      await coreApi.txn.transferCoin(params);
+      message.success('Send transaction succeed');
+    } catch (e) {
+      console.error(e);
+      message.error('Send transaction failed');
+    }
   }
 
   return (
     <div className={styles['container']}>
-      <form onSubmit={handleSubmit(submitTransaction)}>
+      <Form form={form} onSubmit={submitTransaction}>
         <section className={styles['section']}>
           <Typo.Title>Address</Typo.Title>
-          <div className={'mt-[6px]'}>
+          <FormControl
+            name={'address'}
+            registerOptions={{
+              required: 'address should not be empty',
+              validate: (val) => {
+                return isValidSuiAddress(val) || 'this is not a valid address';
+              },
+            }}
+            className={'mt-[6px]'}
+          >
             <Textarea
               placeholder="Enter SUI address"
-              state={
-                formState.errors['address']
-                  ? 'error'
-                  : formState.dirtyFields['address']
-                  ? 'success'
-                  : 'default'
-              }
-              {...register('address', {
-                required: 'address should not be empty',
-                validate: (val) => {
-                  return (
-                    isValidSuiAddress(val) || 'this is not a valid address'
-                  );
-                },
-              })}
+              state={getInputStateByFormState(form.formState, 'address')}
             />
-            {/* <Typo.Hints className={'mt-[6px]'}>{'23 transactions in 1 week, view in explorer'}</Typo.Hints> */}
-            <ErrorMessage
-              errors={formState.errors}
-              name={'address'}
-              render={(error) => (
-                <Typo.Hints state={'error'} className={'mt-[6px]'}>
-                  {error.message}
-                </Typo.Hints>
-              )}
-            />
-          </div>
+          </FormControl>
         </section>
 
         <section className={classnames(styles['section'], 'mt-[20px]')}>
           <Typo.Title>Amount</Typo.Title>
-          <div className={'mt-[6px]'}>
+          <FormControl
+            name={'amount'}
+            registerOptions={{
+              required: 'amount should not be empty',
+              valueAsNumber: true,
+              validate: (val) => {
+                return val > 0 || 'amount should be greater than 0';
+              },
+            }}
+            className={'mt-[6px]'}
+          >
             <InputGroup
               type={'number'}
-              state={
-                formState.errors['amount']
-                  ? 'error'
-                  : formState.dirtyFields['amount']
-                  ? 'success'
-                  : 'default'
-              }
+              state={getInputStateByFormState(form.formState, 'amount')}
               placeholder={'Please enter the amount'}
               suffix={
                 <div className={styles['input-suffix']}>
@@ -91,25 +112,9 @@ const SendPage = () => {
                   <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
                 </div>
               }
-              {...register('amount', {
-                required: 'amount should not be empty',
-                valueAsNumber: true,
-                validate: (val) => {
-                  return val > 0 || 'amount should be greater than 0';
-                },
-              })}
             />
-            <ErrorMessage
-              errors={formState.errors}
-              name={'amount'}
-              render={(error) => (
-                <Typo.Hints state={'error'} className={'mt-[6px]'}>
-                  {error.message}
-                </Typo.Hints>
-              )}
-            />
-            <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>
-          </div>
+          </FormControl>
+          <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>
         </section>
 
         <section className={styles['section']}>
@@ -134,7 +139,7 @@ const SendPage = () => {
             Cancel
           </Button>
         </section>
-      </form>
+      </Form>
     </div>
   );
 };

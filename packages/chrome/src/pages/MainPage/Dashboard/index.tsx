@@ -5,13 +5,12 @@ import WaterDropIcon from '../../../components/WaterDropIcon';
 import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
-import message from '../../../components/message';
 import { useAccount } from '../../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import Address from '../../../components/Address';
-import { useCoinBalance } from '../../../hooks/useCoinBalance';
-import { useWallet } from '../../../hooks/useWallet';
+import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
+import Skeleton from 'react-loading-skeleton';
 
 export type ReceiveButtonProps = {
   address: string;
@@ -54,13 +53,23 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
 function MainPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { account } = useAccount(context.accountId);
-  const balance = useCoinBalance(account.address, 'SUI', {
-    networkId: context.networkId,
-  });
+  const { balance, loading: balanceLoading } = useCoinBalance(
+    account.address,
+    CoinSymbol.SUI,
+    {
+      networkId: context.networkId,
+    }
+  );
 
   return (
     <div className={styles['main-content']}>
-      <div className={styles['balance']}>{balance} SUI</div>
+      <div className={styles['balance']}>
+        {balanceLoading ? (
+          <Skeleton width={'200px'} height={'36px'} />
+        ) : (
+          `${balance} SUI`
+        )}
+      </div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
         <div className={styles['airdrop']} onClick={() => {}}>
