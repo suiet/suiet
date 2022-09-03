@@ -28,8 +28,13 @@ export function generateMnemonic(): string {
   return bip39.generateMnemonic(enWordlist);
 }
 
-export function mnemonicToSeed(mnemonic: string): Buffer {
-  return Buffer.from(bip39.mnemonicToSeedSync(mnemonic));
+export function mnemonicToEntropy(mnemonic: string): Buffer {
+  // TODO: support mnemonic in other languages
+  return Buffer.from(bip39.mnemonicToEntropy(mnemonic, enWordlist));
+}
+
+export function entropyToMnemonic(entropy: Buffer): string {
+  return bip39.entropyToMnemonic(entropy, enWordlist);
 }
 
 export function encryptMnemonic(token: Buffer, mnemonic: string): Buffer {
