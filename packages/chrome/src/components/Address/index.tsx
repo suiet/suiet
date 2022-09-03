@@ -2,7 +2,7 @@ import React, { CSSProperties } from 'react';
 import Typo from '../Typo';
 import CopyIcon from '../CopyIcon';
 import copy from 'copy-to-clipboard';
-import toast from '../toast';
+import message from '../message';
 import { Extendable } from '../../types';
 import classnames from 'classnames';
 import { addressEllipsis } from '../../utils/format';
@@ -32,7 +32,7 @@ const Address = (props: AddressProps) => {
       onClick={() => {
         if (hideCopy) return;
         copy(props.value);
-        toast.success('Copied Address');
+        message.success('Copied Address');
       }}
     >
       <Typo.Small className={props.textClassName} style={props.textStyle}>

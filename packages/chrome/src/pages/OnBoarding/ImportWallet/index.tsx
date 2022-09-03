@@ -6,10 +6,11 @@ import { useState } from 'react';
 import SetPassword from '../SetPassword';
 import ImportPhrase from '../ImportPhrase';
 import { isNonEmptyArray } from '../../../utils/check';
-import toast from '../../../components/toast';
+import message from '../../../components/message';
 import {
   updateAccountId,
   updateInitialized,
+  updateNetworkId,
   updateToken,
   updateWalletId,
 } from '../../../store/app-context';
@@ -32,7 +33,7 @@ const ImportWallet = () => {
     });
     const accounts = await coreApi.account.getAccounts(wallet.id);
     if (!isNonEmptyArray(accounts)) {
-      toast.success('Cannot find any account');
+      message.error('Cannot find any account');
       throw new Error('Cannot find any account');
     }
     const defaultAccount = accounts[0];
@@ -45,7 +46,7 @@ const ImportWallet = () => {
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
 
-    toast.success('Wallet Created!');
+    message.success('Wallet Created!');
   }
 
   async function handleImport(_secret: string) {
@@ -53,6 +54,7 @@ const ImportWallet = () => {
     if (pageEntry === PageEntry.SWITCHER && appContext.token) {
       // already has token
       await createWalletAndAccount(appContext.token, _secret);
+      await dispatch(updateNetworkId('devnet'));
       navigate('/', {
         state: { openSwitcher: true }, // open the wallet switcher
       });

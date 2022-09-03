@@ -4,6 +4,9 @@ import './common.scss';
 import './network.scss';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { updateNetworkId } from '../../store/app-context';
+import message from '../../components/message';
 const networkType = ['devnet', 'mainnet'];
 
 interface NetworkProps {
@@ -11,8 +14,15 @@ interface NetworkProps {
 }
 
 function Network() {
-  const [state, setState] = useState('devnet');
+  const [network, setNetwork] = useState('devnet');
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  async function handleSave() {
+    await dispatch(updateNetworkId(network));
+    message.success(`Switch to ${network}`);
+    navigate('..');
+  }
 
   return (
     <div className="network-setting-container">
@@ -25,11 +35,11 @@ function Network() {
         return (
           <div
             className={classnames('network-selection-container', {
-              active: state === type,
+              active: network === type,
             })}
             onClick={() => {
               if (type === 'mainnet') return;
-              setState(type);
+              setNetwork(type);
             }}
             key={type}
           >
@@ -42,7 +52,7 @@ function Network() {
       {/* not supported yet */}
       {/* <div>+ Add new custom network</div> */}
       <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
-        <Button state="primary" onClick={() => navigate('..')}>
+        <Button state="primary" onClick={handleSave}>
           Save
         </Button>
       </div>
