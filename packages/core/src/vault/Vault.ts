@@ -6,6 +6,8 @@ import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx } from './types';
 import * as crypto from '../crypto';
 
+const ED25519_ADDRESS_PREFIX = 0x0;
+
 export class Vault {
   hdKey: Ed25519HdKey;
 
@@ -34,8 +36,13 @@ export class Vault {
   }
 
   public getAddress(): string {
-    const publicHash = new SHA3(256).update(this.hdKey.getPublicKey()).digest();
-    return Buffer.from(publicHash.slice(0, 20)).toString('hex');
+    const keyWithPrefix = new Uint8Array(32 + 1);
+    keyWithPrefix.set([ED25519_ADDRESS_PREFIX]);
+    keyWithPrefix.set(this.hdKey.getPrivateKey(), 1);
+    const publicHash = new SHA3(256)
+      .update(Buffer.from(keyWithPrefix))
+      .digest();
+    return '0x' + Buffer.from(publicHash.slice(0, 20)).toString('hex');
   }
 
   public getPublicKey(): string {
