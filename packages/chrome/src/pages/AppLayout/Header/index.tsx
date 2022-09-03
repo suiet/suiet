@@ -17,14 +17,8 @@ import { useNavigate } from 'react-router-dom';
 import { updateAccountId, updateWalletId } from '../../../store/app-context';
 import { PageEntry } from '../../../hooks/usePageEntry';
 import { Extendable } from '../../../types';
-
-const Avatar = ({ avatar }: { avatar: string }) => {
-  return (
-    <div className={styles['avatar']}>
-      {avatar && <img src={avatarMap[avatar]} alt="avatar" />}
-    </div>
-  );
-};
+import Address from '../../../components/Address';
+import Avatar from '../../../components/Avatar';
 
 function useWalletAccountMap(wallets: Wallet[]) {
   const [walletAccountMap, setWalletAccountMap] = useState<
@@ -65,6 +59,7 @@ export type HeaderProps = Extendable & {
 
 const WalletSwitcherInstance = (props: {
   onSelect: (id: string, wallet: WalletData) => void;
+  onEdit: (id: string, wallet: WalletData) => void;
   onClickLayer: () => void;
   onClickImport: () => void;
   onClickNew: () => void;
@@ -91,6 +86,7 @@ const WalletSwitcherInstance = (props: {
     <WalletSwitcher
       wallets={walletDataList}
       onSelect={props.onSelect}
+      onEdit={props.onEdit}
       onClickLayer={props.onClickLayer}
       onClickNew={props.onClickNew}
       onClickImport={props.onClickImport}
@@ -117,26 +113,37 @@ function Header(props: HeaderProps) {
     setDoSwitch(false);
   }
 
+  async function editWallet() {
+    navigate('/settings/wallet', {
+      state: {
+        hideAppLayout: true,
+      },
+    });
+  }
+
   return (
     <div className={classnames(styles['header-container'], props.className)}>
-      <Avatar avatar={wallet.avatar || '1'} />
+      <Avatar size={'sm'} model={wallet.avatar} />
       <div
         className={styles['account']}
         onClick={() => {
           setDoSwitch(true);
         }}
       >
-        <span className={styles['account-name']}>{account.name}</span>
+        <span className={styles['account-name']}>{wallet.name}</span>
         <img className="ml-[6px]" src={IconArrowRight} alt="arrow right" />
       </div>
-      <div className={classnames(styles['address'], 'ml-[18px]')}>
-        {addressEllipsis(account.address)}
-      </div>
+      <Address
+        value={account.address}
+        hideCopy={true}
+        className={classnames(styles['address'], 'ml-[18px]')}
+      />
       <div className={styles['net']}>devnet</div>
 
       {doSwitch && (
         <WalletSwitcherInstance
           onSelect={switchWallet}
+          onEdit={editWallet}
           onClickLayer={() => {
             setDoSwitch(false);
           }}

@@ -18,7 +18,7 @@ function AppLayout() {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>(LayoutMode.DEFAULT);
 
   useEffect(() => {
-    if (state?.hideApplayout) {
+    if (state?.hideAppLayout) {
       setLayoutMode(LayoutMode.EMPTY);
     } else {
       setLayoutMode(LayoutMode.DEFAULT);

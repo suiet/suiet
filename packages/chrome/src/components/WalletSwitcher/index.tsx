@@ -8,6 +8,8 @@ import { ReactComponent as IconEdit } from '../../assets/icons/edit.svg';
 import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import { addressEllipsis } from '../../utils/format';
+import Address from '../Address';
+import Avatar from '../Avatar';
 
 export type WalletData = {
   id: string;
@@ -20,6 +22,7 @@ export type WalletData = {
 type WalletItemProps = {
   data: WalletData;
   onClick: (id: string, data: WalletData) => void;
+  onEdit: (id: string, data: WalletData) => void;
 };
 
 const WalletItem = (props: WalletItemProps) => {
@@ -27,23 +30,24 @@ const WalletItem = (props: WalletItemProps) => {
   return (
     <div
       className={classnames(styles['wallet-item'])}
-      onClick={() => {
-        props.onClick(data.id, data);
-      }}
+      onClick={() => props?.onClick && props.onClick(data.id, data)}
     >
-      <div className={styles['wallet-item-avatar']}></div>
+      <Avatar model={data.avatar} size={'sm'}></Avatar>
       <div className={'ml-[8px]'}>
         <Typo.Title className={styles['wallet-item-name']}>
           {data.name}
         </Typo.Title>
-        <Typo.Small className={styles['wallet-item-address']}>
-          {addressEllipsis(data.accountAddress)}
-        </Typo.Small>
+        <Address
+          value={data.accountAddress}
+          hideCopy={true}
+          textClassName={styles['wallet-item-address']}
+        />
       </div>
 
       <Icon
         className={classnames(styles['icon'], 'ml-auto')}
         icon={<IconEdit />}
+        onClick={() => props?.onEdit && props.onEdit(data.id, data)}
       />
     </div>
   );
@@ -52,6 +56,7 @@ const WalletItem = (props: WalletItemProps) => {
 export type WalletSwitcherProps = {
   wallets: WalletData[];
   onSelect: (id: string, wallet: WalletData) => void;
+  onEdit: (id: string, wallet: WalletData) => void;
   onClickLayer?: () => void;
   onClickNew?: () => void;
   onClickImport?: () => void;
@@ -102,9 +107,8 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
               <WalletItem
                 key={data.id}
                 data={data}
-                onClick={(id, data) => {
-                  if (props.onSelect) props.onSelect(id, data);
-                }}
+                onClick={props.onSelect}
+                onEdit={props.onEdit}
               />
             ))}
           </section>
