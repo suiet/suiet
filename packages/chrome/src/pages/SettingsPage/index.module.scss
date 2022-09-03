@@ -2,11 +2,11 @@
 
 .address {
   @apply flex justify-center items-center;
+  margin-bottom: 48px;
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
   color: $gray-400;
-  margin-bottom: 48px;
   text-align: center;
 }
 

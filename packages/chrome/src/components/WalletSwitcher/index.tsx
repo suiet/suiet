@@ -8,6 +8,7 @@ import { ReactComponent as IconEdit } from '../../assets/icons/edit.svg';
 import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import { addressEllipsis } from '../../utils/format';
+import Address from '../Address';
 
 export type WalletData = {
   id: string;
@@ -36,9 +37,11 @@ const WalletItem = (props: WalletItemProps) => {
         <Typo.Title className={styles['wallet-item-name']}>
           {data.name}
         </Typo.Title>
-        <Typo.Small className={styles['wallet-item-address']}>
-          {addressEllipsis(data.accountAddress)}
-        </Typo.Small>
+        <Address
+          value={data.accountAddress}
+          hideCopy={true}
+          textClassName={styles['wallet-item-address']}
+        />
       </div>
 
       <Icon

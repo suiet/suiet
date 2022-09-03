@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { updateAccountId, updateWalletId } from '../../../store/app-context';
 import { PageEntry } from '../../../hooks/usePageEntry';
 import { Extendable } from '../../../types';
+import Address from '../../../components/Address';
 
 const Avatar = ({ avatar }: { avatar: string }) => {
   return (
@@ -129,9 +130,11 @@ function Header(props: HeaderProps) {
         <span className={styles['account-name']}>{account.name}</span>
         <img className="ml-[6px]" src={IconArrowRight} alt="arrow right" />
       </div>
-      <div className={classnames(styles['address'], 'ml-[18px]')}>
-        {addressEllipsis(account.address)}
-      </div>
+      <Address
+        value={account.address}
+        hideCopy={true}
+        className={classnames(styles['address'], 'ml-[18px]')}
+      />
       <div className={styles['net']}>devnet</div>
 
       {doSwitch && (

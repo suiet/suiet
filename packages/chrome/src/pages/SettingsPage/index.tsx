@@ -1,4 +1,4 @@
-import './index.scss';
+import styles from './index.module.scss';
 import Wallet from './wallet';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Network from './network';
@@ -13,6 +13,7 @@ import { addressEllipsis } from '../../utils/format';
 import { coreApi } from '@suiet/core';
 import { avatarMap } from '../../constants/avatar';
 import { isDev } from '../../utils/env';
+import Address from '../../components/Address';
 
 function SettingPage() {
   const navigate = useNavigate();
@@ -30,27 +31,20 @@ function SettingPage() {
   }
 
   return (
-    <div className="settings-container">
+    <div className={styles['settings-container']}>
       <Routes>
         <Route
           path="/"
           element={
             <>
               <div
-                className="wallet-avatar"
+                className={styles['wallet-avatar']}
                 style={{
                   backgroundImage: `url('${avatarMap[wallet.avatar]}')`,
                 }}
               ></div>
-              <div className="wallet-name">{wallet.name}</div>
-              <div className="address">
-                <span>{addressEllipsis(account.address)}</span>
-                <CopyIcon
-                  className={'ml-[5px]'}
-                  copyStr={account.address}
-                  onCopied={() => toast.success('Copied Address')}
-                />
-              </div>
+              <div className={styles['wallet-name']}>{wallet.name}</div>
+              <Address value={account.address} className={styles['address']} />
               <div
                 onClick={() => {
                   navigate('wallet', {
@@ -59,10 +53,10 @@ function SettingPage() {
                     },
                   });
                 }}
-                className="settings-item"
+                className={styles['settings-item']}
               >
-                <span className="icon-wallet"></span>Wallet
-                <span className="icon-right-arrow" />
+                <span className={styles['icon-wallet']}></span>Wallet
+                <span className={styles['icon-right-arrow']} />
               </div>
               <div
                 onClick={() => {
@@ -72,10 +66,10 @@ function SettingPage() {
                     },
                   });
                 }}
-                className="settings-item"
+                className={styles['settings-item']}
               >
-                <span className="icon-network"></span>Network
-                <span className="icon-right-arrow" />
+                <span className={styles['icon-network']}></span>Network
+                <span className={styles['icon-right-arrow']} />
               </div>
               <div
                 onClick={() => {
@@ -85,21 +79,21 @@ function SettingPage() {
                     },
                   });
                 }}
-                className="settings-item"
+                className={styles['settings-item']}
               >
-                <span className="icon-security"></span>Security
-                <span className="icon-right-arrow" />
+                <span className={styles['icon-security']}></span>Security
+                <span className={styles['icon-right-arrow']} />
               </div>
               {/* dev use */}
               {isDev && (
                 <div
                   onClick={async () => await handleResetApp()}
-                  className="settings-item"
+                  className={styles['settings-item']}
                 >
-                  <span className="icon-security"></span>Reset App
+                  <span className={styles['icon-security']}></span>Reset App
                 </div>
               )}
-              <div className="app-version">version v0.0.1</div>
+              <div className={styles['app-version']}>version v0.0.1</div>
             </>
           }
         />
