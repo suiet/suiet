@@ -1,47 +1,57 @@
 import { coreApi } from '@suiet/core';
 import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+
+export enum CoinSymbol {
+  SUI = 'SUI',
+}
 
 export function useCoinBalance(
   address: string,
-  symbol: string,
+  symbol: CoinSymbol,
   opts: {
     networkId?: string;
   } = {}
 ) {
   const [balance, setBalance] = useState<string>('0'); // BigInt -> string
-  const [coinsBalanceMap, setCoinsBalanceMap] = useState<
-    Map<string, { symbol: string; balance: bigint }>
-  >(new Map());
   const { networkId = 'devnet' } = opts;
+  const { data: coinsBalanceMap, error } = useSWR(
+    ['fetchCoinsBalanceMap', address, networkId],
+    fetchCoinsBalanceMap
+  );
 
-  async function fetchCoinsBalanceMap(address: string, networkId: string) {
+  async function fetchCoinsBalanceMap(
+    _: string,
+    address: string,
+    networkId: string
+  ) {
+    const map = new Map<string, { balance: bigint; symbol: string }>();
+    if (!address || !networkId) return map;
+
     const network = await coreApi.network.getNetwork(networkId);
     if (!network) {
-      console.error(`fetch network failed: ${networkId}`);
-      return;
+      throw new Error(`fetch network failed: ${networkId}`);
     }
 
     const coinsBalance = await coreApi.txn.getCoinsBalance(network, address);
     if (!coinsBalance) {
-      console.error(`fetch coinsBalance failed: ${address}, ${networkId}`);
-      return;
+      throw new Error(`fetch coinsBalance failed: ${address}, ${networkId}`);
     }
-    const map = new Map();
     coinsBalance.forEach((item) => {
       map.set(item.symbol, item);
     });
-    setCoinsBalanceMap(map);
+    return map;
   }
 
   useEffect(() => {
-    if (!address || !networkId) return;
-    fetchCoinsBalanceMap(address, networkId);
-  }, [address, networkId]);
-
-  useEffect(() => {
+    if (!coinsBalanceMap) return;
     const result = coinsBalanceMap.get(symbol);
     setBalance(result?.balance ? String(result?.balance) : '0');
   }, [coinsBalanceMap, symbol]);
 
-  return balance;
+  return {
+    balance,
+    error,
+    loading: !error && !coinsBalanceMap,
+  };
 }
