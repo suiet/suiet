@@ -46,7 +46,7 @@ function MainPage() {
               navigate('password', {
                 state: {
                   hideApplayout: true,
-                  hasOldPassword: true
+                  hasOldPassword: true,
                 },
               })
             }
@@ -172,7 +172,7 @@ function PasswordSetting() {
     await dispatch(updateInitialized(true));
   }
   async function handleSetPassword(password: string, oldPassword?: string) {
-    await coreApi.auth.updatePassword(oldPassword || '', password);
+    await coreApi.auth.updatePassword(oldPassword ?? '', password);
     const token = await coreApi.auth.loadTokenWithPassword(password);
 
     await createWalletAndAccount(token);

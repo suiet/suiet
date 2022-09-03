@@ -40,6 +40,7 @@
   --toastify-color-progress-error: var(--toastify-color-error);
   --toastify-toast-top: 80px;
   --toastify-toast-border-radius: 12px;
+  --toastify-ani-duration: 0.4s;
 }
 
 .Toastify__toast-container {
@@ -163,12 +164,12 @@
 
 .Toastify--animate {
   animation-fill-mode: both;
-  animation-duration: 0.7s;
+  animation-duration: var(--toastify-ani-duration);
 }
 
 .Toastify--animate-icon {
   animation-fill-mode: both;
-  animation-duration: 0.3s;
+  animation-duration: var(--toastify-ani-duration);
 }
 
 @media only screen and (max-width: 480px) {
@@ -451,6 +452,22 @@
     transform: translate3d(0, 2000px, 0);
   }
 }
+@keyframes Toastify__moveInDown {
+  from {
+    transform: translateY(-200px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes Toastify__moveOutUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-200px);
+  }
+}
 .Toastify__bounce-enter--top-left,
 .Toastify__bounce-enter--bottom-left {
   animation-name: Toastify__bounceInLeft;
@@ -460,7 +477,7 @@
   animation-name: Toastify__bounceInRight;
 }
 .Toastify__bounce-enter--top-center {
-  animation-name: Toastify__bounceInDown;
+  animation-name: Toastify__moveInDown;
 }
 .Toastify__bounce-enter--bottom-center {
   animation-name: Toastify__bounceInUp;
@@ -475,7 +492,7 @@
   animation-name: Toastify__bounceOutRight;
 }
 .Toastify__bounce-exit--top-center {
-  animation-name: Toastify__bounceOutUp;
+  animation-name: Toastify__moveOutUp;
 }
 .Toastify__bounce-exit--bottom-center {
   animation-name: Toastify__bounceOutDown;

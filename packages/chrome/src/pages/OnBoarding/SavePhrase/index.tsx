@@ -2,11 +2,9 @@ import commonStyles from '../common.module.scss';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import Button from '../../../components/Button';
-import classnames from 'classnames';
 import { Extendable } from '../../../types';
 import CopyIcon from '../../../components/CopyIcon';
-import copy from 'copy-to-clipboard';
-import toast from '../../../components/toast';
+import message from '../../../components/message';
 
 type PhraseDisplayProps = Extendable & {
   phrases: string[];
@@ -28,7 +26,7 @@ export const PhraseDisplay = (props: PhraseDisplayProps) => {
       <CopyIcon
         copyStr={props.phrases?.join(' ') || ''}
         onCopied={() => {
-          toast.success('Copied Phrases');
+          message.success('Copied Phrases');
         }}
         className={styles['icon-copy']}
       />

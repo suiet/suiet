@@ -1,20 +1,14 @@
 import styles from './index.module.scss';
-import IconDownDouble from '../../../assets/icons/down-double.svg';
-import IconQrCode from '../../../assets/icons/qrcode.svg';
-import IconTrendUp from '../../../assets/icons/trendup.svg';
 import { Link } from 'react-router-dom';
 import Modal from '../../../components/Modal';
 import WaterDropIcon from '../../../components/WaterDropIcon';
-import CopyIcon from '../../../components/CopyIcon';
 import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
-import toast from '../../../components/toast';
-import copy from 'copy-to-clipboard';
+import message from '../../../components/message';
 import { useAccount } from '../../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-import { addressEllipsis } from '../../../utils/format';
 import Address from '../../../components/Address';
 
 export type ReceiveButtonProps = {
@@ -64,7 +58,14 @@ function MainPage() {
       <div className={styles['balance']}>1000 SUI</div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
-        <div className={styles['airdrop']} onClick={() => {}}>
+        <div
+          className={styles['airdrop']}
+          onClick={() => {
+            message.error('haha');
+            // message.info('haha');
+            // message.success('haha')
+          }}
+        >
           {/* <img src={IconDownDouble} className={styles['icon']} /> */}
           Airdrop
         </div>

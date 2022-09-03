@@ -11,7 +11,7 @@ import WaterDropIcon from '../../components/WaterDropIcon';
 import { isValidSuiAddress } from '@mysten/sui.js';
 import { useForm } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
-import toast from '../../components/toast';
+import message from '../../components/message';
 
 interface SendFormValues {
   address: string;
@@ -32,7 +32,7 @@ const SendPage = () => {
   function submitTransaction(data: SendFormValues) {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     console.log('submit', data);
-    toast.success('Sent Success');
+    message.success('Sent Success');
   }
 
   return (

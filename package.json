@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/suiet/suiet#readme",
   "lint-staged": {
-    "*": "prettier --write",
+    "*": "prettier --write --ignore-unknown",
     "*.{jsx?,tsx?}": "eslint --fix"
   }
 }
