@@ -33,7 +33,8 @@
     "build:core": "npm run build -w @suiet/core",
     "prettier": "prettier --write --ignore-unknown .",
     "lint": "eslint --ext=.js,.js,.tsx,.ts .",
-    "lint:fix": "eslint --fix --ext=.js,.js,.tsx,.ts ."
+    "lint:fix": "eslint --fix --ext=.js,.js,.tsx,.ts .",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
