@@ -26,7 +26,7 @@ export class Vault {
 
   public getAddress(): string {
     const publicHash = new SHA3(256).update(this.hdKey.getPublicKey()).digest();
-    return '0x' + Buffer.from(publicHash.slice(0, 20)).toString('hex');
+    return Buffer.from(publicHash.slice(0, 20)).toString('hex');
   }
 
   public getPublicKey(): string {
@@ -36,9 +36,8 @@ export class Vault {
   public async signTransaction(unsigned: UnsignedTx): Promise<SignedTx> {
     const signature = this.hdKey.sign(Buffer.from(unsigned.data.getData()));
     return {
-      txid: unsigned.txid,
       data: unsigned.data,
-      signature,
+      signature: signature,
       pubKey: this.hdKey.getPublicKey(),
     };
   }

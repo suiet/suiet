@@ -10,5 +10,10 @@ export type Network = {
 export interface INetworkApi {
   getNetworks: (enabledOnly: boolean) => Promise<Network[]>;
   getNetwork: (networkId: string) => Promise<Network>;
-  addCustomNetwork: (network: Network) => Promise<void>;
+  // addCustomNetwork: (network: Network) => Promise<void>;
 }
+
+const networks = new Map([
+  ['devnet', 'xxxx'],
+  ['local', 'xxxx'],
+]);

@@ -9,8 +9,13 @@ import {
   getTransactionData,
   getExecutionStatusType,
   getMoveObject,
+  getCoinAfterMerge,
+  getCoinAfterSplit,
 } from '@mysten/sui.js';
-import { TxnHistroyEntry } from './storage/types';
+import {
+  TxnHistroyEntry,
+  CoinObject as StorageCoinObject,
+} from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 import { Network } from './api/network';
@@ -20,18 +25,20 @@ export const SUI_SYSTEM_STATE_OBJECT_ID =
 
 export class Provider {
   provider: JsonRpcProvider;
+  coin: CoinProvider;
 
   constructor(network: Network) {
     this.provider = new JsonRpcProvider(network.rpcURL);
+    this.coin = new CoinProvider(network.rpcURL);
   }
 
-  public async getActiveValidators(): Promise<SuiMoveObject[]> {
+  public async getActiveValidators(): Promise<Array<SuiMoveObject>> {
     const contents = await this.provider.getObject(SUI_SYSTEM_STATE_OBJECT_ID);
     const data = (contents.details as SuiObject).data;
     const validators = (data as SuiMoveObject).fields.validators;
-    const activeValidators = (validators as SuiMoveObject).fields
+    const active_validators = (validators as SuiMoveObject).fields
       .active_validators;
-    return activeValidators as SuiMoveObject[];
+    return active_validators as Array<SuiMoveObject>;
   }
 
   async getOwnedObjects(address: string): Promise<SuiObject[]> {
@@ -56,8 +63,8 @@ export class Provider {
         const id = Coin.getID(obj);
         return {
           objectId: id,
-          symbol,
-          balance,
+          symbol: symbol,
+          balance: balance,
         };
       });
     return res;
@@ -110,8 +117,8 @@ export class Provider {
                 to: transferObject.recipient,
                 object: {
                   type: 'coin' as 'coin',
-                  balance,
-                  symbol,
+                  balance: balance,
+                  symbol: symbol,
                 },
               });
             }
@@ -121,6 +128,22 @@ export class Provider {
       }
     }
     return results;
+  }
+
+  async transferCoin(
+    symbol: string,
+    amount: bigint,
+    recipient: string,
+    vault: Vault
+  ) {
+    const coins = (await this.getOwnedCoins(vault.getAddress())).filter(
+      (coin) => coin.symbol == symbol
+    );
+    if (symbol == GAS_SYMBOL) {
+      await this.coin.transferSui(coins, amount, recipient, vault);
+    } else {
+      await this.coin.transferCoin(coins, amount, recipient, vault);
+    }
   }
 }
 
@@ -173,27 +196,19 @@ export const GAS_TYPE_ARG = '0x2::sui::SUI';
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
 
-type MergeCoins = {
-  primary: string;
-  mergeCoins: string[];
-  estimatedBalance: bigint;
-};
-
 export class CoinProvider {
   provider: JsonRpcProvider;
   serializer: RpcTxnDataSerializer;
-  vault: Vault;
-
-  constructor(endpoint: string, vault: Vault) {
+  constructor(endpoint: string) {
     this.provider = new JsonRpcProvider(endpoint);
     this.serializer = new RpcTxnDataSerializer(endpoint);
-    this.vault = vault;
   }
 
   async mergeCoinsForBalance(
     coins: CoinObject[],
-    amount: bigint
-  ): Promise<MergeCoins | CoinObject> {
+    amount: bigint,
+    vault: Vault
+  ): Promise<CoinObject> {
     coins.sort((a, b) => (a.balance - b.balance > 0 ? 1 : -1));
     const coinWithSufficientBalance = coins.find(
       (coin) => coin.balance >= amount
@@ -202,30 +217,97 @@ export class CoinProvider {
       return coinWithSufficientBalance;
     }
     // merge coins with sufficient balance.
-    const primaryCoin = coins[coins.length - 1];
-    let estimatedBalance = primaryCoin.balance;
-    const coinsToMerge = [];
+    let primaryCoin = coins[coins.length - 1];
+    let expectedBalance = primaryCoin.balance;
+    let coinsToMerge = [];
     for (let i = coins.length - 2; i > 0; i--) {
-      estimatedBalance += coins[i].balance;
+      expectedBalance += coins[i].balance;
       coinsToMerge.push(coins[i].objectId);
-      if (estimatedBalance >= amount) {
-        return {
-          primary: primaryCoin.objectId,
-          mergeCoins: coinsToMerge,
-          estimatedBalance,
-        };
+      if (expectedBalance >= amount) {
+        break;
       }
     }
-    throw new Error('Insufficient balance');
+    if (expectedBalance < amount) {
+      throw new Error('Insufficient balance');
+    }
+    const address = vault.getAddress();
+    for (const coin of coinsToMerge) {
+      const data = await this.serializer.newMergeCoin(address, {
+        primaryCoin: primaryCoin.objectId,
+        coinToMerge: coin,
+        gasBudget: DEFAULT_GAS_BUDGET_FOR_MERGE,
+      });
+      const signedTx = await vault.signTransaction({ data: data });
+      const resp = await this.executeTransaction(signedTx);
+      const obj = getCoinAfterMerge(resp)!;
+      primaryCoin.objectId = obj.reference.objectId;
+      primaryCoin.balance = Coin.getBalance(getMoveObject(obj)!);
+    }
+    if (primaryCoin.balance != expectedBalance) {
+      throw new Error('Merge coins failed caused by transactions conflicted');
+    }
+    return primaryCoin;
   }
 
-  async splitCoin(coin: CoinObject, amount: bigint) {}
+  async splitCoinForBalance(coin: CoinObject, amount: bigint, vault: Vault) {
+    const address = vault.getAddress();
+    const data = await this.serializer.newSplitCoin(address, {
+      coinObjectId: coin.objectId,
+      splitAmounts: [Number(coin.balance - amount)],
+      gasBudget: DEFAULT_GAS_BUDGET_FOR_SPLIT,
+    });
+    const signedTx = await vault.signTransaction({ data: data });
+    const resp = await this.executeTransaction(signedTx);
+    const obj = getCoinAfterSplit(resp)!;
+    const balance = Coin.getBalance(getMoveObject(obj)!);
+    if (balance != amount) {
+      throw new Error('Merge coins failed caused by transactions conflicted');
+    }
+    coin.balance = amount;
+    return coin;
+  }
 
-  public async transferCoin() {}
+  public async transferCoin(
+    coins: CoinObject[],
+    amount: bigint,
+    recipient: string,
+    vault: Vault
+  ) {
+    // await this.provider.syncAccountState();
+    const address = vault.getAddress();
+    const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
+    const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
+    const data = await this.serializer.newTransferObject(address, {
+      objectId: coin.objectId,
+      gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
+      recipient: recipient,
+    });
+    const signedTx = await vault.signTransaction({ data: data });
+    // TODO: handle response
+    await this.executeTransaction(signedTx);
+  }
 
-  public async transferSui() {}
+  public async transferSui(
+    coins: CoinObject[],
+    amount: bigint,
+    recipient: string,
+    vault: Vault
+  ) {
+    // await this.provider.syncAccountState();
+    const address = vault.getAddress();
+    const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
+    const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
+    const data = await this.serializer.newTransferSui(address, {
+      suiObjectId: coin.objectId,
+      gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
+      recipient: recipient,
+    });
+    const signedTx = await vault.signTransaction({ data: data });
+    // TODO: handle response
+    await this.executeTransaction(signedTx);
+  }
 
-  public async executeTransaction(txn: SignedTx) {
+  async executeTransaction(txn: SignedTx) {
     return await this.provider.executeTransaction(
       txn.data.toString(),
       txn.signature.toString('base64'),
