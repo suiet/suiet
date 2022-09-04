@@ -12,6 +12,9 @@ import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
 import { useState } from 'react';
+import { useChromeStorage } from '../../../hooks/useChromeStorage';
+import { StorageKeys } from '../../../store/enum';
+
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -60,11 +63,12 @@ function MainPage() {
       networkId: context.networkId,
     }
   );
-  const [confirmDevnet, setConfirmDevnet] = useState<string>('false');
+  const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
+    useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING);
 
   return (
     <div className={styles['main-content']}>
-      {confirmDevnet === 'true' ? null : (
+      {!showDevnetWarning ? null : (
         <div
           className={classnames(
             'py-3',
@@ -80,8 +84,7 @@ function MainPage() {
             <button
               className="px-3 py-1 rounded-3xl bg-white text-orange-400"
               onClick={() => {
-                localStorage.setItem('confirm-devnet-promo', 'true');
-                setConfirmDevnet('true');
+                setShowDevnetWarning(false);
               }}
             >
               Got it
