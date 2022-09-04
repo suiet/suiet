@@ -328,13 +328,8 @@ export class CoinProvider {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
     const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
-    const mergedCoin = await this.mergeCoinsForBalance(
+    const coin = await this.mergeCoinsForBalance(
       coins,
-      BigInt(actualAmount),
-      vault
-    );
-    const coin = await this.splitCoinForBalance(
-      mergedCoin,
       BigInt(actualAmount),
       vault
     );
