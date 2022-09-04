@@ -19,7 +19,7 @@ test('Transaction tests', async () => {
   // const address = "0xc04e4c51f809bfa20a13a45e5fd9bae80fb59f75"
   console.log('address', address);
   const provider = new Provider(RPC_URL, RPC_URL);
-  await provider.transferCoin('SUI', BigInt(1100000), ADDRESS, vault);
+  await provider.transferCoin('SUI', 1100000, ADDRESS, vault);
   const coins = await provider.getOwnedCoins(address);
   console.log('target coins', coins);
   const result = new Map();
