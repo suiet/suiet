@@ -69,7 +69,7 @@ function MainPage() {
             }
             contentProps={{
               style: {
-                width: 274,
+                margin: 'auto 2rem',
               },
             }}
             onOpenChange={async () => {
