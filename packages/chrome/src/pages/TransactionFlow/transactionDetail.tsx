@@ -14,6 +14,7 @@ import { ReactComponent as IconExternal } from '../../assets/icons/external.svg'
 export interface TxnItem {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
+  gasUsed: number;
   from: string;
   to: string;
   timestamp_ms: number | null;
