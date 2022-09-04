@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateNetworkId } from '../../store/app-context';
 import message from '../../components/message';
+import Nav from './nav';
 const networkType = ['devnet', 'mainnet'];
 
 interface NetworkProps {
@@ -26,9 +27,7 @@ function Network() {
 
   return (
     <div className="network-setting-container">
-      <div className="flex justify-end items-center h-14">
-        <div className="setting-cancel" onClick={() => navigate('..')}></div>
-      </div>
+      <Nav />
       <div className="setting-title">Network</div>
       <div className="setting-desc">Switch between different network</div>
       {networkType.map((type) => {
