@@ -22,7 +22,7 @@ type TxnHistroyEntry = Awaited<
 function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
   const res: Record<string, TxnItem[]> = {};
   const days = [];
-  for (let i = 0; i < history.length; i++) {
+  for (let i = history.length - 1; i >= 0; i--) {
     const item = history[i];
     const finalItem = {
       ...item,
@@ -56,7 +56,7 @@ function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
       }
     }
   }
-  days.sort((a, b) => (a > b ? -1 : 1));
+  days.sort((a, b) => (dayjs(a).isAfter(dayjs(b)) ? -1 : 1));
   if (res['Last Week']) days.unshift('Last Week');
   if (res['Today']) days.unshift('Today');
   return {
