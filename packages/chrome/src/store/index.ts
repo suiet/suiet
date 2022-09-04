@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import appContextReducer from './app-context';
-import { ChromeStorage } from './persist-storage';
+import { ChromeStorage } from './storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import {
   FLUSH,
