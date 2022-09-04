@@ -20,6 +20,9 @@
   background: url('./assets/cancel.svg') no-repeat center;
   background-size: cover;
   cursor: pointer;
+  position: absolute;
+  top: 12px;
+  left: 12px;
 }
 
 .setting-btn {
