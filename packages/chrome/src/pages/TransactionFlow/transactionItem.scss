@@ -96,4 +96,9 @@
       color: $gray-300;
     }
   }
+
+  &-to {
+    display: inline-block;
+    white-space: nowrap;
+  }
 }
