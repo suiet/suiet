@@ -60,7 +60,10 @@ function MainPage() {
       networkId: context.networkId,
     }
   );
-  const [confirmDevnet, setConfirmDevnet] = useState<string>('false');
+  const [confirmDevnet, setConfirmDevnet] = useState<string>(() => {
+    const stickyValue = localStorage.getItem('confirm-devnet-promo');
+    return stickyValue !== null ? stickyValue : 'false';
+  });
 
   return (
     <div className={styles['main-content']}>
