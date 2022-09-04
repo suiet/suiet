@@ -23,14 +23,11 @@ const Address = (props: AddressProps) => {
     <div
       className={classnames(
         'flex items-center',
-        {
-          'cursor-pointer': !hideCopy,
-        },
+        'cursor-pointer',
         props.className
       )}
       style={props.style}
       onClick={() => {
-        if (hideCopy) return;
         copy(props.value);
         message.success('Copied Address');
       }}
