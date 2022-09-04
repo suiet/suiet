@@ -76,7 +76,7 @@ function TransacationFlow({
             className={classnames(
               'mb-4',
               'px-4 py-6',
-              'rounded-2xl',
+              'rounded-3xl',
               'bg-white'
             )}
           >
