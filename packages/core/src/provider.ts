@@ -101,6 +101,7 @@ export class Provider {
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
             transactionDigest: effect.certificate.transactionDigest,
+            gasUsed: effect.effects.gasUsed.computationCost,
             from: data.sender,
             to: transferSui.recipient,
             object: {
@@ -128,6 +129,7 @@ export class Provider {
                 timestamp_ms: effect.timestamp_ms,
                 txStatus: getExecutionStatusType(effect),
                 transactionDigest: effect.certificate.transactionDigest,
+                gasUsed: effect.effects.gasUsed.computationCost,
                 from: data.sender,
                 to: transferObject.recipient,
                 object: {
