@@ -72,10 +72,12 @@ function MainPage() {
       </div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
-        <div className={styles['airdrop']} onClick={() => {}}>
-          {/* <img src={IconDownDouble} className={styles['icon']} /> */}
+        {/* <div
+          className={classnames(styles['airdrop'], 'hidden')}
+          onClick={() => {}}
+        >
           Airdrop
-        </div>
+        </div> */}
         <ReceiveButton address={account.address} />
         <Link to={'/send'}>
           <div className={styles['send']}>

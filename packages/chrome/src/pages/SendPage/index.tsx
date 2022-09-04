@@ -123,7 +123,7 @@ const SendPage = () => {
             />
           </FormControl>
           <Typo.Small className={classnames('mt-[6px]', 'text-gray-400')}>
-            max avaliable: {balance} SUI
+            current balance: {balance} SUI
           </Typo.Small>
         </section>
 
