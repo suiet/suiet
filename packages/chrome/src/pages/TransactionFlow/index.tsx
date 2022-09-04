@@ -75,7 +75,9 @@ function TransacationFlow({
             key={day}
             className={classnames(
               'mb-4',
-              'px-4 py-6',
+              'px-4',
+              'pt-6',
+              'pb-2',
               'rounded-3xl',
               'bg-white'
             )}
