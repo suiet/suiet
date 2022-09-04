@@ -11,7 +11,7 @@ import { RootState } from '../../../store';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
-
+import { useState } from 'react';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -60,34 +60,43 @@ function MainPage() {
       networkId: context.networkId,
     }
   );
+  const [confirmDevnet, setConfirmDevnet] = useState<string>('false');
 
   return (
     <div className={styles['main-content']}>
-      <div
-        className={classnames(
-          'py-3',
-          'w-full',
-          'bg-orange-400',
-          'text-white',
-          'text-center'
-        )}
-      >
-        On devnet, your assets will be wiped periodically
-        <br />
-        <div className="flex m-auto items-center align-middle justify-center gap-2">
-          <button className="px-2 py-1 rounded-3xl bg-white text-orange-400">
-            Got it
-          </button>{' '}
-          <a
-            href="https://suiet.app/docs/why-my-tokens-wiped-out-on-devnet"
-            target="_blank"
-            rel="noreferrer"
-            className="underline"
-          >
-            Why?
-          </a>
+      {confirmDevnet === 'true' ? null : (
+        <div
+          className={classnames(
+            'py-3',
+            'w-full',
+            'bg-orange-400',
+            'text-white',
+            'text-center'
+          )}
+        >
+          On devnet, your assets will be wiped periodically
+          <br />
+          <div className="flex m-auto items-center align-middle justify-center gap-2 mt-1">
+            <button
+              className="px-3 py-1 rounded-3xl bg-white text-orange-400"
+              onClick={() => {
+                localStorage.setItem('confirm-devnet-promo', 'true');
+                setConfirmDevnet('true');
+              }}
+            >
+              Got it
+            </button>{' '}
+            <a
+              href="https://suiet.app/docs/why-my-tokens-wiped-out-on-devnet"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Why?
+            </a>
+          </div>
         </div>
-      </div>
+      )}
       <div className={styles['balance']}>
         {balanceLoading ? (
           <Skeleton width={'200px'} height={'36px'} />
