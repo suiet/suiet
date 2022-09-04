@@ -2,12 +2,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './transactionDetail.scss';
 import Button from '../../components/Button';
 import dayjs from 'dayjs';
-import classNames from 'classnames';
+import classnames from 'classnames';
 import { addressEllipsis } from '../../utils/format';
 import Address from '../../components/Address';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
-
+import CopyIcon from '../../components/CopyIcon';
 export interface TxnItem {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
@@ -49,7 +49,7 @@ function TransactionDetail() {
       </div>
       <div className="transaction-detail-general-info">
         <div
-          className={classNames('transaction-detail-icon', type, txStatus)}
+          className={classnames('transaction-detail-icon', type, txStatus)}
         ></div>
         <div className="transaction-detail-title">
           {type
@@ -59,7 +59,7 @@ function TransactionDetail() {
               return str.toUpperCase();
             })}
         </div>
-        <div className={classNames('transaction-detail-amount', txStatus)}>
+        <div className={classnames('transaction-detail-amount', txStatus)}>
           {txStatus === 'failure'
             ? 'FAILED'
             : type === 'sent'
@@ -73,33 +73,38 @@ function TransactionDetail() {
       </div>
       <div className="transaction-detail-item-container">
         <div className="transaction-detail-item">
-          <span>TRANSACTION ID</span>
-          <span
-            className="text-ellipsis overflow-hidden max-w-[160px]"
+          <span className="transaction-detail-item-key">TRANSACTION ID</span>
+          <div
+            className="transaction-detail-item-tx flex items-center"
             onClick={() => {
               copy(transactionDigest);
               message.success('Copied TX ID');
             }}
           >
-            {transactionDigest}
-          </span>
+            <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap">
+              {transactionDigest}{' '}
+            </span>
+            <CopyIcon
+              className={classnames('ml-[5px]', 'inline', 'whitespace-nowrap')}
+            />
+          </div>
         </div>
         <div className="transaction-detail-item">
-          <span>From</span>
+          <span className="transaction-detail-item-key">From</span>
           <Address value={from}></Address>
         </div>
         <div className="transaction-detail-item">
-          <span>To</span>
+          <span className="transaction-detail-item-key">To</span>
           <Address value={to}></Address>
         </div>
         <div className="transaction-detail-item">
-          <span>Token</span>
+          <span className="transaction-detail-item-key">Token</span>
           <span>
-            {amount} {coinType}
+            {Intl.NumberFormat('en-US').format(Number(amount))} {coinType}
           </span>
         </div>
         <div className="transaction-detail-item">
-          <span>Time</span>
+          <span className="transaction-detail-item-key">Time</span>
           <span>{dayjs(time).format('YYYY.MM.DD HH:mm:ss')}</span>
         </div>
         <div className="transaction-detail-item">
