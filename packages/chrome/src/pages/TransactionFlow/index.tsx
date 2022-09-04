@@ -181,7 +181,7 @@ function TransactionPage() {
     <Empty />
   ) : (
     <div className="bg-gray-100 w-full p-4 min-h-full">
-      <TransacationFlow history={history} address={account.address} />
+      <TransactionFlow history={history} address={account.address} />
     </div>
   );
 }
