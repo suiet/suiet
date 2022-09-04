@@ -149,7 +149,7 @@ export class Provider {
 
   async transferCoin(
     symbol: string,
-    amount: bigint,
+    amount: number,
     recipient: string,
     vault: Vault
   ) {
@@ -293,14 +293,22 @@ export class CoinProvider {
 
   public async transferCoin(
     coins: CoinObject[],
-    amount: bigint,
+    amount: number,
     recipient: string,
     vault: Vault
   ) {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
-    const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
-    const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
+    const mergedCoin = await this.mergeCoinsForBalance(
+      coins,
+      BigInt(amount),
+      vault
+    );
+    const coin = await this.splitCoinForBalance(
+      mergedCoin,
+      BigInt(amount),
+      vault
+    );
     const data = await this.serializer.newTransferObject(address, {
       objectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
@@ -313,18 +321,28 @@ export class CoinProvider {
 
   public async transferSui(
     coins: CoinObject[],
-    amount: bigint,
+    amount: number,
     recipient: string,
     vault: Vault
   ) {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
-    const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
-    const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
+    const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
+    const mergedCoin = await this.mergeCoinsForBalance(
+      coins,
+      BigInt(actualAmount),
+      vault
+    );
+    const coin = await this.splitCoinForBalance(
+      mergedCoin,
+      BigInt(actualAmount),
+      vault
+    );
     const data = await this.serializer.newTransferSui(address, {
       suiObjectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
       recipient,
+      amount,
     });
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response

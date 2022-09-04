@@ -23,7 +23,7 @@ export type CoinPackageIdPair = {
 
 export type TransferCoinParams = {
   symbol: string;
-  amount: bigint;
+  amount: number;
   recipient: string;
   network: Network;
   walletId: string;

@@ -57,7 +57,7 @@ const SendPage = () => {
     const params = {
       network,
       symbol: CoinSymbol.SUI,
-      amount: BigInt(data.amount),
+      amount: data.amount,
       recipient: data.address,
       walletId: appContext.walletId,
       accountId: appContext.accountId,
