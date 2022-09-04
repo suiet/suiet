@@ -1,5 +1,8 @@
+@import '../../styles/variables';
+
 .transaction-detail-container {
   padding: 0 24px;
+  position: relative;
 }
 
 .transaction-detail {
@@ -11,19 +14,67 @@
     border-bottom: 1px solid #eaecf0;
   }
 
+  &-back {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    background: url('./assets/back.svg') no-repeat center;
+    background-size: contain;
+    cursor: pointer;
+  }
+
   &-icon {
     width: 48px;
     height: 48px;
     background: url('./assets/send.svg') no-repeat center;
+    background-size: contain;
+
+    &.sent {
+      background-image: url('./assets/sent_detail.svg');
+
+      &.failure {
+        background-image: url('./assets/sent_fail.svg');
+      }
+    }
+
+    &.received {
+      background-image: url('./assets/receive_detail.svg');
+
+      &.failure {
+        background-image: url('./assets/receive_fail.svg');
+      }
+    }
+
+    &.airdrop {
+      background-image: url('./assets/airdrop_detail.svg');
+
+      &.failure {
+        background-image: url('./assets/airdrop_fail.svg');
+      }
+    }
   }
 
   &-title {
-    font-weight: 600;
-    font-size: 24px;
-    line-height: 32px;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 36px;
     text-align: center;
     color: #101828;
     margin-top: 16px;
+  }
+
+  &-amount {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 21px;
+    color: $gray-400;
+    margin-top: 8px;
+
+    &.failure {
+      color: #f04438;
+    }
   }
 
   &-item-container {
@@ -44,8 +95,9 @@
     }
 
     span {
-      &:first-of-type {
-        color: #344054;
+      &:first-child {
+        color: #404968;
+        font-weight: 500;
       }
     }
   }

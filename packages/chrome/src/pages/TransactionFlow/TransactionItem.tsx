@@ -8,6 +8,8 @@ interface TransactionItemProps {
   coin?: string;
   date?: string;
   onClick: () => void;
+  status: 'success' | 'failure';
+  from: string;
 }
 
 function TransactionItem({
@@ -17,10 +19,11 @@ function TransactionItem({
   coin = 'sui',
   date,
   onClick,
+  status,
 }: TransactionItemProps) {
   return (
     <div className="transaction-item-container" onClick={onClick}>
-      <div className={classnames('transaction-item-icon', type)} />
+      <div className={classnames('transaction-item-icon', type, status)} />
       <div className="transaction-item-detail">
         <div className="transaction-item-type">
           {type}
@@ -28,9 +31,10 @@ function TransactionItem({
         </div>
         <div className="transaction-item-to">To {to}</div>
       </div>
-      <div className={classnames('transaction-item-amount', type)}>
-        {type === 'sent' ? '- ' : '+ '}
-        {amount} {coin.toUpperCase()}
+      <div className={classnames('transaction-item-amount', type, status)}>
+        {status === 'failure'
+          ? 'Failed'
+          : `${type === 'sent' ? '- ' : '+ '} ${amount} ${coin.toUpperCase()}`}
       </div>
     </div>
   );
