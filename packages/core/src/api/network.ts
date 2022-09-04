@@ -16,7 +16,7 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'devnet',
       name: 'devnet',
-      rpcURL: 'https://gateway.devnet.sui.io:443',
+      rpcURL: 'https://fullnode.devnet.sui.io/',
     },
   ],
   [
@@ -24,7 +24,7 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'local',
       name: 'local',
-      rpcURL: '',
+      rpcURL: 'http://localhost:5001',
     },
   ],
 ]);

@@ -38,7 +38,7 @@ export class Provider {
   }
 
   public async getOwnedObjects(address: string): Promise<SuiObject[]> {
-    await this.provider.syncAccountState(address);
+    trySyncAccountState(this.provider, address);
     const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
     const objectIds = objectInfos.map((obj) => obj.objectId);
     const resps = await this.provider.getObjectBatch(objectIds);
@@ -48,7 +48,7 @@ export class Provider {
   }
 
   public async getOwnedCoins(address: string): Promise<CoinObject[]> {
-    await this.provider.syncAccountState(address);
+    trySyncAccountState(this.provider, address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
@@ -73,8 +73,11 @@ export class Provider {
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistroyEntry[]> {
-    await this.provider.syncAccountState(address);
+    trySyncAccountState(this.provider, address);
     const txs = await this.provider.getTransactionsForAddress(address);
+    if (txs.length === 0 || !txs[0]) {
+      return [];
+    }
     const digests = txs
       .map((tx) => tx[1])
       .filter((value, index, self) => self.indexOf(value) === index);
@@ -235,7 +238,7 @@ export class CoinProvider {
       throw new Error('Insufficient balance');
     }
     const address = vault.getAddress();
-    await this.provider.syncAccountState(address);
+    trySyncAccountState(this.provider, address);
     for (const coin of coinsToMerge) {
       const data = await this.serializer.newMergeCoin(address, {
         primaryCoin: primaryCoin.objectId,
@@ -258,7 +261,6 @@ export class CoinProvider {
 
   async splitCoinForBalance(coin: CoinObject, amount: bigint, vault: Vault) {
     const address = vault.getAddress();
-    await this.provider.syncAccountState(address);
     const data = await this.serializer.newSplitCoin(address, {
       coinObjectId: coin.objectId,
       splitAmounts: [Number(coin.balance - amount)],
@@ -282,7 +284,7 @@ export class CoinProvider {
     vault: Vault
   ) {
     const address = vault.getAddress();
-    await this.provider.syncAccountState(address);
+    trySyncAccountState(this.provider, address);
     const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
     const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
     const data = await this.serializer.newTransferObject(address, {
@@ -302,7 +304,7 @@ export class CoinProvider {
     vault: Vault
   ) {
     const address = vault.getAddress();
-    await this.provider.syncAccountState(address);
+    trySyncAccountState(this.provider, address);
     const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
     const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
     const data = await this.serializer.newTransferSui(address, {
@@ -322,5 +324,13 @@ export class CoinProvider {
       txn.signature.toString('base64'),
       txn.pubKey.toString('base64')
     );
+  }
+}
+
+async function trySyncAccountState(provider: JsonRpcProvider, address: string) {
+  try {
+    await provider.syncAccountState(address);
+  } catch (err) {
+    console.log('sync account state failed', err);
   }
 }
