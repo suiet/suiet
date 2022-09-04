@@ -7,6 +7,22 @@
 
 .transaction-detail {
   &-header {
+    height: 56px;
+    width: 100%;
+    position: relative;
+
+    &-title {
+      width: 100%;
+      line-height: 56px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: 'Inter';
+      color: $gray-700;
+    }
+  }
+
+  &-general-info {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -17,7 +33,6 @@
   &-back {
     position: absolute;
     top: 12px;
-    left: 12px;
     width: 32px;
     height: 32px;
     background: url('./assets/back.svg') no-repeat center;
