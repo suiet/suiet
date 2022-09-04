@@ -81,6 +81,7 @@ export class Provider {
     const digests = txs
       .map((tx) => tx[1])
       .filter((value, index, self) => self.indexOf(value) === index);
+
     const effects = await this.provider.getTransactionWithEffectsBatch(digests);
     const results = [];
     for (const effect of effects) {
@@ -91,6 +92,7 @@ export class Provider {
           results.push({
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
+            transactionDigest: effect.certificate.transactionDigest,
             from: data.sender,
             to: transferSui.recipient,
             object: {
@@ -117,6 +119,7 @@ export class Provider {
               results.push({
                 timestamp_ms: effect.timestamp_ms,
                 txStatus: getExecutionStatusType(effect),
+                transactionDigest: effect.certificate.transactionDigest,
                 from: data.sender,
                 to: transferObject.recipient,
                 object: {
