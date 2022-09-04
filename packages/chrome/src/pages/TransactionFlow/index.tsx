@@ -180,8 +180,8 @@ function TransactionPage() {
   return !history?.length ? (
     <Empty />
   ) : (
-    <div className="bg-gray-100 w-full p-4">
-      <TransactionFlow history={history} address={account.address} />
+    <div className="bg-gray-100 w-full p-4 min-h-full">
+      <TransacationFlow history={history} address={account.address} />
     </div>
   );
 }

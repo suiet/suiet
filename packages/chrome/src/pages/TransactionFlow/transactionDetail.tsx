@@ -8,6 +8,9 @@ import Address from '../../components/Address';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
 import CopyIcon from '../../components/CopyIcon';
+
+import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
+
 export interface TxnItem {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
@@ -117,7 +120,7 @@ function TransactionDetail() {
             className="m-auto"
             rel="noreferrer"
           >
-            View in explorer
+            View in explorer <IconExternal className="inline"></IconExternal>
           </a>
         </div>
       </div>

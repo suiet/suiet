@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../../store';
 import { useState } from 'react';
 import SetPassword from '../OnBoarding/SetPassword';
 import copy from 'copy-to-clipboard';
+import message from '../../components/message';
 import {
   updateAccountId,
   updateInitialized,
@@ -98,7 +99,14 @@ function MainPage() {
                 ))}
               </div>
               <div className={styles['security-modal-copy']}>
-                <div onClick={() => copy(phrase.join(' '))}>Click to Copy</div>
+                <div
+                  onClick={() => {
+                    copy(phrase.join(' '));
+                    message.success('Copied');
+                  }}
+                >
+                  Click to Copy
+                </div>
               </div>
             </div>
           </Modal>
@@ -135,7 +143,14 @@ function MainPage() {
             <div className={styles['security-modal-content']}>
               {privateKey}
               <div className={styles['security-modal-copy']}>
-                <div onClick={() => copy(privateKey)}>Click to Copy</div>
+                <div
+                  onClick={() => {
+                    copy(privateKey);
+                    message.success('Copied');
+                  }}
+                >
+                  Click to Copy
+                </div>
               </div>
             </div>
           </Modal>
