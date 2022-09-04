@@ -14,12 +14,13 @@ import { TxnItem } from './transactionDetail';
 import { useNetwork } from '../../hooks/useNetwork';
 import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
+import { has } from 'lodash-es';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
 >[0];
 
-function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
+function normalizeHistory(history: TxnHistroyEntry[], address: string) {
   const res: Record<string, TxnItem[]> = {};
   const days = [];
   for (let i = history.length - 1; i >= 0; i--) {
@@ -48,7 +49,7 @@ function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
       }
     } else {
       const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
-      if (!dt) {
+      if (!has(res, dt)) {
         res[dt] = [finalItem];
         days.push(dt);
       } else {
@@ -65,7 +66,7 @@ function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
   };
 }
 
-function TransacationFlow({
+function TransactionFlow({
   history,
   address,
 }: {
@@ -73,7 +74,7 @@ function TransacationFlow({
   address: string;
 }) {
   const navigate = useNavigate();
-  const { historyMap, days } = nomalizeHistory(history, address);
+  const { historyMap, days } = normalizeHistory(history, address);
   return (
     <>
       {days.map((day) => {
@@ -180,7 +181,7 @@ function TransactionPage() {
     <Empty />
   ) : (
     <div className="bg-gray-100 w-full p-4">
-      <TransacationFlow history={history} address={account.address} />
+      <TransactionFlow history={history} address={account.address} />
     </div>
   );
 }
