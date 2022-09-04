@@ -89,6 +89,8 @@ function TransactionFlow({
               'pb-2',
               'rounded-3xl',
               'bg-white'
+              // 'border-2',
+              // 'border-slate-100'
             )}
           >
             <div className="transaction-time">{day}</div>
@@ -182,7 +184,7 @@ function TransactionPage() {
   return !history?.length ? (
     <Empty />
   ) : (
-    <div className="bg-gray-100 w-full p-4 min-h-full">
+    <div className="bg-gray-50 w-full p-4 min-h-full">
       <TransactionFlow history={history} address={account.address} />
     </div>
   );
