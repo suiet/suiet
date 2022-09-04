@@ -17,6 +17,7 @@ import {
   updateWalletId,
 } from '../../store/app-context';
 import { useWallet } from '../../hooks/useWallet';
+import Nav from './nav';
 
 function MainPage() {
   const navigate = useNavigate();
@@ -27,12 +28,7 @@ function MainPage() {
   const [privateKey, setPrivate] = useState('');
   return (
     <div className={styles['security-setting-container']}>
-      <div className="flex justify-end items-center h-14">
-        <div
-          className="setting-cancel"
-          onClick={() => navigate('/settings')}
-        ></div>
-      </div>
+      <Nav />
       <div className="setting-title">Security</div>
       <div className="setting-desc">The security settings of your wallet</div>
       <div>
