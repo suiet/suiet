@@ -67,7 +67,7 @@ function MainPage() {
         {balanceLoading ? (
           <Skeleton width={'200px'} height={'36px'} />
         ) : (
-          `${balance} SUI`
+          `${Intl.NumberFormat('en-US').format(Number(balance))} SUI`
         )}
       </div>
       <Address value={account.address} className={styles['address']} />
