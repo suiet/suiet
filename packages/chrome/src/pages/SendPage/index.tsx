@@ -14,7 +14,7 @@ import Form from '../../components/form/Form';
 import FormControl from '../../components/form/FormControl';
 import { getInputStateByFormState } from '../../utils/form';
 import { coreApi } from '@suiet/core';
-import { CoinSymbol } from '../../hooks/useCoinBalance';
+import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useNetwork } from '../../hooks/useNetwork';
@@ -33,6 +33,14 @@ const SendPage = () => {
   const { data: wallet } = useWallet(appContext.walletId);
   const { account } = useAccount(appContext.accountId);
 
+  const context = useSelector((state: RootState) => state.appContext);
+  const { balance, loading: balanceLoading } = useCoinBalance(
+    account.address,
+    CoinSymbol.SUI,
+    {
+      networkId: context.networkId,
+    }
+  );
   const form = useForm<SendFormValues>({
     mode: 'onChange',
     defaultValues: {
@@ -49,7 +57,7 @@ const SendPage = () => {
     const params = {
       network,
       symbol: CoinSymbol.SUI,
-      amount: BigInt(data.amount),
+      amount: data.amount,
       recipient: data.address,
       walletId: appContext.walletId,
       accountId: appContext.accountId,
@@ -114,7 +122,9 @@ const SendPage = () => {
               }
             />
           </FormControl>
-          {/* <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small> */}
+          <Typo.Small className={classnames('mt-[6px]', 'text-gray-400')}>
+            current balance: {balance} SUI
+          </Typo.Small>
         </section>
 
         <section className={styles['section']}>

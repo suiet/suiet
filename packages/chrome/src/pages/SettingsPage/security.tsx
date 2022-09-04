@@ -81,7 +81,16 @@ function MainPage() {
               setPhrase(rawPhrases.split(' '));
             }}
           >
-            <div className={styles['security-modal-content']}>
+            <div
+              className={classnames(
+                styles['security-modal-content'],
+                'cursor-pointer'
+              )}
+              onClick={() => {
+                copy(phrase.join(' '));
+                message.success('Copied');
+              }}
+            >
               <div className="flex flex-wrap">
                 {phrase.slice(0, phrase.length).map((p, index) => (
                   <div
@@ -99,14 +108,7 @@ function MainPage() {
                 ))}
               </div>
               <div className={styles['security-modal-copy']}>
-                <div
-                  onClick={() => {
-                    copy(phrase.join(' '));
-                    message.success('Copied');
-                  }}
-                >
-                  Click to Copy
-                </div>
+                <div>Click to Copy</div>
               </div>
             </div>
           </Modal>
@@ -140,17 +142,19 @@ function MainPage() {
               setPrivate(privateKey);
             }}
           >
-            <div className={styles['security-modal-content']}>
+            <div
+              className={classnames(
+                styles['security-modal-content'],
+                'cursor-pointer'
+              )}
+              onClick={() => {
+                copy(privateKey);
+                message.success('Copied');
+              }}
+            >
               {privateKey}
               <div className={styles['security-modal-copy']}>
-                <div
-                  onClick={() => {
-                    copy(privateKey);
-                    message.success('Copied');
-                  }}
-                >
-                  Click to Copy
-                </div>
+                <div>Click to Copy</div>
               </div>
             </div>
           </Modal>

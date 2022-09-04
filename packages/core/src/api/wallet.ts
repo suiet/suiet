@@ -96,7 +96,7 @@ export class WalletApi implements IWalletApi {
       id: toWalletIdString(walletId),
       name: params.name ? params.name : toWalletNameString(walletId),
       accounts: [accountIdStr],
-      nextAccountId: 1,
+      nextAccountId: 2,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
       avatar: params.avatar ? params.avatar : undefined,
     };

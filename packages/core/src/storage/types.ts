@@ -27,6 +27,7 @@ export type Cipher = {
 export type TxnHistroyEntry = {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
+  gasUsed: number;
   from: string;
   to: string;
   object: TxObject;

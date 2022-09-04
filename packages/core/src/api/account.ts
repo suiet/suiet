@@ -44,7 +44,7 @@ export class AccountApi implements IAccountApi {
     const accountId = wallet.nextAccountId;
     wallet.nextAccountId += 1;
     const accountIdStr = toAccountIdString(wallet.id, accountId);
-    const hdPath = crypto.derivationHdPath(accountId);
+    const hdPath = crypto.derivationHdPath(accountId - 1);
     wallet.accounts.push(accountIdStr);
     const vault = await Vault.create(
       hdPath,

@@ -20,16 +20,20 @@ export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
 
 export class Provider {
-  provider: JsonRpcProvider;
+  queryProvider: JsonRpcProvider;
+  gatewayProvider: JsonRpcProvider;
   coin: CoinProvider;
 
-  constructor(endpoint: string) {
-    this.provider = new JsonRpcProvider(endpoint);
-    this.coin = new CoinProvider(endpoint);
+  constructor(queryEndpoint: string, gatewayEndpoint: string) {
+    this.queryProvider = new JsonRpcProvider(queryEndpoint);
+    this.gatewayProvider = new JsonRpcProvider(gatewayEndpoint);
+    this.coin = new CoinProvider(gatewayEndpoint);
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
-    const contents = await this.provider.getObject(SUI_SYSTEM_STATE_OBJECT_ID);
+    const contents = await this.queryProvider.getObject(
+      SUI_SYSTEM_STATE_OBJECT_ID
+    );
     const data = (contents.details as SuiObject).data;
     const validators = (data as SuiMoveObject).fields.validators;
     const activeValidators = (validators as SuiMoveObject).fields
@@ -38,17 +42,19 @@ export class Provider {
   }
 
   public async getOwnedObjects(address: string): Promise<SuiObject[]> {
-    trySyncAccountState(this.provider, address);
-    const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
+    trySyncAccountState(this.queryProvider, address);
+    const objectInfos = await this.queryProvider.getObjectsOwnedByAddress(
+      address
+    );
     const objectIds = objectInfos.map((obj) => obj.objectId);
-    const resps = await this.provider.getObjectBatch(objectIds);
+    const resps = await this.queryProvider.getObjectBatch(objectIds);
     return resps
       .filter((resp) => resp.status === 'Exists')
       .map((resp) => getObjectExistsResponse(resp) as SuiObject);
   }
 
   public async getOwnedCoins(address: string): Promise<CoinObject[]> {
-    trySyncAccountState(this.provider, address);
+    trySyncAccountState(this.queryProvider, address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
@@ -73,8 +79,8 @@ export class Provider {
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistroyEntry[]> {
-    trySyncAccountState(this.provider, address);
-    const txs = await this.provider.getTransactionsForAddress(address);
+    trySyncAccountState(this.queryProvider, address);
+    const txs = await this.queryProvider.getTransactionsForAddress(address);
     if (txs.length === 0 || !txs[0]) {
       return [];
     }
@@ -82,7 +88,9 @@ export class Provider {
       .map((tx) => tx[1])
       .filter((value, index, self) => self.indexOf(value) === index);
 
-    const effects = await this.provider.getTransactionWithEffectsBatch(digests);
+    const effects = await this.queryProvider.getTransactionWithEffectsBatch(
+      digests
+    );
     const results = [];
     for (const effect of effects) {
       const data = getTransactionData(effect.certificate);
@@ -93,6 +101,7 @@ export class Provider {
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
             transactionDigest: effect.certificate.transactionDigest,
+            gasUsed: effect.effects.gasUsed.computationCost,
             from: data.sender,
             to: transferSui.recipient,
             object: {
@@ -106,7 +115,7 @@ export class Provider {
         } else {
           const transferObject = getTransferObjectTransaction(tx);
           if (transferObject) {
-            const resp = await this.provider.getObject(
+            const resp = await this.queryProvider.getObject(
               transferObject.objectRef.objectId
             );
             const obj = getMoveObject(resp);
@@ -120,6 +129,7 @@ export class Provider {
                 timestamp_ms: effect.timestamp_ms,
                 txStatus: getExecutionStatusType(effect),
                 transactionDigest: effect.certificate.transactionDigest,
+                gasUsed: effect.effects.gasUsed.computationCost,
                 from: data.sender,
                 to: transferObject.recipient,
                 object: {
@@ -139,7 +149,7 @@ export class Provider {
 
   async transferCoin(
     symbol: string,
-    amount: bigint,
+    amount: number,
     recipient: string,
     vault: Vault
   ) {
@@ -209,9 +219,10 @@ export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
 export class CoinProvider {
   provider: JsonRpcProvider;
   serializer: RpcTxnDataSerializer;
-  constructor(endpoint: string) {
-    this.provider = new JsonRpcProvider(endpoint);
-    this.serializer = new RpcTxnDataSerializer(endpoint);
+
+  constructor(gatewayEndpoint: string) {
+    this.provider = new JsonRpcProvider(gatewayEndpoint);
+    this.serializer = new RpcTxnDataSerializer(gatewayEndpoint);
   }
 
   async mergeCoinsForBalance(
@@ -282,14 +293,22 @@ export class CoinProvider {
 
   public async transferCoin(
     coins: CoinObject[],
-    amount: bigint,
+    amount: number,
     recipient: string,
     vault: Vault
   ) {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
-    const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
-    const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
+    const mergedCoin = await this.mergeCoinsForBalance(
+      coins,
+      BigInt(amount),
+      vault
+    );
+    const coin = await this.splitCoinForBalance(
+      mergedCoin,
+      BigInt(amount),
+      vault
+    );
     const data = await this.serializer.newTransferObject(address, {
       objectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
@@ -302,18 +321,28 @@ export class CoinProvider {
 
   public async transferSui(
     coins: CoinObject[],
-    amount: bigint,
+    amount: number,
     recipient: string,
     vault: Vault
   ) {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
-    const mergedCoin = await this.mergeCoinsForBalance(coins, amount, vault);
-    const coin = await this.splitCoinForBalance(mergedCoin, amount, vault);
+    const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
+    const mergedCoin = await this.mergeCoinsForBalance(
+      coins,
+      BigInt(actualAmount),
+      vault
+    );
+    const coin = await this.splitCoinForBalance(
+      mergedCoin,
+      BigInt(actualAmount),
+      vault
+    );
     const data = await this.serializer.newTransferSui(address, {
       suiObjectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
       recipient,
+      amount,
     });
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
