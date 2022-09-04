@@ -4,7 +4,7 @@ $icon-size: 40px;
 
 .token-item {
   @apply box-border flex items-center;
-  padding: 24px;
+  padding: 26px 24px;
   margin: 12px 12px;
 
   background: $primary-25;
@@ -29,13 +29,14 @@ $icon-size: 40px;
   color: $gray-900;
   font-style: normal;
   font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 18px;
+  line-height: 22px;
 }
 
-.token-amonut {
-  font-size: 14px;
+.token-amount {
+  font-style: normal;
   font-weight: 500;
+  font-size: 14px;
   line-height: 20px;
   color: $gray-700;
 }
