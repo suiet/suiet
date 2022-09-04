@@ -25,7 +25,6 @@ const CreateNewWallet = () => {
   const dispatch = useDispatch<AppDispatch>();
   const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
-  const { updateWallet } = useWallet(appContext.walletId);
 
   async function createWalletAndAccount(token: string) {
     const wallet = await coreApi.wallet.createWallet({
@@ -44,10 +43,6 @@ const CreateNewWallet = () => {
 
     await dispatch(updateToken(token));
     await dispatch(updateWalletId(wallet.id));
-    await updateWallet(wallet.id, {
-      avatar: wallet.avatar ?? '1',
-      name: wallet.name,
-    });
     await dispatch(updateAccountId(defaultAccount.id));
     await dispatch(updateNetworkId('devnet'));
     await dispatch(updateInitialized(true));
