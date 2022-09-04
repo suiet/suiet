@@ -15,15 +15,11 @@ export enum LayoutMode {
 function AppLayout() {
   const location = useLocation();
   const state = (location.state || {}) as Record<string, any>;
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>(LayoutMode.DEFAULT);
+  let layoutMode = LayoutMode.DEFAULT;
 
-  useEffect(() => {
-    if (state?.hideAppLayout) {
-      setLayoutMode(LayoutMode.EMPTY);
-    } else {
-      setLayoutMode(LayoutMode.DEFAULT);
-    }
-  }, [state]);
+  if (state?.hideAppLayout) {
+    layoutMode = LayoutMode.EMPTY;
+  }
 
   return (
     <div
