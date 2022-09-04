@@ -81,7 +81,7 @@ function TransactionDetail() {
               message.success('Copied TX ID');
             }}
           >
-            <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap">
+            <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap cursor-pointer">
               {transactionDigest}{' '}
             </span>
             <CopyIcon
