@@ -11,10 +11,10 @@ const WelcomePage = lazy(
 );
 const SettingPage = lazy(async () => await import('../pages/SettingsPage'));
 const SendPage = lazy(async () => await import('../pages/SendPage'));
-const TransacationFlowPage = lazy(
+const TransactionFlowPage = lazy(
   async () => await import('../pages/TransactionFlow')
 );
-const TransacationDetail = lazy(
+const TransactionDetail = lazy(
   async () => await import('../pages/TransactionFlow/transactionDetail')
 );
 const CreateNewWallet = lazy(
@@ -50,11 +50,11 @@ const routesConfig: RouteObject[] = [
       },
       {
         path: 'transaction/flow',
-        element: withSus(<TransacationFlowPage />),
+        element: withSus(<TransactionFlowPage />),
       },
       {
         path: 'transaction/detail/:id',
-        element: withSus(<TransacationDetail />),
+        element: withSus(<TransactionDetail />),
       },
       {
         path: 'settings/*',
