@@ -1,4 +1,5 @@
 import ReactLoading from 'react-loading';
+import styles from './index.module.scss';
 
 export const LoadingSpin = () => {
   return <ReactLoading type={'spin'} color={'#3EA2F8'}></ReactLoading>;
@@ -14,7 +15,7 @@ export const LoadingSpokes = (props: {
 };
 
 export const FullPageLoading = () => {
-  return <div></div>;
+  return <div className={styles['full-page']}></div>;
 };
 
 export default {
