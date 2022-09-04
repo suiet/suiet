@@ -11,6 +11,9 @@ import { ITransactionApi } from '@suiet/core/dist/api/txn';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { TxnItem } from './transactionDetail';
+import { useNetwork } from '../../hooks/useNetwork';
+import useTransactionList from '../../hooks/useTransactionList';
+import Skeleton from 'react-loading-skeleton';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
@@ -127,36 +130,41 @@ function TransacationFlow({
 function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { account } = useAccount(context.accountId);
-  const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
+  // const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
+  const { history, loading } = useTransactionList(account.address);
 
-  useEffect(() => {
-    if (!account.address) {
-      return;
-    }
-    async function getHistory() {
-      const network = await coreApi.network.getNetwork('devnet');
-      if (!network) {
-        setHistory([]);
-        return;
-      }
-      try {
-        console.log(account.address);
-        const hs = await coreApi.txn.getTransactionHistory(
-          network,
-          account.address
-        );
-        setHistory(hs || []);
-      } catch (err) {
-        console.error(err);
-        setHistory([]);
-      }
-    }
-    getHistory();
-  }, [account.address]);
+  // useEffect(() => {
+  //   if (!account.address) {
+  //     return;
+  //   }
+  //   async function getHistory() {
+  //     const network = await coreApi.network.getNetwork('devnet');
+  //     if (!network) {
+  //       setHistory([]);
+  //       return;
+  //     }
+  //     try {
+  //       const hs = await coreApi.txn.getTransactionHistory(
+  //         network,
+  //         account.address
+  //       );
+  //       setHistory(hs || []);
+  //     } catch (err) {
+  //       console.error(err);
+  //       setHistory([]);
+  //     }
+  //   }
+  //   getHistory();
+  // }, [account.address, network]);
 
-  if (history === null) return null;
+  if (history === null || loading)
+    return (
+      <div className="m-4">
+        <Skeleton className="w-full" height="200px" />
+      </div>
+    );
 
-  return history.length === 0 ? (
+  return !history?.length ? (
     <Empty />
   ) : (
     <div className="bg-gray-100 h-full w-full p-4">
