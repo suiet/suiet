@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import Avatar from '../../components/Avatar';
 import message from '../../components/message';
 import { useWallet } from '../../hooks/useWallet';
+import Nav from './nav';
 
 function Wallet() {
   const { context } = useSelector((state: RootState) => ({
@@ -33,9 +34,7 @@ function Wallet() {
 
   return (
     <div className="wallet-setting-container">
-      <div className="flex justify-end items-center h-14">
-        <div className="setting-cancel" onClick={() => navigate('..')}></div>
-      </div>
+      <Nav />
       <div className="setting-title">Edit Wallet</div>
       <div className="setting-desc">Manage your wallet informations here.</div>
       <div
