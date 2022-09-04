@@ -34,17 +34,27 @@ function TransactionDetail() {
 
   return (
     <div className="transaction-detail-container">
-      <div
-        className="transaction-detail-back"
-        onClick={() => {
-          navigate('/transaction/flow');
-        }}
-      ></div>
       <div className="transaction-detail-header">
+        <div
+          className="transaction-detail-back"
+          onClick={() => {
+            navigate('/transaction/flow');
+          }}
+        ></div>
+        <div className="transaction-detail-header-title">Detail</div>
+      </div>
+      <div className="transaction-detail-general-info">
         <div
           className={classNames('transaction-detail-icon', type, txStatus)}
         ></div>
-        <div className="transaction-detail-title">{type.toUpperCase()}</div>
+        <div className="transaction-detail-title">
+          {type
+            .replace(/([A-Z])/g, ' $1')
+            // uppercase the first character
+            .replace(/^./, function (str) {
+              return str.toUpperCase();
+            })}
+        </div>
         <div className={classNames('transaction-detail-amount', txStatus)}>
           {txStatus === 'failure'
             ? 'FAILED'
