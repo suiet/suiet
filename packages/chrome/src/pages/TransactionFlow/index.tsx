@@ -113,7 +113,6 @@ function TransacationFlow({
                       amount={amount}
                       type={type}
                       status={txStatus}
-                      tx={transactionDigest}
                       onClick={() => {
                         navigate(`/transaction/detail/${day}-${index}`, {
                           state: {
