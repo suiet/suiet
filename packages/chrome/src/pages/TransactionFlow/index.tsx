@@ -130,6 +130,9 @@ function TransactionPage() {
   const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
 
   useEffect(() => {
+    if (!account.address) {
+      return;
+    }
     async function getHistory() {
       const network = await coreApi.network.getNetwork('devnet');
       if (!network) {
@@ -137,17 +140,19 @@ function TransactionPage() {
         return;
       }
       try {
+        console.log(account.address);
         const hs = await coreApi.txn.getTransactionHistory(
           network,
           account.address
         );
         setHistory(hs || []);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setHistory([]);
       }
     }
     getHistory();
-  }, []);
+  }, [account.address]);
 
   if (history === null) return null;
 
