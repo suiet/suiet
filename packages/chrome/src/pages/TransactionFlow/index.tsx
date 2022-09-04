@@ -49,7 +49,7 @@ function normalizeHistory(history: TxnHistroyEntry[], address: string) {
       }
     } else {
       const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
-      if (!has(res, dt)) {
+      if (!dt) {
         res[dt] = [finalItem];
         days.push(dt);
       } else {
