@@ -15,6 +15,7 @@ interface TransactionItemProps {
 function TransactionItem({
   type,
   to,
+  from,
   amount,
   coin = 'sui',
   date,
@@ -61,10 +62,17 @@ function TransactionItem({
             })}
           {date && <span>{date}</span>}
         </div>
-        <div className="transaction-item-to">
-          To
-          <Address className={classnames('ml-1')} value={to}></Address>
-        </div>
+        {type === 'received' ? (
+          <div className="transaction-item-desc">
+            From
+            <Address className={classnames('ml-1')} value={from}></Address>
+          </div>
+        ) : (
+          <div className="transaction-item-desc">
+            To
+            <Address className={classnames('ml-1')} value={to}></Address>
+          </div>
+        )}
       </div>
       <div className={classnames('transaction-item-amount', type, status)}>
         {status === 'failure'
