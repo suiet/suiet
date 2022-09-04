@@ -3,7 +3,7 @@ import styles from './empty.module.scss';
 
 export default function Empty() {
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col justify-center items-center mx-8">
       <div className={styles['img']} />
       <div className={styles['title']}>No History</div>
       <div className={styles['description']}>

@@ -4,6 +4,7 @@ import Button from '../../components/Button';
 import dayjs from 'dayjs';
 import classNames from 'classnames';
 import { addressEllipsis } from '../../utils/format';
+import Address from '../../components/Address';
 
 export interface TxnItem {
   txStatus: 'success' | 'failure';
@@ -30,6 +31,7 @@ function TransactionDetail() {
     object: { balance: amount, symbol: coinType },
     type,
   } = state;
+
   return (
     <div className="transaction-detail-container">
       <div
@@ -48,17 +50,17 @@ function TransactionDetail() {
             ? 'FAILED'
             : type === 'sent'
             ? `- ${amount} ${coinType}`
-            : `- ${amount} ${coinType}`}
+            : `+ ${amount} ${coinType}`}
         </div>
       </div>
       <div className="transaction-detail-item-container">
         <div className="transaction-detail-item">
           <span>From</span>
-          <span>{addressEllipsis(from)}</span>
+          <Address value={from}></Address>
         </div>
         <div className="transaction-detail-item">
           <span>To</span>
-          <span>{addressEllipsis(to)}</span>
+          <Address value={to}></Address>
         </div>
         <div className="transaction-detail-item">
           <span>Token</span>
@@ -69,6 +71,16 @@ function TransactionDetail() {
         <div className="transaction-detail-item">
           <span>Time</span>
           <span>{dayjs(time).format('YYYY.MM.DD HH:mm:ss')}</span>
+        </div>
+        <div className="transaction-detail-item">
+          <a
+            target="_blank"
+            href="https://explorer.devnet.sui.io/transactions/Hx1FAdQhvhTZKhoXGtXBXLriRpYbTxhRU5m6BsBo2l0%3D"
+            className="m-auto"
+            rel="noreferrer"
+          >
+            View in explorer
+          </a>
         </div>
       </div>
     </div>
