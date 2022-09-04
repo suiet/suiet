@@ -1,3 +1,5 @@
+@import '../../styles/variables';
+
 .transaction-item {
   &-container {
     display: flex;
@@ -5,6 +7,10 @@
     align-items: center;
     position: relative;
     border-bottom: 1px solid #eaecf0;
+
+    &:last-of-type {
+      border: 0;
+    }
 
     &:hover {
       /* Gray/50 */
@@ -20,6 +26,10 @@
     background-repeat: no-repeat;
     background-position: center;
     position: relative;
+
+    &.failure {
+      background-image: url('./assets/fail.svg') !important;
+    }
 
     &.received {
       background-image: url('./assets/receive.svg');
@@ -76,6 +86,14 @@
 
     &.sent {
       color: #ff9823;
+    }
+
+    &.sent.failure {
+      color: $gray-300;
+    }
+
+    &.failure {
+      color: $gray-300;
     }
   }
 }

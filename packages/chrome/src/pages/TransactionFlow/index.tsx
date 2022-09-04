@@ -7,77 +7,155 @@ import { coreApi } from '@suiet/core';
 import { useAccount } from '../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { TxHistroyEntry } from '@suiet/core/dist/api/txn';
+import { ITransactionApi } from '@suiet/core/dist/api/txn';
 import { useEffect, useState } from 'react';
-const list = [
-  {
-    id: 1,
-    type: 'sent',
-    to: '0xiasd...asdas',
-    amount: 2000,
-  },
-  {
-    id: 2,
-    type: 'received',
-    to: '0xiasd...asdas',
-    amount: 2000,
-  },
-  {
-    id: 3,
-    type: 'airdroped',
-    to: '0xiasd...asdas',
-    amount: 2000,
-  },
-];
+import dayjs from 'dayjs';
+import { TxnItem } from './transactionDetail';
 
-function nomalizeHistory(history: TxHistroyEntry[]) {}
+type TxnHistroyEntry = Awaited<
+  ReturnType<ITransactionApi['getTransactionHistory']>
+>[0];
 
-function TransacationFlow({ history }: { history: TxHistroyEntry[] }) {
+function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
+  const res: Record<string, TxnItem[]> = {};
+  for (let i = 0; i < history.length; i++) {
+    const item = history[i];
+    const finalItem = {
+      ...item,
+      type: address === item.from ? 'sent' : 'received',
+    };
+    // today
+    if (dayjs(item.timestamp_ms).startOf('d').isSame(dayjs().startOf('d'))) {
+      if (!res['Today']) {
+        res['Today'] = [finalItem];
+      } else {
+        res['Today'].push({
+          ...item,
+          type: address === item.from ? 'sent' : 'received',
+        });
+      }
+    } else if (
+      dayjs(item.timestamp_ms).startOf('w').isSame(dayjs().startOf('w'))
+    ) {
+      if (!res['Last Week']) {
+        res['Last Week'] = [finalItem];
+      } else {
+        res['Last Week'].push(finalItem);
+      }
+    } else {
+      const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
+      if (!dt) {
+        res[dt] = [finalItem];
+      } else {
+        res[dt].push(finalItem);
+      }
+    }
+  }
+  return res;
+}
+
+function TransacationFlow({
+  history,
+  address,
+}: {
+  history: TxnHistroyEntry[];
+  address: string;
+}) {
   const navigate = useNavigate();
+  const historyMap = nomalizeHistory(history, address);
   return (
-    <div className={classnames('mb-4', 'px-4 py-6', 'rounded-2xl', 'bg-white')}>
-      <div className="transaction-time">Last week</div>
-      <div>
-        {list.map(({ to, type, amount, id }, index) => {
-          return (
-            <TransactionItem
-              key={id}
-              to={to}
-              amount={amount}
-              type={type}
-              onClick={() => {
-                navigate(`/transaction/detail/${id}`);
-              }}
-            />
-          );
-        })}
-      </div>
-    </div>
+    <>
+      {Object.keys(historyMap).map((day) => {
+        const list = historyMap[day];
+        return (
+          <div
+            key={day}
+            className={classnames(
+              'mb-4',
+              'px-4 py-6',
+              'rounded-2xl',
+              'bg-white'
+            )}
+          >
+            <div className="transaction-time">{day}</div>
+            <div>
+              {list.map(
+                (
+                  {
+                    to,
+                    type,
+                    object: { balance: amount, symbol },
+                    from,
+                    timestamp_ms: time,
+                    txStatus,
+                  },
+                  index
+                ) => {
+                  return (
+                    <TransactionItem
+                      key={index}
+                      from={from}
+                      to={to}
+                      amount={amount}
+                      type={type}
+                      status={txStatus}
+                      onClick={() => {
+                        navigate(`/transaction/detail/${day}-${index}`, {
+                          state: {
+                            to,
+                            type,
+                            object: { balance: amount, symbol },
+                            from,
+                            timestamp_ms: time,
+                            txStatus,
+                            hideAppLayout: true,
+                          },
+                        });
+                      }}
+                    />
+                  );
+                }
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </>
   );
 }
 
 function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { account } = useAccount(context.accountId);
-  const [history, setHistory] = useState<TxHistroyEntry[] | null>(null);
+  const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
+
   useEffect(() => {
     async function getHistory() {
-      const hs = await coreApi.txn.getTransactionHistory(
-        'devnet',
-        account.address
-      );
-      setHistory(hs);
+      const network = await coreApi.network.getNetwork('devnet');
+      if (!network) {
+        setHistory([]);
+        return;
+      }
+      try {
+        const hs = await coreApi.txn.getTransactionHistory(
+          network,
+          account.address
+        );
+        setHistory(hs || []);
+      } catch {
+        setHistory([]);
+      }
     }
     getHistory();
   }, []);
 
   if (history === null) return null;
 
-  return history.length > 0 ? (
+  return history.length === 0 ? (
     <Empty />
   ) : (
     <div className="bg-gray-100 h-full w-full p-4">
-      <TransacationFlow history={history} />
+      <TransacationFlow history={history} address={account.address} />
     </div>
   );
 }
