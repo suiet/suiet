@@ -5,7 +5,10 @@ function Nav() {
   const navigate = useNavigate();
   return (
     <div className="flex fixed items-center h-14 top-0">
-      <div className="setting-cancel" onClick={() => navigate('..')}></div>
+      <div
+        className="setting-cancel"
+        onClick={() => navigate('/settings')}
+      ></div>
     </div>
   );
 }
