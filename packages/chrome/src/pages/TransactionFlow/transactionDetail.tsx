@@ -33,6 +33,7 @@ function TransactionDetail() {
   const {
     txStatus,
     transactionDigest,
+    gasUsed,
     from,
     to,
     timestamp_ms: time,
@@ -105,6 +106,12 @@ function TransactionDetail() {
           <span className="transaction-detail-item-key">Token</span>
           <span>
             {Intl.NumberFormat('en-US').format(Number(amount))} {coinType}
+          </span>
+        </div>
+        <div className="transaction-detail-item">
+          <span className="transaction-detail-item-key">Gas Used</span>
+          <span>
+            {Intl.NumberFormat('en-US').format(Number(gasUsed))} {coinType}
           </span>
         </div>
         <div className="transaction-detail-item">
