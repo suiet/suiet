@@ -101,6 +101,7 @@ function TransactionFlow({
                     object: { balance: amount, symbol },
                     from,
                     timestamp_ms: time,
+                    gasUsed,
                     txStatus,
                     transactionDigest,
                   },
@@ -124,6 +125,7 @@ function TransactionFlow({
                             timestamp_ms: time,
                             txStatus,
                             transactionDigest,
+                            gasUsed,
                             hideAppLayout: true,
                           },
                         });
