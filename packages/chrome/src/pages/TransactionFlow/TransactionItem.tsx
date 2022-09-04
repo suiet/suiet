@@ -66,12 +66,20 @@ function TransactionItem({
         {type === 'received' ? (
           <div className="transaction-item-desc">
             From
-            <Address className={classnames('ml-1')} value={from}></Address>
+            <Address
+              hideCopy={true}
+              className={classnames('ml-1')}
+              value={from}
+            ></Address>
           </div>
         ) : (
           <div className="transaction-item-desc">
             To
-            <Address className={classnames('ml-1')} value={to}></Address>
+            <Address
+              hideCopy={true}
+              className={classnames('ml-1')}
+              value={to}
+            ></Address>
           </div>
         )}
       </div>
