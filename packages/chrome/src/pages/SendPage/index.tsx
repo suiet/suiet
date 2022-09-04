@@ -114,7 +114,7 @@ const SendPage = () => {
               }
             />
           </FormControl>
-          <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small>
+          {/* <Typo.Small className={'mt-[6px]'}>≈ 12 USD</Typo.Small> */}
         </section>
 
         <section className={styles['section']}>
@@ -122,9 +122,7 @@ const SendPage = () => {
           <Typo.Title>Gas fee</Typo.Title>
           <div className={'flex items-center'}>
             <WaterDropIcon size={'small'} />
-            <Typo.Normal className={'ml-[6px]'}>
-              0.0012 SUI ≈ 12 USD
-            </Typo.Normal>
+            <Typo.Normal className={'ml-[6px]'}>100 SUI</Typo.Normal>
           </div>
 
           <Button type={'submit'} state={'primary'} className={'mt-[20px]'}>
