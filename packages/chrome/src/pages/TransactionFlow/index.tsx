@@ -49,7 +49,7 @@ function normalizeHistory(history: TxnHistroyEntry[], address: string) {
       }
     } else {
       const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
-      if (!has(res, dt)) {
+      if (!dt) {
         res[dt] = [finalItem];
         days.push(dt);
       } else {
@@ -180,7 +180,7 @@ function TransactionPage() {
   return !history?.length ? (
     <Empty />
   ) : (
-    <div className="bg-gray-100 w-full p-4">
+    <div className="bg-gray-100 w-full p-4 min-h-full">
       <TransactionFlow history={history} address={account.address} />
     </div>
   );

@@ -1,6 +1,7 @@
 import classnames from 'classnames';
 import './transactionItem.scss';
 import Address from '../../components/Address';
+
 interface TransactionItemProps {
   type: string;
   to: string;
