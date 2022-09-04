@@ -102,18 +102,16 @@
     font-weight: 400;
     font-size: 14px;
     line-height: 20px;
-    color: #667085;
+    color: $gray-400;
     margin-bottom: 16px;
 
     &:last-child {
       margin-bottom: 0;
     }
 
-    span {
-      &:first-child {
-        color: #404968;
-        font-weight: 500;
-      }
+    &-key {
+      color: $gray-700;
+      font-weight: 500;
     }
   }
 
