@@ -59,8 +59,12 @@ function TransactionDetail() {
           {txStatus === 'failure'
             ? 'FAILED'
             : type === 'sent'
-            ? `- ${amount} ${coinType}`
-            : `+ ${amount} ${coinType}`}
+            ? `- ${Intl.NumberFormat('en-US').format(
+                Number(amount)
+              )} ${coinType}`
+            : `+ ${Intl.NumberFormat('en-US').format(
+                Number(amount)
+              )} ${coinType}`}
         </div>
       </div>
       <div className="transaction-detail-item-container">
