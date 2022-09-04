@@ -62,7 +62,8 @@ function TransactionItem({
           {date && <span>{date}</span>}
         </div>
         <div className="transaction-item-to">
-          To <Address value={to}></Address>
+          To
+          <Address className={classnames('ml-1')} value={to}></Address>
         </div>
       </div>
       <div className={classnames('transaction-item-amount', type, status)}>

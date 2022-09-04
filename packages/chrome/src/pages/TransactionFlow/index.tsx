@@ -167,7 +167,7 @@ function TransactionPage() {
   return !history?.length ? (
     <Empty />
   ) : (
-    <div className="bg-gray-100 h-full w-full p-4">
+    <div className="bg-gray-100 w-full p-4">
       <TransacationFlow history={history} address={account.address} />
     </div>
   );
