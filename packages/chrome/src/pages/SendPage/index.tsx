@@ -134,7 +134,7 @@ const SendPage = () => {
 
         <section className={styles['section']}>
           <Divider type={'horizontal'} />
-          <Typo.Title>Gas fee</Typo.Title>
+          <Typo.Title>Gas fee budget</Typo.Title>
           <div className={'flex items-center'}>
             <WaterDropIcon size={'small'} />
             <Typo.Normal className={'ml-[6px]'}>100 SUI</Typo.Normal>
