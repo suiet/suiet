@@ -11,6 +11,7 @@ export type AddressProps = Extendable & {
   value: string;
   ellipsis?: boolean;
   hideCopy?: boolean;
+  disableCopy?: boolean;
   textClassName?: string;
   textStyle?: CSSProperties;
   copyClassName?: string;
@@ -18,18 +19,20 @@ export type AddressProps = Extendable & {
 };
 
 const Address = (props: AddressProps) => {
-  const { ellipsis = true, hideCopy = false } = props;
+  const { ellipsis = true, hideCopy = false, disableCopy = false } = props;
   return (
     <div
       className={classnames(
         'flex items-center',
-        'cursor-pointer',
+        { 'cursor-pointer': !disableCopy },
         props.className
       )}
       style={props.style}
       onClick={() => {
-        copy(props.value);
-        message.success('Copied Address');
+        if (!disableCopy) {
+          copy(props.value);
+          message.success('Copied Address');
+        }
       }}
     >
       <Typo.Small className={props.textClassName} style={props.textStyle}>

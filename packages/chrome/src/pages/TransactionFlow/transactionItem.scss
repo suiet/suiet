@@ -7,7 +7,8 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
-    border-bottom: 1px solid #eaecf0;
+    // border-bottom: 1px solid #eaecf0;
+    border-radius: 16px;
     font-family: Inter;
     &:last-of-type {
       border: 0;

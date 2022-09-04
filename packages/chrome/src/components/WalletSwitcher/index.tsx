@@ -39,6 +39,7 @@ const WalletItem = (props: WalletItemProps) => {
         <Address
           value={data.accountAddress}
           hideCopy={true}
+          disableCopy={true}
           textClassName={styles['wallet-item-address']}
         />
       </div>
