@@ -27,3 +27,5 @@ export class ChromeStorage implements WebStorage {
     return await chrome.storage.local.set({ [key]: item });
   }
 }
+
+export default new ChromeStorage();

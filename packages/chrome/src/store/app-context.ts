@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { coreApi } from '@suiet/core';
 
 export interface AppContextState {
   initialized: boolean;
