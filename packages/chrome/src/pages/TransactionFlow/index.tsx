@@ -101,6 +101,7 @@ function TransacationFlow({
                     from,
                     timestamp_ms: time,
                     txStatus,
+                    transactionDigest,
                   },
                   index
                 ) => {
@@ -112,6 +113,7 @@ function TransacationFlow({
                       amount={amount}
                       type={type}
                       status={txStatus}
+                      tx={transactionDigest}
                       onClick={() => {
                         navigate(`/transaction/detail/${day}-${index}`, {
                           state: {
@@ -121,6 +123,7 @@ function TransacationFlow({
                             from,
                             timestamp_ms: time,
                             txStatus,
+                            transactionDigest,
                             hideAppLayout: true,
                           },
                         });
