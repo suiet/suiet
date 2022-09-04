@@ -355,14 +355,19 @@ export class IndexedDBStorage implements Storage {
     return await this.connection.then(
       async (db) =>
         await new Promise((resolve, reject) => {
-          db.close();
-          const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
-          deleteRequest.onerror = (event) => {
-            reject(new Error('Failed to delete db.'));
-          };
-          deleteRequest.onsuccess = (event) => {
-            console.log('db deleted', event);
+          const transaction = db.transaction(
+            [StoreName.META, StoreName.WALLETS, StoreName.ACCOUNTS],
+            'readwrite'
+          );
+          transaction.objectStore(StoreName.META).clear();
+          transaction.objectStore(StoreName.WALLETS).clear();
+          transaction.objectStore(StoreName.ACCOUNTS).clear();
+          transaction.oncomplete = (event) => {
+            console.log('clear db success');
             resolve();
+          };
+          transaction.onerror = (event) => {
+            reject(event);
           };
         })
     );

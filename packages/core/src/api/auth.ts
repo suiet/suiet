@@ -22,9 +22,10 @@ export class AuthApi {
     oldPassword: string | null,
     newPassword: string
   ): Promise<void> {
+    const wallets = await this.storage.getWallets();
     const meta = await this.storage.loadMeta();
-    if (meta) {
-      // Verify old password before update.
+    if (meta && wallets.length !== 0) {
+      // Password Verify old password before update.
       if (!oldPassword) {
         throw new Error('Empty old password');
       }
@@ -42,6 +43,7 @@ export class AuthApi {
     if (meta) {
       newMeta.nextWalletId = meta.nextWalletId;
     }
+    await this.storage.reset();
     await this.storage.saveMeta(newMeta);
   }
 
