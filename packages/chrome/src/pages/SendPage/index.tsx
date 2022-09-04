@@ -20,6 +20,7 @@ import { RootState } from '../../store';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useWallet } from '../../hooks/useWallet';
 import { useAccount } from '../../hooks/useAccount';
+import { useState } from 'react';
 
 interface SendFormValues {
   address: string;
@@ -32,6 +33,7 @@ const SendPage = () => {
   const { data: network } = useNetwork(appContext.networkId);
   const { data: wallet } = useWallet(appContext.walletId);
   const { account } = useAccount(appContext.accountId);
+  const [sendLoading, setSendLoading] = useState(false);
 
   const context = useSelector((state: RootState) => state.appContext);
   const { balance, loading: balanceLoading } = useCoinBalance(
@@ -66,12 +68,15 @@ const SendPage = () => {
 
     console.log('current account', account);
     console.log('send input: ', params);
+    setSendLoading(true);
     try {
       await coreApi.txn.transferCoin(params);
       message.success('Send transaction succeed');
     } catch (e) {
       console.error(e);
       message.error('Send transaction failed');
+    } finally {
+      setSendLoading(false);
     }
   }
 
@@ -135,7 +140,12 @@ const SendPage = () => {
             <Typo.Normal className={'ml-[6px]'}>100 SUI</Typo.Normal>
           </div>
 
-          <Button type={'submit'} state={'primary'} className={'mt-[20px]'}>
+          <Button
+            type={'submit'}
+            state={'primary'}
+            className={'mt-[20px]'}
+            loading={sendLoading}
+          >
             Send
           </Button>
           <Button
