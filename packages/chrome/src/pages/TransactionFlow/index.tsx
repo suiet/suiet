@@ -21,6 +21,7 @@ type TxnHistroyEntry = Awaited<
 
 function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
   const res: Record<string, TxnItem[]> = {};
+  const days = [];
   for (let i = 0; i < history.length; i++) {
     const item = history[i];
     const finalItem = {
@@ -49,12 +50,19 @@ function nomalizeHistory(history: TxnHistroyEntry[], address: string) {
       const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
       if (!dt) {
         res[dt] = [finalItem];
+        days.push(dt);
       } else {
         res[dt].push(finalItem);
       }
     }
   }
-  return res;
+  days.sort((a, b) => (a > b ? -1 : 1));
+  if (res['Last Week']) days.unshift('Last Week');
+  if (res['Today']) days.unshift('Today');
+  return {
+    historyMap: res,
+    days,
+  };
 }
 
 function TransacationFlow({
@@ -65,10 +73,10 @@ function TransacationFlow({
   address: string;
 }) {
   const navigate = useNavigate();
-  const historyMap = nomalizeHistory(history, address);
+  const { historyMap, days } = nomalizeHistory(history, address);
   return (
     <>
-      {Object.keys(historyMap).map((day) => {
+      {days.map((day) => {
         const list = historyMap[day];
         return (
           <div
