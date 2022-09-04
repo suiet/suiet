@@ -5,6 +5,8 @@ import dayjs from 'dayjs';
 import classNames from 'classnames';
 import { addressEllipsis } from '../../utils/format';
 import Address from '../../components/Address';
+import copy from 'copy-to-clipboard';
+import message from '../../components/message';
 
 export interface TxnItem {
   txStatus: 'success' | 'failure';
@@ -71,6 +73,18 @@ function TransactionDetail() {
       </div>
       <div className="transaction-detail-item-container">
         <div className="transaction-detail-item">
+          <span>TRANSACTION ID</span>
+          <span
+            className="text-ellipsis overflow-hidden max-w-[160px]"
+            onClick={() => {
+              copy(transactionDigest);
+              message.success('Copied TX ID');
+            }}
+          >
+            {transactionDigest}
+          </span>
+        </div>
+        <div className="transaction-detail-item">
           <span>From</span>
           <Address value={from}></Address>
         </div>
@@ -92,12 +106,13 @@ function TransactionDetail() {
           <a
             target="_blank"
             href={
-              'https://explorer.devnet.sui.io/transactions/' + transactionDigest
+              'https://explorer.devnet.sui.io/transactions/' +
+              encodeURI(transactionDigest)
             }
             className="m-auto"
             rel="noreferrer"
           >
-            View in explorer {transactionDigest.toString()}
+            View in explorer
           </a>
         </div>
       </div>
