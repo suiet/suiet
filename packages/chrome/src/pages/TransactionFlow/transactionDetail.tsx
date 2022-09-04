@@ -8,6 +8,7 @@ import Address from '../../components/Address';
 
 export interface TxnItem {
   txStatus: 'success' | 'failure';
+  transactionDigest: string;
   from: string;
   to: string;
   timestamp_ms: number | null;
@@ -25,6 +26,7 @@ function TransactionDetail() {
   const state = location.state as TxnItem;
   const {
     txStatus,
+    transactionDigest,
     from,
     to,
     timestamp_ms: time,
@@ -75,11 +77,13 @@ function TransactionDetail() {
         <div className="transaction-detail-item">
           <a
             target="_blank"
-            href="https://explorer.devnet.sui.io/transactions/Hx1FAdQhvhTZKhoXGtXBXLriRpYbTxhRU5m6BsBo2l0%3D"
+            href={
+              'https://explorer.devnet.sui.io/transactions/' + transactionDigest
+            }
             className="m-auto"
             rel="noreferrer"
           >
-            View in explorer
+            View in explorer {transactionDigest.toString()}
           </a>
         </div>
       </div>

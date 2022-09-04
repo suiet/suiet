@@ -91,6 +91,7 @@ export class Provider {
           results.push({
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
+            transactionDigest: tx,
             from: data.sender,
             to: transferSui.recipient,
             object: {
@@ -117,6 +118,7 @@ export class Provider {
               results.push({
                 timestamp_ms: effect.timestamp_ms,
                 txStatus: getExecutionStatusType(effect),
+                transactionDigest: tx,
                 from: data.sender,
                 to: transferObject.recipient,
                 object: {
