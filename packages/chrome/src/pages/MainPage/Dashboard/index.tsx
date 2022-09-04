@@ -74,7 +74,7 @@ function MainPage() {
       >
         On devnet, your assets will be wiped periodically
         <br />
-        <div className="flex m-auto items-center align-middle">
+        <div className="flex m-auto items-center align-middle justify-center gap-2">
           <button className="px-2 py-1 rounded-3xl bg-white text-orange-400">
             Got it
           </button>{' '}
