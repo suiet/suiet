@@ -14,9 +14,9 @@ import {
   updateToken,
   updateWalletId,
 } from '../../../store/app-context';
-import { updateWallet } from '../../../store/wallet';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
+import { useWallet } from '../../../hooks/useWallet';
 
 const ImportWallet = () => {
   const [step, setStep] = useState(1);
@@ -25,6 +25,7 @@ const ImportWallet = () => {
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
+  const { updateWallet } = useWallet(appContext.walletId);
 
   async function createWalletAndAccount(token: string, mnemonic: string) {
     const wallet = await coreApi.wallet.createWallet({
@@ -37,13 +38,11 @@ const ImportWallet = () => {
       throw new Error('Cannot find any account');
     }
     const defaultAccount = accounts[0];
-    dispatch(
-      updateWallet({
-        avatar: wallet.avatar ?? '1',
-        name: wallet.name,
-      })
-    );
     await dispatch(updateWalletId(wallet.id));
+    await updateWallet(wallet.id, {
+      avatar: wallet.avatar ?? '1',
+      name: wallet.name,
+    });
     await dispatch(updateAccountId(defaultAccount.id));
 
     message.success('Wallet Created!');
