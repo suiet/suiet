@@ -16,7 +16,6 @@ import { coreApi } from '@suiet/core';
 import { AppDispatch, RootState } from '../../../store';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
-import { useWallet } from '../../../hooks/useWallet';
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
@@ -87,23 +86,26 @@ const CreateNewWallet = () => {
     }
   }
 
+  function handleNavBack() {
+    if (pageEntry === PageEntry.SWITCHER) {
+      navigate('/', {
+        state: { openSwitcher: true }, // open the wallet switcher
+      });
+      return;
+    }
+    if (step > 1) {
+      setStep((step) => step - 1);
+      return;
+    }
+    navigate('/onboard/welcome');
+  }
+
   return (
     <div>
       <Nav
         title={'New Wallet'}
-        onNavBack={() => {
-          if (pageEntry === PageEntry.SWITCHER) {
-            navigate('/', {
-              state: { openSwitcher: true }, // open the wallet switcher
-            });
-            return;
-          }
-          if (step > 1) {
-            setStep((step) => step - 1);
-            return;
-          }
-          navigate('/onboard/welcome');
-        }}
+        navDisabled={step === 2}
+        onNavBack={handleNavBack}
       />
       {renderContent()}
     </div>
