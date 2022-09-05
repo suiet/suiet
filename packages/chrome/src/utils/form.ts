@@ -38,3 +38,8 @@ export function getInputStateByFormState(
     ? 'success'
     : 'default';
 }
+
+export function getButtonDisabledState(formState: FormState<any>): boolean {
+  // if isValid, then set disabled to false
+  return !formState.isValid;
+}

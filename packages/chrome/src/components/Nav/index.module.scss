@@ -23,6 +23,10 @@ $nav-height: 56px;
   background: $gray-100;
   border-radius: 16px;
   cursor: pointer;
+
+  &--disabled {
+    cursor: not-allowed;
+  }
 }
 
 .nav-title {

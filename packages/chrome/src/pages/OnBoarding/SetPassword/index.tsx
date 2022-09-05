@@ -1,17 +1,17 @@
 import commonStyles from '../common.module.scss';
 import Typo from '../../../components/Typo';
-import classnames from 'classnames';
-import Button from '../../../components/Button';
 import Input from '../../../components/Input';
 import { useForm } from 'react-hook-form';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
+  getButtonDisabledState,
   getInputStateByFormState,
   getPasswordValidation,
 } from '../../../utils/form';
 import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import { useLocation } from 'react-router-dom';
+import StepButton from '../../../components/Button/StepButton';
 
 export type SavePasswordProps = {
   onNext: (password: string, oldPassword?: string) => void;
@@ -74,7 +74,9 @@ const SavePassword = (props: SavePasswordProps) => {
             </div>
           )}
           <div>
-            <Typo.Small>Password</Typo.Small>
+            <Typo.Small className={commonStyles['control-label']}>
+              Password
+            </Typo.Small>
             <FormControl
               name={'password'}
               registerOptions={getPasswordValidation()}
@@ -92,7 +94,9 @@ const SavePassword = (props: SavePasswordProps) => {
             </FormControl>
           </div>
           <div className={'mt-[16px]'}>
-            <Typo.Small>Confirm Password</Typo.Small>
+            <Typo.Small className={commonStyles['control-label']}>
+              Confirm Password
+            </Typo.Small>
             <FormControl
               name={'confirmPassword'}
               registerOptions={getPasswordValidation({
@@ -106,15 +110,20 @@ const SavePassword = (props: SavePasswordProps) => {
                   'confirmPassword'
                 )}
                 className={'mt-[6px]'}
-                placeholder={'Please enter the password'}
+                placeholder={'Re-enter the same password'}
                 disabled={!password || password.length < 6}
               />
             </FormControl>
           </div>
 
-          <Button type={'submit'} state={'primary'} className={'mt-[28px]'}>
-            Next
-          </Button>
+          <StepButton
+            type={'submit'}
+            state={'primary'}
+            disabled={getButtonDisabledState(form.formState)}
+            className={'mt-[28px] w-[160px]'}
+          >
+            Next Step
+          </StepButton>
         </Form>
       </section>
     </div>

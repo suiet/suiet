@@ -32,7 +32,7 @@ const Button = (props: ButtonProps) => {
       className={classnames(
         styles['button'],
         { [styles[`button--${state}`]]: state !== 'normal' },
-        { [styles[`button--${state}--disabled`]]: _disabled },
+        { [styles[`button--disabled`]]: _disabled },
         props.className
       )}
     >

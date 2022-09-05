@@ -1,6 +1,4 @@
-import classnames from 'classnames';
 import commonStyles from '../common.module.scss';
-import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import Textarea from '../../../components/Textarea';
 import Button from '../../../components/Button';
@@ -16,18 +14,19 @@ type FormData = {
 
 export type ImportPhraseProps = {
   onImported: (secret: string) => void;
+  phrases?: string;
 };
 
-const ImportPhrase = ({ onImported }: ImportPhraseProps) => {
+const ImportPhrase = (props: ImportPhraseProps) => {
   const form = useForm({
     mode: 'onBlur',
     defaultValues: {
-      secret: '',
+      secret: props.phrases,
     },
   });
 
   function handleSubmit(data: FormData) {
-    if (onImported) onImported(data.secret);
+    if (props.onImported) props.onImported(data.secret);
   }
 
   return (
@@ -70,7 +69,7 @@ const ImportPhrase = ({ onImported }: ImportPhraseProps) => {
           </Typo.Hints>
 
           <Button type={'submit'} state={'primary'} className={'mt-[24px]'}>
-            Confirm
+            Confirm and Import
           </Button>
         </Form>
       </section>
