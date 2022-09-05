@@ -1,0 +1,40 @@
+@import '../../styles/variables';
+
+.main-page {
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+}
+
+.main-page .suiet-title {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 48px;
+  color: $gray-200;
+
+  &--black {
+    color: $gray-900;
+  }
+}
+
+.main-page .suiet-desc {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 4px;
+  color: $gray-300;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+}
+
+.rect-loading {
+  width: 143px;
+  height: 180px;
+  border-radius: 16px;
+}

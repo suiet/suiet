@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import { lazy } from 'react';
 import { Navigate, RouteObject } from 'react-router-dom';
 import RequireInit from '../components/RequireInit';
 import RequireAuth from '../components/RequireAuth';
@@ -23,7 +23,9 @@ const CreateNewWallet = lazy(
 const ImportWallet = lazy(
   async () => await import('../pages/OnBoarding/ImportWallet')
 );
-const LoginPage = lazy(async () => await import('../pages/LoginPage'));
+const LoginPage = lazy(
+  async () => await import('../pages/OnBoarding/LoginPage')
+);
 
 const routesConfig: RouteObject[] = [
   {
@@ -85,7 +87,11 @@ const routesConfig: RouteObject[] = [
   },
   {
     path: 'login',
-    element: withSus(<LoginPage />),
+    element: withSus(
+      <RequireInit>
+        <LoginPage />
+      </RequireInit>
+    ),
   },
   {
     path: '*',

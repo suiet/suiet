@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 
 export type NavProps = Extendable & {
+  navDisabled?: boolean;
   title?: string | React.ReactNode;
   titleClassName?: string;
   titleStyle?: CSSProperties;
@@ -14,6 +15,7 @@ export type NavProps = Extendable & {
 };
 
 const Nav = (props: NavProps) => {
+  const { navDisabled = false } = props;
   function renderTitle() {
     if (typeof props.title === 'string') {
       return (
@@ -34,9 +36,11 @@ const Nav = (props: NavProps) => {
       style={props.style}
     >
       <Icon
-        className={styles['icon-back']}
+        className={classnames(styles['icon-back'], {
+          [styles['icon-back--disabled']]: navDisabled,
+        })}
         icon={<IconNavArrow />}
-        onClick={props.onNavBack}
+        onClick={navDisabled ? undefined : props.onNavBack}
       />
       {renderTitle()}
     </nav>

@@ -1,9 +1,11 @@
-@import '../../styles/variables';
+@import '../../../styles/variables';
 
 .main-page {
+  height: $full-height;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  padding: 32px;
 }
 
 .main-page .suiet-title {
@@ -12,6 +14,11 @@
   font-weight: 700;
   font-size: 48px;
   line-height: 48px;
+  color: $gray-200;
+
+  &--black {
+    color: $gray-900;
+  }
 }
 
 .main-page .suiet-desc {

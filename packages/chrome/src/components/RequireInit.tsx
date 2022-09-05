@@ -8,6 +8,7 @@ import {
   resetAppContext,
   updateAccountId,
   updateInitialized,
+  updateNetworkId,
   updateWalletId,
 } from '../store/app-context';
 
@@ -40,6 +41,7 @@ function RequireInit({ children }: any) {
       await dispatch(updateInitialized(true));
       await dispatch(updateWalletId(firstWallet.id));
       await dispatch(updateAccountId(firstAccountId));
+      await dispatch(updateNetworkId('devnet'));
     }
   }
 

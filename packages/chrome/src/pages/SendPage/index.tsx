@@ -28,7 +28,7 @@ interface SendFormValues {
 }
 
 const SendPage = () => {
-  const navi = useNavigate();
+  const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const { data: wallet } = useWallet(appContext.walletId);
@@ -72,6 +72,7 @@ const SendPage = () => {
     try {
       await coreApi.txn.transferCoin(params);
       message.success('Send transaction succeed');
+      navigate('/transaction/flow');
     } catch (e) {
       console.error(e);
       message.error('Send transaction failed');
@@ -151,7 +152,7 @@ const SendPage = () => {
           <Button
             className={'mt-[10px]'}
             onClick={() => {
-              navi('/');
+              navigate('/');
             }}
           >
             Cancel

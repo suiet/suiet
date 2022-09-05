@@ -16,7 +16,6 @@ import {
 } from '../../../store/app-context';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
-import { useWallet } from '../../../hooks/useWallet';
 
 const ImportWallet = () => {
   const [step, setStep] = useState(1);
@@ -25,7 +24,6 @@ const ImportWallet = () => {
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
-  const { updateWallet } = useWallet(appContext.walletId);
 
   async function createWalletAndAccount(token: string, mnemonic: string) {
     const wallet = await coreApi.wallet.createWallet({
@@ -39,10 +37,6 @@ const ImportWallet = () => {
     }
     const defaultAccount = accounts[0];
     await dispatch(updateWalletId(wallet.id));
-    await updateWallet(wallet.id, {
-      avatar: wallet.avatar ?? '1',
-      name: wallet.name,
-    });
     await dispatch(updateAccountId(defaultAccount.id));
 
     message.success('Wallet Created!');
@@ -79,7 +73,7 @@ const ImportWallet = () => {
       case 2:
         return <SetPassword onNext={handleSetPassword} />;
       default:
-        return <ImportPhrase onImported={handleImport} />;
+        return <ImportPhrase phrases={secret} onImported={handleImport} />;
     }
   }
   return (
