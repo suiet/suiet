@@ -23,7 +23,9 @@ const CreateNewWallet = lazy(
 const ImportWallet = lazy(
   async () => await import('../pages/OnBoarding/ImportWallet')
 );
-const LoginPage = lazy(async () => await import('../pages/LoginPage'));
+const LoginPage = lazy(
+  async () => await import('../pages/OnBoarding/LoginPage')
+);
 
 const routesConfig: RouteObject[] = [
   {

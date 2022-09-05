@@ -1,9 +1,9 @@
-import React, { ReactNode, Suspense } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { Extendable } from '../../types';
-import LoadingPage from '../../pages/LoadingPage';
+import { FullPageLoading } from '../Loading';
 
 const TheSuspense = (props: Extendable) => {
-  return <Suspense fallback={<LoadingPage />}>{props.children}</Suspense>;
+  return <Suspense fallback={<FullPageLoading />}>{props.children}</Suspense>;
 };
 
 export const withSus = (children: ReactNode) => {

@@ -1,5 +1,5 @@
 import styles from './index.module.scss';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Modal from '../../../components/Modal';
 import WaterDropIcon from '../../../components/WaterDropIcon';
 import Typo from '../../../components/Typo';
@@ -11,7 +11,6 @@ import { RootState } from '../../../store';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
-import { useState } from 'react';
 import { useChromeStorage } from '../../../hooks/useChromeStorage';
 import { StorageKeys } from '../../../store/enum';
 
@@ -29,7 +28,13 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
         </div>
       }
       trigger={
-        <div className={styles['receive']}>
+        <div
+          className={classnames(
+            styles['operations-item'],
+            styles['receive'],
+            'ml-[6px]'
+          )}
+        >
           {/* <img src={IconQrCode} className={styles['icon']} /> */}
           <span>Receive</span>
         </div>
@@ -65,6 +70,7 @@ function MainPage() {
   );
   const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
     useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING);
+  const navigate = useNavigate();
 
   return (
     <div className={styles['main-content']}>
@@ -109,16 +115,23 @@ function MainPage() {
       </div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
-        {/* <div
-          className={classnames(styles['airdrop'], 'hidden')}
-          onClick={() => {}}
+        <div
+          className={classnames(styles['operations-item'], styles['airdrop'])}
+          onClick={() => {
+            navigate('/login');
+          }}
         >
           Airdrop
-        </div> */}
+        </div>
         <ReceiveButton address={account.address} />
         <Link to={'/send'}>
-          <div className={styles['send']}>
-            {/* <img src={IconTrendUp} className={styles['icon']} /> */}
+          <div
+            className={classnames(
+              styles['operations-item'],
+              styles['send'],
+              'ml-[6px]'
+            )}
+          >
             Send
           </div>
         </Link>

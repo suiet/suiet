@@ -33,7 +33,7 @@ const Welcome = () => {
         Suiet
       </Typo.Title>
       <Typo.Normal className={classnames(styles['suiet-desc'])}>
-        The wallet for everyone
+        The wallet for everyone.
       </Typo.Normal>
       <section className={'mt-[77px] w-full flex justify-between'}>
         <RectButton theme={'primary'} onClick={handleCreateNewWallet}>
