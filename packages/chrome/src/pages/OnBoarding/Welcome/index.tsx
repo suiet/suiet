@@ -21,7 +21,7 @@ const Welcome = () => {
   return (
     <div className={classnames(styles['main-page'])}>
       <Icon elClassName={commonStyles['logo']} icon={<LogoGrey />} />
-      <Typo.Title className={classnames(styles['suiet-title'], 'mt-8')}>
+      <Typo.Title className={classnames(styles['suiet-title'], 'mt-[64px]')}>
         Welcome to
       </Typo.Title>
       <Typo.Title
