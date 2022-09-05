@@ -265,7 +265,6 @@ export class IndexedDBStorage implements Storage {
     return await this.connection.then(
       async (db) =>
         await new Promise((resolve, reject) => {
-          console.log('accountId', accountId);
           const request = db
             .transaction([StoreName.ACCOUNTS])
             .objectStore(StoreName.ACCOUNTS)
