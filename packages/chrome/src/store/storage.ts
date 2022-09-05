@@ -26,6 +26,10 @@ export class ChromeStorage implements WebStorage {
   async setItem(key: string, item: string): Promise<void> {
     return await chrome.storage.local.set({ [key]: item });
   }
+
+  async clear() {
+    return await chrome.storage.local.clear();
+  }
 }
 
 export default new ChromeStorage();

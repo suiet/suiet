@@ -74,7 +74,7 @@ function MainPage() {
 
   return (
     <div className={styles['main-content']}>
-      {!showDevnetWarning ? null : (
+      {showDevnetWarning === false ? null : (
         <div
           className={classnames(
             'py-3',
