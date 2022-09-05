@@ -72,9 +72,9 @@ const SendPage = () => {
       await coreApi.txn.transferCoin(params);
       message.success('Send transaction succeed');
       navigate('/transaction/flow');
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      message.error('Send transaction failed');
+      message.error(`Send transaction failed: ${e?.message}`);
     } finally {
       setSendLoading(false);
     }
