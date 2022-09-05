@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import { lazy } from 'react';
 import { Navigate, RouteObject } from 'react-router-dom';
 import RequireInit from '../components/RequireInit';
 import RequireAuth from '../components/RequireAuth';
