@@ -12,6 +12,9 @@ export function useAccount(accountId: string) {
   });
 
   async function fetchAccount(accountId: string) {
+    if (!accountId) return;
+    console.log('accountId', accountId);
+
     const account = await coreApi.account.getAccount(accountId);
     if (!account) {
       throw new Error('fetch account failed');
