@@ -53,7 +53,6 @@ const SendPage = () => {
 
   async function submitTransaction(data: SendFormValues) {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
-    console.log('submit', data);
     if (!network) throw new Error('require network selected');
 
     const params = {
