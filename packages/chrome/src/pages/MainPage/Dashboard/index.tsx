@@ -115,14 +115,14 @@ function MainPage() {
       </div>
       <Address value={account.address} className={styles['address']} />
       <div className={styles['operations']}>
-        <div
+        {/* <div
           className={classnames(styles['operations-item'], styles['airdrop'])}
           onClick={() => {
             navigate('/login');
           }}
         >
           Airdrop
-        </div>
+        </div> */}
         <ReceiveButton address={account.address} />
         <Link to={'/send'}>
           <div

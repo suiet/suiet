@@ -15,16 +15,19 @@ import Icon from '../../../components/Icon';
 import { ReactComponent as LogoGrey } from '../../../assets/icons/logo-grey.svg';
 import classnames from 'classnames';
 import Input from '../../../components/Input';
-import { useDispatch } from 'react-redux';
-import { updateToken } from '../../../store/app-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetAppContext, updateToken } from '../../../store/app-context';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import ForgetPassword from '../ForgetPassword';
+import Nav from '../../../components/Nav';
+import { AppDispatch, RootState } from '../../../store';
 
 type FormData = {
   password: string;
 };
 
 const LoginPage = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const form = useForm({
     mode: 'onBlur',
@@ -32,6 +35,9 @@ const LoginPage = () => {
       password: '',
     },
   });
+  const [step, setStep] = useState(1);
+  const token = useSelector((state: RootState) => state.appContext.token);
+  const dispatch = useDispatch<AppDispatch>();
 
   async function requestToken(password: string) {
     try {
@@ -40,7 +46,6 @@ const LoginPage = () => {
       return '';
     }
   }
-
   async function handleSubmit(data: FormData) {
     const token = await requestToken(data.password);
     if (!token) {
@@ -54,6 +59,24 @@ const LoginPage = () => {
     navigate('/');
   }
 
+  if (step === 2) {
+    return (
+      <div>
+        <Nav
+          title={'Forget Password'}
+          onNavBack={() => {
+            setStep(1);
+          }}
+        ></Nav>
+        <ForgetPassword
+          onConfirmReset={async () => {
+            await coreApi.resetAppData(token);
+            await dispatch(resetAppContext()).unwrap();
+          }}
+        />
+      </div>
+    );
+  }
   return (
     <div className={welcomeStyles['main-page']}>
       <Icon elClassName={commonStyles['logo']} icon={<LogoGrey />} />
@@ -98,7 +121,14 @@ const LoginPage = () => {
           </Button>
         </Form>
       </section>
-      <Typo.Normal className={'mt-auto'}>Forget Password?</Typo.Normal>
+      <Typo.Normal
+        className={'mt-auto cursor-pointer'}
+        onClick={() => {
+          setStep(2);
+        }}
+      >
+        Forget Password?
+      </Typo.Normal>
     </div>
   );
 };

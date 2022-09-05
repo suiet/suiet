@@ -3,7 +3,9 @@ import { Extendable } from '../../types';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 
-export type TypoProps = Extendable & {};
+export type TypoProps = Extendable & {
+  onClick?: () => void;
+};
 
 export const Title = (props: Extendable) => {
   return (

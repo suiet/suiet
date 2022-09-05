@@ -87,7 +87,11 @@ const routesConfig: RouteObject[] = [
   },
   {
     path: 'login',
-    element: withSus(<LoginPage />),
+    element: withSus(
+      <RequireInit>
+        <LoginPage />
+      </RequireInit>
+    ),
   },
   {
     path: '*',
