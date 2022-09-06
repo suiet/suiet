@@ -12,8 +12,8 @@ import { isDev } from '../../utils/env';
 import Address from '../../components/Address';
 import Avatar from '../../components/Avatar';
 import classnames from 'classnames';
-import manifest from '../../utils/manifest';
 import { useWallet } from '../../hooks/useWallet';
+import { version } from '../../package-json';
 
 const SettingMain = () => {
   const navigate = useNavigate();
@@ -108,7 +108,7 @@ const SettingMain = () => {
       </section>
 
       <div className={classnames(styles['app-version'], 'mt-[16px]')}>
-        version v{manifest.version}
+        version v{version}
       </div>
     </div>
   );
