@@ -10,5 +10,12 @@
   "permissions": ["storage"],
   "background": {
     "service_worker": "src/scripts/background/index.ts"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["src/scripts/content/index.ts"],
+      "run_at": "document_start"
+    }
+  ]
 }
