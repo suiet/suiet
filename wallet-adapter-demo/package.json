@@ -1,0 +1,25 @@
+{
+  "name": "wallet-adapter-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mysten/wallet-adapter-all-wallets": "^0.0.0-experimental-20220822221301",
+    "@mysten/wallet-adapter-react": "^0.0.0-experimental-20220825172556",
+    "@mysten/wallet-adapter-react-ui": "^0.0.0-experimental-20220825172556",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.1.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.1.0"
+  }
+}
