@@ -7,5 +7,5 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["vite.config.ts", "manifest.json"]
+  "include": ["vite.config.ts"]
 }
