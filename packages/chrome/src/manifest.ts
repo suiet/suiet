@@ -22,5 +22,11 @@ export default defineManifest((env) => ({
       run_at: 'document_start',
     },
   ],
+  web_accessible_resources: [
+    {
+      resources: ['dapp-api.js'],
+      matches: ['http://*/*', 'https://*/*'],
+    },
+  ],
   host_permissions: ['http://localhost:*/*', 'http://127.0.0.1:*/*'],
 }));
