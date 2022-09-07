@@ -15,10 +15,8 @@ module.exports = {
     sourceType: 'module',
     project: [
       path.resolve(__dirname, './packages/chrome/tsconfig.json'),
-      path.resolve(__dirname, './packages/chrome/tsconfig.node.json'),
-      path.resolve(__dirname, './wallet-adapter-demo/tsconfig.json'),
-      path.resolve(__dirname, './wallet-adapter-demo/tsconfig.node.json'),
       path.resolve(__dirname, './packages/core/tsconfig.json'),
+      path.resolve(__dirname, './examples/wallet-adapter-demo/tsconfig.json'),
     ],
   },
   plugins: ['react'],
