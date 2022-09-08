@@ -20,7 +20,7 @@ test('Transaction tests', async () => {
   console.log('address', address);
   const provider = new Provider(RPC_URL, RPC_URL);
   await provider.transferCoin('SUI', 1100000, ADDRESS, vault);
-  const coins = await provider.getOwnedCoins(address);
+  const coins = await provider.query.getOwnedCoins(address);
   console.log('target coins', coins);
   const result = new Map();
   for (const object of coins) {

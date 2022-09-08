@@ -13,7 +13,7 @@ import {
   getCoinAfterSplit,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
-import { TxnHistroyEntry } from './storage/types';
+import { TxnHistroyEntry, TxObject } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 
@@ -21,20 +21,53 @@ export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
 
 export class Provider {
-  queryProvider: JsonRpcProvider;
-  gatewayProvider: JsonRpcProvider;
-  coin: CoinProvider;
+  query: QueryProvider;
+  tx: TxProvider;
 
   constructor(queryEndpoint: string, gatewayEndpoint: string) {
-    this.queryProvider = new JsonRpcProvider(queryEndpoint);
-    this.gatewayProvider = new JsonRpcProvider(gatewayEndpoint);
-    this.coin = new CoinProvider(gatewayEndpoint);
+    this.query = new QueryProvider(queryEndpoint);
+    this.tx = new TxProvider(gatewayEndpoint);
+  }
+
+  async transferCoin(
+    symbol: string,
+    amount: number,
+    recipient: string,
+    vault: Vault
+  ) {
+    const coins = (await this.query.getOwnedCoins(vault.getAddress())).filter(
+      (coin) => coin.symbol === symbol
+    );
+    if (coins.length === 0) {
+      throw new Error('no coin to transfer');
+    }
+    if (symbol === GAS_SYMBOL) {
+      await this.tx.transferSui(coins, amount, recipient, vault);
+    } else {
+      await this.tx.transferCoin(coins, amount, recipient, vault);
+    }
+  }
+
+  async transferObject(objectId: string, recipient: string, vault: Vault) {
+    const object = (await this.query.getOwnedObjects(vault.getAddress())).find(
+      (object) => object.reference.objectId === objectId
+    );
+    if (!object) {
+      throw new Error('no object to transfer');
+    }
+    await this.tx.transferObject(objectId, recipient, vault);
+  }
+}
+
+export class QueryProvider {
+  provider: JsonRpcProvider;
+
+  constructor(queryEndpoint: string) {
+    this.provider = new JsonRpcProvider(queryEndpoint);
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
-    const contents = await this.queryProvider.getObject(
-      SUI_SYSTEM_STATE_OBJECT_ID
-    );
+    const contents = await this.provider.getObject(SUI_SYSTEM_STATE_OBJECT_ID);
     const data = (contents.details as SuiObject).data;
     const validators = (data as SuiMoveObject).fields.validators;
     const activeValidators = (validators as SuiMoveObject).fields
@@ -43,19 +76,17 @@ export class Provider {
   }
 
   public async getOwnedObjects(address: string): Promise<SuiObject[]> {
-    trySyncAccountState(this.queryProvider, address);
-    const objectInfos = await this.queryProvider.getObjectsOwnedByAddress(
-      address
-    );
+    trySyncAccountState(this.provider, address);
+    const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
     const objectIds = objectInfos.map((obj) => obj.objectId);
-    const resps = await this.queryProvider.getObjectBatch(objectIds);
+    const resps = await this.provider.getObjectBatch(objectIds);
     return resps
       .filter((resp) => resp.status === 'Exists')
       .map((resp) => getObjectExistsResponse(resp) as SuiObject);
   }
 
   public async getOwnedCoins(address: string): Promise<CoinObject[]> {
-    trySyncAccountState(this.queryProvider, address);
+    trySyncAccountState(this.provider, address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
@@ -63,22 +94,12 @@ export class Provider {
         object: getMoveObject(item),
       }))
       .filter((item) => item.object && Coin.isCoin(item.object))
-      .map((item) => {
-        const obj = item.object as SuiMoveObject;
-        const arg = Coin.getCoinTypeArg(obj);
-        const symbol = arg ? Coin.getCoinSymbol(arg) : '';
-        const balance = Coin.getBalance(obj);
-        return {
-          objectId: item.id,
-          symbol,
-          balance,
-        };
-      });
+      .map((item) => Coin.getCoinObject(item.object as SuiMoveObject));
     return res;
   }
 
   public async getOwnedNfts(address: string): Promise<NftObject[]> {
-    trySyncAccountState(this.queryProvider, address);
+    trySyncAccountState(this.provider, address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
@@ -88,7 +109,7 @@ export class Provider {
       .filter((item) => item.object && Nft.isNft(item.object))
       .map((item) => {
         const obj = item.object as SuiMoveObject;
-        return Nft.getObject(obj);
+        return Nft.getNftObject(obj);
       });
     return res;
   }
@@ -96,8 +117,8 @@ export class Provider {
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistroyEntry[]> {
-    trySyncAccountState(this.queryProvider, address);
-    const txs = await this.queryProvider.getTransactionsForAddress(address);
+    trySyncAccountState(this.provider, address);
+    const txs = await this.provider.getTransactionsForAddress(address);
     if (txs.length === 0 || !txs[0]) {
       return [];
     }
@@ -105,9 +126,7 @@ export class Provider {
       .map((tx) => tx[1])
       .filter((value, index, self) => self.indexOf(value) === index);
 
-    const effects = await this.queryProvider.getTransactionWithEffectsBatch(
-      digests
-    );
+    const effects = await this.provider.getTransactionWithEffectsBatch(digests);
     const results = [];
     for (const effect of effects) {
       const data = getTransactionData(effect.certificate);
@@ -132,16 +151,28 @@ export class Provider {
         } else {
           const transferObject = getTransferObjectTransaction(tx);
           if (transferObject) {
-            const resp = await this.queryProvider.getObject(
+            const resp = await this.provider.getObject(
               transferObject.objectRef.objectId
             );
             const obj = getMoveObject(resp);
+            let txObj: TxObject | undefined;
+            // TODO: for now provider does not support to get histrorical object data,
+            // so the record here may not be accurate.
             if (obj && Coin.isCoin(obj)) {
-              const balance = Coin.getBalance(obj);
-              const arg = Coin.getCoinTypeArg(obj);
-              const symbol = arg ? Coin.getCoinSymbol(arg) : '';
-              // TODO: for now provider does not support to get histrorical object data,
-              // so the record here may not be accurate.
+              const coinObject = Coin.getCoinObject(obj);
+              txObj = {
+                type: 'coin' as 'coin',
+                ...coinObject,
+              };
+            } else if (obj && Nft.isNft(obj)) {
+              const nftObject = Nft.getNftObject(obj);
+              txObj = {
+                type: 'nft' as 'nft',
+                ...nftObject,
+              };
+            }
+            // TODO: handle more object types
+            if (txObj) {
               results.push({
                 timestamp_ms: effect.timestamp_ms,
                 txStatus: getExecutionStatusType(effect),
@@ -149,38 +180,14 @@ export class Provider {
                 gasUsed: effect.effects.gasUsed.computationCost,
                 from: data.sender,
                 to: transferObject.recipient,
-                object: {
-                  type: 'coin' as 'coin',
-                  balance,
-                  symbol,
-                },
+                object: txObj,
               });
             }
-            // TODO: handle more object types
           }
         }
       }
     }
     return results;
-  }
-
-  async transferCoin(
-    symbol: string,
-    amount: number,
-    recipient: string,
-    vault: Vault
-  ) {
-    const coins = (await this.getOwnedCoins(vault.getAddress())).filter(
-      (coin) => coin.symbol === symbol
-    );
-    if (coins.length === 0) {
-      throw new Error('no coin to transfer');
-    }
-    if (symbol === GAS_SYMBOL) {
-      await this.coin.transferSui(coins, amount, recipient, vault);
-    } else {
-      await this.coin.transferCoin(coins, amount, recipient, vault);
-    }
   }
 }
 
@@ -193,13 +200,24 @@ export const GAS_TYPE_ARG = '0x2::sui::SUI';
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
 
-export class CoinProvider {
+export class TxProvider {
   provider: JsonRpcProvider;
   serializer: RpcTxnDataSerializer;
 
   constructor(gatewayEndpoint: string) {
     this.provider = new JsonRpcProvider(gatewayEndpoint);
     this.serializer = new RpcTxnDataSerializer(gatewayEndpoint);
+  }
+
+  async transferObject(objectId: string, recipient: string, vault: Vault) {
+    const data = await this.serializer.newTransferObject(vault.getAddress(), {
+      objectId,
+      gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
+      recipient,
+    });
+    const signedTx = await vault.signTransaction({ data });
+    // TODO: handle response
+    await executeTransaction(this.provider, signedTx);
   }
 
   async mergeCoinsForBalance(
@@ -237,7 +255,7 @@ export class CoinProvider {
         gasBudget: DEFAULT_GAS_BUDGET_FOR_MERGE,
       });
       const signedTx = await vault.signTransaction({ data });
-      const resp = await this.executeTransaction(signedTx);
+      const resp = await executeTransaction(this.provider, signedTx);
       const obj = getCoinAfterMerge(resp) as SuiObject;
       primaryCoin.objectId = obj.reference.objectId;
       primaryCoin.balance = Coin.getBalance(
@@ -258,7 +276,7 @@ export class CoinProvider {
       gasBudget: DEFAULT_GAS_BUDGET_FOR_SPLIT,
     });
     const signedTx = await vault.signTransaction({ data });
-    const resp = await this.executeTransaction(signedTx);
+    const resp = await executeTransaction(this.provider, signedTx);
     const obj = getCoinAfterSplit(resp) as SuiObject;
     const balance = Coin.getBalance(getMoveObject(obj) as SuiMoveObject);
     if (balance !== amount) {
@@ -286,14 +304,7 @@ export class CoinProvider {
       BigInt(amount),
       vault
     );
-    const data = await this.serializer.newTransferObject(address, {
-      objectId: coin.objectId,
-      gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
-      recipient,
-    });
-    const signedTx = await vault.signTransaction({ data });
-    // TODO: handle response
-    await this.executeTransaction(signedTx);
+    await this.transferObject(coin.objectId, recipient, vault);
   }
 
   public async transferSui(
@@ -318,16 +329,7 @@ export class CoinProvider {
     });
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
-    await this.executeTransaction(signedTx);
-  }
-
-  async executeTransaction(txn: SignedTx) {
-    return await this.provider.executeTransaction(
-      txn.data.toString(),
-      'ED25519',
-      txn.signature.toString('base64'),
-      txn.pubKey.toString('base64')
-    );
+    await executeTransaction(this.provider, signedTx);
   }
 }
 
@@ -337,4 +339,13 @@ async function trySyncAccountState(provider: JsonRpcProvider, address: string) {
   } catch (err) {
     console.log('sync account state failed', err);
   }
+}
+
+async function executeTransaction(provider: JsonRpcProvider, txn: SignedTx) {
+  return await provider.executeTransaction(
+    txn.data.toString(),
+    'ED25519',
+    txn.signature.toString('base64'),
+    txn.pubKey.toString('base64')
+  );
 }

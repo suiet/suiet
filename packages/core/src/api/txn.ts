@@ -32,8 +32,11 @@ export type TransferCoinParams = {
 };
 
 export type TransferObjectParams = {
-  name: string;
+  recipient: string;
   objectId: string;
+  network: Network;
+  walletId: string;
+  accountId: string;
   token: string;
 };
 
@@ -116,14 +119,35 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  async transferObject(params: TransferObjectParams): Promise<void> {}
+  async transferObject(params: TransferObjectParams): Promise<void> {
+    await validateToken(this.storage, params.token);
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.gatewayRpcUrl
+    );
+    const wallet = await this.storage.getWallet(params.walletId);
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+    const account = await this.storage.getAccount(params.accountId);
+    if (!account) {
+      throw new Error('Account not found');
+    }
+    const token = Buffer.from(params.token, 'hex');
+    const vault = await Vault.create(
+      account.hdPath,
+      token,
+      wallet.encryptedMnemonic
+    );
+    await provider.transferObject(params.objectId, params.recipient, vault);
+  }
 
   async getTransactionHistory(
     network: Network,
     address: string
   ): Promise<TxnHistroyEntry[]> {
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
-    const histroy = await provider.getTransactionsForAddress(address);
+    const histroy = await provider.query.getTransactionsForAddress(address);
     return histroy;
   }
 
@@ -132,7 +156,7 @@ export class TransactionApi implements ITransactionApi {
     address: string
   ): Promise<Array<{ symbol: string; balance: bigint }>> {
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
-    const objects = await provider.getOwnedCoins(address);
+    const objects = await provider.query.getOwnedCoins(address);
     const result = new Map();
     for (const object of objects) {
       result.has(object.symbol)
@@ -147,7 +171,7 @@ export class TransactionApi implements ITransactionApi {
 
   async getOwnedObjects(network: Network, address: string): Promise<Object[]> {
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
-    const coins = await provider.getOwnedCoins(address);
+    const coins = await provider.query.getOwnedCoins(address);
     return coins.map((coin) => {
       return {
         type: 'coin',
@@ -160,7 +184,7 @@ export class TransactionApi implements ITransactionApi {
 
   async getOwnedNfts(network: Network, address: string): Promise<NftObject[]> {
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
-    const nfts = await provider.getOwnedNfts(address);
+    const nfts = await provider.query.getOwnedNfts(address);
     return nfts.map((nft) => ({
       type: 'nft',
       id: nft.objectId,
