@@ -11,7 +11,7 @@ export default defineManifest((env) => ({
     '128': 'logo.png',
   },
   action: { default_popup: 'index.html' },
-  permissions: ['storage'],
+  permissions: ['storage', 'tabs'],
   background: {
     service_worker: 'src/scripts/background/index.ts',
   },
@@ -20,6 +20,12 @@ export default defineManifest((env) => ({
       matches: ['http://*/*', 'https://*/*'],
       js: ['src/scripts/content/index.ts'],
       run_at: 'document_start',
+    },
+  ],
+  web_accessible_resources: [
+    {
+      resources: ['dapp-api.js'],
+      matches: ['http://*/*', 'https://*/*'],
     },
   ],
   host_permissions: ['http://localhost:*/*', 'http://127.0.0.1:*/*'],
