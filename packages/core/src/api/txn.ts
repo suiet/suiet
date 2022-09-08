@@ -70,6 +70,7 @@ export interface ITransactionApi {
     address: string
   ) => Promise<TxnHistroyEntry[]>;
   getOwnedObjects: (network: Network, address: string) => Promise<Object[]>;
+  getOwnedNfts: (network: Network, address: string) => Promise<NftObject[]>;
   getCoinsBalance: (
     network: Network,
     address: string
@@ -157,7 +158,7 @@ export class TransactionApi implements ITransactionApi {
     });
   }
 
-  async getOwnedNfts(network: Network, address: string): Promise<Object[]> {
+  async getOwnedNfts(network: Network, address: string): Promise<NftObject[]> {
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
     const nfts = await provider.getOwnedNfts(address);
     return nfts.map((nft) => ({
