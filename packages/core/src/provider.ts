@@ -13,7 +13,7 @@ import {
   getCoinAfterSplit,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
-import { TxnHistroyEntry } from './storage/types';
+import { TxnHistroyEntry, TxObject } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 
@@ -63,17 +63,7 @@ export class Provider {
         object: getMoveObject(item),
       }))
       .filter((item) => item.object && Coin.isCoin(item.object))
-      .map((item) => {
-        const obj = item.object as SuiMoveObject;
-        const arg = Coin.getCoinTypeArg(obj);
-        const symbol = arg ? Coin.getCoinSymbol(arg) : '';
-        const balance = Coin.getBalance(obj);
-        return {
-          objectId: item.id,
-          symbol,
-          balance,
-        };
-      });
+      .map((item) => Coin.getCoinObject(item.object as SuiMoveObject));
     return res;
   }
 
@@ -88,7 +78,7 @@ export class Provider {
       .filter((item) => item.object && Nft.isNft(item.object))
       .map((item) => {
         const obj = item.object as SuiMoveObject;
-        return Nft.getObject(obj);
+        return Nft.getNftObject(obj);
       });
     return res;
   }
@@ -136,12 +126,24 @@ export class Provider {
               transferObject.objectRef.objectId
             );
             const obj = getMoveObject(resp);
+            let txObj: TxObject | undefined;
+            // TODO: for now provider does not support to get histrorical object data,
+            // so the record here may not be accurate.
             if (obj && Coin.isCoin(obj)) {
-              const balance = Coin.getBalance(obj);
-              const arg = Coin.getCoinTypeArg(obj);
-              const symbol = arg ? Coin.getCoinSymbol(arg) : '';
-              // TODO: for now provider does not support to get histrorical object data,
-              // so the record here may not be accurate.
+              const coinObject = Coin.getCoinObject(obj);
+              txObj = {
+                type: 'coin' as 'coin',
+                ...coinObject,
+              };
+            } else if (obj && Nft.isNft(obj)) {
+              const nftObject = Nft.getNftObject(obj);
+              txObj = {
+                type: 'nft' as 'nft',
+                ...nftObject,
+              };
+            }
+            // TODO: handle more object types
+            if (txObj) {
               results.push({
                 timestamp_ms: effect.timestamp_ms,
                 txStatus: getExecutionStatusType(effect),
@@ -149,14 +151,9 @@ export class Provider {
                 gasUsed: effect.effects.gasUsed.computationCost,
                 from: data.sender,
                 to: transferObject.recipient,
-                object: {
-                  type: 'coin' as 'coin',
-                  balance,
-                  symbol,
-                },
+                object: txObj,
               });
             }
-            // TODO: handle more object types
           }
         }
       }
