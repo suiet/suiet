@@ -123,7 +123,7 @@ function TransactionDetail() {
             target="_blank"
             href={
               'https://explorer.devnet.sui.io/transactions/' +
-              encodeURI(transactionDigest)
+              encodeURIComponent(transactionDigest)
             }
             className="m-auto"
             rel="noreferrer"
