@@ -20,11 +20,7 @@ function App() {
   return (
     <div className="App">
       <a href="https://vitejs.dev" target="_blank">
-        <img
-          src="/wallet-adapter-demo/public/vite.svg"
-          className="logo"
-          alt="Vite logo"
-        />
+        <img src="/public/vite.svg" className="logo" alt="Vite logo" />
       </a>
       <button>Connect</button>
     </div>

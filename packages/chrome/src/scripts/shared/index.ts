@@ -1,0 +1,3 @@
+export enum PortName {
+  SUIET_CONTENT_BACKGROUND = 'SUIET_CONTENT_BACKGROUND',
+}
