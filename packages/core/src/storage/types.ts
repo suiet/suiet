@@ -45,5 +45,6 @@ export type CoinObject = {
 export type NftObject = {
   type: 'nft';
   name: string;
-  id: string;
+  description: string;
+  url: string;
 };

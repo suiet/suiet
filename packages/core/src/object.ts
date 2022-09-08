@@ -14,29 +14,34 @@ export class Coin {
     return obj.type.startsWith(COIN_TYPE);
   }
 
-  public static getCoinTypeArg(obj: SuiMoveObject) {
-    const res = obj.type.match(COIN_TYPE_ARG_REGEX);
-    return res ? res[1] : null;
-  }
-
   public static isSUI(obj: SuiMoveObject) {
     const arg = Coin.getCoinTypeArg(obj);
     return arg ? Coin.getCoinSymbol(arg) === 'SUI' : false;
   }
 
-  public static getCoinSymbol(coinTypeArg: string) {
-    return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
+  public static getCoinObject(obj: SuiMoveObject): CoinObject {
+    const arg = Coin.getCoinTypeArg(obj);
+    return {
+      objectId: obj.fields.id,
+      symbol: arg ? Coin.getCoinSymbol(arg) : '',
+      balance: BigInt(obj.fields.balance),
+    };
   }
 
-  public static getBalance(obj: SuiMoveObject): bigint {
+  public static getBalance(obj: SuiMoveObject) {
     return BigInt(obj.fields.balance);
   }
 
-  public static getID(obj: SuiMoveObject): string {
-    return obj.fields.id;
+  static getCoinTypeArg(obj: SuiMoveObject) {
+    const res = obj.type.match(COIN_TYPE_ARG_REGEX);
+    return res ? res[1] : null;
   }
 
-  public static getCoinTypeFromArg(coinTypeArg: string) {
+  static getCoinSymbol(coinTypeArg: string) {
+    return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
+  }
+
+  static getCoinTypeFromArg(coinTypeArg: string) {
     return `${COIN_TYPE}<${coinTypeArg}>`;
   }
 }
@@ -56,7 +61,7 @@ export class Nft {
     return false;
   }
 
-  public static getObject(obj: SuiMoveObject): NftObject {
+  public static getNftObject(obj: SuiMoveObject): NftObject {
     return {
       objectId: obj.fields.id.id,
       name: obj.fields.name,
