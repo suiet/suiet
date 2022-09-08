@@ -12,6 +12,7 @@ import {
   getCoinAfterMerge,
   getCoinAfterSplit,
 } from '@mysten/sui.js';
+import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistroyEntry } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
@@ -72,6 +73,22 @@ export class Provider {
           symbol,
           balance,
         };
+      });
+    return res;
+  }
+
+  public async getOwnedNfts(address: string): Promise<NftObject[]> {
+    trySyncAccountState(this.queryProvider, address);
+    const objects = await this.getOwnedObjects(address);
+    const res = objects
+      .map((item) => ({
+        id: item.reference.objectId,
+        object: getMoveObject(item),
+      }))
+      .filter((item) => item.object && Nft.isNft(item.object))
+      .map((item) => {
+        const obj = item.object as SuiMoveObject;
+        return Nft.getObject(obj);
       });
     return res;
   }
@@ -167,46 +184,6 @@ export class Provider {
   }
 }
 
-class Coin {
-  public static isCoin(obj: SuiMoveObject) {
-    return obj.type.startsWith(COIN_TYPE);
-  }
-
-  public static getCoinTypeArg(obj: SuiMoveObject) {
-    const res = obj.type.match(COIN_TYPE_ARG_REGEX);
-    return res ? res[1] : null;
-  }
-
-  public static isSUI(obj: SuiMoveObject) {
-    const arg = Coin.getCoinTypeArg(obj);
-    return arg ? Coin.getCoinSymbol(arg) === 'SUI' : false;
-  }
-
-  public static getCoinSymbol(coinTypeArg: string) {
-    return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
-  }
-
-  public static getBalance(obj: SuiMoveObject): bigint {
-    return BigInt(obj.fields.balance);
-  }
-
-  public static getID(obj: SuiMoveObject): string {
-    return obj.fields.id;
-  }
-
-  public static getCoinTypeFromArg(coinTypeArg: string) {
-    return `${COIN_TYPE}<${coinTypeArg}>`;
-  }
-}
-
-export type CoinObject = {
-  objectId: string;
-  symbol: string;
-  balance: bigint;
-};
-
-const COIN_TYPE = '0x2::coin::Coin';
-const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 export const DEFAULT_GAS_BUDGET_FOR_SPLIT = 1000;
 export const DEFAULT_GAS_BUDGET_FOR_MERGE = 500;
 export const DEFAULT_GAS_BUDGET_FOR_TRANSFER = 100;
