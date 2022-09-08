@@ -51,7 +51,15 @@ export type CoinObject = {
   balance: bigint;
 };
 
-export type Object = CoinObject;
+export type NftObject = {
+  id: string;
+  type: 'nft';
+  name: string;
+  description: string;
+  url: string;
+};
+
+export type Object = CoinObject | NftObject;
 
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
@@ -147,5 +155,17 @@ export class TransactionApi implements ITransactionApi {
         balance: coin.balance,
       };
     });
+  }
+
+  async getOwnedNfts(network: Network, address: string): Promise<Object[]> {
+    const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
+    const nfts = await provider.getOwnedNfts(address);
+    return nfts.map((nft) => ({
+      type: 'nft',
+      id: nft.objectId,
+      name: nft.name,
+      description: nft.description,
+      url: nft.url,
+    }));
   }
 }
