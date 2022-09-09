@@ -10,15 +10,36 @@ export interface WindowMsgData<T = any> {
   payload: T;
 }
 
+export interface BackgroundResData<T = any> {
+  id: string;
+  error: null | string;
+  data: null | T;
+}
+
 export enum WindowMsgTarget {
   DAPP = 'DAPP',
   SUIET_CONTENT = 'SUIET_CONTENT',
 }
 
-export function msg<T = any>(funcName: string, payload: T): WindowMsgData<T> {
+export function reqData<T = any>(
+  funcName: string,
+  payload: T
+): WindowMsgData<T> {
   return {
     id: uuidv4(),
     funcName,
     payload,
+  };
+}
+
+export function resData<T = any>(
+  id: string,
+  error: null | string,
+  data: null | any
+): BackgroundResData<T> {
+  return {
+    id,
+    error,
+    data,
   };
 }

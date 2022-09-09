@@ -1,7 +1,7 @@
 import { TxnHistroyEntry } from '../storage/types';
 import { Network } from './network';
 import { Provider } from '../provider';
-import { validateToken } from './util';
+import { validateToken } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
