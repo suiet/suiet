@@ -6,6 +6,7 @@ import {
   SuiAddress,
   TransactionResponse,
 } from '@mysten/sui.js';
+import { WindowMsgTarget } from '../shared';
 
 const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'];
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
@@ -41,7 +42,7 @@ export class DAppInterface implements WalletCapabilities {
 
   async requestPermissions() {
     window.postMessage({
-      target: 'suiet_content-script',
+      target: WindowMsgTarget.SUIET_CONTENT,
       payload: {
         joke: 'Knock knock',
       },

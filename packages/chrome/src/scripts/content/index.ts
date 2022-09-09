@@ -1,5 +1,4 @@
-import { PortName } from '../shared';
-import { has } from 'lodash-es';
+import { PortName, WindowMsgTarget } from '../shared';
 
 function injectDappInterface() {
   const script = document.createElement('script');
@@ -8,40 +7,36 @@ function injectDappInterface() {
   script.setAttribute('type', 'module');
   const container = document.head || document.documentElement;
   container.insertBefore(script, container.firstElementChild);
-  // container.removeChild(script);
 }
 
 function setupMessageProxy() {
   const port = chrome.runtime.connect({
     name: PortName.SUIET_CONTENT_BACKGROUND,
   });
+
+  // port msg from background - content script proxy -> window msg to dapp
   port.onMessage.addListener((msg) => {
     window.postMessage({
-      target: 'suiet_in-page',
+      target: WindowMsgTarget.DAPP,
       payload: msg,
     });
   });
 
-  const handleMessage = (event: MessageEvent) => {
-    console.log('window message', event);
+  // window msg from dapp - content script proxy -> port msg to ext background
+  const passMessageToPort = (event: MessageEvent) => {
     if (
-      event.source !== window ||
-      !has(event.data, 'target') ||
-      event.data.target !== 'suiet_content-script'
-    )
-      return;
-
-    port.postMessage(event.data.payload);
+      event.source === window &&
+      event.data?.target === WindowMsgTarget.SUIET_CONTENT
+    ) {
+      port.postMessage(event.data.payload);
+    }
   };
-
-  window.addEventListener('message', handleMessage);
-
+  window.addEventListener('message', passMessageToPort);
   port.onDisconnect.addListener((port) => {
-    window.removeEventListener('message', handleMessage);
+    if (port.name !== PortName.SUIET_CONTENT_BACKGROUND) return;
+    window.removeEventListener('message', passMessageToPort);
   });
 }
 
 injectDappInterface();
 setupMessageProxy();
-
-export {};
