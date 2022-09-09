@@ -15,6 +15,7 @@ import { useNetwork } from '../../hooks/useNetwork';
 import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
 import { has } from 'lodash-es';
+import { TxObject } from '@suiet/core/src/storage/types';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
@@ -100,7 +101,7 @@ function TransactionFlow({
                   {
                     to,
                     type,
-                    object: { balance: amount, symbol },
+                    object,
                     from,
                     timestamp_ms: time,
                     gasUsed,
@@ -114,7 +115,7 @@ function TransactionFlow({
                       key={index}
                       from={from}
                       to={to}
-                      amount={amount}
+                      object={object}
                       type={type}
                       status={txStatus}
                       onClick={() => {
@@ -122,7 +123,7 @@ function TransactionFlow({
                           state: {
                             to,
                             type,
-                            object: { balance: amount, symbol },
+                            object,
                             from,
                             timestamp_ms: time,
                             txStatus,
