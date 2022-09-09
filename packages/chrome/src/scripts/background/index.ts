@@ -1,4 +1,4 @@
-import { PortName } from '../shared';
+import { PortName, WindowMsgData } from '../shared';
 
 chrome.runtime.onInstalled.addListener((): void => {
   // eslint-disable-next-line no-console
@@ -20,15 +20,7 @@ function createPopupWindow(url: string) {
 
   chrome.runtime.onConnect.addListener(function (port) {
     if (port.name !== PortName.SUIET_CONTENT_BACKGROUND) return;
-    port.onMessage.addListener(function (msg) {
-      if (msg.joke === 'Knock knock') {
-        console.log('service worker received: ', msg.joke);
-        port.postMessage({ question: "Who's there?" });
-        console.log('service worker ask: ', "Who's there?");
-
-        createPopupWindow(chrome.runtime.getURL('index.html'));
-      }
-    });
+    port.onMessage.addListener(function (msg: WindowMsgData) {});
   });
 })();
 
