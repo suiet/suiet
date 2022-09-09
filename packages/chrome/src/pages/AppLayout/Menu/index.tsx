@@ -3,6 +3,7 @@ import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom';
 import type { Extendable, StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
 import { ReactComponent as IconHome } from '../../../assets/icons/home.svg';
+import { ReactComponent as IconNFT } from '../../../assets/icons/nft.svg';
 import { ReactComponent as IconHistory } from '../../../assets/icons/history.svg';
 import { ReactComponent as IconSettings } from '../../../assets/icons/settings.svg';
 import { ReactNode } from 'react';
@@ -41,6 +42,7 @@ const Menu: React.FC<MenuProps> = (props: Extendable) => {
       style={props.style}
     >
       <MenuItem to="/home" icon={<IconHome />} alt="home" />
+      <MenuItem to="/nft" icon={<IconNFT />} alt="nft" />
       <MenuItem
         to="/transaction/flow"
         icon={<IconHistory />}

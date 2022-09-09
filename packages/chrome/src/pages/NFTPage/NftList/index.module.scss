@@ -1,0 +1,28 @@
+@import '../../../styles/variables.scss';
+@import '../../../styles/mixins.scss';
+
+.nft-img {
+  @apply flex justify-center items-center;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  background: $gray-200;
+  border-radius: 8px;
+}
+
+$max-text-len: 120px;
+.nft-meta {
+  @apply flex flex-col;
+}
+
+.nft-name {
+  font-family: Inter;
+  width: $max-text-len;
+  @include ellipsis();
+  color: $gray-900;
+  font-size: 14px;
+}
+.nft-description {
+  width: $max-text-len;
+  @include ellipsis();
+}
