@@ -6,6 +6,7 @@ import AppLayout from '../pages/AppLayout';
 import { withSus } from '../components/TheSuspense';
 
 const MainPage = lazy(async () => await import('../pages/MainPage'));
+const NFTPage = lazy(async () => await import('../pages/NFTPage'));
 const WelcomePage = lazy(
   async () => await import('../pages/OnBoarding/Welcome')
 );
@@ -45,6 +46,10 @@ const routesConfig: RouteObject[] = [
       {
         path: 'home',
         element: withSus(<MainPage />),
+      },
+      {
+        path: 'nft',
+        element: withSus(<NFTPage />),
       },
       {
         path: 'send',
