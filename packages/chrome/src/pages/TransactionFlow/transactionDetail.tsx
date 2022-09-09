@@ -8,7 +8,7 @@ import Address from '../../components/Address';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
 import CopyIcon from '../../components/CopyIcon';
-
+import { TxObject, CoinObject, NftObject } from '@suiet/core/src/storage/types';
 import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
 
 export interface TxnItem {
@@ -18,11 +18,7 @@ export interface TxnItem {
   from: string;
   to: string;
   timestamp_ms: number | null;
-  object: {
-    type: 'coin';
-    symbol: string;
-    balance: number;
-  };
+  object: TxObject;
   type: 'sent' | 'received' | 'airdop';
 }
 
@@ -37,7 +33,7 @@ function TransactionDetail() {
     from,
     to,
     timestamp_ms: time,
-    object: { balance: amount, symbol: coinType },
+    object,
     type,
   } = state;
 
@@ -64,17 +60,19 @@ function TransactionDetail() {
               return str.toUpperCase();
             })}
         </div>
-        <div className={classnames('transaction-detail-amount', txStatus)}>
-          {txStatus === 'failure'
-            ? 'FAILED'
-            : type === 'sent'
-            ? `- ${Intl.NumberFormat('en-US').format(
-                Number(amount)
-              )} ${coinType}`
-            : `+ ${Intl.NumberFormat('en-US').format(
-                Number(amount)
-              )} ${coinType}`}
-        </div>
+        {object.type === 'coin' ? (
+          <div className={classnames('transaction-detail-amount', txStatus)}>
+            {txStatus === 'failure'
+              ? 'FAILED'
+              : type === 'sent'
+              ? `- ${Intl.NumberFormat('en-US').format(
+                  Number(object.balance)
+                )} ${object.symbol}`
+              : `+ ${Intl.NumberFormat('en-US').format(
+                  Number(object.balance)
+                )} ${object.symbol}`}
+          </div>
+        ) : null}
       </div>
       <div className="transaction-detail-item-container">
         <div className="transaction-detail-item">
@@ -102,18 +100,24 @@ function TransactionDetail() {
           <span className="transaction-detail-item-key">To</span>
           <Address value={to}></Address>
         </div>
-        <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">Token</span>
-          <span>
-            {Intl.NumberFormat('en-US').format(Number(amount))} {coinType}
-          </span>
-        </div>
-        <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">Gas Used</span>
-          <span>
-            {Intl.NumberFormat('en-US').format(Number(gasUsed))} {coinType}
-          </span>
-        </div>
+        {object.type === 'coin' ? (
+          <div className="transaction-detail-item">
+            <span className="transaction-detail-item-key">Token</span>
+            <span>
+              {Intl.NumberFormat('en-US').format(Number(object.balance))}{' '}
+              {object.symbol}
+            </span>
+          </div>
+        ) : null}
+        {object.type === 'coin' ? (
+          <div className="transaction-detail-item">
+            <span className="transaction-detail-item-key">Gas Used</span>
+            <span>
+              {Intl.NumberFormat('en-US').format(Number(gasUsed))}{' '}
+              {object.symbol}
+            </span>
+          </div>
+        ) : null}
         <div className="transaction-detail-item">
           <span className="transaction-detail-item-key">Time</span>
           <span>{dayjs(time).format('YYYY.MM.DD HH:mm:ss')}</span>

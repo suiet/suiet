@@ -86,8 +86,7 @@ const NftList = (props: NftListProps) => {
         props.className,
         'grid',
         'grid-cols-2',
-        'justify-items-center',
-        'px-2'
+        'justify-items-center'
       )}
       style={props.style}
     >

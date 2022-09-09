@@ -1,11 +1,13 @@
 import classnames from 'classnames';
 import './transactionItem.scss';
 import Address from '../../components/Address';
+import { CoinObject, TxObject } from '@suiet/core/src/storage/types';
+import { nftImgUrl } from '../../utils/nft';
 
 interface TransactionItemProps {
   type: string;
   to: string;
-  amount: number;
+  object: TxObject;
   coin?: string;
   date?: string;
   onClick: () => void;
@@ -17,7 +19,7 @@ function TransactionItem({
   type,
   to,
   from,
-  amount,
+  object,
   coin = 'sui',
   date,
   onClick,
@@ -83,14 +85,24 @@ function TransactionItem({
           </div>
         )}
       </div>
-      <div className={classnames('transaction-item-amount', type, status)}>
-        {status === 'failure'
-          ? 'Failed'
-          : `${type === 'sent' ? '- ' : '+ '} ${nFormatter(
-              amount,
-              2
-            )} ${coin.toUpperCase()}`}
-      </div>
+      {object.type === 'coin' ? (
+        <div className={classnames('transaction-item-amount', type, status)}>
+          {status === 'failure'
+            ? 'Failed'
+            : `${type === 'sent' ? '- ' : '+ '} ${nFormatter(
+                Number(object.balance),
+                2
+              )} ${coin.toUpperCase()}`}
+        </div>
+      ) : (
+        <div className={classnames('transaction-item-amount', type, status)}>
+          <img
+            src={nftImgUrl(object.url)}
+            className={classnames('h-[40px]', 'w-fit', 'ml-auto')}
+            alt=""
+          />
+        </div>
+      )}
     </div>
   );
 }
