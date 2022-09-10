@@ -11,6 +11,8 @@ import {
   getMoveObject,
   getCoinAfterMerge,
   getCoinAfterSplit,
+  MoveCallTransaction,
+  Base64DataBuffer,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistroyEntry, TxObject } from './storage/types';
@@ -200,6 +202,18 @@ export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
 export const GAS_TYPE_ARG = '0x2::sui::SUI';
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
+export const MINT_EXAMPLE_NFT_MOVE_CALL = {
+  packageObjectId: '0x2',
+  module: 'devnet_nft',
+  function: 'mint',
+  typeArguments: [],
+  arguments: [
+    'Example NFT',
+    'An NFT created by Sui Wallet',
+    'ipfs://bafkreibngqhl3gaa7daob4i2vccziay2jjlp435cf66vhono7nrvww53ty',
+  ],
+  gasBudget: 10000,
+};
 
 export class TxProvider {
   provider: JsonRpcProvider;
@@ -337,6 +351,29 @@ export class TxProvider {
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
     await executeTransaction(this.provider, signedTx);
+  }
+
+  public async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
+    const address = vault.getAddress();
+    const data = await this.serializer.newMoveCall(address, tx);
+    const signedTx = await vault.signTransaction({ data });
+    // TODO: handle response
+    await executeTransaction(this.provider, signedTx);
+  }
+
+  public async executeSerializedMoveCall(txBytes: Uint8Array, vault: Vault) {
+    const signedTx = await vault.signTransaction({
+      data: new Base64DataBuffer(txBytes),
+    });
+    // TODO: handle response
+    await executeTransaction(this.provider, signedTx);
+  }
+
+  public async mintExampleNft(vault: Vault) {
+    const address = vault.getAddress();
+    trySyncAccountState(this.provider, address);
+
+    await this.executeMoveCall(MINT_EXAMPLE_NFT_MOVE_CALL, vault);
   }
 }
 

@@ -5,6 +5,7 @@ import { validateToken } from './util';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
+import { MoveCallTransaction } from '@mysten/sui.js';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -38,6 +39,29 @@ export type TransferObjectParams = {
   walletId: string;
   accountId: string;
   token: string;
+};
+
+export type MintNftParams = {
+  network: Network;
+  walletId: string;
+  accountId: string;
+  token: string;
+};
+
+export type MoveCallParams = {
+  network: Network;
+  walletId: string;
+  accountId: string;
+  token: string;
+  tx: MoveCallTransaction;
+};
+
+export type SerializedMoveCallParams = {
+  network: Network;
+  walletId: string;
+  accountId: string;
+  token: string;
+  txBytes: Uint8Array;
 };
 
 export type TxHistroyEntry = {
@@ -78,6 +102,14 @@ export interface ITransactionApi {
     network: Network,
     address: string
   ) => Promise<Array<{ symbol: string; balance: bigint }>>;
+
+  mintExampleNft: (params: MintNftParams) => Promise<void>;
+
+  executeMoveCall: (params: MoveCallParams) => Promise<void>;
+
+  executeSerializedMoveCall: (
+    params: SerializedMoveCallParams
+  ) => Promise<void>;
 }
 
 export class TransactionApi implements ITransactionApi {
@@ -97,19 +129,10 @@ export class TransactionApi implements ITransactionApi {
       params.network.queryRpcUrl,
       params.network.gatewayRpcUrl
     );
-    const wallet = await this.storage.getWallet(params.walletId);
-    if (!wallet) {
-      throw new Error('Wallet not found');
-    }
-    const account = await this.storage.getAccount(params.accountId);
-    if (!account) {
-      throw new Error('Account not found');
-    }
-    const token = Buffer.from(params.token, 'hex');
-    const vault = await Vault.create(
-      account.hdPath,
-      token,
-      wallet.encryptedMnemonic
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
     );
     await provider.transferCoin(
       params.symbol,
@@ -125,19 +148,10 @@ export class TransactionApi implements ITransactionApi {
       params.network.queryRpcUrl,
       params.network.gatewayRpcUrl
     );
-    const wallet = await this.storage.getWallet(params.walletId);
-    if (!wallet) {
-      throw new Error('Wallet not found');
-    }
-    const account = await this.storage.getAccount(params.accountId);
-    if (!account) {
-      throw new Error('Account not found');
-    }
-    const token = Buffer.from(params.token, 'hex');
-    const vault = await Vault.create(
-      account.hdPath,
-      token,
-      wallet.encryptedMnemonic
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
     );
     await provider.transferObject(params.objectId, params.recipient, vault);
   }
@@ -192,5 +206,66 @@ export class TransactionApi implements ITransactionApi {
       description: nft.description,
       url: nft.url,
     }));
+  }
+
+  async mintExampleNft(params: MintNftParams): Promise<void> {
+    await validateToken(this.storage, params.token);
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.gatewayRpcUrl
+    );
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
+    await provider.tx.mintExampleNft(vault);
+  }
+
+  async executeMoveCall(params: MoveCallParams): Promise<void> {
+    await validateToken(this.storage, params.token);
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.gatewayRpcUrl
+    );
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
+    await provider.tx.executeMoveCall(params.tx, vault);
+  }
+
+  async executeSerializedMoveCall(
+    params: SerializedMoveCallParams
+  ): Promise<void> {
+    await validateToken(this.storage, params.token);
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.gatewayRpcUrl
+    );
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
+    await provider.tx.executeSerializedMoveCall(params.txBytes, vault);
+  }
+
+  async prepareVault(walletId: string, accountId: string, token: string) {
+    const wallet = await this.storage.getWallet(walletId);
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+    const account = await this.storage.getAccount(accountId);
+    if (!account) {
+      throw new Error('Account not found');
+    }
+    const vault = await Vault.create(
+      account.hdPath,
+      Buffer.from(token, 'hex'),
+      wallet.encryptedMnemonic
+    );
+    return vault;
   }
 }
