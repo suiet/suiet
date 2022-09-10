@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export enum PortName {
+  SUIET_UI_BACKGROUND = 'SUIET_UI_BACKGROUND',
   SUIET_CONTENT_BACKGROUND = 'SUIET_CONTENT_BACKGROUND',
 }
 

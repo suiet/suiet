@@ -3,6 +3,7 @@ import {
   PortMessageNotAJsonStringError,
 } from './errors';
 import { CallFuncData } from './types';
+import { isDev } from '../../utils/env';
 
 export function processPortMessage(input: unknown): CallFuncData {
   if (typeof input !== 'string') {
@@ -48,4 +49,9 @@ export function processPortMessage(input: unknown): CallFuncData {
 
   checkStructure(inputParams);
   return transformToCallFuncData(inputParams);
+}
+
+export function log(message: string, details: any, devOnly = true) {
+  if (devOnly && !isDev) return;
+  console.log('[api proxy]', message, details);
 }

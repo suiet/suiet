@@ -1,13 +1,16 @@
-import { getStorage, Storage } from '@suiet/core/dist/storage/Storage';
-import { IWalletApi, WalletApi } from '@suiet/core/dist/api/wallet';
-import { AccountApi, IAccountApi } from '@suiet/core/dist/api/account';
-import { AuthApi, IAuthApi } from '@suiet/core/dist/api/auth';
-import { ITransactionApi, TransactionApi } from '@suiet/core/dist/api/txn';
-import { INetworkApi, NetworkApi } from '@suiet/core/dist/api/network';
-import { validateToken } from '@suiet/core';
+import {
+  NetworkApi,
+  TransactionApi,
+  AuthApi,
+  AccountApi,
+  WalletApi,
+  getStorage,
+  Storage,
+  validateToken,
+} from '@suiet/core';
 import { fromEventPattern, Observable } from 'rxjs';
 import { resData } from '../shared';
-import { processPortMessage } from './utils';
+import { log, processPortMessage } from './utils';
 import { CallFuncData } from './types';
 import { has } from 'lodash-es';
 
@@ -27,37 +30,42 @@ export class BackgroundApiProxy {
   private serviceProxyCache: Record<string, any>;
 
   public root: IRootApi;
-  public wallet: IWalletApi;
-  public account: IAccountApi;
-  public auth: IAuthApi;
-  public txn: ITransactionApi;
-  public network: INetworkApi;
+  public wallet: WalletApi;
+  public account: AccountApi;
+  public auth: AuthApi;
+  public txn: TransactionApi;
+  public network: NetworkApi;
 
-  constructor(port: chrome.runtime.Port) {
+  private constructor(port: chrome.runtime.Port) {
     this.initServices();
     this.setUpFuncCallProxy(port);
+  }
+
+  static listenTo(port: chrome.runtime.Port) {
+    log('set up lister for port', port);
+    return new BackgroundApiProxy(port);
   }
 
   private initServices() {
     this.serviceProxyCache = {};
     this.storage = this.getStorage();
-    this.wallet = this.registerProxyService<IWalletApi>(
+    this.wallet = this.registerProxyService<WalletApi>(
       new WalletApi(this.storage),
       'wallet'
     );
-    this.account = this.registerProxyService<IAccountApi>(
+    this.account = this.registerProxyService<AccountApi>(
       new AccountApi(this.storage),
       'account'
     );
-    this.auth = this.registerProxyService<IAuthApi>(
+    this.auth = this.registerProxyService<AuthApi>(
       new AuthApi(this.storage),
       'auth'
     );
-    this.txn = this.registerProxyService<ITransactionApi>(
+    this.txn = this.registerProxyService<TransactionApi>(
       new TransactionApi(this.storage),
       'txn'
     );
-    this.network = this.registerProxyService<INetworkApi>(
+    this.network = this.registerProxyService<NetworkApi>(
       new NetworkApi(),
       'network'
     );
@@ -82,6 +90,7 @@ export class BackgroundApiProxy {
       }))(this),
       'root'
     );
+    log('initServices finished', this.serviceProxyCache);
   }
 
   private setUpFuncCallProxy(port: chrome.runtime.Port) {
@@ -90,7 +99,10 @@ export class BackgroundApiProxy {
     this.portObservable = fromEventPattern(
       (h) => this.port.onMessage.addListener(h),
       (h) => this.port.onMessage.removeListener(h),
-      (msg) => processPortMessage(msg)
+      (msg) => {
+        log('port receive msg', msg);
+        return processPortMessage(msg);
+      }
     );
 
     // set up server-like listening model
@@ -99,10 +111,13 @@ export class BackgroundApiProxy {
       const { id, service, func, payload } = callFuncData;
       let error: null | string = null;
       let data: null | any = null;
+      log(`request(id: ${id})`, callFuncData);
       try {
         data = await this.callBackgroundMethod(service, func, payload);
+        log(`respond(id: ${id}) succeeded`, data);
       } catch (e) {
         error = (e as any).message;
+        log(`respond(id: ${id}) failed`, e);
       }
       this.port.postMessage(resData(id, error, data));
     });

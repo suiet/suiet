@@ -1,9 +1,5 @@
-import { PortName, WindowMsgData } from '../shared';
-
-chrome.runtime.onInstalled.addListener((): void => {
-  // eslint-disable-next-line no-console
-  console.log('Extension installed');
-});
+import { PortName } from '../shared';
+import { BackgroundApiProxy } from './api-proxy';
 
 function createPopupWindow(url: string) {
   chrome.windows.create({
@@ -15,13 +11,28 @@ function createPopupWindow(url: string) {
   });
 }
 
-(function () {
-  console.log('hello from background.js');
+class ApiBridgeConnection {
+  static connectTo(portName: PortName) {
+    const handleConnect = (port: chrome.runtime.Port) => {
+      if (port.name === portName) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        let bgApiProxy: BackgroundApiProxy | null =
+          BackgroundApiProxy.listenTo(port); // setup listening channel
+        port.onDisconnect.addListener(() => {
+          console.log('clear proxy instance');
+          bgApiProxy = null; // clear proxy instance
+        });
+      }
+    };
+    chrome.runtime.onConnect.addListener(handleConnect);
+  }
+}
 
-  chrome.runtime.onConnect.addListener(function (port) {
-    if (port.name !== PortName.SUIET_CONTENT_BACKGROUND) return;
-    port.onMessage.addListener(function (msg: WindowMsgData) {});
+(function main() {
+  chrome.runtime.onInstalled.addListener((): void => {
+    // eslint-disable-next-line no-console
+    console.log('Extension installed');
   });
+  ApiBridgeConnection.connectTo(PortName.SUIET_UI_BACKGROUND);
+  ApiBridgeConnection.connectTo(PortName.SUIET_CONTENT_BACKGROUND);
 })();
-
-export {};

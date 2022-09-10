@@ -1,5 +1,11 @@
 import { CoreApi } from './api';
 
-export * from './api';
-export * from './utils/token';
+export { validateToken } from './utils/token';
+export * from './storage/Storage';
+export * from './api/wallet';
+export * from './api/account';
+export * from './api/auth';
+export * from './api/network';
+export * from './api/txn';
+
 export const coreApi = CoreApi.newApi();

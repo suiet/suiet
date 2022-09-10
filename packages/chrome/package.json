@@ -4,7 +4,7 @@
   "version": "0.1.3",
   "type": "module",
   "scripts": {
-    "dev": "run-s dev:dapp-api dev:ext",
+    "dev": "run-s build:dapp-api dev:ext",
     "dev:ext": "vite --mode development",
     "dev:dapp-api": "vite --mode development --config vite-dapp-api.config.ts",
     "build": "run-s build:dapp-api build:ext",
