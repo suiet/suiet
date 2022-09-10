@@ -74,7 +74,7 @@ function MainPage() {
 
   return (
     <div className={styles['main-content']}>
-      {showDevnetWarning === false ? null : (
+      {showDevnetWarning === true ? (
         <div
           className={classnames(
             'py-3',
@@ -105,7 +105,7 @@ function MainPage() {
             </a>
           </div>
         </div>
-      )}
+      ) : null}
       <div className={styles['balance']}>
         {balanceLoading ? (
           <Skeleton width={'200px'} height={'36px'} />

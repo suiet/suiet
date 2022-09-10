@@ -41,6 +41,7 @@ export class Provider {
     if (coins.length === 0) {
       throw new Error('no coin to transfer');
     }
+
     if (symbol === GAS_SYMBOL) {
       await this.tx.transferSui(coins, amount, recipient, vault);
     } else {
@@ -320,6 +321,12 @@ export class TxProvider {
       coins,
       BigInt(actualAmount),
       vault
+    );
+    console.log(
+      coin.objectId,
+      DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
+      recipient,
+      amount
     );
     const data = await this.serializer.newTransferSui(address, {
       suiObjectId: coin.objectId,

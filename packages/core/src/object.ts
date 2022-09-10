@@ -22,7 +22,7 @@ export class Coin {
   public static getCoinObject(obj: SuiMoveObject): CoinObject {
     const arg = Coin.getCoinTypeArg(obj);
     return {
-      objectId: obj.fields.id,
+      objectId: obj.fields.id.id,
       symbol: arg ? Coin.getCoinSymbol(arg) : '',
       balance: BigInt(obj.fields.balance),
     };
