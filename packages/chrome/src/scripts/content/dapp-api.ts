@@ -4,26 +4,22 @@
 import {
   MoveCallTransaction,
   SuiAddress,
-  TransactionResponse,
+  SuiTransactionResponse,
 } from '@mysten/sui.js';
+import { WalletCapabilities } from '@mysten/wallet-adapter-base';
 
 const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'];
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
 type PermissionType = AllPermissionsType[number];
 
-export interface WalletCapabilities {
+export interface SuietWallet extends WalletCapabilities {
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
   hasPermissions: (permissions: readonly PermissionType[]) => Promise<boolean>;
   requestPermissions: () => Promise<boolean>;
-  getAccounts: () => Promise<SuiAddress[]>;
-  executeMoveCall: (
-    transaction: MoveCallTransaction
-  ) => Promise<TransactionResponse>;
-  executeSerializedMoveCall: (
-    transactionBytes: Uint8Array
-  ) => Promise<TransactionResponse>;
 }
 
-export class DAppInterface implements WalletCapabilities {
+export class DAppInterface implements SuietWallet {
   name: string;
   connected: boolean;
   connecting: boolean;
@@ -34,30 +30,38 @@ export class DAppInterface implements WalletCapabilities {
     this.connecting = false;
   }
 
+  async connect() {
+    console.log('fake connected');
+  }
+
+  async disconnect() {
+    console.log('fake disconnected');
+  }
+
   async hasPermissions(permissions: readonly string[]) {
     console.log('permissions', permissions);
     return true;
   }
 
   async requestPermissions() {
-    window.postMessage({
-      target: 'suiet_content-script',
-      payload: {
-        joke: 'Knock knock',
-      },
-    });
+    // window.postMessage({
+    //   target: 'suiet_content-script',
+    //   payload: {
+    //     joke: 'Knock knock',
+    //   },
+    // });
     return true;
   }
 
   async executeMoveCall(
     transaction: MoveCallTransaction
-  ): Promise<TransactionResponse> {
+  ): Promise<SuiTransactionResponse> {
     return await Promise.resolve(undefined as any);
   }
 
   async executeSerializedMoveCall(
     transactionBytes: Uint8Array
-  ): Promise<TransactionResponse> {
+  ): Promise<SuiTransactionResponse> {
     return await Promise.resolve(undefined as any);
   }
 

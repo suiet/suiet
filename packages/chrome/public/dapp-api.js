@@ -1,29 +1,27 @@
 var o = Object.defineProperty;
-var r = (n, e, s) =>
+var t = (n, e, s) =>
   e in n
     ? o(n, e, { enumerable: !0, configurable: !0, writable: !0, value: s })
     : (n[e] = s);
-var t = (n, e, s) => (r(n, typeof e != 'symbol' ? e + '' : e, s), s);
+var c = (n, e, s) => (t(n, typeof e != 'symbol' ? e + '' : e, s), s);
 class a {
   constructor() {
-    t(this, 'name');
-    t(this, 'connected');
-    t(this, 'connecting');
+    c(this, 'name');
+    c(this, 'connected');
+    c(this, 'connecting');
     (this.name = ''), (this.connected = !1), (this.connecting = !1);
+  }
+  async connect() {
+    console.log('fake connected');
+  }
+  async disconnect() {
+    console.log('fake disconnected');
   }
   async hasPermissions(e) {
     return console.log('permissions', e), !0;
   }
   async requestPermissions() {
-    return (
-      window.postMessage({
-        target: 'suiet_content-script',
-        payload: {
-          joke: 'Knock knock',
-        },
-      }),
-      !0
-    );
+    return !0;
   }
   async executeMoveCall(e) {
     return await Promise.resolve(void 0);

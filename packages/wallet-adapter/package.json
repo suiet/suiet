@@ -1,0 +1,35 @@
+{
+  "name": "@suiet/wallet-adapter",
+  "version": "0.0.1",
+  "description": "Integration of Suiet Wallet into the Sui Wallet Adapter",
+  "license": "Apache-2.0",
+  "author": "Bruski <sizhe4real@gmail.com>",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "rollup -c rollup.config.ts --watch",
+    "build": "npm run clean && cross-env NODE_ENV=production rollup -c rollup.config.ts",
+    "clean": "rimraf dist/"
+  },
+  "dependencies": {
+    "@mysten/sui.js": "^0.10.0",
+    "@mysten/wallet-adapter-base": "^0.0.0-experimental-20220825172556"
+  },
+  "devDependencies": {
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^14.0.1",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "cross-env": "^7.0.3",
+    "rollup": "^2.79.0",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.8.2"
+  },
+  "peerDependencies": {
+    "@mysten/sui.js": "^0.10.0"
+  }
+}

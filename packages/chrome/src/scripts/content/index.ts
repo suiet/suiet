@@ -23,7 +23,6 @@ function setupMessageProxy() {
   });
 
   const handleMessage = (event: MessageEvent) => {
-    console.log('window message', event);
     if (
       event.source !== window ||
       !has(event.data, 'target') ||
