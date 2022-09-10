@@ -208,9 +208,9 @@ export const MINT_EXAMPLE_NFT_MOVE_CALL = {
   function: 'mint',
   typeArguments: [],
   arguments: [
-    'Example NFT',
-    'An NFT created by Sui Wallet',
-    'ipfs://bafkreibngqhl3gaa7daob4i2vccziay2jjlp435cf66vhono7nrvww53ty',
+    'Suiet NFT',
+    'An NFT created by Suiet',
+    'https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4',
   ],
   gasBudget: 10000,
 };
