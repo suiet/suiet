@@ -4,9 +4,9 @@ export default function Empty() {
   return (
     <div className="flex flex-col justify-center items-center mx-8">
       <div className={styles['img']} />
-      <div className={styles['title']}>No History</div>
+      <div className={styles['title']}>No NFT in your wallet</div>
       <div className={styles['description']}>
-        You will see your activity here once you use the wallet.{' '}
+        You will see your NFT here once you have one.{' '}
         <a
           href="https://suiet.app/docs/getting-started"
           className="text-sky-600 underline"

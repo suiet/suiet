@@ -1,4 +1,5 @@
 import NftList from '../NFTPage/NftList';
+
 import classnames from 'classnames';
 function MainPage() {
   return (
