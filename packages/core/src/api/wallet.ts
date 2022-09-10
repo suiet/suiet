@@ -42,6 +42,7 @@ export class WalletApi implements IWalletApi {
 
   constructor(storage: Storage) {
     this.storage = storage;
+    // console.log('WalletApi storage', this.storage);
   }
 
   // Implement Wallet API
@@ -120,6 +121,7 @@ export class WalletApi implements IWalletApi {
   }
 
   async getWallets(): Promise<Wallet[]> {
+    console.log('WalletApi storage', this.storage);
     return await this.storage.getWallets();
   }
 

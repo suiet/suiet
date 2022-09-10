@@ -48,21 +48,22 @@ export class BackgroundApiProxy {
 
   private initServices() {
     this.serviceProxyCache = {};
-    this.storage = this.getStorage();
+    const storage = this.getStorage();
+    this.storage = storage;
     this.wallet = this.registerProxyService<WalletApi>(
-      new WalletApi(this.storage),
+      new WalletApi(storage),
       'wallet'
     );
     this.account = this.registerProxyService<AccountApi>(
-      new AccountApi(this.storage),
+      new AccountApi(storage),
       'account'
     );
     this.auth = this.registerProxyService<AuthApi>(
-      new AuthApi(this.storage),
+      new AuthApi(storage),
       'auth'
     );
     this.txn = this.registerProxyService<TransactionApi>(
-      new TransactionApi(this.storage),
+      new TransactionApi(storage),
       'txn'
     );
     this.network = this.registerProxyService<NetworkApi>(
@@ -72,19 +73,19 @@ export class BackgroundApiProxy {
     this.root = this.registerProxyService<IRootApi>(
       ((ctx: any) => ({
         clearToken: async () => {
-          const meta = await ctx.storage.loadMeta();
+          const meta = await storage.loadMeta();
           if (!meta) return;
 
           try {
-            await ctx.storage.clearMeta();
+            await storage.clearMeta();
           } catch (e) {
             console.error(e);
             throw new Error('Clear meta failed');
           }
         },
         resetAppData: async (token: string) => {
-          await validateToken(ctx.storage, token);
-          await ctx.storage.reset();
+          await validateToken(storage, token);
+          await storage.reset();
           ctx.initServices();
         },
       }))(this),
@@ -126,21 +127,16 @@ export class BackgroundApiProxy {
   // register methods of all the services into the cache
   // setup service object proxy to check the method if existed
   private registerProxyService<T = any>(service: Object, svcName: string) {
-    if (!has(this.serviceProxyCache, svcName)) {
-      // register service into the service cache
-      this.serviceProxyCache[svcName] = service;
-    }
     const serviceProxy = new Proxy(service, {
       get: (target, prop) => {
         if (typeof prop !== 'string') return (target as any)[prop];
-        if (!has(target, prop) || typeof (target as any)[prop] !== 'function') {
-          throw new Error(
-            `method (${prop}) not existed in service (${svcName})`
-          );
-        }
         return (target as any)[prop];
       },
     });
+    if (!has(this.serviceProxyCache, svcName)) {
+      // register service into the service cache
+      this.serviceProxyCache[svcName] = serviceProxy;
+    }
     return serviceProxy as T;
   }
 
@@ -153,7 +149,7 @@ export class BackgroundApiProxy {
       throw new Error(`service (${serviceName}) not exist`);
     }
     const service = this.serviceProxyCache[serviceName];
-    return await (service[funcName].call(payload) as Promise<T>);
+    return await (service[funcName](payload) as Promise<T>);
   }
 
   private getStorage() {
