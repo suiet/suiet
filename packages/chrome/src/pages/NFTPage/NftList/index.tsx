@@ -11,6 +11,7 @@ import { useNetwork } from '../../../hooks/useNetwork';
 import { Network } from '@suiet/core/dist/api/network';
 import { swrLoading } from '../../../utils/others';
 import { nftImgUrl } from '../../../utils/nft';
+import Empty from './Empty';
 
 export type NftListProps = StyleExtendable;
 
@@ -79,7 +80,7 @@ const NftList = (props: NftListProps) => {
   const { account } = useAccount(appContext.accountId);
   const { data: nftList } = useNftList(account.address, appContext.networkId);
 
-  if (!nftList) return null;
+  if (!nftList || nftList.length === 0) return <Empty />;
   return (
     <div
       className={classnames(
