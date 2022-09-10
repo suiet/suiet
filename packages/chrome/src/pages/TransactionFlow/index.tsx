@@ -50,10 +50,11 @@ function normalizeHistory(history: TxnHistroyEntry[], address: string) {
       }
     } else {
       const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
-      if (!dt) {
+      if (!res[dt]) {
         res[dt] = [finalItem];
         days.push(dt);
       } else {
+        console.log(res[dt]);
         res[dt].push(finalItem);
       }
     }
