@@ -8,7 +8,6 @@ import { useEffect, useMemo, useState } from 'react';
 import WalletSwitcher, { WalletData } from '../../../components/WalletSwitcher';
 import { useWallets } from '../../../hooks/useWallets';
 import { Wallet } from '@suiet/core/dist/api/wallet';
-import { coreApi } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { Account } from '@suiet/core/dist/api/account';
 import { useNavigate } from 'react-router-dom';
@@ -18,14 +17,19 @@ import { Extendable } from '../../../types';
 import Address from '../../../components/Address';
 import Avatar from '../../../components/Avatar';
 import { useWallet } from '../../../hooks/useWallet';
+import { useApiClient } from '../../../hooks/useApiClient';
 
 function useWalletAccountMap(wallets: Wallet[]) {
+  const apiClient = useApiClient();
   const [walletAccountMap, setWalletAccountMap] = useState<
     Map<string, Account>
   >(new Map());
 
   async function searchDefaultAccount(walletId: string) {
-    const accounts = await coreApi.account.getAccounts(walletId);
+    const accounts = await apiClient.callFunc<string, Account[]>(
+      'account.getAccounts',
+      walletId
+    );
     if (!isNonEmptyArray(accounts)) {
       throw new Error('The account of the wallet is empty');
     }
@@ -63,27 +67,27 @@ const WalletSwitcherInstance = (props: {
   onClickImport: () => void;
   onClickNew: () => void;
 }) => {
-  const { wallets } = useWallets();
-  const walletAccountMap = useWalletAccountMap(wallets);
-  const walletDataList = useMemo(() => {
-    if (!isNonEmptyArray(wallets) || walletAccountMap.size === 0) return [];
-    return wallets.map(walletDataAdapter);
-  }, [wallets, walletAccountMap]);
+  const { data: wallets = [] } = useWallets();
+  // const walletAccountMap = useWalletAccountMap(wallets);
+  // const walletDataList = useMemo(() => {
+  //   if (!isNonEmptyArray(wallets) || walletAccountMap.size === 0) return [];
+  //   return wallets.map(walletDataAdapter);
+  // }, [wallets, walletAccountMap]);
 
-  function walletDataAdapter(wallet: Wallet): WalletData {
-    const account = walletAccountMap.get(wallet.id);
-    return {
-      id: wallet.id,
-      name: wallet.name,
-      avatar: wallet.avatar,
-      accountId: account?.id ?? '',
-      accountAddress: account?.address ?? '',
-    };
-  }
+  // function walletDataAdapter(wallet: Wallet): WalletData {
+  //   const account = walletAccountMap.get(wallet.id);
+  //   return {
+  //     id: wallet.id,
+  //     name: wallet.name,
+  //     avatar: wallet.avatar,
+  //     accountId: account?.id ?? '',
+  //     accountAddress: account?.address ?? '',
+  //   };
+  // }
 
   return (
     <WalletSwitcher
-      wallets={walletDataList}
+      wallets={[]}
       onSelect={props.onSelect}
       onEdit={props.onEdit}
       onClickLayer={props.onClickLayer}
@@ -100,7 +104,7 @@ function Header(props: HeaderProps) {
   }));
   const [doSwitch, setDoSwitch] = useState<boolean>(openSwitcher);
   const navigate = useNavigate();
-  const { account } = useAccount(context.accountId);
+  const { data: account } = useAccount(context.accountId);
   const dispatch = useDispatch<AppDispatch>();
   const { data: wallet } = useWallet(context.walletId);
 
@@ -127,6 +131,7 @@ function Header(props: HeaderProps) {
       <div
         className={styles['account']}
         onClick={() => {
+          console.log('open switcher');
           setDoSwitch(true);
         }}
       >
@@ -134,7 +139,7 @@ function Header(props: HeaderProps) {
         <img className="ml-[6px]" src={IconArrowRight} alt="arrow right" />
       </div>
       <Address
-        value={account.address}
+        value={account?.address ?? ''}
         hideCopy={true}
         className={classnames(styles['address'], 'ml-[18px]')}
       />

@@ -1,4 +1,4 @@
-import { validateToken } from './util';
+import { validateToken } from '../utils/token';
 import * as crypto from '../crypto';
 import { Vault } from '../vault/Vault';
 import { Storage } from '../storage/Storage';
@@ -13,6 +13,18 @@ export type CreateWalletParams = {
   avatar?: string;
 };
 
+export type UpdateWalletParams = {
+  walletId: string;
+  meta: { name?: string; avatar?: string };
+  token: string;
+};
+
+export type RevealMnemonicParams = {
+  walletId: string;
+  token: string;
+};
+export type RevealPrivateKeyParams = RevealMnemonicParams;
+
 export type Wallet = {
   id: string;
   name: string;
@@ -23,17 +35,13 @@ export type Wallet = {
 
 export interface IWalletApi {
   validateMnemonic: (mnemonic: string) => boolean;
-  revealMnemonic: (walletId: string, token: string) => Promise<string>;
-  revealPrivate: (walletId: string, token: string) => Promise<string>;
+  revealMnemonic: (params: RevealMnemonicParams) => Promise<string>;
+  revealPrivate: (params: RevealPrivateKeyParams) => Promise<string>;
 
   createWallet: (params: CreateWalletParams) => Promise<Wallet>;
   getWallets: () => Promise<Wallet[]>;
   getWallet: (walletId: string) => Promise<Wallet | null>;
-  updateWallet: (
-    walletId: string,
-    meta: { name?: string; avatar?: string },
-    token: string
-  ) => Promise<void>;
+  updateWallet: (params: UpdateWalletParams) => Promise<void>;
   deleteWallet: (walletId: string, token: string) => Promise<void>;
 }
 
@@ -42,6 +50,7 @@ export class WalletApi implements IWalletApi {
 
   constructor(storage: Storage) {
     this.storage = storage;
+    // console.log('WalletApi storage', this.storage);
   }
 
   // Implement Wallet API
@@ -49,7 +58,8 @@ export class WalletApi implements IWalletApi {
     return crypto.validateMnemonic(mnemonic);
   }
 
-  async revealMnemonic(walletId: string, token: string): Promise<string> {
+  async revealMnemonic(params: RevealMnemonicParams): Promise<string> {
+    const { walletId, token } = params;
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet Not Exist');
@@ -60,7 +70,8 @@ export class WalletApi implements IWalletApi {
     );
   }
 
-  async revealPrivate(walletId: string, token: string): Promise<string> {
+  async revealPrivate(params: RevealPrivateKeyParams): Promise<string> {
+    const { walletId, token } = params;
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet Not Exist');
@@ -127,11 +138,8 @@ export class WalletApi implements IWalletApi {
     return await this.storage.getWallet(walletId);
   }
 
-  async updateWallet(
-    walletId: string,
-    meta: { name?: string | undefined; avatar?: string | undefined },
-    token: string
-  ) {
+  async updateWallet(params: UpdateWalletParams) {
+    const { meta, walletId, token } = params;
     await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {

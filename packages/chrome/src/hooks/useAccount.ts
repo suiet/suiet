@@ -1,33 +1,27 @@
-import { useEffect, useState } from 'react';
-import { Account } from '@suiet/core/dist/api/account';
-import { coreApi } from '@suiet/core';
+import { Account } from '@suiet/core';
+import useSWR from 'swr';
+import { swrLoading } from '../utils/others';
+import { useApiClient } from './useApiClient';
 
 export function useAccount(accountId: string) {
-  const [account, setAccount] = useState<Account>({
-    id: '',
-    name: '',
-    address: '',
-    hdPath: '',
-    pubkey: '',
-  });
+  const apiClient = useApiClient();
+  const { data, error, mutate } = useSWR(
+    ['account.getAccount', accountId],
+    fetchAccount
+  );
 
-  async function fetchAccount(accountId: string) {
+  async function fetchAccount(_: string, accountId: string) {
     if (!accountId) return;
-    console.log('accountId', accountId);
-
-    const account = await coreApi.account.getAccount(accountId);
-    if (!account) {
-      throw new Error('fetch account failed');
-    }
-    setAccount(account);
+    return await apiClient.callFunc<string, Account>(
+      'account.getAccount',
+      accountId
+    );
   }
 
-  useEffect(() => {
-    fetchAccount(accountId);
-  }, [accountId]);
-
   return {
-    account,
-    fetchAccount,
+    data,
+    error,
+    loading: swrLoading(data, error),
+    fetchAccount: mutate,
   };
 }

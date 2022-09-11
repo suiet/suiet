@@ -6,12 +6,13 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
 import useSWR from 'swr';
-import { coreApi } from '@suiet/core';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { Network } from '@suiet/core/dist/api/network';
 import { swrLoading } from '../../../utils/others';
 import { nftImgUrl } from '../../../utils/nft';
 import Empty from './Empty';
+import { useApiClient } from '../../../hooks/useApiClient';
+import { GetOwnedObjParams, NftObject } from '@suiet/core';
 
 export type NftListProps = StyleExtendable;
 
@@ -55,17 +56,19 @@ const NftItem = (props: NftItemProps) => {
 };
 
 function useNftList(address: string, networkId: string = 'devnet') {
+  const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
   const { data, error } = useSWR(
     ['getOwnedNfts', network, address],
     fetchNftList
   );
 
-  console.log('NftList', data);
-
   async function fetchNftList(_: string, network: Network, address: string) {
     if (!network || !address) return;
-    return await coreApi.txn.getOwnedNfts(network, address);
+    return await apiClient.callFunc<GetOwnedObjParams, NftObject[]>(
+      'txn.getOwnedNfts',
+      { network, address }
+    );
   }
 
   return {
@@ -77,8 +80,11 @@ function useNftList(address: string, networkId: string = 'devnet') {
 
 const NftList = (props: NftListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
-  const { account } = useAccount(appContext.accountId);
-  const { data: nftList } = useNftList(account.address, appContext.networkId);
+  const { data: account } = useAccount(appContext.accountId);
+  const { data: nftList } = useNftList(
+    account?.address ?? '',
+    appContext.networkId
+  );
 
   if (!nftList || nftList.length === 0) return <Empty />;
   return (

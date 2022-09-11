@@ -39,8 +39,8 @@ const TokenItem = (props: TokenItemProps) => {
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: supportedCoins } = useSupportedCoins();
-  const { account } = useAccount(appContext.accountId);
-  const { getBalance } = useCoinBalance(account.address);
+  const { data: account } = useAccount(appContext.accountId);
+  const { getBalance } = useCoinBalance(account?.address ?? '');
 
   if (!supportedCoins) return null;
   return (

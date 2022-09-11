@@ -4,10 +4,11 @@
 import {
   MoveCallTransaction,
   SuiAddress,
-  TransactionResponse,
+  SuiTransactionResponse,
 } from '@mysten/sui.js';
+import { reqData, WindowMsgTarget } from '../shared';
 
-const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'];
+const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'] as const;
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
 type PermissionType = AllPermissionsType[number];
 
@@ -17,10 +18,10 @@ export interface WalletCapabilities {
   getAccounts: () => Promise<SuiAddress[]>;
   executeMoveCall: (
     transaction: MoveCallTransaction
-  ) => Promise<TransactionResponse>;
+  ) => Promise<SuiTransactionResponse>;
   executeSerializedMoveCall: (
     transactionBytes: Uint8Array
-  ) => Promise<TransactionResponse>;
+  ) => Promise<SuiTransactionResponse>;
 }
 
 export class DAppInterface implements WalletCapabilities {
@@ -29,9 +30,23 @@ export class DAppInterface implements WalletCapabilities {
   connecting: boolean;
 
   constructor() {
-    this.name = '';
+    this.name = 'Suiet';
     this.connected = false;
     this.connecting = false;
+  }
+
+  async connect() {
+    window.postMessage({
+      target: WindowMsgTarget.SUIET_CONTENT,
+      payload: reqData('connect', null),
+    });
+  }
+
+  async disconnect() {
+    window.postMessage({
+      target: WindowMsgTarget.SUIET_CONTENT,
+      payload: reqData('disconnect', null),
+    });
   }
 
   async hasPermissions(permissions: readonly string[]) {
@@ -40,24 +55,18 @@ export class DAppInterface implements WalletCapabilities {
   }
 
   async requestPermissions() {
-    window.postMessage({
-      target: 'suiet_content-script',
-      payload: {
-        joke: 'Knock knock',
-      },
-    });
     return true;
   }
 
   async executeMoveCall(
     transaction: MoveCallTransaction
-  ): Promise<TransactionResponse> {
+  ): Promise<SuiTransactionResponse> {
     return await Promise.resolve(undefined as any);
   }
 
   async executeSerializedMoveCall(
     transactionBytes: Uint8Array
-  ): Promise<TransactionResponse> {
+  ): Promise<SuiTransactionResponse> {
     return await Promise.resolve(undefined as any);
   }
 

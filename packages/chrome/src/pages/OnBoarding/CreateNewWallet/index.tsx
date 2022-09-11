@@ -12,10 +12,17 @@ import {
 } from '../../../store/app-context';
 import { isNonEmptyArray } from '../../../utils/check';
 import message from '../../../components/message';
-import { coreApi } from '@suiet/core';
+import {
+  Account,
+  CreateWalletParams,
+  RevealMnemonicParams,
+  UpdatePasswordParams,
+  Wallet,
+} from '@suiet/core';
 import { AppDispatch, RootState } from '../../../store';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
+import { useApiClient } from '../../../hooks/useApiClient';
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
@@ -24,16 +31,29 @@ const CreateNewWallet = () => {
   const dispatch = useDispatch<AppDispatch>();
   const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
+  const apiClient = useApiClient();
 
   async function createWalletAndAccount(token: string) {
-    const wallet = await coreApi.wallet.createWallet({
-      token,
-    });
+    const wallet = await apiClient.callFunc<CreateWalletParams, Wallet>(
+      'wallet.createWallet',
+      {
+        token,
+      }
+    );
 
-    const rawPhrases = await coreApi.wallet.revealMnemonic(wallet.id, token);
+    const rawPhrases = await apiClient.callFunc<RevealMnemonicParams, string>(
+      'wallet.revealMnemonic',
+      {
+        walletId: wallet.id,
+        token,
+      }
+    );
     setPhrases(rawPhrases.split(' '));
 
-    const accounts = await coreApi.account.getAccounts(wallet.id);
+    const accounts = await apiClient.callFunc<string, Account[]>(
+      'account.getAccounts',
+      wallet.id
+    );
     if (!isNonEmptyArray(accounts)) {
       message.success('Cannot find any account');
       throw new Error('Cannot find any account');
@@ -48,8 +68,14 @@ const CreateNewWallet = () => {
   }
 
   async function handleSetPassword(password: string) {
-    await coreApi.auth.updatePassword(null, password);
-    const token = await coreApi.auth.loadTokenWithPassword(password);
+    await apiClient.callFunc<UpdatePasswordParams, undefined>(
+      'auth.updatePassword',
+      { oldPassword: null, newPassword: password }
+    );
+    const token = await apiClient.callFunc<string, string>(
+      'auth.loadTokenWithPassword',
+      password
+    );
 
     await createWalletAndAccount(token);
     setStep((s) => s + 1);

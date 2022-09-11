@@ -1,7 +1,8 @@
-import { coreApi } from '@suiet/core';
+import { Network, GetOwnedObjParams } from '@suiet/core';
 import { useCallback, useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
+import { useApiClient } from './useApiClient';
 
 export enum CoinSymbol {
   SUI = 'SUI',
@@ -14,6 +15,7 @@ export function useCoinBalance(
     networkId?: string;
   } = {}
 ) {
+  const apiClient = useApiClient();
   const [balance, setBalance] = useState<string>('0'); // BigInt -> string
   const { networkId = 'devnet' } = opts;
   const {
@@ -33,12 +35,21 @@ export function useCoinBalance(
     const map = new Map<string, string>();
     if (!address || !networkId) return map;
 
-    const network = await coreApi.network.getNetwork(networkId);
+    const network = await apiClient.callFunc<string, Network>(
+      'network.getNetwork',
+      networkId
+    );
     if (!network) {
       throw new Error(`fetch network failed: ${networkId}`);
     }
 
-    const coinsBalance = await coreApi.txn.getCoinsBalance(network, address);
+    const coinsBalance = await apiClient.callFunc<
+      GetOwnedObjParams,
+      Array<{ symbol: string; balance: bigint }>
+    >('txn.getCoinsBalance', {
+      network,
+      address,
+    });
     if (!coinsBalance) {
       throw new Error(`fetch coinsBalance failed: ${address}, ${networkId}`);
     }

@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
-import { coreApi } from '@suiet/core';
+import { Wallet } from '@suiet/core';
 import { isNonEmptyArray } from '../utils/check';
 import {
   resetAppContext,
@@ -11,15 +11,20 @@ import {
   updateNetworkId,
   updateWalletId,
 } from '../store/app-context';
+import { useApiClient } from '../hooks/useApiClient';
 
 function RequireInit({ children }: any) {
   const initialized = useSelector(
     (state: RootState) => state.appContext.initialized
   );
   const dispatch = useDispatch<AppDispatch>();
+  const apiClient = useApiClient();
 
   async function adjustInitializedStatus() {
-    const wallets = await coreApi.wallet.getWallets();
+    const wallets = await apiClient.callFunc<null, Wallet[]>(
+      'wallet.getWallets',
+      null
+    );
     if (!isNonEmptyArray(wallets)) {
       if (initialized) {
         // no wallets, reset app

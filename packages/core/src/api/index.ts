@@ -3,7 +3,7 @@ import { AccountApi, IAccountApi } from './account';
 import { ITransactionApi, TransactionApi } from './txn';
 import { AuthApi, IAuthApi } from './auth';
 import { Storage, getStorage } from '../storage/Storage';
-import { validateToken } from './util';
+import { validateToken } from '../utils/token';
 import { INetworkApi, NetworkApi } from './network';
 
 export class CoreApi {

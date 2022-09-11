@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { coreApi } from '@suiet/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store';
 import { useState } from 'react';
@@ -16,8 +15,16 @@ import {
 } from '../../../store/app-context';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
+import { useApiClient } from '../../../hooks/useApiClient';
+import {
+  Account,
+  CreateWalletParams,
+  UpdatePasswordParams,
+  Wallet,
+} from '@suiet/core';
 
 const ImportWallet = () => {
+  const apiClient = useApiClient();
   const [step, setStep] = useState(1);
   const [secret, setSecret] = useState('');
   const dispatch = useDispatch<AppDispatch>();
@@ -26,11 +33,17 @@ const ImportWallet = () => {
   const pageEntry = usePageEntry();
 
   async function createWalletAndAccount(token: string, mnemonic: string) {
-    const wallet = await coreApi.wallet.createWallet({
-      token,
-      mnemonic,
-    });
-    const accounts = await coreApi.account.getAccounts(wallet.id);
+    const wallet = await apiClient.callFunc<CreateWalletParams, Wallet>(
+      'wallet.createWallet',
+      {
+        token,
+        mnemonic,
+      }
+    );
+    const accounts = await apiClient.callFunc<string, Account[]>(
+      'account.getAccounts',
+      wallet.id
+    );
     if (!isNonEmptyArray(accounts)) {
       message.error('Cannot find any account');
       throw new Error('Cannot find any account');
@@ -60,8 +73,17 @@ const ImportWallet = () => {
   }
 
   async function handleSetPassword(password: string) {
-    await coreApi.auth.updatePassword(null, password);
-    const token = await coreApi.auth.loadTokenWithPassword(password);
+    await apiClient.callFunc<UpdatePasswordParams, undefined>(
+      'auth.updatePassword',
+      {
+        oldPassword: null,
+        newPassword: password,
+      }
+    );
+    const token = await apiClient.callFunc<string, string>(
+      'auth.loadTokenWithPassword',
+      password
+    );
     await createWalletAndAccount(token, secret);
     await dispatch(updateToken(token));
     await dispatch(updateInitialized(true));
