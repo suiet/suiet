@@ -26,7 +26,8 @@
     "fast-text-encoding": "^1.0.4",
     "js-crypto-hmac": "^1.0.4",
     "randombytes": "^2.1.0",
-    "sha3": "^2.1.4"
+    "sha3": "^2.1.4",
+    "xhr-shim": "^0.1.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.18.10",

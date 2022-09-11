@@ -1,3 +1,12 @@
+import XhrShim from 'xhr-shim';
+import { isExtBackgroundServiceWork } from './utils/platform';
+
+const serviceWorkerScope: any = self;
+if (isExtBackgroundServiceWork()) {
+  // shim XHR for service worker env
+  serviceWorkerScope.XMLHttpRequest = XhrShim;
+}
+
 export { validateToken } from './utils/token';
 export type { TxnHistoryEntry } from './storage/types';
 export * from './storage/Storage';
