@@ -90,13 +90,13 @@ const SettingMain = () => {
         {/* dev use */}
         {isDev && (
           <>
-            <div
+            {/* <div
               onClick={handleResetAppContext}
               className={styles['settings-item']}
             >
               <span className={styles['icon-security']}></span>
               Reset Context
-            </div>
+            </div> */}
             <div
               onClick={handleResetAppData}
               className={styles['settings-item']}
