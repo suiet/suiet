@@ -1,6 +1,6 @@
 import Button from '../../../components/Button';
 import message from '../../../components/message';
-import { coreApi } from '@suiet/core';
+import { MintNftParams } from '@suiet/core';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useNetwork } from '../../../hooks/useNetwork';
@@ -9,14 +9,16 @@ import { useState } from 'react';
 import styles from './empty.module.scss';
 import { mutate } from 'swr';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
+import { useApiClient } from '../../../hooks/useApiClient';
 export default function Empty() {
+  const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const [sendLoading, setSendLoading] = useState(false);
-  const { account } = useAccount(appContext.accountId);
+  const { data: account } = useAccount(appContext.accountId);
 
   const { balance, loading: balanceLoading } = useCoinBalance(
-    account.address,
+    account?.address ?? '',
     CoinSymbol.SUI,
     {
       networkId: appContext.networkId,
@@ -40,14 +42,17 @@ export default function Empty() {
     }
     setSendLoading(true);
     try {
-      await coreApi.txn.mintExampleNft(params);
+      await apiClient.callFunc<MintNftParams, undefined>(
+        'txn.mintExampleNft',
+        params
+      );
       message.success('Mint NFT succeed');
     } catch (e: any) {
       message.error(`Mint NFT failed: ${e?.message}`);
     } finally {
       setSendLoading(false);
 
-      mutate(['getOwnedNfts', network, account.address]);
+      mutate(['getOwnedNfts', network, account?.address ?? '']);
       console.log('mint nft');
     }
   }

@@ -33,7 +33,7 @@ export interface Storage {
 }
 
 export function getStorage(): Storage | undefined {
-  if (platform.isBrowser) {
+  if (platform.isBrowser || platform.isisExtBackgroundServiceWork) {
     return new IndexedDBStorage();
   }
   return undefined;

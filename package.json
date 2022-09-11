@@ -25,7 +25,6 @@
   },
   "scripts": {
     "start": "run-s build:core dev:chrome",
-    "dev": "run-p dev:core dev:chrome",
     "build": "run-s build:core build:chrome",
     "dev:chrome": "npm run dev -w @suiet/chrome-ext",
     "build:chrome": "npm run build -w @suiet/chrome-ext",

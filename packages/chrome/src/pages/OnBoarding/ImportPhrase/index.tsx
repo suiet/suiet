@@ -5,8 +5,8 @@ import Button from '../../../components/Button';
 import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import { useForm } from 'react-hook-form';
-import { coreApi } from '@suiet/core';
 import { getInputStateByFormState } from '../../../utils/form';
+import { useApiClient } from '../../../hooks/useApiClient';
 
 type FormData = {
   secret: string;
@@ -18,6 +18,7 @@ export type ImportPhraseProps = {
 };
 
 const ImportPhrase = (props: ImportPhraseProps) => {
+  const apiClient = useApiClient();
   const form = useForm({
     mode: 'onBlur',
     defaultValues: {
@@ -25,7 +26,15 @@ const ImportPhrase = (props: ImportPhraseProps) => {
     },
   });
 
-  function handleSubmit(data: FormData) {
+  async function handleSubmit(data: FormData) {
+    const result = await apiClient.callFunc<string, boolean>(
+      'wallet.validateMnemonic',
+      data.secret
+    );
+    if (!result) {
+      form.setError('secret', new Error('Phrase is not valid'));
+      return;
+    }
     if (props.onImported) props.onImported(data.secret);
   }
 
@@ -48,11 +57,6 @@ const ImportPhrase = (props: ImportPhraseProps) => {
             name={'secret'}
             registerOptions={{
               required: 'Phrase should not be empty',
-              validate: (val: string) => {
-                return coreApi.wallet.validateMnemonic(val)
-                  ? true
-                  : 'Phrase is not valid';
-              },
             }}
           >
             <Textarea

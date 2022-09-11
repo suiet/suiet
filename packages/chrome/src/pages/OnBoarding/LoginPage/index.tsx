@@ -10,7 +10,6 @@ import {
   getInputStateByFormState,
   getPasswordValidation,
 } from '../../../utils/form';
-import { coreApi } from '@suiet/core';
 import Icon from '../../../components/Icon';
 import { ReactComponent as LogoGrey } from '../../../assets/icons/logo-grey.svg';
 import classnames from 'classnames';
@@ -22,12 +21,14 @@ import { useState } from 'react';
 import ForgetPassword from '../ForgetPassword';
 import Nav from '../../../components/Nav';
 import { AppDispatch, RootState } from '../../../store';
+import { useApiClient } from '../../../hooks/useApiClient';
 
 type FormData = {
   password: string;
 };
 
 const LoginPage = () => {
+  const apiClient = useApiClient();
   const navigate = useNavigate();
   const form = useForm({
     mode: 'onBlur',
@@ -41,7 +42,10 @@ const LoginPage = () => {
 
   async function requestToken(password: string) {
     try {
-      return await coreApi.auth.loadTokenWithPassword(password);
+      return await apiClient.callFunc<string, string>(
+        'auth.loadTokenWithPassword',
+        password
+      );
     } catch (e) {
       return '';
     }
@@ -70,7 +74,10 @@ const LoginPage = () => {
         ></Nav>
         <ForgetPassword
           onConfirmReset={async () => {
-            await coreApi.resetAppData(token);
+            await apiClient.callFunc<string, undefined>(
+              'root.resetAppData',
+              token
+            );
             await dispatch(resetAppContext()).unwrap();
           }}
         />

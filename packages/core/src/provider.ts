@@ -15,7 +15,7 @@ import {
   Base64DataBuffer,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
-import { TxnHistroyEntry, TxObject } from './storage/types';
+import { TxnHistoryEntry, TxObject } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 
@@ -119,7 +119,7 @@ export class QueryProvider {
 
   public async getTransactionsForAddress(
     address: string
-  ): Promise<TxnHistroyEntry[]> {
+  ): Promise<TxnHistoryEntry[]> {
     trySyncAccountState(this.provider, address);
     const txs = await this.provider.getTransactionsForAddress(address);
     if (txs.length === 0 || !txs[0]) {

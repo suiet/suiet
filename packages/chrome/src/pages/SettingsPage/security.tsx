@@ -4,7 +4,13 @@ import styles from './security.module.scss';
 import Button from '../../components/Button';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Modal from '../../components/Modal';
-import { coreApi } from '@suiet/core';
+import {
+  Account,
+  CreateWalletParams,
+  RevealMnemonicParams,
+  UpdatePasswordParams,
+  Wallet,
+} from '@suiet/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { useState } from 'react';
@@ -19,6 +25,7 @@ import {
 } from '../../store/app-context';
 import { useWallet } from '../../hooks/useWallet';
 import Nav from './nav';
+import { useApiClient } from '../../hooks/useApiClient';
 
 function MainPage() {
   const navigate = useNavigate();
@@ -27,6 +34,8 @@ function MainPage() {
   }));
   const [phrase, setPhrase] = useState<string[]>([]);
   const [privateKey, setPrivate] = useState('');
+  const apiClient = useApiClient();
+
   return (
     <div className={styles['security-setting-container']}>
       <Nav />
@@ -74,10 +83,13 @@ function MainPage() {
               },
             }}
             onOpenChange={async () => {
-              const rawPhrases = await coreApi.wallet.revealMnemonic(
-                context.walletId,
-                context.token
-              );
+              const rawPhrases = await apiClient.callFunc<
+                RevealMnemonicParams,
+                string
+              >('wallet.revealMnemonic', {
+                walletId: context.walletId,
+                token: context.token,
+              });
               setPhrase(rawPhrases.split(' '));
             }}
           >
@@ -135,10 +147,13 @@ function MainPage() {
               },
             }}
             onOpenChange={async () => {
-              const privateKey = await coreApi.wallet.revealPrivate(
-                context.walletId,
-                context.token
-              );
+              const privateKey = await apiClient.callFunc<
+                RevealMnemonicParams,
+                string
+              >('wallet.revealPrivate', {
+                walletId: context.walletId,
+                token: context.token,
+              });
               setPrivate(privateKey);
             }}
           >
@@ -165,17 +180,24 @@ function MainPage() {
 }
 
 function PasswordSetting() {
+  const apiClient = useApiClient();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const context = useSelector((state: RootState) => state.appContext);
   const { updateWallet } = useWallet(context.walletId);
 
   async function createWalletAndAccount(token: string) {
-    const wallet = await coreApi.wallet.createWallet({
-      token,
-    });
+    const wallet = await apiClient.callFunc<CreateWalletParams, Wallet>(
+      'wallet.createWallet',
+      {
+        token,
+      }
+    );
 
-    const accounts = await coreApi.account.getAccounts(wallet.id);
+    const accounts = await apiClient.callFunc<string, Account[]>(
+      'account.getAccounts',
+      wallet.id
+    );
     const defaultAccount = accounts[0];
     await updateWallet(wallet.id, {
       avatar: wallet.avatar ?? '1',
@@ -188,8 +210,17 @@ function PasswordSetting() {
     await dispatch(updateInitialized(true));
   }
   async function handleSetPassword(password: string, oldPassword?: string) {
-    await coreApi.auth.updatePassword(oldPassword ?? '', password);
-    const token = await coreApi.auth.loadTokenWithPassword(password);
+    await apiClient.callFunc<UpdatePasswordParams, undefined>(
+      'auth.updatePassword',
+      {
+        oldPassword: oldPassword ?? '',
+        newPassword: password,
+      }
+    );
+    const token = await apiClient.callFunc<string, string>(
+      'auth.loadTokenWithPassword',
+      password
+    );
 
     await createWalletAndAccount(token);
     navigate('..');

@@ -21,7 +21,6 @@ export function useChromeStorage<T = any>(key: StorageKeys) {
 
   async function getItem(key: string) {
     const result = await storage.getItem(key);
-    console.log('getItem', key, result);
     const val =
       typeof result === 'undefined' || result === null
         ? undefined

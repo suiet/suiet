@@ -7,13 +7,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { resetAppContext } from '../../store/app-context';
 import { AppDispatch, RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import { coreApi } from '@suiet/core';
 import { isDev } from '../../utils/env';
 import Address from '../../components/Address';
 import Avatar from '../../components/Avatar';
 import classnames from 'classnames';
 import { useWallet } from '../../hooks/useWallet';
 import { version } from '../../package-json';
+import { useApiClient } from '../../hooks/useApiClient';
 
 const SettingMain = () => {
   const navigate = useNavigate();
@@ -23,11 +23,12 @@ const SettingMain = () => {
     context: state.appContext,
   }));
   const { data: wallet } = useWallet(context.walletId);
-  const { account } = useAccount(context.accountId);
+  const { data: account } = useAccount(context.accountId);
+  const apiClient = useApiClient();
 
   // reset redux & db
   async function handleResetAppData() {
-    await coreApi.resetAppData(token);
+    await apiClient.callFunc<string, undefined>('root.resetAppData', token);
     await dispatch(resetAppContext()).unwrap();
   }
 
@@ -43,7 +44,7 @@ const SettingMain = () => {
         <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
           {wallet?.name}
         </div>
-        <Address value={account.address} className={styles['address']} />
+        <Address value={account?.address ?? ''} className={styles['address']} />
       </div>
 
       <section className={styles['settings-container']}>
