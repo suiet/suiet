@@ -84,7 +84,7 @@ const CreateNewWallet = () => {
   async function handleSavePhrase() {
     message.success('Wallet Created!');
     if (pageEntry === PageEntry.SWITCHER) {
-      await sleep(200); // wait for wallet created
+      await sleep(300); // wait for wallet created
       navigate('/home', { state: { openSwitcher: true } });
       return;
     }
