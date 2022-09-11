@@ -29,7 +29,10 @@ export class BackgroundApiClient {
   }
 
   async callFunc<Req, Res>(funcName: string, payload: Req): Promise<Res> {
-    const reqParams = reqData(funcName, payload);
+    const reqParams = reqData(
+      funcName,
+      typeof payload === 'undefined' ? null : payload
+    );
     this.port.postMessage(JSON.stringify(reqParams));
     const result = await lastValueFrom(
       this.portObservable.pipe(
