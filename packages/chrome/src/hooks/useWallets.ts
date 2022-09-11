@@ -1,7 +1,7 @@
-import { Wallet } from '@suiet/core/dist/api/wallet';
 import { useApiClient } from './useApiClient';
 import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
+import { Wallet } from '@suiet/core';
 
 export function useWallets() {
   const apiClient = useApiClient();

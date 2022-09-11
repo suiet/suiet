@@ -25,10 +25,15 @@ export type RevealMnemonicParams = {
 };
 export type RevealPrivateKeyParams = RevealMnemonicParams;
 
+export type AccountInWallet = {
+  id: string;
+  address: string;
+};
+
 export type Wallet = {
   id: string;
   name: string;
-  accounts: string[];
+  accounts: AccountInWallet[];
   nextAccountId: number;
   avatar?: string;
 };
@@ -103,10 +108,10 @@ export class WalletApi implements IWalletApi {
     meta.nextWalletId += 1;
     const walletIdStr = toWalletIdString(walletId);
     const accountIdStr = toAccountIdString(walletIdStr, 0);
-    const wallet = {
+    const wallet: Wallet & { encryptedMnemonic: string } = {
       id: toWalletIdString(walletId),
       name: params.name ? params.name : toWalletNameString(walletId),
-      accounts: [accountIdStr],
+      accounts: [],
       nextAccountId: 2,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
       avatar: params.avatar ? params.avatar : undefined,
@@ -121,6 +126,10 @@ export class WalletApi implements IWalletApi {
       address: vault.getAddress(),
       hdPath,
     };
+    wallet.accounts.push({
+      id: account.id,
+      address: account.address,
+    });
 
     // TODO: save these states transactionally.
     await this.storage.saveMeta(meta);

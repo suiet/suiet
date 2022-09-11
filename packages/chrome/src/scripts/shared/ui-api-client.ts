@@ -1,4 +1,4 @@
-import { BackgroundResData, PortName, reqData, WindowMsgData } from './index';
+import { BackgroundResData, PortName, reqData } from './index';
 import {
   filter,
   fromEventPattern,
@@ -18,7 +18,13 @@ export class BackgroundApiClient {
     this.portObservable = fromEventPattern(
       (h) => this.port.onMessage.addListener(h),
       (h) => this.port.onMessage.removeListener(h),
-      (data) => data
+      (data) => {
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          throw new Error('cannot parse res data');
+        }
+      }
     );
   }
 

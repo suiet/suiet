@@ -24,13 +24,13 @@ export type Cipher = {
   salt: string;
 };
 
-export type TxnHistoryEntry = {
+export type TxnHistoryEntry<T = TxObject> = {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
   gasUsed: number;
   from: string;
   to: string;
-  object: TxObject;
+  object: T;
   timestamp_ms: number | null;
 };
 
