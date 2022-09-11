@@ -6,11 +6,9 @@
   "scripts": {
     "dev": "run-s build:dapp-api dev:ext",
     "dev:ext": "vite --mode development",
-    "dev:dapp-api": "vite --mode development --config vite-dapp-api.config.ts",
-    "build": "run-s build:dapp-api build:ext",
+    "build": "run-s build:dapp-api clean build:ext",
     "build:ext": "vite build",
     "build:dapp-api": "vite build --config vite-dapp-api.config.ts",
-    "preview": "vite preview",
     "clean": "rimraf dist/",
     "test": "jest"
   },
