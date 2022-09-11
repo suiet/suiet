@@ -12,7 +12,7 @@ import { swrLoading } from '../../../utils/others';
 import { nftImgUrl } from '../../../utils/nft';
 import Empty from './Empty';
 import { useApiClient } from '../../../hooks/useApiClient';
-import { GetOwnedObjParams, NftObject } from '@suiet/core';
+import { GetOwnedObjParams, NftObjectDto } from '@suiet/core';
 
 export type NftListProps = StyleExtendable;
 
@@ -65,7 +65,7 @@ function useNftList(address: string, networkId: string = 'devnet') {
 
   async function fetchNftList(_: string, network: Network, address: string) {
     if (!network || !address) return;
-    return await apiClient.callFunc<GetOwnedObjParams, NftObject[]>(
+    return await apiClient.callFunc<GetOwnedObjParams, NftObjectDto[]>(
       'txn.getOwnedNfts',
       { network, address }
     );

@@ -5,10 +5,27 @@ export enum PortName {
   SUIET_CONTENT_BACKGROUND = 'SUIET_CONTENT_BACKGROUND',
 }
 
-export interface WindowMsgData<T = any> {
+export interface WindowMsg<T = any> {
+  target: WindowMsgTarget;
+  payload: T;
+}
+
+export interface WindowMsgDataBase {
   id: string;
+}
+
+export type WindowMsgReqData<T = any> = WindowMsgDataBase & {
   funcName: string;
   payload: T;
+};
+
+export interface ResData<T = any> {
+  id: string;
+  error: null | {
+    code: string;
+    msg: string;
+  };
+  data: null | T;
 }
 
 export interface BackgroundResData<T = any> {
@@ -25,7 +42,7 @@ export enum WindowMsgTarget {
 export function reqData<T = any>(
   funcName: string,
   payload: T
-): WindowMsgData<T> {
+): WindowMsgReqData<T> {
   return {
     id: uuidv4(),
     funcName,
