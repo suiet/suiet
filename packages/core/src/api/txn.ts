@@ -68,29 +68,20 @@ export type GetOwnedObjParams = { network: Network; address: string };
 
 export type GetTxHistoryParams = { network: Network; address: string };
 
-export type TxHistroyEntry = {
-  status: 'pending' | 'completed' | 'failed';
-  from: string;
-  to: string;
-  object: Object;
-};
-
-export type CoinObject = {
-  id: string;
+export type CoinObjectDto = {
   type: 'coin';
   symbol: string;
-  balance: bigint;
+  balance: string;
 };
 
-export type NftObject = {
-  id: string;
+export type NftObjectDto = {
   type: 'nft';
   name: string;
   description: string;
   url: string;
 };
 
-export type Object = CoinObject | NftObject;
+export type ObjectDto = CoinObjectDto | NftObjectDto;
 
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
@@ -98,12 +89,12 @@ export interface ITransactionApi {
   transferObject: (params: TransferObjectParams) => Promise<void>;
   getTransactionHistory: (
     params: GetTxHistoryParams
-  ) => Promise<TxnHistoryEntry[]>;
-  getOwnedObjects: (params: GetOwnedObjParams) => Promise<Object[]>;
-  getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObject[]>;
+  ) => Promise<Array<TxnHistoryEntry<ObjectDto>>>;
+  getOwnedObjects: (params: GetOwnedObjParams) => Promise<ObjectDto[]>;
+  getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObjectDto[]>;
   getCoinsBalance: (
     params: GetOwnedObjParams
-  ) => Promise<Array<{ symbol: string; balance: bigint }>>;
+  ) => Promise<Array<{ symbol: string; balance: string }>>;
 
   mintExampleNft: (params: MintNftParams) => Promise<void>;
 
@@ -160,16 +151,28 @@ export class TransactionApi implements ITransactionApi {
 
   async getTransactionHistory(
     params: GetTxHistoryParams
-  ): Promise<TxnHistoryEntry[]> {
+  ): Promise<Array<TxnHistoryEntry<ObjectDto>>> {
     const { network, address } = params;
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
-    const histroy = await provider.query.getTransactionsForAddress(address);
-    return histroy;
+    let result: any = await provider.query.getTransactionsForAddress(address);
+
+    // transform the balance of coin obj from bigint to string
+    result = result.map((item: TxnHistoryEntry) => {
+      if (item.object.type !== 'coin') return item;
+      return {
+        ...item,
+        object: {
+          ...item.object,
+          balance: String(item.object.balance),
+        },
+      };
+    });
+    return result;
   }
 
   async getCoinsBalance(
     params: GetOwnedObjParams
-  ): Promise<Array<{ symbol: string; balance: bigint }>> {
+  ): Promise<Array<{ symbol: string; balance: string }>> {
     const { network, address } = params;
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
     const objects = await provider.query.getOwnedCoins(address);
@@ -181,11 +184,11 @@ export class TransactionApi implements ITransactionApi {
     }
     return Array.from(result.entries()).map((item) => ({
       symbol: item[0] as string,
-      balance: item[1] as bigint,
+      balance: String(item[1]),
     }));
   }
 
-  async getOwnedObjects(params: GetOwnedObjParams): Promise<Object[]> {
+  async getOwnedObjects(params: GetOwnedObjParams): Promise<ObjectDto[]> {
     const { network, address } = params;
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
     const coins = await provider.query.getOwnedCoins(address);
@@ -194,12 +197,12 @@ export class TransactionApi implements ITransactionApi {
         type: 'coin',
         id: coin.objectId,
         symbol: coin.symbol,
-        balance: coin.balance,
+        balance: String(coin.balance),
       };
     });
   }
 
-  async getOwnedNfts(params: GetOwnedObjParams): Promise<NftObject[]> {
+  async getOwnedNfts(params: GetOwnedObjParams): Promise<NftObjectDto[]> {
     const { network, address } = params;
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
     const nfts = await provider.query.getOwnedNfts(address);

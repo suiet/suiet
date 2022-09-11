@@ -22,6 +22,7 @@ import {
   UpdatePasswordParams,
   Wallet,
 } from '@suiet/core';
+import { sleep } from '../../../utils/time';
 
 const ImportWallet = () => {
   const apiClient = useApiClient();
@@ -45,14 +46,11 @@ const ImportWallet = () => {
       wallet.id
     );
     if (!isNonEmptyArray(accounts)) {
-      message.error('Cannot find any account');
       throw new Error('Cannot find any account');
     }
     const defaultAccount = accounts[0];
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
-
-    message.success('Wallet Created!');
   }
 
   async function handleImport(_secret: string) {
@@ -60,7 +58,10 @@ const ImportWallet = () => {
     if (pageEntry === PageEntry.SWITCHER && appContext.token) {
       // already has token
       await createWalletAndAccount(appContext.token, _secret);
+      message.success('Wallet Created!');
+
       await dispatch(updateNetworkId('devnet'));
+      await sleep(200); // wait for wallet created
       navigate('/', {
         state: { openSwitcher: true }, // open the wallet switcher
       });

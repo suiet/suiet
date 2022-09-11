@@ -23,6 +23,7 @@ import { AppDispatch, RootState } from '../../../store';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
 import { useApiClient } from '../../../hooks/useApiClient';
+import { sleep } from '../../../utils/time';
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
@@ -76,13 +77,14 @@ const CreateNewWallet = () => {
       'auth.loadTokenWithPassword',
       password
     );
-
     await createWalletAndAccount(token);
+    message.success('Wallet Created!');
     setStep((s) => s + 1);
   }
 
   async function handleSavePhrase() {
     if (pageEntry === PageEntry.SWITCHER) {
+      await sleep(200); // wait for wallet created
       navigate('/home', { state: { openSwitcher: true } });
       return;
     }
@@ -93,6 +95,7 @@ const CreateNewWallet = () => {
     if (!token) throw new Error('token should not be empty');
 
     await createWalletAndAccount(token);
+    message.success('Wallet Created!');
     setStep((s) => s + 1);
   }
 

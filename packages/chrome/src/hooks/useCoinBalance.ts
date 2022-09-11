@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
+import { useNetwork } from './useNetwork';
 
 export enum CoinSymbol {
   SUI = 'SUI',
@@ -16,36 +17,26 @@ export function useCoinBalance(
   } = {}
 ) {
   const apiClient = useApiClient();
-  const [balance, setBalance] = useState<string>('0'); // BigInt -> string
+  const [balance, setBalance] = useState<string>('0');
   const { networkId = 'devnet' } = opts;
+  const { data: network } = useNetwork(networkId);
   const {
     data: coinsBalanceMap,
     error,
     isValidating,
-  } = useSWR(
-    ['fetchCoinsBalanceMap', address, networkId],
-    fetchCoinsBalanceMap
-  );
+  } = useSWR(['fetchCoinsBalanceMap', address, network], fetchCoinsBalanceMap);
 
   async function fetchCoinsBalanceMap(
     _: string,
     address: string,
-    networkId: string
+    network: Network
   ) {
     const map = new Map<string, string>();
-    if (!address || !networkId) return map;
-
-    const network = await apiClient.callFunc<string, Network>(
-      'network.getNetwork',
-      networkId
-    );
-    if (!network) {
-      throw new Error(`fetch network failed: ${networkId}`);
-    }
+    if (!address || !network) return map;
 
     const coinsBalance = await apiClient.callFunc<
       GetOwnedObjParams,
-      Array<{ symbol: string; balance: bigint }>
+      Array<{ symbol: string; balance: string }>
     >('txn.getCoinsBalance', {
       network,
       address,
@@ -54,7 +45,7 @@ export function useCoinBalance(
       throw new Error(`fetch coinsBalance failed: ${address}, ${networkId}`);
     }
     coinsBalance.forEach((item) => {
-      map.set(item.symbol, String(item.balance));
+      map.set(item.symbol, item.balance);
     });
 
     return map;
@@ -71,7 +62,7 @@ export function useCoinBalance(
   useEffect(() => {
     if (!coinsBalanceMap || !symbol) return;
     const result = coinsBalanceMap.get(symbol);
-    setBalance(result ? String(result) : '0');
+    setBalance(result ?? '0');
   }, [coinsBalanceMap, symbol]);
 
   return {
