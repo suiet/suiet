@@ -4,7 +4,6 @@ import Input from '../../../components/Input';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import {
-  getButtonDisabledState,
   getInputStateByFormState,
   getPasswordValidation,
 } from '../../../utils/form';
@@ -119,7 +118,6 @@ const SavePassword = (props: SavePasswordProps) => {
           <StepButton
             type={'submit'}
             state={'primary'}
-            disabled={getButtonDisabledState(form.formState)}
             className={'mt-[28px] w-[160px]'}
           >
             Next Step

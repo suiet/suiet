@@ -78,11 +78,11 @@ const CreateNewWallet = () => {
       password
     );
     await createWalletAndAccount(token);
-    message.success('Wallet Created!');
     setStep((s) => s + 1);
   }
 
   async function handleSavePhrase() {
+    message.success('Wallet Created!');
     if (pageEntry === PageEntry.SWITCHER) {
       await sleep(200); // wait for wallet created
       navigate('/home', { state: { openSwitcher: true } });
@@ -95,7 +95,6 @@ const CreateNewWallet = () => {
     if (!token) throw new Error('token should not be empty');
 
     await createWalletAndAccount(token);
-    message.success('Wallet Created!');
     setStep((s) => s + 1);
   }
 

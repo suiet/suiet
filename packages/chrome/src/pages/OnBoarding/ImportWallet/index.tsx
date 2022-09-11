@@ -88,6 +88,7 @@ const ImportWallet = () => {
     await createWalletAndAccount(token, secret);
     await dispatch(updateToken(token));
     await dispatch(updateInitialized(true));
+    message.success('Wallet Created!');
     navigate('/');
   }
 
