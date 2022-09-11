@@ -7,9 +7,7 @@ import { useAccount } from '../../../hooks/useAccount';
 import { useEffect, useMemo, useState } from 'react';
 import WalletSwitcher, { WalletData } from '../../../components/WalletSwitcher';
 import { useWallets } from '../../../hooks/useWallets';
-import { Wallet } from '@suiet/core/dist/api/wallet';
 import { isNonEmptyArray } from '../../../utils/check';
-import { Account } from '@suiet/core/dist/api/account';
 import { useNavigate } from 'react-router-dom';
 import { updateAccountId, updateWalletId } from '../../../store/app-context';
 import { PageEntry } from '../../../hooks/usePageEntry';
@@ -18,34 +16,24 @@ import Address from '../../../components/Address';
 import Avatar from '../../../components/Avatar';
 import { useWallet } from '../../../hooks/useWallet';
 import { useApiClient } from '../../../hooks/useApiClient';
+import { AccountInWallet, Wallet } from '@suiet/core';
 
 function useWalletAccountMap(wallets: Wallet[]) {
-  const apiClient = useApiClient();
   const [walletAccountMap, setWalletAccountMap] = useState<
-    Map<string, Account>
+    Map<string, AccountInWallet>
   >(new Map());
 
-  async function searchDefaultAccount(walletId: string) {
-    const accounts = await apiClient.callFunc<string, Account[]>(
-      'account.getAccounts',
-      walletId
-    );
-    if (!isNonEmptyArray(accounts)) {
-      throw new Error('The account of the wallet is empty');
-    }
-    accounts.sort((a, b) => (a.address < b.address ? 0 : 1));
-    return accounts[0];
+  function searchDefaultAccount(wallet: Wallet) {
+    const sortedAccounts = [...wallet.accounts];
+    sortedAccounts.sort((a, b) => (a.id < b.id ? 0 : 1));
+    return sortedAccounts[0];
   }
 
   // generate -defaultAccount Map
   useEffect(() => {
     (async function () {
-      const map = new Map<string, Account>();
-      const accounts = await Promise.all(
-        wallets.map(async (wallet) => {
-          return await searchDefaultAccount(wallet.id);
-        })
-      );
+      const map = new Map<string, AccountInWallet>();
+      const accounts = wallets.map((wallet) => searchDefaultAccount(wallet));
       wallets.forEach((wallet, index) => {
         map.set(wallet.id, accounts[index]);
       });

@@ -45,7 +45,6 @@ export class AccountApi implements IAccountApi {
     wallet.nextAccountId += 1;
     const accountIdStr = toAccountIdString(wallet.id, accountId);
     const hdPath = crypto.derivationHdPath(accountId - 1);
-    wallet.accounts.push(accountIdStr);
     const vault = await Vault.create(
       hdPath,
       Buffer.from(token, 'hex'),
@@ -59,6 +58,11 @@ export class AccountApi implements IAccountApi {
       address: vault.getAddress(),
       hdPath,
     };
+    wallet.accounts.push({
+      id: account.id,
+      address: account.address,
+    });
+
     // TODO: save these states transactionally.
     await this.storage.addAccount(wallet.id, account.id, account);
     await this.storage.updateWallet(wallet.id, wallet);

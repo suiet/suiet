@@ -204,7 +204,7 @@ export class IndexedDBStorage implements Storage {
             const wallet = getWalletRequest.result as Wallet;
             if (
               typeof wallet === 'undefined' ||
-              !wallet.accounts.includes(accountId)
+              !wallet.accounts.find((ac) => ac.id === accountId)
             ) {
               reject(
                 new Error(
@@ -235,8 +235,8 @@ export class IndexedDBStorage implements Storage {
             if (typeof wallet === 'undefined') {
               reject(new Error('Failed to get accounts, wallet not found.'));
             }
-            wallet.accounts.forEach((aId) => {
-              const getAccountRequest = accountStore.get(aId);
+            wallet.accounts.forEach((ac) => {
+              const getAccountRequest = accountStore.get(ac.id);
               getAccountRequest.onsuccess = (event) => {
                 const account = getAccountRequest.result as Account;
                 if (typeof wallet === 'undefined') {
@@ -377,7 +377,7 @@ export class IndexedDBStorage implements Storage {
     wallet: Wallet,
     accountId: string
   ): void {
-    wallet.accounts = wallet.accounts.filter((aId) => aId !== accountId);
+    wallet.accounts = wallet.accounts.filter((ac) => ac.id !== accountId);
     transaction.objectStore(StoreName.WALLETS).put(wallet);
     transaction.objectStore(StoreName.ACCOUNTS).delete(accountId);
   }
