@@ -1,4 +1,3 @@
-import Rreact from 'react';
 import styles from './empty.module.scss';
 
 export default function Empty() {

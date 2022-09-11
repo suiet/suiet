@@ -11,6 +11,7 @@ import { useNetwork } from '../../../hooks/useNetwork';
 import { Network } from '@suiet/core/dist/api/network';
 import { swrLoading } from '../../../utils/others';
 import { nftImgUrl } from '../../../utils/nft';
+import Empty from './Empty';
 
 export type NftListProps = StyleExtendable;
 
@@ -23,20 +24,30 @@ type NftItemProps = Extendable & {
 
 const NftItem = (props: NftItemProps) => {
   return (
-    <div className={styles['token-item']}>
-      <div className="flex items-center">
+    <div className={classnames('mb-4')}>
+      <div
+        className={classnames(
+          'flex',
+          'flex-col',
+          'items-center',
+          'max-w-[160px]',
+          'border',
+          'border-gray-300',
+          'rounded-xl',
+          'p-2',
+          'transition',
+          'hover:bg-gray-100'
+        )}
+      >
         <img
-          className={styles['icon-wrap']}
+          className={styles['nft-img']}
           src={nftImgUrl(props.url)}
           alt={props.name}
         />
-        <div className={classnames(styles['nft-meta'], 'ml-[32px]')}>
+        <div className={classnames('w-full', 'mt-2')}>
           <Typo.Normal className={classnames(styles['nft-name'])}>
             {props.name}
           </Typo.Normal>
-          <Typo.Small className={classnames(styles['nft-description'])}>
-            {props.description}
-          </Typo.Small>
         </div>
       </div>
     </div>
@@ -54,7 +65,7 @@ function useNftList(address: string, networkId: string = 'devnet') {
 
   async function fetchNftList(_: string, network: Network, address: string) {
     if (!network || !address) return;
-    return coreApi.txn.getOwnedNfts(network, address);
+    return await coreApi.txn.getOwnedNfts(network, address);
   }
 
   return {
@@ -69,9 +80,17 @@ const NftList = (props: NftListProps) => {
   const { account } = useAccount(appContext.accountId);
   const { data: nftList } = useNftList(account.address, appContext.networkId);
 
-  if (!nftList) return null;
+  if (!nftList || nftList.length === 0) return <Empty />;
   return (
-    <div className={classnames(props.className)} style={props.style}>
+    <div
+      className={classnames(
+        props.className,
+        'grid',
+        'grid-cols-2',
+        'justify-items-center'
+      )}
+      style={props.style}
+    >
       {nftList.map((nft) => {
         return (
           <NftItem

@@ -11,6 +11,8 @@ import {
   getMoveObject,
   getCoinAfterMerge,
   getCoinAfterSplit,
+  MoveCallTransaction,
+  Base64DataBuffer,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistroyEntry, TxObject } from './storage/types';
@@ -41,6 +43,7 @@ export class Provider {
     if (coins.length === 0) {
       throw new Error('no coin to transfer');
     }
+
     if (symbol === GAS_SYMBOL) {
       await this.tx.transferSui(coins, amount, recipient, vault);
     } else {
@@ -199,6 +202,18 @@ export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
 export const GAS_TYPE_ARG = '0x2::sui::SUI';
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
+export const MINT_EXAMPLE_NFT_MOVE_CALL = {
+  packageObjectId: '0x2',
+  module: 'devnet_nft',
+  function: 'mint',
+  typeArguments: [],
+  arguments: [
+    'Suiet NFT',
+    'An NFT created by Suiet',
+    'https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4',
+  ],
+  gasBudget: 10000,
+};
 
 export class TxProvider {
   provider: JsonRpcProvider;
@@ -321,6 +336,12 @@ export class TxProvider {
       BigInt(actualAmount),
       vault
     );
+    console.log(
+      coin.objectId,
+      DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
+      recipient,
+      amount
+    );
     const data = await this.serializer.newTransferSui(address, {
       suiObjectId: coin.objectId,
       gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
@@ -330,6 +351,29 @@ export class TxProvider {
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
     await executeTransaction(this.provider, signedTx);
+  }
+
+  public async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
+    const address = vault.getAddress();
+    const data = await this.serializer.newMoveCall(address, tx);
+    const signedTx = await vault.signTransaction({ data });
+    // TODO: handle response
+    await executeTransaction(this.provider, signedTx);
+  }
+
+  public async executeSerializedMoveCall(txBytes: Uint8Array, vault: Vault) {
+    const signedTx = await vault.signTransaction({
+      data: new Base64DataBuffer(txBytes),
+    });
+    // TODO: handle response
+    await executeTransaction(this.provider, signedTx);
+  }
+
+  public async mintExampleNft(vault: Vault) {
+    const address = vault.getAddress();
+    trySyncAccountState(this.provider, address);
+
+    await this.executeMoveCall(MINT_EXAMPLE_NFT_MOVE_CALL, vault);
   }
 }
 
