@@ -122,7 +122,11 @@ export class BackgroundApiProxy {
         error = (e as any).message;
         log(`respond(${reqMeta}) failed`, e);
       }
-      this.port.postMessage(resData(id, error, data));
+      try {
+        this.port.postMessage(JSON.stringify(resData(id, error, data)));
+      } catch (e) {
+        log(`postMessage(${reqMeta}) failed`, { e, data });
+      }
     });
   }
 

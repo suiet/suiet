@@ -1,73 +1,72 @@
 var l = Object.defineProperty;
-var f = (e, n, o) => n in e ? l(e, n, { enumerable: !0, configurable: !0, writable: !0, value: o }) : e[n] = o;
-var a = (e, n, o) => (f(e, typeof n != "symbol" ? n + "" : n, o), o);
-var i, y = new Uint8Array(16);
-function p() {
-  if (!i && (i = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto < "u" && typeof msCrypto.getRandomValues == "function" && msCrypto.getRandomValues.bind(msCrypto), !i))
+var y = (n, e, c) => e in n ? l(n, e, { enumerable: !0, configurable: !0, writable: !0, value: c }) : n[e] = c;
+var i = (n, e, c) => (y(n, typeof e != "symbol" ? e + "" : e, c), c);
+let a;
+const p = new Uint8Array(16);
+function m() {
+  if (!a && (a = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !a))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return i(y);
+  return a(p);
 }
-const g = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
-function m(e) {
-  return typeof e == "string" && g.test(e);
+const t = [];
+for (let n = 0; n < 256; ++n)
+  t.push((n + 256).toString(16).slice(1));
+function g(n, e = 0) {
+  return (t[n[e + 0]] + t[n[e + 1]] + t[n[e + 2]] + t[n[e + 3]] + "-" + t[n[e + 4]] + t[n[e + 5]] + "-" + t[n[e + 6]] + t[n[e + 7]] + "-" + t[n[e + 8]] + t[n[e + 9]] + "-" + t[n[e + 10]] + t[n[e + 11]] + t[n[e + 12]] + t[n[e + 13]] + t[n[e + 14]] + t[n[e + 15]]).toLowerCase();
 }
-var t = [];
-for (var u = 0; u < 256; ++u)
-  t.push((u + 256).toString(16).substr(1));
-function v(e) {
-  var n = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 0, o = (t[e[n + 0]] + t[e[n + 1]] + t[e[n + 2]] + t[e[n + 3]] + "-" + t[e[n + 4]] + t[e[n + 5]] + "-" + t[e[n + 6]] + t[e[n + 7]] + "-" + t[e[n + 8]] + t[e[n + 9]] + "-" + t[e[n + 10]] + t[e[n + 11]] + t[e[n + 12]] + t[e[n + 13]] + t[e[n + 14]] + t[e[n + 15]]).toLowerCase();
-  if (!m(o))
-    throw TypeError("Stringified UUID is invalid");
-  return o;
-}
-function w(e, n, o) {
-  e = e || {};
-  var s = e.random || (e.rng || p)();
-  if (s[6] = s[6] & 15 | 64, s[8] = s[8] & 63 | 128, n) {
-    o = o || 0;
-    for (var r = 0; r < 16; ++r)
-      n[o + r] = s[r];
-    return n;
+const U = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), u = {
+  randomUUID: U
+};
+function w(n, e, c) {
+  if (u.randomUUID && !e && !n)
+    return u.randomUUID();
+  n = n || {};
+  const o = n.random || (n.rng || m)();
+  if (o[6] = o[6] & 15 | 64, o[8] = o[8] & 63 | 128, e) {
+    c = c || 0;
+    for (let r = 0; r < 16; ++r)
+      e[c + r] = o[r];
+    return e;
   }
-  return v(s);
+  return g(o);
 }
-var c = /* @__PURE__ */ ((e) => (e.DAPP = "DAPP", e.SUIET_CONTENT = "SUIET_CONTENT", e))(c || {});
-function d(e, n) {
+var s = /* @__PURE__ */ ((n) => (n.DAPP = "DAPP", n.SUIET_CONTENT = "SUIET_CONTENT", n))(s || {});
+function d(n, e) {
   return {
     id: w(),
-    funcName: e,
-    payload: n
+    funcName: n,
+    payload: e
   };
 }
 class T {
   constructor() {
-    a(this, "name");
-    a(this, "connected");
-    a(this, "connecting");
+    i(this, "name");
+    i(this, "connected");
+    i(this, "connecting");
     this.name = "Suiet", this.connected = !1, this.connecting = !1;
   }
   async connect() {
     window.postMessage({
-      target: c.SUIET_CONTENT,
+      target: s.SUIET_CONTENT,
       payload: d("connect", null)
     });
   }
   async disconnect() {
     window.postMessage({
-      target: c.SUIET_CONTENT,
+      target: s.SUIET_CONTENT,
       payload: d("disconnect", null)
     });
   }
-  async hasPermissions(n) {
-    return console.log("permissions", n), !0;
+  async hasPermissions(e) {
+    return console.log("permissions", e), !0;
   }
   async requestPermissions() {
     return !0;
   }
-  async executeMoveCall(n) {
+  async executeMoveCall(e) {
     return await Promise.resolve(void 0);
   }
-  async executeSerializedMoveCall(n) {
+  async executeSerializedMoveCall(e) {
     return await Promise.resolve(void 0);
   }
   async getAccounts() {

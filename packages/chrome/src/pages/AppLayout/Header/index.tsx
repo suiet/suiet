@@ -68,26 +68,26 @@ const WalletSwitcherInstance = (props: {
   onClickNew: () => void;
 }) => {
   const { data: wallets = [] } = useWallets();
-  // const walletAccountMap = useWalletAccountMap(wallets);
-  // const walletDataList = useMemo(() => {
-  //   if (!isNonEmptyArray(wallets) || walletAccountMap.size === 0) return [];
-  //   return wallets.map(walletDataAdapter);
-  // }, [wallets, walletAccountMap]);
+  const walletAccountMap = useWalletAccountMap(wallets);
+  const walletDataList = useMemo(() => {
+    if (!isNonEmptyArray(wallets) || walletAccountMap.size === 0) return [];
+    return wallets.map(walletDataAdapter);
+  }, [wallets, walletAccountMap]);
 
-  // function walletDataAdapter(wallet: Wallet): WalletData {
-  //   const account = walletAccountMap.get(wallet.id);
-  //   return {
-  //     id: wallet.id,
-  //     name: wallet.name,
-  //     avatar: wallet.avatar,
-  //     accountId: account?.id ?? '',
-  //     accountAddress: account?.address ?? '',
-  //   };
-  // }
+  function walletDataAdapter(wallet: Wallet): WalletData {
+    const account = walletAccountMap.get(wallet.id);
+    return {
+      id: wallet.id,
+      name: wallet.name,
+      avatar: wallet.avatar,
+      accountId: account?.id ?? '',
+      accountAddress: account?.address ?? '',
+    };
+  }
 
   return (
     <WalletSwitcher
-      wallets={[]}
+      wallets={walletDataList}
       onSelect={props.onSelect}
       onEdit={props.onEdit}
       onClickLayer={props.onClickLayer}
