@@ -7,9 +7,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { useEffect } from 'react';
 import message from './components/message';
 import { ToastContainer } from 'react-toastify';
-import { BackgroundApiClient } from './scripts/shared/ui-api-client';
-
-export const apiClient = new BackgroundApiClient();
 
 function App() {
   const routes = useRoutes(routesConfig);

@@ -1,24 +1,20 @@
-import { useEffect, useState } from 'react';
 import { Wallet } from '@suiet/core/dist/api/wallet';
-import { coreApi } from '@suiet/core';
+import { useApiClient } from './useApiClient';
+import useSWR from 'swr';
+import { swrLoading } from '../utils/others';
 
 export function useWallets() {
-  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const apiClient = useApiClient();
+  const { data, error, mutate } = useSWR(['wallet.getWallets'], fetchWallets);
 
-  async function fetchWallets() {
-    const wallets = await coreApi.wallet.getWallets();
-    if (!wallets) {
-      throw new Error('fetch wallets failed');
-    }
-    setWallets(wallets);
+  async function fetchWallets(_: string) {
+    return await apiClient.callFunc<null, Wallet[]>('wallet.getWallets', null);
   }
 
-  useEffect(() => {
-    fetchWallets();
-  }, []);
-
   return {
-    wallets,
-    fetchWallets,
+    data,
+    error,
+    loading: swrLoading(data, error),
+    fetchWallets: mutate,
   };
 }

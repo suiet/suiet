@@ -53,5 +53,5 @@ export function processPortMessage(input: unknown): CallFuncData {
 
 export function log(message: string, details: any, devOnly = true) {
   if (devOnly && !isDev) return;
-  console.log('[api proxy]', message, details);
+  console.debug('[api proxy]', message, details);
 }

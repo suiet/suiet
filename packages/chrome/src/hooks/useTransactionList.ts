@@ -1,5 +1,8 @@
-import { coreApi } from '@suiet/core';
+import { GetTxHistoryParams, Network, TxnHistoryEntry } from '@suiet/core';
 import useSWR from 'swr';
+import { useApiClient } from './useApiClient';
+import { swrLoading } from '../utils/others';
+import { useNetwork } from './useNetwork';
 
 function useTransactionList(
   address: string,
@@ -7,23 +10,23 @@ function useTransactionList(
     networkId?: string;
   } = {}
 ) {
+  const apiClient = useApiClient();
   const { networkId = 'devnet' } = opts;
+  const { data: network } = useNetwork(networkId);
   const { data: history, error } = useSWR(
-    ['getTransactionHistory', address, networkId || 'devnet'],
+    ['getTransactionHistory', address, network],
     getTransactionHistory
   );
   async function getTransactionHistory(
     _: string,
     address: string,
-    networkId: string
+    network: Network
   ) {
-    if (!address || !networkId) return null;
-    const network = await coreApi.network.getNetwork(networkId);
-    if (!network) {
-      throw new Error(`fetch network failed: ${networkId}`);
-    }
-
-    const hs = await coreApi.txn.getTransactionHistory(network, address);
+    if (!address || !network) return null;
+    const hs = await apiClient.callFunc<GetTxHistoryParams, TxnHistoryEntry[]>(
+      'txn.getTransactionHistory',
+      { network, address }
+    );
     if (!hs) {
       throw new Error(
         `fetch getTransactionHistory failed: ${address}, ${networkId}`
@@ -35,7 +38,7 @@ function useTransactionList(
   return {
     history,
     error,
-    loading: !error && !history,
+    loading: swrLoading(history, error),
   };
 }
 

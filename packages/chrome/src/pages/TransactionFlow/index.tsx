@@ -3,19 +3,14 @@ import './index.scss';
 import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
 import Empty from './Empty';
-import { coreApi } from '@suiet/core';
 import { useAccount } from '../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { ITransactionApi } from '@suiet/core/dist/api/txn';
-import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { TxnItem } from './transactionDetail';
-import { useNetwork } from '../../hooks/useNetwork';
 import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
-import { has } from 'lodash-es';
-import { TxObject } from '@suiet/core/src/storage/types';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
@@ -26,7 +21,7 @@ function normalizeHistory(history: TxnHistroyEntry[], address: string) {
   const days = [];
   for (let i = history.length - 1; i >= 0; i--) {
     const item = history[i];
-    const finalItem = {
+    const finalItem: TxnItem = {
       ...item,
       type: address === item.from ? 'sent' : 'received',
     };
@@ -148,9 +143,9 @@ function TransactionFlow({
 
 function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
-  const { account } = useAccount(context.accountId);
+  const { data: account } = useAccount(context.accountId);
   // const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
-  const { history, loading } = useTransactionList(account.address);
+  const { history, loading } = useTransactionList(account?.address ?? '');
 
   // useEffect(() => {
   //   if (!account.address) {
@@ -187,7 +182,7 @@ function TransactionPage() {
     <Empty />
   ) : (
     <div className="bg-gray-50 w-full p-4 min-h-full">
-      <TransactionFlow history={history} address={account.address} />
+      <TransactionFlow history={history} address={account?.address ?? ''} />
     </div>
   );
 }

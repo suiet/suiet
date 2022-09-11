@@ -24,7 +24,7 @@ export type Cipher = {
   salt: string;
 };
 
-export type TxnHistroyEntry = {
+export type TxnHistoryEntry = {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
   gasUsed: number;

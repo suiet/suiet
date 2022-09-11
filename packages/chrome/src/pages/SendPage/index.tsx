@@ -13,14 +13,14 @@ import message from '../../components/message';
 import Form from '../../components/form/Form';
 import FormControl from '../../components/form/FormControl';
 import { getInputStateByFormState } from '../../utils/form';
-import { coreApi } from '@suiet/core';
 import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useNetwork } from '../../hooks/useNetwork';
-import { useWallet } from '../../hooks/useWallet';
 import { useAccount } from '../../hooks/useAccount';
 import { useState } from 'react';
+import { useApiClient } from '../../hooks/useApiClient';
+import { TransferCoinParams } from '@suiet/core';
 
 interface SendFormValues {
   address: string;
@@ -28,21 +28,17 @@ interface SendFormValues {
 }
 
 const SendPage = () => {
+  const apiClient = useApiClient();
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
-  const { data: wallet } = useWallet(appContext.walletId);
-  const { account } = useAccount(appContext.accountId);
+  const { data: account } = useAccount(appContext.accountId);
   const [sendLoading, setSendLoading] = useState(false);
 
   const context = useSelector((state: RootState) => state.appContext);
-  const { balance, loading: balanceLoading } = useCoinBalance(
-    account.address,
-    CoinSymbol.SUI,
-    {
-      networkId: context.networkId,
-    }
-  );
+  const { balance } = useCoinBalance(account?.address ?? '', CoinSymbol.SUI, {
+    networkId: context.networkId,
+  });
   const form = useForm<SendFormValues>({
     mode: 'onChange',
     defaultValues: {
@@ -69,7 +65,10 @@ const SendPage = () => {
     console.log('send input: ', params);
     setSendLoading(true);
     try {
-      await coreApi.txn.transferCoin(params);
+      await apiClient.callFunc<TransferCoinParams, undefined>(
+        'txn.transferCoin',
+        params
+      );
       message.success('Send transaction succeed');
       navigate('/transaction/flow');
     } catch (e: any) {

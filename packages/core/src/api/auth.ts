@@ -2,11 +2,13 @@ import * as crypto from '../crypto';
 import { Storage } from '../storage/Storage';
 import { Buffer } from 'buffer';
 
+export type UpdatePasswordParams = {
+  oldPassword: string | null;
+  newPassword: string;
+};
+
 export interface IAuthApi {
-  updatePassword: (
-    oldPassword: string | null,
-    newPassword: string
-  ) => Promise<void>;
+  updatePassword: (params: UpdatePasswordParams) => Promise<void>;
   loadTokenWithPassword: (password: string) => Promise<string>;
 }
 
@@ -18,10 +20,8 @@ export class AuthApi {
   }
 
   // Implement Auth API
-  async updatePassword(
-    oldPassword: string | null,
-    newPassword: string
-  ): Promise<void> {
+  async updatePassword(params: UpdatePasswordParams): Promise<void> {
+    const { oldPassword, newPassword } = params;
     const wallets = await this.storage.getWallets();
     const meta = await this.storage.loadMeta();
     if (meta && wallets.length !== 0) {

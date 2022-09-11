@@ -101,7 +101,6 @@ export class BackgroundApiProxy {
       (h) => this.port.onMessage.addListener(h),
       (h) => this.port.onMessage.removeListener(h),
       (msg) => {
-        log('port receive msg', msg);
         return processPortMessage(msg);
       }
     );
@@ -112,13 +111,16 @@ export class BackgroundApiProxy {
       const { id, service, func, payload } = callFuncData;
       let error: null | string = null;
       let data: null | any = null;
-      log(`request(id: ${id})`, callFuncData);
+      const reqMeta = `id: ${id}, method: ${service}.${func}`;
+      log(`request(${reqMeta})`, callFuncData);
       try {
+        const startTime = Date.now();
         data = await this.callBackgroundMethod(service, func, payload);
-        log(`respond(id: ${id}) succeeded`, data);
+        const duration = Date.now() - startTime;
+        log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
         error = (e as any).message;
-        log(`respond(id: ${id}) failed`, e);
+        log(`respond(${reqMeta}) failed`, e);
       }
       this.port.postMessage(resData(id, error, data));
     });
