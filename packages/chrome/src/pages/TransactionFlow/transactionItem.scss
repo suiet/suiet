@@ -63,6 +63,7 @@
   }
 
   &-detail {
+    width: 120px;
     font-weight: 400;
     font-size: 12px;
     line-height: 15px;
@@ -87,7 +88,7 @@
     min-width: 85px;
 
     &.sent {
-      color: #ff9823;
+      color: #ef6820;
     }
 
     &.sent.failure {
