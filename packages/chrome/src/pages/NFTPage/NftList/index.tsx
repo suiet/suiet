@@ -5,14 +5,9 @@ import Typo from '../../../components/Typo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
-import useSWR from 'swr';
-import { useNetwork } from '../../../hooks/useNetwork';
-import { Network } from '@suiet/core/dist/api/network';
-import { swrLoading } from '../../../utils/others';
 import { nftImgUrl } from '../../../utils/nft';
 import Empty from './Empty';
-import { useApiClient } from '../../../hooks/useApiClient';
-import { GetOwnedObjParams, NftObjectDto } from '@suiet/core';
+import { useNftList } from '../../../hooks/useNftList';
 
 export type NftListProps = StyleExtendable;
 
@@ -25,58 +20,22 @@ type NftItemProps = Extendable & {
 
 const NftItem = (props: NftItemProps) => {
   return (
-    <div className={classnames('mb-4')}>
-      <div
-        className={classnames(
-          'flex',
-          'flex-col',
-          'items-center',
-          'max-w-[160px]',
-          'border',
-          'border-gray-300',
-          'rounded-xl',
-          'p-2',
-          'transition',
-          'hover:bg-gray-100'
-        )}
-      >
+    <div className={classnames(styles['nft-item'], props.className)}>
+      <div className={styles['nft-img-wrap']}>
         <img
           className={styles['nft-img']}
           src={nftImgUrl(props.url)}
           alt={props.name}
         />
-        <div className={classnames('w-full', 'mt-2')}>
-          <Typo.Normal className={classnames(styles['nft-name'])}>
-            {props.name}
-          </Typo.Normal>
-        </div>
+      </div>
+      <div className={classnames('w-full', 'mt-2')}>
+        <Typo.Normal className={classnames(styles['nft-name'])}>
+          {props.name}
+        </Typo.Normal>
       </div>
     </div>
   );
 };
-
-function useNftList(address: string, networkId: string = 'devnet') {
-  const apiClient = useApiClient();
-  const { data: network } = useNetwork(networkId);
-  const { data, error } = useSWR(
-    ['getOwnedNfts', network, address],
-    fetchNftList
-  );
-
-  async function fetchNftList(_: string, network: Network, address: string) {
-    if (!network || !address) return;
-    return await apiClient.callFunc<GetOwnedObjParams, NftObjectDto[]>(
-      'txn.getOwnedNfts',
-      { network, address }
-    );
-  }
-
-  return {
-    data,
-    error,
-    loading: swrLoading(data, error),
-  };
-}
 
 const NftList = (props: NftListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -93,21 +52,26 @@ const NftList = (props: NftListProps) => {
         props.className,
         'grid',
         'grid-cols-2',
+        'gap-[8px]',
         'justify-items-center'
       )}
       style={props.style}
     >
-      {nftList.map((nft) => {
-        return (
-          <NftItem
-            key={nft.id}
-            id={nft.id}
-            name={nft.name}
-            url={nft.url}
-            description={nft.description}
-          />
-        );
-      })}
+      {nftList
+        .concat(nftList)
+        .concat(nftList)
+        .concat(nftList)
+        .map((nft) => {
+          return (
+            <NftItem
+              key={nft.id}
+              id={nft.id}
+              name={nft.name}
+              url={nft.url}
+              description={nft.description}
+            />
+          );
+        })}
     </div>
   );
 };

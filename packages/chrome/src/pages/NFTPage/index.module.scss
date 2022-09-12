@@ -1,0 +1,26 @@
+@import '../../styles/variables';
+
+.container {
+  padding: 37px 0;
+}
+.header {
+  padding: 0 24px;
+}
+.title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 36px;
+}
+.desc {
+  margin-top: 8px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: $gray-300;
+}
+.nft-list {
+  margin-top: 24px;
+  padding: 0 24px;
+}
