@@ -15,16 +15,6 @@
   cursor: pointer;
 }
 
-.nft-img-wrap {
-  width: 140px;
-  height: 140px;
-  background: $gray-200;
-}
-.nft-img {
-  object-fit: cover;
-  border-radius: 8px;
-}
-
 $max-text-len: 120px;
 .nft-meta {
   @apply flex flex-col;

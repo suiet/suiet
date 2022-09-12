@@ -2,16 +2,16 @@ import classnames from 'classnames';
 import type { Extendable, StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
-import { useAccount } from '../../../hooks/useAccount';
 import { nftImgUrl } from '../../../utils/nft';
-import Empty from './Empty';
-import { useNftList } from '../../../hooks/useNftList';
 import { useNavigate } from 'react-router-dom';
 import NftImg from '../../../components/NftImg';
+import { NftObjectDto } from '@suiet/core';
+import Skeleton from 'react-loading-skeleton';
 
-export type NftListProps = StyleExtendable;
+export type NftListProps = StyleExtendable & {
+  value: NftObjectDto[];
+  loading?: boolean;
+};
 
 export interface NftMeta {
   id: string;
@@ -22,10 +22,12 @@ export interface NftMeta {
 
 type NftItemProps = Extendable &
   NftMeta & {
+    loading?: boolean;
     onClick?: (data: NftMeta) => void;
   };
 
 const NftItem = (props: NftItemProps) => {
+  const { loading = false } = props;
   return (
     <div
       className={classnames(styles['nft-item'], props.className)}
@@ -38,23 +40,26 @@ const NftItem = (props: NftItemProps) => {
         });
       }}
     >
-      <NftImg src={nftImgUrl(props.url)} alt={props.name} />
+      {loading ? (
+        <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
+      ) : (
+        <NftImg src={nftImgUrl(props.url)} alt={props.name} />
+      )}
       <div className={classnames('w-full', 'mt-2')}>
-        <Typo.Normal className={classnames(styles['nft-name'])}>
-          {props.name}
-        </Typo.Normal>
+        {loading ? (
+          <Skeleton className={'w-[80px] h-[16px]'} />
+        ) : (
+          <Typo.Normal className={classnames(styles['nft-name'])}>
+            {props.name}
+          </Typo.Normal>
+        )}
       </div>
     </div>
   );
 };
 
 const NftList = (props: NftListProps) => {
-  const appContext = useSelector((state: RootState) => state.appContext);
-  const { data: account } = useAccount(appContext.accountId);
-  const { data: nftList } = useNftList(
-    account?.address ?? '',
-    appContext.networkId
-  );
+  const { value: nftList = [], loading = false } = props;
   const navigate = useNavigate();
 
   function handleClickNft(data: NftMeta) {
@@ -66,7 +71,6 @@ const NftList = (props: NftListProps) => {
     });
   }
 
-  if (!nftList || nftList.length === 0) return <Empty />;
   return (
     <div
       className={classnames(
@@ -78,22 +82,19 @@ const NftList = (props: NftListProps) => {
       )}
       style={props.style}
     >
-      {nftList
-        .concat(nftList)
-        .concat(nftList)
-        .concat(nftList)
-        .map((nft) => {
-          return (
-            <NftItem
-              key={nft.id}
-              id={nft.id}
-              name={nft.name}
-              url={nft.url}
-              description={nft.description}
-              onClick={handleClickNft}
-            />
-          );
-        })}
+      {nftList.map((nft) => {
+        return (
+          <NftItem
+            key={nft.id}
+            loading={loading}
+            id={nft.id}
+            name={nft.name}
+            url={nft.url}
+            description={nft.description}
+            onClick={handleClickNft}
+          />
+        );
+      })}
     </div>
   );
 };
