@@ -118,7 +118,6 @@ function Header(props: HeaderProps) {
       <div
         className={styles['account']}
         onClick={() => {
-          console.log('open switcher');
           setDoSwitch(true);
         }}
       >

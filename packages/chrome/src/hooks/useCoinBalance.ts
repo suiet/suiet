@@ -53,8 +53,8 @@ export function useCoinBalance(
 
   const getBalance = useCallback(
     (symbol: string): string => {
-      if (!symbol) return '0';
-      return coinsBalanceMap?.get(symbol) ?? '0';
+      if (!symbol || !coinsBalanceMap) return '0';
+      return coinsBalanceMap.get(symbol) ?? '0';
     },
     [coinsBalanceMap]
   );

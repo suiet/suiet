@@ -9,12 +9,13 @@ import {
   validateToken,
 } from '@suiet/core';
 import { fromEventPattern, Observable } from 'rxjs';
-import { resData } from '../shared';
+import { ResData, resData } from '../shared';
 import { log, processPortMessage } from './utils';
 import { CallFuncData } from './types';
 import { has } from 'lodash-es';
+import { DappBgApi } from './bg-api/dapp';
 
-interface IRootApi {
+interface RootApi {
   clearToken: () => Promise<void>;
   resetAppData: (token: string) => Promise<void>;
   validateToken: (token: string) => Promise<void>;
@@ -29,12 +30,13 @@ export class BackgroundApiProxy {
   private storage: Storage;
   private serviceProxyCache: Record<string, any>;
 
-  public root: IRootApi;
+  public root: RootApi;
   public wallet: WalletApi;
   public account: AccountApi;
   public auth: AuthApi;
   public txn: TransactionApi;
   public network: NetworkApi;
+  public dapp: DappBgApi;
 
   private constructor(port: chrome.runtime.Port) {
     this.initServices();
@@ -70,7 +72,8 @@ export class BackgroundApiProxy {
       new NetworkApi(),
       'network'
     );
-    this.root = this.registerProxyService<IRootApi>(
+    this.dapp = this.registerProxyService<DappBgApi>(new DappBgApi(), 'dapp');
+    this.root = this.registerProxyService<RootApi>(
       ((ctx: any) => ({
         clearToken: async () => {
           const meta = await storage.loadMeta();

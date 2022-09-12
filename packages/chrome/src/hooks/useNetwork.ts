@@ -4,9 +4,10 @@ import { Network } from '@suiet/core';
 
 export function useNetwork(networkId: string) {
   const apiClient = useApiClient();
-  const { data, error } = useSWR(['getNetwork', networkId], fetchNetwork);
+  const { data, error } = useSWR(['fetchNetwork', networkId], fetchNetwork);
 
   async function fetchNetwork(_: string, networkId: string) {
+    if (!networkId) return;
     return await apiClient.callFunc<string, Network>(
       'network.getNetwork',
       networkId

@@ -75,6 +75,7 @@ export type CoinObjectDto = {
 };
 
 export type NftObjectDto = {
+  id: string;
   type: 'nft';
   name: string;
   description: string;
