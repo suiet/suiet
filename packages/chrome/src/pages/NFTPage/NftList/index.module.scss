@@ -1,13 +1,18 @@
 @import '../../../styles/variables.scss';
 @import '../../../styles/mixins.scss';
 
-.nft-img {
-  @apply flex justify-center items-center;
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  background: $gray-200;
-  border-radius: 8px;
+.nft-item {
+  @apply flex
+    flex-col
+    items-center
+    max-w-[153px]
+    border
+    rounded-xl
+    transition
+    hover:bg-gray-100;
+  border-color: $gray-200;
+  padding: 6px;
+  cursor: pointer;
 }
 
 $max-text-len: 120px;
