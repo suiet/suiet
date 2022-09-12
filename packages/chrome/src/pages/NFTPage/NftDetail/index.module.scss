@@ -1,0 +1,44 @@
+@import '../../../styles/variables';
+
+.container {
+  padding: 8px 32px 32px;
+}
+$img-size: 298px;
+.nft-img {
+  width: $img-size;
+  height: $img-size;
+}
+.nft-meta {
+  margin-top: 16px;
+}
+.nft-name {
+  margin-top: 16px;
+
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 33px;
+  color: $gray-900;
+}
+.sec-title {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 22px;
+  color: $gray-900;
+}
+.sec-desc {
+  font-family: 'Inter';
+  margin-top: 8px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-400;
+}
+.nft-list {
+  margin-top: 24px;
+  padding: 0 24px;
+}
