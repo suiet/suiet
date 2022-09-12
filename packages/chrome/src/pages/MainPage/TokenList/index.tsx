@@ -9,6 +9,7 @@ import { useCoinBalance } from '../../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
+import { formatCurrency } from '../../../utils/format';
 
 export type TokenListProps = StyleExtendable;
 
@@ -28,7 +29,7 @@ const TokenItem = (props: TokenItemProps) => {
             {props.symbol}
           </Typo.Normal>
           <Typo.Small className={classnames(styles['token-amount'])}>
-            {amount ?? '0'}
+            {amount ? formatCurrency(amount) : '0'}
           </Typo.Small>
         </div>
       </div>

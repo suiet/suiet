@@ -13,6 +13,7 @@ import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
 import { useChromeStorage } from '../../../hooks/useChromeStorage';
 import { StorageKeys } from '../../../store/enum';
+import { formatCurrency } from '../../../utils/format';
 
 export type ReceiveButtonProps = {
   address: string;
@@ -108,10 +109,11 @@ function MainPage() {
       ) : null}
       <div className={styles['balance']}>
         {balanceLoading ? (
-          <Skeleton width={'200px'} height={'36px'} />
+          <Skeleton width={'140px'} height={'36px'} />
         ) : (
-          `${Intl.NumberFormat('en-US').format(Number(balance))} SUI`
+          formatCurrency(balance)
         )}
+        <span className={styles['balance-unit']}>SUI</span>
       </div>
       <Address value={account?.address ?? ''} className={styles['address']} />
       <div className={styles['operations']}>
