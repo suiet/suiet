@@ -49,9 +49,14 @@ const NftItem = (props: NftItemProps) => {
         {loading ? (
           <Skeleton className={'w-[80px] h-[16px]'} />
         ) : (
-          <Typo.Normal className={classnames(styles['nft-name'])}>
-            {props.name}
-          </Typo.Normal>
+          <div className="ml-1">
+            <Typo.Normal className={classnames(styles['nft-name'])}>
+              {props.name}
+            </Typo.Normal>
+            <Typo.Small className={classnames(styles['nft-description'])}>
+              {props.description}
+            </Typo.Small>
+          </div>
         )}
       </div>
     </div>
