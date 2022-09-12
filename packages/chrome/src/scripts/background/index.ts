@@ -1,16 +1,6 @@
 import { PortName } from '../shared';
 import { BackgroundApiProxy } from './api-proxy';
 
-function createPopupWindow(url: string) {
-  chrome.windows.create({
-    url,
-    type: 'popup',
-    focused: true,
-    width: 362,
-    height: 573 + 30, // height including title bar, so should add 30px more
-  });
-}
-
 class ApiBridgeConnection {
   static connectTo(portName: PortName) {
     const handleConnect = (port: chrome.runtime.Port) => {
@@ -20,7 +10,7 @@ class ApiBridgeConnection {
           BackgroundApiProxy.listenTo(port); // setup listening channel
         port.onDisconnect.addListener(() => {
           console.log('clear proxy instance');
-          bgApiProxy = null; // clear proxy instance
+          bgApiProxy = null; // TODO: clear proxy instance
         });
       }
     };

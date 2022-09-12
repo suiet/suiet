@@ -1,9 +1,10 @@
-import { validateToken } from '../utils/token';
-import * as crypto from '../crypto';
-import { Vault } from '../vault/Vault';
-import { Storage } from '../storage/Storage';
-import { toAccountIdString, toAccountNameString } from './account';
+import { validateToken } from '../../utils/token';
+import * as crypto from '../../crypto';
+import { Vault } from '../../vault/Vault';
+import { Storage } from '../../storage/Storage';
+import { toAccountIdString, toAccountNameString } from '../account';
 import { Buffer } from 'buffer';
+import { whichAvatar } from './utils';
 
 export type CreateWalletParams = {
   token: string;
@@ -55,7 +56,6 @@ export class WalletApi implements IWalletApi {
 
   constructor(storage: Storage) {
     this.storage = storage;
-    // console.log('WalletApi storage', this.storage);
   }
 
   // Implement Wallet API
@@ -114,7 +114,7 @@ export class WalletApi implements IWalletApi {
       accounts: [],
       nextAccountId: 2,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
-      avatar: params.avatar ? params.avatar : undefined,
+      avatar: params.avatar ? params.avatar : whichAvatar(walletId),
     };
     const hdPath = crypto.derivationHdPath(0);
     const vault = await Vault.create(hdPath, token, wallet.encryptedMnemonic);

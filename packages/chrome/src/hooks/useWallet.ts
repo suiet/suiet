@@ -6,10 +6,14 @@ import { useApiClient } from './useApiClient';
 
 export function useWallet(walletId: string) {
   const apiClient = useApiClient();
-  const { data, error, mutate } = useSWR(['getWallet', walletId], fetchWallet);
+  const { data, error, mutate } = useSWR(
+    ['fetchWallet', walletId],
+    fetchWallet
+  );
   const token = useSelector((state: RootState) => state.appContext.token);
 
   async function fetchWallet(_: string, walletId: string) {
+    if (!walletId) return;
     return await apiClient.callFunc<string, Wallet>(
       'wallet.getWallet',
       walletId

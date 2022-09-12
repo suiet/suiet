@@ -6,15 +6,21 @@ import {
   SuiAddress,
   SuiTransactionResponse,
 } from '@mysten/sui.js';
-import { reqData, WindowMsgTarget } from '../shared';
+import { reqData, ResData, WindowMsgTarget } from '../shared';
+import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
 
 const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'] as const;
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
 type PermissionType = AllPermissionsType[number];
 
-export interface WalletCapabilities {
-  hasPermissions: (permissions: readonly PermissionType[]) => Promise<boolean>;
-  requestPermissions: () => Promise<boolean>;
+enum Permission {
+  VIEW_ACCOUNT = 'viewAccount',
+  SUGGEST_TX = 'suggestTransactions',
+}
+
+export interface ISuietWallet {
+  connect: (perms: Permission[]) => Promise<ResData>;
+  disconnect: () => Promise<ResData>;
   getAccounts: () => Promise<SuiAddress[]>;
   executeMoveCall: (
     transaction: MoveCallTransaction
@@ -22,31 +28,36 @@ export interface WalletCapabilities {
   executeSerializedMoveCall: (
     transactionBytes: Uint8Array
   ) => Promise<SuiTransactionResponse>;
+  hasPermissions: (permissions: readonly PermissionType[]) => Promise<boolean>;
+  requestPermissions: () => Promise<ResData>;
 }
 
-export class DAppInterface implements WalletCapabilities {
+export class DAppInterface implements ISuietWallet {
   name: string;
   connected: boolean;
   connecting: boolean;
+  windowMsgStream: WindowMsgStream;
 
   constructor() {
     this.name = 'Suiet';
     this.connected = false;
     this.connecting = false;
+    this.windowMsgStream = new WindowMsgStream(
+      WindowMsgTarget.DAPP,
+      WindowMsgTarget.SUIET_CONTENT
+    );
   }
 
   async connect() {
-    window.postMessage({
-      target: WindowMsgTarget.SUIET_CONTENT,
-      payload: reqData('connect', null),
-    });
+    console.log('[dappapi] handshake');
+    await this.windowMsgStream.post(reqData('handshake', null));
+    console.log('[dappapi] connect');
+    return await this.windowMsgStream.post(reqData('dapp.connect', null));
   }
 
   async disconnect() {
-    window.postMessage({
-      target: WindowMsgTarget.SUIET_CONTENT,
-      payload: reqData('disconnect', null),
-    });
+    await this.windowMsgStream.post(reqData('dapp.disconnect', null));
+    return await this.windowMsgStream.post(reqData('dhandwave', null));
   }
 
   async hasPermissions(permissions: readonly string[]) {
@@ -55,7 +66,7 @@ export class DAppInterface implements WalletCapabilities {
   }
 
   async requestPermissions() {
-    return true;
+    return await this.windowMsgStream.post(reqData('requestPermissions', null));
   }
 
   async executeMoveCall(
