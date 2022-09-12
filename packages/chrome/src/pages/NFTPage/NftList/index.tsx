@@ -88,26 +88,33 @@ const NftList = (props: NftListProps) => {
 
   if (!nftList || nftList.length === 0) return <Empty />;
   return (
-    <div
-      className={classnames(
-        props.className,
-        'grid',
-        'grid-cols-2',
-        'justify-items-center'
-      )}
-      style={props.style}
-    >
-      {nftList.map((nft) => {
-        return (
-          <NftItem
-            key={nft.id}
-            id={nft.id}
-            name={nft.name}
-            url={nft.url}
-            description={nft.description}
-          />
-        );
-      })}
+    <div className="px-4 mt-4">
+      <div className="ml-2 mb-4">
+        <div className="text-3xl mb-1 font-bold">NFT</div>
+        <div className="text-gray-400">Manage your NFTs.</div>
+      </div>
+
+      <div
+        className={classnames(
+          props.className,
+          'grid',
+          'grid-cols-2',
+          'justify-items-center'
+        )}
+        style={props.style}
+      >
+        {nftList.map((nft) => {
+          return (
+            <NftItem
+              key={nft.id}
+              id={nft.id}
+              name={nft.name}
+              url={nft.url}
+              description={nft.description}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
