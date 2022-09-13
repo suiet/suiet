@@ -53,12 +53,14 @@ function TransactionDetail() {
           className={classnames('transaction-detail-icon', type, txStatus)}
         ></div>
         <div className="transaction-detail-title">
-          {type
-            .replace(/([A-Z])/g, ' $1')
-            // uppercase the first character
-            .replace(/^./, function (str) {
-              return str.toUpperCase();
-            })}
+          {object.type === 'move_call'
+            ? 'MoveCall'
+            : type // insert a space before all caps
+                .replace(/([A-Z])/g, ' $1')
+                // uppercase the first character
+                .replace(/^./, function (str) {
+                  return str.toUpperCase();
+                })}
         </div>
         {object.type === 'coin' ? (
           <div className={classnames('transaction-detail-amount', txStatus)}>

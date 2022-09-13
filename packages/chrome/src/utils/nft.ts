@@ -3,6 +3,6 @@ export function ipfsToHttp(s: string) {
 }
 
 export function nftImgUrl(uri: string) {
-  if (uri.startsWith('ipfs')) return ipfsToHttp(uri);
+  if (String(uri).startsWith('ipfs')) return ipfsToHttp(uri);
   return uri;
 }
