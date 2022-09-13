@@ -20,9 +20,9 @@ export class IndexedDBStorage implements Storage {
     this.connection = IndexedDBStorage.openDbConnection();
     this.connection.then(async (db) => {
       await this.dbMigrationIfNeeded(db, DATA_VERSION);
-      // update db data version
       const meta = await this.loadMeta();
-      if (meta) {
+      if (meta?.dataVersion < DATA_VERSION) {
+        // update db data version
         await this.saveMeta({
           ...meta,
           dataVersion: DATA_VERSION,
