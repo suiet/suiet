@@ -108,11 +108,12 @@ export class QueryProvider {
       .map((item) => ({
         id: item.reference.objectId,
         object: getMoveObject(item),
+        previousTransaction: item.previousTransaction,
       }))
       .filter((item) => item.object && Nft.isNft(item.object))
       .map((item) => {
         const obj = item.object as SuiMoveObject;
-        return Nft.getNftObject(obj);
+        return Nft.getNftObject(obj, item.previousTransaction);
       });
     return res;
   }
@@ -168,7 +169,7 @@ export class QueryProvider {
                 ...coinObject,
               };
             } else if (obj && Nft.isNft(obj)) {
-              const nftObject = Nft.getNftObject(obj);
+              const nftObject = Nft.getNftObject(obj, undefined);
               txObj = {
                 type: 'nft' as 'nft',
                 ...nftObject,
