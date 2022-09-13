@@ -201,7 +201,7 @@ export class QueryProvider {
               packageObjectId: moveCall.package.objectId,
               module: moveCall.module,
               function: moveCall.function,
-              arguments: moveCall.typeArguments,
+              arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
             },
           });
         }
