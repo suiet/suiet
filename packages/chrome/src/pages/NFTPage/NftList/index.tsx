@@ -17,7 +17,9 @@ export interface NftMeta {
   id: string;
   name: string;
   description: string;
+  previousTransaction: string | undefined;
   url: string;
+  objectType: string;
 }
 
 type NftItemProps = Extendable &
@@ -36,6 +38,8 @@ const NftItem = (props: NftItemProps) => {
           id: props.id,
           name: props.name,
           description: props.description,
+          previousTransaction: props.previousTransaction,
+          objectType: props.objectType,
           url: props.url,
         });
       }}
@@ -96,6 +100,8 @@ const NftList = (props: NftListProps) => {
             name={nft.name}
             url={nft.url}
             description={nft.description}
+            previousTransaction={nft.previousTransaction}
+            objectType={nft.objectType}
             onClick={handleClickNft}
           />
         );
