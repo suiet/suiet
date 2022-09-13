@@ -4,16 +4,17 @@
   padding: 8px 32px 32px;
 }
 $img-size: 298px;
+
 .nft-img {
   width: $img-size;
   height: $img-size;
 }
 .nft-meta {
-  margin-top: 16px;
+  margin-top: 36px;
 }
 .nft-name {
   margin-top: 16px;
-
+  margin-bottom: 4px;
   font-family: 'Work Sans';
   font-style: normal;
   font-weight: 700;
@@ -21,6 +22,15 @@ $img-size: 298px;
   line-height: 33px;
   color: $gray-900;
 }
+
+.nft-tag {
+  background-color: $primary-100;
+  color: $primary-600;
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
 .sec-title {
   font-family: 'Inter';
   font-style: normal;
@@ -28,10 +38,10 @@ $img-size: 298px;
   font-size: 18px;
   line-height: 22px;
   color: $gray-900;
+  margin-bottom: 8px;
 }
 .sec-desc {
   font-family: 'Inter';
-  margin-top: 8px;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -41,4 +51,45 @@ $img-size: 298px;
 .nft-list {
   margin-top: 24px;
   padding: 0 24px;
+}
+
+.sec-detail {
+  &-item-container {
+    padding: 24px 0;
+  }
+
+  &-item {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: $gray-400;
+    margin-top: 8px;
+
+    &:first-of-type {
+      margin-top: 16px;
+    }
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &-key {
+      color: $gray-700;
+      font-weight: 500;
+    }
+  }
+
+  &-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 314px;
+    height: 40px;
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+    border-radius: 8px;
+  }
 }

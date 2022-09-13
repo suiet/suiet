@@ -76,7 +76,7 @@ function TransactionDetail() {
       </div>
       <div className="transaction-detail-item-container">
         <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">TRANSACTION ID</span>
+          <span className="transaction-detail-item-key">Transaction ID</span>
           <div
             className="transaction-detail-item-tx flex items-center"
             onClick={() => {
