@@ -17,6 +17,7 @@ export type Account = {
 export type GlobalMeta = {
   nextWalletId: number;
   cipher: Cipher;
+  dataVersion: number;
 };
 
 export type Cipher = {

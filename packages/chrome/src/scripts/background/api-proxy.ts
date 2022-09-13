@@ -158,6 +158,11 @@ export class BackgroundApiProxy {
       throw new Error(`service (${serviceName}) not exist`);
     }
     const service = this.serviceProxyCache[serviceName];
+    if (typeof service[funcName] !== 'function') {
+      throw new Error(
+        `method ${funcName} not exist in service (${serviceName})`
+      );
+    }
     return await (service[funcName](payload) as Promise<T>);
   }
 
