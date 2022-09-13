@@ -35,7 +35,7 @@ export type TxnHistoryEntry<T = TxObject> = {
   timestamp_ms: number | null;
 };
 
-export type TxObject = CoinObject | NftObject;
+export type TxObject = CoinObject | NftObject | MoveCallInfo;
 
 export type CoinObject = {
   type: 'coin';
@@ -48,4 +48,12 @@ export type NftObject = {
   name: string;
   description: string;
   url: string;
+};
+
+export type MoveCallInfo = {
+  type: 'move_call';
+  packageObjectId: string;
+  module: string;
+  function: string;
+  arguments?: string[];
 };
