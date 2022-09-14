@@ -1,17 +1,13 @@
 import { Account, GlobalMeta, Wallet } from './types';
 import { Storage } from './Storage';
 import indexeddbMigrations, { MigrationMethod } from './migrations/indexeddb';
-
-const GLOBAL_META_ID = 'suiet-meta';
-const DB_NAME = 'Suiet';
-const DB_VERSION = 4;
-export const DATA_VERSION = 1; // app data version, update when data structure changed
-
-export enum StoreName {
-  META = 'meta',
-  WALLETS = 'wallets',
-  ACCOUNTS = 'accounts',
-}
+import {
+  DATA_VERSION,
+  DB_NAME,
+  DB_VERSION,
+  GLOBAL_META_ID,
+  StoreName,
+} from './constants';
 
 export class IndexedDBStorage implements Storage {
   private readonly connection: Promise<IDBDatabase>;

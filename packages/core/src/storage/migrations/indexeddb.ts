@@ -1,6 +1,6 @@
-import { StoreName } from '../indexeddb';
 import { Account } from '../types';
 import { isNonEmptyArray } from '../../utils';
+import { StoreName } from '../constants';
 
 export type MigrationMethod = (
   db: IDBDatabase,

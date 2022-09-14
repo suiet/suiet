@@ -1,7 +1,7 @@
 import * as crypto from '../crypto';
 import { Storage } from '../storage/Storage';
 import { Buffer } from 'buffer';
-import { DATA_VERSION } from '../storage/indexeddb';
+import { DATA_VERSION } from '../storage/constants';
 
 export type UpdatePasswordParams = {
   oldPassword: string | null;
