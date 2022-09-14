@@ -7,10 +7,14 @@ import { useNetwork } from '../../../hooks/useNetwork';
 import { useAccount } from '../../../hooks/useAccount';
 import { useState } from 'react';
 import styles from './empty.module.scss';
-import { mutate } from 'swr';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import { useApiClient } from '../../../hooks/useApiClient';
-export default function Empty() {
+
+export type EmptyProps = {
+  onMintSuccess: () => void;
+};
+
+export default function Empty(props: EmptyProps) {
   const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
@@ -47,12 +51,11 @@ export default function Empty() {
         params
       );
       message.success('Mint NFT succeed');
+      props.onMintSuccess();
     } catch (e: any) {
       message.error(`Mint NFT failed: ${e?.message}`);
     } finally {
       setSendLoading(false);
-
-      mutate(['getOwnedNfts', network, account?.address ?? '']);
       console.log('mint nft');
     }
   }
