@@ -1,0 +1,14 @@
+@import '../../styles/variables.scss';
+
+$img-size: 140px;
+$border-radius: 8px;
+
+.nft-img-wrap {
+  width: $img-size;
+  height: $img-size;
+  border-radius: $border-radius;
+}
+.nft-img {
+  object-fit: cover;
+  border-radius: $border-radius;
+}

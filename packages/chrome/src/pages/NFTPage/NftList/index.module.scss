@@ -1,13 +1,19 @@
 @import '../../../styles/variables.scss';
 @import '../../../styles/mixins.scss';
 
-.nft-img {
-  @apply flex justify-center items-center;
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  background: $gray-200;
-  border-radius: 8px;
+.nft-item {
+  @apply flex
+    flex-col
+    items-center
+    max-w-[153px]
+    border
+    rounded-xl
+    transition
+    hover:bg-gray-100;
+
+  border-color: $gray-200;
+  padding: 6px;
+  cursor: pointer;
 }
 
 $max-text-len: 120px;
@@ -16,13 +22,17 @@ $max-text-len: 120px;
 }
 
 .nft-name {
-  font-family: Inter;
+  font-family: 'Work Sans';
+  font-weight: 600;
   width: $max-text-len;
   @include ellipsis();
   color: $gray-900;
   font-size: 14px;
 }
 .nft-description {
+  font-size: 12px;
+  color: $gray-300;
+  font-weight: 500;
   width: $max-text-len;
   @include ellipsis();
 }

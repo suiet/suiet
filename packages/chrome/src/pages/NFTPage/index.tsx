@@ -1,11 +1,38 @@
 import NftList from '../NFTPage/NftList';
+import Typo from '../../components/Typo';
+import styles from './index.module.scss';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { useAccount } from '../../hooks/useAccount';
+import { useNftList } from '../../hooks/useNftList';
+import { isNonEmptyArray } from '../../utils/check';
+import Empty from './NftList/Empty';
 
-import classnames from 'classnames';
 function MainPage() {
+  const appContext = useSelector((state: RootState) => state.appContext);
+  const { data: account } = useAccount(appContext.accountId);
+  const { data: nftList, loading } = useNftList(
+    account?.address ?? '',
+    appContext.networkId
+  );
+
+  if (!loading && !isNonEmptyArray(nftList)) return <Empty />;
   return (
-    <div className={classnames('pt-4')}>
-      {/* <div className="ml-2 text-3xl my-4 font-medium">NFT</div> */}
-      <NftList />
+    <div className={styles['container']}>
+      <header className={styles['header']}>
+        <Typo.Title className={styles['title']}>NFT</Typo.Title>
+        <Typo.Small className={styles['desc']}>Manage your NFTs.</Typo.Small>
+      </header>
+      {loading ? (
+        // skeleton
+        <NftList
+          loading={true}
+          value={['', '', '', ''] as any}
+          className={styles['nft-list']}
+        />
+      ) : (
+        <NftList value={nftList ?? []} className={styles['nft-list']} />
+      )}
     </div>
   );
 }

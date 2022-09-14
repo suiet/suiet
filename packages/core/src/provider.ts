@@ -13,6 +13,7 @@ import {
   getCoinAfterSplit,
   MoveCallTransaction,
   Base64DataBuffer,
+  getMoveCallTransaction,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -108,11 +109,12 @@ export class QueryProvider {
       .map((item) => ({
         id: item.reference.objectId,
         object: getMoveObject(item),
+        previousTransaction: item.previousTransaction,
       }))
       .filter((item) => item.object && Nft.isNft(item.object))
       .map((item) => {
         const obj = item.object as SuiMoveObject;
-        return Nft.getNftObject(obj);
+        return Nft.getNftObject(obj, item.previousTransaction);
       });
     return res;
   }
@@ -135,6 +137,8 @@ export class QueryProvider {
       const data = getTransactionData(effect.certificate);
       for (const tx of data.transactions) {
         const transferSui = getTransferSuiTransaction(tx);
+        const transferObject = getTransferObjectTransaction(tx);
+        const moveCall = getMoveCallTransaction(tx);
         if (transferSui) {
           results.push({
             timestamp_ms: effect.timestamp_ms,
@@ -151,42 +155,55 @@ export class QueryProvider {
               symbol: 'SUI',
             },
           });
-        } else {
-          const transferObject = getTransferObjectTransaction(tx);
-          if (transferObject) {
-            const resp = await this.provider.getObject(
-              transferObject.objectRef.objectId
-            );
-            const obj = getMoveObject(resp);
-            let txObj: TxObject | undefined;
-            // TODO: for now provider does not support to get histrorical object data,
-            // so the record here may not be accurate.
-            if (obj && Coin.isCoin(obj)) {
-              const coinObject = Coin.getCoinObject(obj);
-              txObj = {
-                type: 'coin' as 'coin',
-                ...coinObject,
-              };
-            } else if (obj && Nft.isNft(obj)) {
-              const nftObject = Nft.getNftObject(obj);
-              txObj = {
-                type: 'nft' as 'nft',
-                ...nftObject,
-              };
-            }
-            // TODO: handle more object types
-            if (txObj) {
-              results.push({
-                timestamp_ms: effect.timestamp_ms,
-                txStatus: getExecutionStatusType(effect),
-                transactionDigest: effect.certificate.transactionDigest,
-                gasUsed: effect.effects.gasUsed.computationCost,
-                from: data.sender,
-                to: transferObject.recipient,
-                object: txObj,
-              });
-            }
+        } else if (transferObject) {
+          const resp = await this.provider.getObject(
+            transferObject.objectRef.objectId
+          );
+          const obj = getMoveObject(resp);
+          let txObj: TxObject | undefined;
+          // TODO: for now provider does not support to get histrorical object data,
+          // so the record here may not be accurate.
+          if (obj && Coin.isCoin(obj)) {
+            const coinObject = Coin.getCoinObject(obj);
+            txObj = {
+              type: 'coin' as 'coin',
+              ...coinObject,
+            };
+          } else if (obj && Nft.isNft(obj)) {
+            const nftObject = Nft.getNftObject(obj, undefined);
+            txObj = {
+              type: 'nft' as 'nft',
+              ...nftObject,
+            };
           }
+          // TODO: handle more object types
+          if (txObj) {
+            results.push({
+              timestamp_ms: effect.timestamp_ms,
+              txStatus: getExecutionStatusType(effect),
+              transactionDigest: effect.certificate.transactionDigest,
+              gasUsed: effect.effects.gasUsed.computationCost,
+              from: data.sender,
+              to: transferObject.recipient,
+              object: txObj,
+            });
+          }
+        } else if (moveCall) {
+          results.push({
+            timestamp_ms: effect.timestamp_ms,
+            txStatus: getExecutionStatusType(effect),
+            transactionDigest: effect.certificate.transactionDigest,
+            gasUsed: effect.effects.gasUsed.computationCost,
+            from: data.sender,
+            to: moveCall.package.objectId,
+            object: {
+              type: 'move_call' as 'move_call',
+              packageObjectId: moveCall.package.objectId,
+              module: moveCall.module,
+              function: moveCall.function,
+              arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
+            },
+          });
         }
       }
     }

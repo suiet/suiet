@@ -80,6 +80,8 @@ export type NftObjectDto = {
   name: string;
   description: string;
   url: string;
+  previousTransaction?: string;
+  objectType: string;
 };
 
 export type ObjectDto = CoinObjectDto | NftObjectDto;
@@ -91,7 +93,7 @@ export interface ITransactionApi {
   getTransactionHistory: (
     params: GetTxHistoryParams
   ) => Promise<Array<TxnHistoryEntry<ObjectDto>>>;
-  getOwnedObjects: (params: GetOwnedObjParams) => Promise<ObjectDto[]>;
+  getOwnedCoins: (params: GetOwnedObjParams) => Promise<CoinObjectDto[]>;
   getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObjectDto[]>;
   getCoinsBalance: (
     params: GetOwnedObjParams
@@ -189,7 +191,7 @@ export class TransactionApi implements ITransactionApi {
     }));
   }
 
-  async getOwnedObjects(params: GetOwnedObjParams): Promise<ObjectDto[]> {
+  async getOwnedCoins(params: GetOwnedObjParams): Promise<CoinObjectDto[]> {
     const { network, address } = params;
     const provider = new Provider(network.queryRpcUrl, network.gatewayRpcUrl);
     const coins = await provider.query.getOwnedCoins(address);
@@ -213,6 +215,8 @@ export class TransactionApi implements ITransactionApi {
       name: nft.name,
       description: nft.description,
       url: nft.url,
+      previousTransaction: nft.previousTransaction,
+      objectType: nft.objectType,
     }));
   }
 

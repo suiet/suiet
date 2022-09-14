@@ -8,12 +8,22 @@
 }
 
 .balance {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
   font-weight: 700;
   font-size: 36px;
-  line-height: 44px;
+  line-height: 47px;
   text-align: center;
   color: $gray-900;
   margin-top: 28px;
+
+  &-unit {
+    margin-left: 8px;
+    color: $gray-300;
+  }
 }
 
 .address {

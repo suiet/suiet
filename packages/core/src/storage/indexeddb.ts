@@ -1,21 +1,30 @@
 import { Account, GlobalMeta, Wallet } from './types';
 import { Storage } from './Storage';
-
-const GLOBAL_META_ID = 'suiet-meta';
-const DB_NAME = 'Suiet';
-const DB_VERSION = 4;
-
-enum StoreName {
-  META = 'meta',
-  WALLETS = 'wallets',
-  ACCOUNTS = 'accounts',
-}
+import indexeddbMigrations, { MigrationMethod } from './migrations/indexeddb';
+import {
+  DATA_VERSION,
+  DB_NAME,
+  DB_VERSION,
+  GLOBAL_META_ID,
+  StoreName,
+} from './constants';
 
 export class IndexedDBStorage implements Storage {
   private readonly connection: Promise<IDBDatabase>;
 
   constructor() {
     this.connection = IndexedDBStorage.openDbConnection();
+    this.connection.then(async (db) => {
+      await this.dbMigrationIfNeeded(db, DATA_VERSION);
+      const meta = await this.loadMeta();
+      if (meta?.dataVersion < DATA_VERSION) {
+        // update db data version
+        await this.saveMeta({
+          ...meta,
+          dataVersion: DATA_VERSION,
+        });
+      }
+    });
   }
 
   public static async openDbConnection(): Promise<IDBDatabase> {
@@ -380,6 +389,26 @@ export class IndexedDBStorage implements Storage {
     wallet.accounts = wallet.accounts.filter((ac) => ac.id !== accountId);
     transaction.objectStore(StoreName.WALLETS).put(wallet);
     transaction.objectStore(StoreName.ACCOUNTS).delete(accountId);
+  }
+
+  private async dbMigrationIfNeeded(db: IDBDatabase, newVersion: number) {
+    const meta = await this.loadMeta();
+    let oldVersion = 0;
+    if (meta && typeof meta.dataVersion === 'number') {
+      oldVersion = meta.dataVersion;
+    }
+    if (oldVersion === newVersion) return;
+    const versionMigrationKey = `${oldVersion}->${newVersion}`;
+    if (!indexeddbMigrations.has(versionMigrationKey)) return;
+    const migration = indexeddbMigrations.get(
+      versionMigrationKey
+    ) as MigrationMethod;
+    try {
+      await migration(db, oldVersion, newVersion);
+    } catch (e) {
+      console.error(`[db] migration failed: ${versionMigrationKey}`, e);
+      throw e;
+    }
   }
 }
 

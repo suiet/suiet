@@ -2,97 +2,91 @@ import classnames from 'classnames';
 import type { Extendable, StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
-import { useAccount } from '../../../hooks/useAccount';
-import useSWR from 'swr';
-import { useNetwork } from '../../../hooks/useNetwork';
-import { Network } from '@suiet/core/dist/api/network';
-import { swrLoading } from '../../../utils/others';
 import { nftImgUrl } from '../../../utils/nft';
-import Empty from './Empty';
-import { useApiClient } from '../../../hooks/useApiClient';
-import { GetOwnedObjParams, NftObjectDto } from '@suiet/core';
+import { useNavigate } from 'react-router-dom';
+import NftImg from '../../../components/NftImg';
+import { NftObjectDto } from '@suiet/core';
+import Skeleton from 'react-loading-skeleton';
 
-export type NftListProps = StyleExtendable;
+export type NftListProps = StyleExtendable & {
+  value: NftObjectDto[];
+  loading?: boolean;
+};
 
-type NftItemProps = Extendable & {
+export interface NftMeta {
   id: string;
   name: string;
   description: string;
+  previousTransaction: string | undefined;
   url: string;
-};
+  objectType: string;
+}
+
+type NftItemProps = Extendable &
+  NftMeta & {
+    loading?: boolean;
+    onClick?: (data: NftMeta) => void;
+  };
 
 const NftItem = (props: NftItemProps) => {
+  const { loading = false } = props;
   return (
-    <div className={classnames('mb-4')}>
-      <div
-        className={classnames(
-          'flex',
-          'flex-col',
-          'items-center',
-          'max-w-[160px]',
-          'border',
-          'border-gray-300',
-          'rounded-xl',
-          'p-2',
-          'transition',
-          'hover:bg-gray-100'
+    <div
+      className={classnames(styles['nft-item'], props.className)}
+      onClick={() => {
+        props.onClick?.({
+          id: props.id,
+          name: props.name,
+          description: props.description,
+          previousTransaction: props.previousTransaction,
+          objectType: props.objectType,
+          url: props.url,
+        });
+      }}
+    >
+      {loading ? (
+        <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
+      ) : (
+        <NftImg src={nftImgUrl(props.url)} alt={props.name} />
+      )}
+      <div className={classnames('w-full', 'mt-2')}>
+        {loading ? (
+          <Skeleton className={'w-[80px] h-[16px]'} />
+        ) : (
+          <div className="ml-1">
+            <Typo.Normal className={classnames(styles['nft-name'])}>
+              {props.name}
+            </Typo.Normal>
+            <Typo.Small className={classnames(styles['nft-description'])}>
+              {props.description}
+            </Typo.Small>
+          </div>
         )}
-      >
-        <img
-          className={styles['nft-img']}
-          src={nftImgUrl(props.url)}
-          alt={props.name}
-        />
-        <div className={classnames('w-full', 'mt-2')}>
-          <Typo.Normal className={classnames(styles['nft-name'])}>
-            {props.name}
-          </Typo.Normal>
-        </div>
       </div>
     </div>
   );
 };
 
-function useNftList(address: string, networkId: string = 'devnet') {
-  const apiClient = useApiClient();
-  const { data: network } = useNetwork(networkId);
-  const { data, error } = useSWR(
-    ['getOwnedNfts', network, address],
-    fetchNftList
-  );
+const NftList = (props: NftListProps) => {
+  const { value: nftList = [], loading = false } = props;
+  const navigate = useNavigate();
 
-  async function fetchNftList(_: string, network: Network, address: string) {
-    if (!network || !address) return;
-    return await apiClient.callFunc<GetOwnedObjParams, NftObjectDto[]>(
-      'txn.getOwnedNfts',
-      { network, address }
-    );
+  function handleClickNft(data: NftMeta) {
+    navigate(`/nft/details`, {
+      state: {
+        hideAppLayout: true,
+        ...data,
+      },
+    });
   }
 
-  return {
-    data,
-    error,
-    loading: swrLoading(data, error),
-  };
-}
-
-const NftList = (props: NftListProps) => {
-  const appContext = useSelector((state: RootState) => state.appContext);
-  const { data: account } = useAccount(appContext.accountId);
-  const { data: nftList } = useNftList(
-    account?.address ?? '',
-    appContext.networkId
-  );
-
-  if (!nftList || nftList.length === 0) return <Empty />;
   return (
     <div
       className={classnames(
         props.className,
         'grid',
         'grid-cols-2',
+        'gap-[8px]',
         'justify-items-center'
       )}
       style={props.style}
@@ -101,10 +95,14 @@ const NftList = (props: NftListProps) => {
         return (
           <NftItem
             key={nft.id}
+            loading={loading}
             id={nft.id}
             name={nft.name}
             url={nft.url}
             description={nft.description}
+            previousTransaction={nft.previousTransaction}
+            objectType={nft.objectType}
+            onClick={handleClickNft}
           />
         );
       })}

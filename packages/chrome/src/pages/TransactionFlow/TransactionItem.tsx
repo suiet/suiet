@@ -57,12 +57,14 @@ function TransactionItem({
       <div className={classnames('transaction-item-icon', type, status)} />
       <div className="transaction-item-detail">
         <div className="transaction-item-type">
-          {type // insert a space before all caps
-            .replace(/([A-Z])/g, ' $1')
-            // uppercase the first character
-            .replace(/^./, function (str) {
-              return str.toUpperCase();
-            })}
+          {object.type === 'move_call'
+            ? 'MoveCall'
+            : type // insert a space before all caps
+                .replace(/([A-Z])/g, ' $1')
+                // uppercase the first character
+                .replace(/^./, function (str) {
+                  return str.toUpperCase();
+                })}
           {date && <span>{date}</span>}
         </div>
         {type === 'received' ? (
@@ -94,7 +96,8 @@ function TransactionItem({
                 2
               )} ${coin.toUpperCase()}`}
         </div>
-      ) : (
+      ) : null}
+      {object.type === 'nft' ? (
         <div className={classnames('transaction-item-amount', type, status)}>
           <img
             src={nftImgUrl(object.url)}
@@ -102,7 +105,12 @@ function TransactionItem({
             alt=""
           />
         </div>
-      )}
+      ) : null}
+      {object.type === 'move_call' ? (
+        <div
+          className={classnames('transaction-item-amount', type, status)}
+        ></div>
+      ) : null}
     </div>
   );
 }

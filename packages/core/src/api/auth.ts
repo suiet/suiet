@@ -1,6 +1,7 @@
 import * as crypto from '../crypto';
 import { Storage } from '../storage/Storage';
 import { Buffer } from 'buffer';
+import { DATA_VERSION } from '../storage/constants';
 
 export type UpdatePasswordParams = {
   oldPassword: string | null;
@@ -38,6 +39,7 @@ export class AuthApi {
     const { cipher } = crypto.newToken(newPassword);
     const newMeta = {
       nextWalletId: 1,
+      dataVersion: DATA_VERSION,
       cipher,
     };
     if (meta) {
