@@ -59,14 +59,17 @@ const ReceiveButton = (props: ReceiveButtonProps) => {
   );
 };
 
-function MainPage() {
-  const context = useSelector((state: RootState) => state.appContext);
-  const { data: account } = useAccount(context.accountId);
+export type DashboardProps = {
+  address: string;
+  networkId: string;
+};
+
+function MainPage({ address, networkId }: DashboardProps) {
   const { balance, loading: balanceLoading } = useCoinBalance(
-    account?.address ?? '',
+    address ?? '',
     CoinSymbol.SUI,
     {
-      networkId: context.networkId,
+      networkId: networkId,
     }
   );
   const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
@@ -115,7 +118,7 @@ function MainPage() {
         )}
         <span className={styles['balance-unit']}>SUI</span>
       </div>
-      <Address value={account?.address ?? ''} className={styles['address']} />
+      <Address value={address} className={styles['address']} />
       <div className={styles['operations']}>
         {/* <div
           className={classnames(styles['operations-item'], styles['airdrop'])}
@@ -125,7 +128,7 @@ function MainPage() {
         >
           Airdrop
         </div> */}
-        <ReceiveButton address={account?.address ?? ''} />
+        <ReceiveButton address={address} />
         <Link to={'/send'}>
           <div
             className={classnames(

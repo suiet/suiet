@@ -11,7 +11,7 @@ export default defineManifest((env) => ({
     '128': 'logo.png',
   },
   action: { default_popup: 'index.html' },
-  permissions: ['storage', 'tabs'],
+  permissions: ['storage'],
   background: {
     service_worker: 'src/scripts/background/index.ts',
   },
@@ -29,5 +29,5 @@ export default defineManifest((env) => ({
   //     matches: ['http://*/*', 'https://*/*'],
   //   },
   // ],
-  host_permissions: ['http://localhost:*/*', 'http://127.0.0.1:*/*'],
+  // host_permissions: ['http://localhost:*/*', 'http://127.0.0.1:*/*'],
 }));
