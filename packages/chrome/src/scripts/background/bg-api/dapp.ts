@@ -4,7 +4,7 @@ import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
 import { Storage } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
-import { PermissionManager } from '../permission';
+import { Permission, PermissionManager } from '../permission';
 
 interface DappMessage<T> {
   params: T;
@@ -47,15 +47,11 @@ export class DappBgApi {
       throw new Error('Wallet not initialized');
     }
     const appContext = await this.getAppContext();
-    const account = await this.storage.getAccount(appContext.accountId);
+    const account = await this.getActiveAccount(appContext.accountId);
 
-    const checkRes = await this.permManager.checkPermissions(
-      params.permissions,
-      {
-        origin: context.origin,
-        address: account.address,
-        networkId: appContext.networkId,
-      }
+    const checkRes = await this.checkPermissions(
+      payload.context.origin,
+      payload.params.permissions
     );
     if (checkRes.result) return true;
 
@@ -100,11 +96,35 @@ export class DappBgApi {
     return finalResult.status === 'passed';
   }
 
+  // get callback from ui extension
   public async callbackPermRequestResult(payload: PermResponse) {
     if (!payload) {
       throw new Error('params result should not be empty');
     }
     closeWindowSubject.next(payload); // send data to event listener so that the connect function can go on
+  }
+
+  public async hasPermissions(payload: DappMessage<{}>) {
+    const { context } = payload;
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    return await this.permManager.getAllPermissions({
+      address: account.address,
+      networkId: appContext.networkId,
+      origin: context.origin,
+    });
+  }
+
+  async getAccounts(payload: DappMessage<{}>) {
+    const checkRes = await this.checkPermissions(payload.context.origin, [
+      Permission.VIEW_ACCOUNT,
+    ]);
+    if (!checkRes.result) {
+      throw new Error('no permission to getAccounts info');
+    }
+    const appContext = await this.getAppContext();
+    const result = await this.storage.getAccounts(appContext.walletId);
+    return result.map((ac) => ac.address);
   }
 
   createPopupWindow(url: string, params: Record<string, any>) {
@@ -113,6 +133,24 @@ export class DappBgApi {
       chrome.runtime.getURL('index.html#' + url) +
         (queryStr ? '?' + queryStr : '')
     );
+  }
+
+  private async checkPermissions(origin: string, perms: string[]) {
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    return await this.permManager.checkPermissions(perms, {
+      address: account.address,
+      networkId: appContext.networkId,
+      origin: origin,
+    });
+  }
+
+  private async getActiveAccount(accountId: string) {
+    const account = await this.storage.getAccount(accountId);
+    if (!account) {
+      throw new Error(`cannot find account, id=${accountId}`);
+    }
+    return account;
   }
 
   private async getAppContext() {

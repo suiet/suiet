@@ -2,6 +2,11 @@ import { ChromeStorage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
 
+export enum Permission {
+  VIEW_ACCOUNT = 'viewAccount',
+  SUGGEST_TX = 'suggestTransactions',
+}
+
 export interface PermRequest {
   id: string;
   origin: string;
@@ -26,7 +31,7 @@ export class PermReqStorage {
   async getPermRequestStoreMap(): Promise<Record<string, PermRequest>> {
     const result = await this.storage.getItem(StorageKeys.PERM_REQUESTS);
     if (!result) {
-      await this.storage.setItem(StorageKeys.PERM_REQUESTS, JSON.stringify({}));
+      await this.reset();
       return {};
     }
     return JSON.parse(result);
@@ -43,6 +48,13 @@ export class PermReqStorage {
     return await this.storage.setItem(
       StorageKeys.PERM_REQUESTS,
       JSON.stringify(permRequests)
+    );
+  }
+
+  async reset() {
+    return await this.storage.setItem(
+      StorageKeys.PERM_REQUESTS,
+      JSON.stringify({})
     );
   }
 }
@@ -65,21 +77,14 @@ export class PermissionManager {
     result: boolean;
     missingPerms: string[];
   }> {
-    const storeMap = await this.permReqStorage.getPermRequestStoreMap();
     const allPermissions = new Set<string>();
-    Object.values(storeMap)
-      .filter((permData) => {
-        return (
-          permData.origin === authInfo.origin &&
-          permData.address === authInfo.address &&
-          permData.networkId === authInfo.networkId
-        );
-      })
-      .forEach((data) => {
-        data.permissions.forEach((perm) => {
-          allPermissions.add(perm);
-        });
+    const result = await this.getAllPermissions(authInfo);
+    result.forEach((data) => {
+      console.log('permReq', data);
+      data.permissions.forEach((perm) => {
+        allPermissions.add(perm);
       });
+    });
     const resData: {
       result: boolean;
       missingPerms: string[];
@@ -118,6 +123,23 @@ export class PermissionManager {
 
   async getPermission(permId: string) {
     return await this.permReqStorage.getItem(permId);
+  }
+
+  async getAllPermissions(authInfo: {
+    origin: string;
+    address: string;
+    networkId: string;
+  }) {
+    const storeMap = await this.permReqStorage.getPermRequestStoreMap();
+    if (Object.keys(storeMap).length === 0) return [];
+
+    return Object.values(storeMap).filter((permData) => {
+      return (
+        permData.origin === authInfo.origin &&
+        permData.address === authInfo.address &&
+        permData.networkId === authInfo.networkId
+      );
+    });
   }
 
   async setPermission(permReq: PermRequest) {

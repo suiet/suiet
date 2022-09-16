@@ -21,7 +21,7 @@ enum Permission {
 export interface ISuietWallet {
   connect: (perms: Permission[]) => Promise<ResData>;
   disconnect: () => Promise<ResData>;
-  getAccounts: () => Promise<SuiAddress[]>;
+  getAccounts: () => Promise<ResData<SuiAddress[]>>;
   executeMoveCall: (
     transaction: MoveCallTransaction
   ) => Promise<SuiTransactionResponse>;
@@ -49,17 +49,14 @@ export class DAppInterface implements ISuietWallet {
   }
 
   async connect(permissions: Permission[]) {
-    console.log('[dappapi] handshake');
     await this.windowMsgStream.post(reqData('handshake', null));
-    console.log('[dappapi] connect');
     return await this.windowMsgStream.post(
       reqData('dapp.connect', { permissions })
     );
   }
 
   async disconnect() {
-    await this.windowMsgStream.post(reqData('dapp.disconnect', null));
-    return await this.windowMsgStream.post(reqData('dhandwave', null));
+    return await this.windowMsgStream.post(reqData('handwave', null));
   }
 
   async hasPermissions(permissions: readonly string[]) {
@@ -83,8 +80,10 @@ export class DAppInterface implements ISuietWallet {
     return await Promise.resolve(undefined as any);
   }
 
-  async getAccounts(): Promise<SuiAddress[]> {
-    return [];
+  async getAccounts() {
+    return await this.windowMsgStream.post<SuiAddress[]>(
+      reqData('dapp.getAccounts', null)
+    );
   }
 }
 

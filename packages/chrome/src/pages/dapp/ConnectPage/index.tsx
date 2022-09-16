@@ -12,16 +12,16 @@ import { useEffect, useState } from 'react';
 import message from '../../../components/message';
 import { sleep } from '../../../utils/time';
 import { useNavigate } from 'react-router-dom';
-import {
-  PermReqStorage,
-  PermRequest,
-} from '../../../scripts/background/bg-api/dapp';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useWallet } from '../../../hooks/useWallet';
 import Address from '../../../components/Address';
 import { isNonEmptyArray } from '../../../utils/check';
 import { useApiClient } from '../../../hooks/useApiClient';
+import {
+  PermReqStorage,
+  PermRequest,
+} from '../../../scripts/background/permission';
 
 const ConnectPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);

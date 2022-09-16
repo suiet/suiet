@@ -31,7 +31,7 @@ function de(e, t, r) {
   return le(n);
 }
 var D = /* @__PURE__ */ ((e) => (e.DAPP = "DAPP", e.SUIET_CONTENT = "SUIET_CONTENT", e))(D || {});
-function x(e, t) {
+function g(e, t) {
   return {
     id: de(),
     funcName: e,
@@ -159,7 +159,7 @@ function P(e) {
     };
   throw new TypeError(t ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-function S(e, t) {
+function E(e, t) {
   var r = typeof Symbol == "function" && e[Symbol.iterator];
   if (!r)
     return e;
@@ -185,8 +185,8 @@ function T(e, t, r) {
       (i || !(n in t)) && (i || (i = Array.prototype.slice.call(t, 0, n)), i[n] = t[n]);
   return e.concat(i || Array.prototype.slice.call(t));
 }
-function g(e) {
-  return this instanceof g ? (this.v = e, this) : new g(e);
+function S(e) {
+  return this instanceof S ? (this.v = e, this) : new S(e);
 }
 function ye(e, t, r) {
   if (!Symbol.asyncIterator)
@@ -210,7 +210,7 @@ function ye(e, t, r) {
     }
   }
   function s(f) {
-    f.value instanceof g ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
+    f.value instanceof S ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
   }
   function c(f) {
     a("next", f);
@@ -310,7 +310,7 @@ var F = function() {
             try {
               B(m);
             } catch (h) {
-              i = i != null ? i : [], h instanceof k ? i = T(T([], S(i)), S(h.errors)) : i.push(h);
+              i = i != null ? i : [], h instanceof k ? i = T(T([], E(i)), E(h.errors)) : i.push(h);
             }
           }
         } catch (h) {
@@ -375,7 +375,7 @@ var te = {
     for (var r = [], n = 2; n < arguments.length; n++)
       r[n - 2] = arguments[n];
     var o = C.delegate;
-    return o != null && o.setTimeout ? o.setTimeout.apply(o, T([e, t], S(r))) : setTimeout.apply(void 0, T([e, t], S(r)));
+    return o != null && o.setTimeout ? o.setTimeout.apply(o, T([e, t], E(r))) : setTimeout.apply(void 0, T([e, t], E(r)));
   },
   clearTimeout: function(e) {
     var t = C.delegate;
@@ -665,13 +665,13 @@ function Re(e) {
         case 1:
           u.trys.push([1, , 9, 10]), u.label = 2;
         case 2:
-          return [4, g(r.read())];
+          return [4, S(r.read())];
         case 3:
-          return n = u.sent(), o = n.value, i = n.done, i ? [4, g(void 0)] : [3, 5];
+          return n = u.sent(), o = n.value, i = n.done, i ? [4, S(void 0)] : [3, 5];
         case 4:
           return [2, u.sent()];
         case 5:
-          return [4, g(o)];
+          return [4, S(o)];
         case 6:
           return [4, u.sent()];
         case 7:
@@ -842,7 +842,7 @@ function U(e, t) {
 }
 var Qe = Array.isArray;
 function Be(e, t) {
-  return Qe(t) ? e.apply(void 0, T([], S(t))) : e(t);
+  return Qe(t) ? e.apply(void 0, T([], E(t))) : e(t);
 }
 function Ke(e) {
   return U(function(t) {
@@ -857,21 +857,21 @@ function Xe(e, t, r, n, o, i, u, a) {
   }, m = function(h) {
     i && t.next(h), c++;
     var W = !1;
-    H(r(h, l++)).subscribe(I(t, function(E) {
-      o == null || o(E), i ? p(E) : t.next(E);
+    H(r(h, l++)).subscribe(I(t, function(x) {
+      o == null || o(x), i ? p(x) : t.next(x);
     }, function() {
       W = !0;
     }, void 0, function() {
       if (W)
         try {
           c--;
-          for (var E = function() {
+          for (var x = function() {
             var A = s.shift();
             u ? He(t, u, function() {
               return m(A);
             }) : m(A);
           }; s.length && c < n; )
-            E();
+            x();
           f();
         } catch (A) {
           t.error(A);
@@ -897,7 +897,7 @@ var Ze = ["addListener", "removeListener"], $e = ["addEventListener", "removeEve
 function V(e, t, r, n) {
   if (d(r) && (n = r, r = void 0), n)
     return V(e, t, r).pipe(Ke(n));
-  var o = S(tt(e) ? $e.map(function(a) {
+  var o = E(tt(e) ? $e.map(function(a) {
     return function(s) {
       return e[a](t, s, r);
     };
@@ -1004,18 +1004,18 @@ class it {
     );
   }
   async connect(t) {
-    return console.log("[dappapi] handshake"), await this.windowMsgStream.post(x("handshake", null)), console.log("[dappapi] connect"), await this.windowMsgStream.post(
-      x("dapp.connect", { permissions: t })
+    return console.log("[dappapi] handshake"), await this.windowMsgStream.post(g("handshake", null)), console.log("[dappapi] connect"), await this.windowMsgStream.post(
+      g("dapp.connect", { permissions: t })
     );
   }
   async disconnect() {
-    return await this.windowMsgStream.post(x("dapp.disconnect", null)), await this.windowMsgStream.post(x("dhandwave", null));
+    return await this.windowMsgStream.post(g("dapp.disconnect", null)), await this.windowMsgStream.post(g("dhandwave", null));
   }
   async hasPermissions(t) {
     return console.log("permissions", t), !0;
   }
   async requestPermissions() {
-    return await this.windowMsgStream.post(x("requestPermissions", null));
+    return await this.windowMsgStream.post(g("requestPermissions", null));
   }
   async executeMoveCall(t) {
     return await Promise.resolve(void 0);
@@ -1024,7 +1024,9 @@ class it {
     return await Promise.resolve(void 0);
   }
   async getAccounts() {
-    return [];
+    return await this.windowMsgStream.post(
+      g("dapp.getAccounts", null)
+    );
   }
 }
 Object.defineProperty(window, "__suiet__", {
