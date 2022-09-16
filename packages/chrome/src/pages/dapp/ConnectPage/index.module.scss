@@ -18,6 +18,11 @@
   border-radius: 32px;
   border: 2px solid #000;
   object-fit: cover;
+
+  > img {
+    width: 64px;
+    border-radius: 32px;
+  }
 }
 .header-avatar {
   position: relative;

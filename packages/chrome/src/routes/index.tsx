@@ -47,7 +47,7 @@ const routesConfig: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to="/dapp/connect" />,
+        element: <Navigate to="home" />,
       },
       {
         path: 'home',

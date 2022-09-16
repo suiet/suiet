@@ -15,19 +15,18 @@ export default defineManifest((env) => ({
   background: {
     service_worker: 'src/scripts/background/index.ts',
   },
-  // TODO: add them after finishing tests
-  // content_scripts: [
-  //   {
-  //     matches: ['http://*/*', 'https://*/*'],
-  //     js: ['src/scripts/content/index.ts'],
-  //     run_at: 'document_start',
-  //   },
-  // ],
-  // web_accessible_resources: [
-  //   {
-  //     resources: ['dapp-api.js'],
-  //     matches: ['http://*/*', 'https://*/*'],
-  //   },
-  // ],
+  content_scripts: [
+    {
+      matches: ['http://*/*', 'https://*/*'],
+      js: ['src/scripts/content/index.ts'],
+      run_at: 'document_start',
+    },
+  ],
+  web_accessible_resources: [
+    {
+      resources: ['dapp-api.js'],
+      matches: ['http://*/*', 'https://*/*'],
+    },
+  ],
   host_permissions: ['http://localhost:*/*', 'http://127.0.0.1:*/*'],
 }));

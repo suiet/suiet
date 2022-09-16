@@ -22,11 +22,10 @@ function AppLayout(props: AppLayoutProps) {
   const [layoutMode, setLayoutMode] = useState(LayoutMode.DEFAULT);
 
   useEffect(() => {
-    if (
-      (props?.hideAppLayout ?? state?.hideAppLayout) &&
-      layoutMode !== LayoutMode.EMPTY
-    ) {
+    if (props?.hideAppLayout ?? state?.hideAppLayout) {
       setLayoutMode(LayoutMode.EMPTY);
+    } else {
+      setLayoutMode(LayoutMode.DEFAULT);
     }
   }, [props.hideAppLayout, state]);
 

@@ -35,7 +35,10 @@ export function useWallet(walletId: string) {
   }
 
   return {
-    data,
+    data: {
+      ...data,
+      defaultAccount: data?.accounts[0],
+    },
     error,
     loading: !error && !data,
     mutate,

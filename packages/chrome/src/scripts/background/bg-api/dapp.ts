@@ -1,10 +1,11 @@
-import { Storage } from '@suiet/core';
-import { filter, lastValueFrom, map, race, Subject, tap } from 'rxjs';
+import { firstValueFrom, map, race, Subject, take } from 'rxjs';
 import { ChromeStorage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
 import { v4 as uuidv4 } from 'uuid';
 import { PopupWindow } from '../popup-window';
 import { StorageKeys } from '../../../store/enum';
+import { Storage } from '@suiet/core';
+import { isNonEmptyArray } from '../../../utils/check';
 
 interface DappMessage<T> {
   params: T;
@@ -34,15 +35,55 @@ export interface PermRequest {
   updatedAt: string | null;
 }
 
-export const PermResponseEventEmitter: Subject<PermResponse> = new Subject();
+export class PermReqStorage {
+  storage: ChromeStorage;
+
+  constructor() {
+    this.storage = new ChromeStorage();
+  }
+
+  async getPermRequestStoreMap() {
+    const result = await this.storage.getItem(StorageKeys.PERM_REQUESTS);
+    if (!result) {
+      await this.storage.setItem(StorageKeys.PERM_REQUESTS, JSON.stringify({}));
+      return {};
+    }
+    return JSON.parse(result);
+  }
+
+  async getItem(permId: string): Promise<PermRequest | undefined> {
+    const permRequests = await this.getPermRequestStoreMap();
+    return permRequests[permId];
+  }
+
+  async setItem(data: PermRequest) {
+    const permRequests = await this.getPermRequestStoreMap();
+    permRequests[data.id] = data;
+    return await this.storage.setItem(
+      StorageKeys.PERM_REQUESTS,
+      JSON.stringify(permRequests)
+    );
+  }
+}
+
+const closeWindowSubject: Subject<PermResponse> = new Subject<PermResponse>();
 
 export class DappBgApi {
   storage: Storage;
   chromeStorage: ChromeStorage;
+  permReqStorage: PermReqStorage;
 
   constructor(storage: Storage) {
     this.storage = storage;
     this.chromeStorage = new ChromeStorage();
+    this.permReqStorage = new PermReqStorage();
+  }
+
+  public async callbackPermRequestResult(payload: PermResponse) {
+    if (!payload) {
+      throw new Error('params result should not be empty');
+    }
+    closeWindowSubject.next(payload); // send data to event listener so that the connect function can go on
   }
 
   public async connect(
@@ -51,6 +92,9 @@ export class DappBgApi {
     }>
   ): Promise<boolean> {
     const { params, context } = payload;
+    if (!isNonEmptyArray(params?.permissions)) {
+      throw new Error('permissions are required for params when connecting');
+    }
     const globalMeta = await this.storage.loadMeta();
     if (!globalMeta) {
       throw new Error('Wallet not initialized');
@@ -80,41 +124,44 @@ export class DappBgApi {
     //     checkRes.existedId
     //   )) as PermRequest;
     // }
+    // closeWindowSubject = new Subject<PermResponse>();
+    // console.log('assign closeWindowSubject', closeWindowSubject);
     const reqPermWindow = this.createPopupWindow('/dapp/connect', {
       permReqId: permRequest.id,
     });
     const onWindowCloseObservable = await reqPermWindow.show();
-    const onResponseObservable = PermResponseEventEmitter.pipe(
-      filter((res) => res.id === permRequest.id),
-      map((res) => {
-        permRequest.status = res.status;
-        permRequest.updatedAt = res.updatedAt;
-        return permRequest;
-      }),
-      tap(() => {
-        reqPermWindow.close();
-      })
-    );
-    const permReqResult = await lastValueFrom(
+    // monitor the window close event & user action
+    const finalResult = await firstValueFrom(
       race(
-        onResponseObservable,
+        closeWindowSubject.asObservable().pipe(
+          map((result) => {
+            return {
+              ...permRequest,
+              status: result.status,
+              updatedAt: result.updatedAt,
+            };
+          })
+        ),
         onWindowCloseObservable.pipe(
-          map(() => {
-            permRequest.status = 'rejected';
-            permRequest.updatedAt = new Date().toISOString();
-            return permRequest;
+          map(async () => {
+            return {
+              ...permRequest,
+              status: 'rejected',
+              updatedAt: new Date().toISOString(),
+            };
           })
         )
-      )
+      ).pipe(take(1))
     );
-    await this.storePermRequest(permReqResult);
-    return permRequest.status === 'passed';
+    await this.permReqStorage.setItem(finalResult);
+    await reqPermWindow.close();
+    return finalResult.status === 'passed';
   }
 
   createPopupWindow(url: string, params: Record<string, any>) {
     const queryStr = new URLSearchParams(params).toString();
     return new PopupWindow(
-      chrome.runtime.getURL('index.html' + url) +
+      chrome.runtime.getURL('index.html#' + url) +
         (queryStr ? '?' + queryStr : '')
     );
   }
@@ -168,36 +215,8 @@ export class DappBgApi {
       status: null,
       updatedAt: null,
     };
-    await this.storePermRequest(permRequest);
+    await this.permReqStorage.setItem(permRequest);
     return permRequest;
-  }
-
-  private async storePermRequest(data: PermRequest) {
-    const permRequests = await this.getPermRequestStoreMap();
-    permRequests[data.id] = data;
-    return await this.chromeStorage.setItem(
-      StorageKeys.PERM_REQUESTS,
-      JSON.stringify(permRequests)
-    );
-  }
-
-  private async getPermRequest(
-    permId: string
-  ): Promise<PermRequest | undefined> {
-    const permRequests = await this.getPermRequestStoreMap();
-    return permRequests[permId];
-  }
-
-  private async getPermRequestStoreMap(): Promise<Record<string, PermRequest>> {
-    const result = await this.chromeStorage.getItem(StorageKeys.PERM_REQUESTS);
-    if (!result) {
-      await this.chromeStorage.setItem(
-        StorageKeys.PERM_REQUESTS,
-        JSON.stringify({})
-      );
-      return {};
-    }
-    return JSON.parse(result);
   }
 
   private async getAppContext() {

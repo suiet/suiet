@@ -1003,8 +1003,10 @@ class it {
       D.SUIET_CONTENT
     );
   }
-  async connect() {
-    return console.log("[dappapi] handshake"), await this.windowMsgStream.post(x("handshake", null)), console.log("[dappapi] connect"), await this.windowMsgStream.post(x("dapp.connect", null));
+  async connect(t) {
+    return console.log("[dappapi] handshake"), await this.windowMsgStream.post(x("handshake", null)), console.log("[dappapi] connect"), await this.windowMsgStream.post(
+      x("dapp.connect", { permissions: t })
+    );
   }
   async disconnect() {
     return await this.windowMsgStream.post(x("dapp.disconnect", null)), await this.windowMsgStream.post(x("dhandwave", null));

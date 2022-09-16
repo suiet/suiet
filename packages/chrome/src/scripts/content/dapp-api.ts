@@ -48,11 +48,13 @@ export class DAppInterface implements ISuietWallet {
     );
   }
 
-  async connect() {
+  async connect(permissions: Permission[]) {
     console.log('[dappapi] handshake');
     await this.windowMsgStream.post(reqData('handshake', null));
     console.log('[dappapi] connect');
-    return await this.windowMsgStream.post(reqData('dapp.connect', null));
+    return await this.windowMsgStream.post(
+      reqData('dapp.connect', { permissions })
+    );
   }
 
   async disconnect() {
