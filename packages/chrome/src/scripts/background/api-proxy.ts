@@ -9,7 +9,7 @@ import {
   validateToken,
 } from '@suiet/core';
 import { fromEventPattern, Observable } from 'rxjs';
-import { ResData, resData } from '../shared';
+import { resData } from '../shared';
 import { log, processPortMessage } from './utils';
 import { CallFuncData } from './types';
 import { has } from 'lodash-es';
@@ -72,7 +72,10 @@ export class BackgroundApiProxy {
       new NetworkApi(),
       'network'
     );
-    this.dapp = this.registerProxyService<DappBgApi>(new DappBgApi(), 'dapp');
+    this.dapp = this.registerProxyService<DappBgApi>(
+      new DappBgApi(storage),
+      'dapp'
+    );
     this.root = this.registerProxyService<RootApi>(
       ((ctx: any) => ({
         clearToken: async () => {

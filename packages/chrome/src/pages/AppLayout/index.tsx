@@ -12,14 +12,22 @@ export enum LayoutMode {
   EMPTY = 'empty',
 }
 
-function AppLayout() {
+export interface AppLayoutProps {
+  hideAppLayout?: boolean;
+}
+
+function AppLayout(props: AppLayoutProps) {
   const location = useLocation();
   const state = (location.state || {}) as Record<string, any>;
-  let layoutMode = LayoutMode.DEFAULT;
+  const [layoutMode, setLayoutMode] = useState(LayoutMode.DEFAULT);
 
-  if (state?.hideAppLayout) {
-    layoutMode = LayoutMode.EMPTY;
-  }
+  useEffect(() => {
+    if (props?.hideAppLayout ?? state?.hideAppLayout) {
+      setLayoutMode(LayoutMode.EMPTY);
+    } else {
+      setLayoutMode(LayoutMode.DEFAULT);
+    }
+  }, [props.hideAppLayout, state]);
 
   return (
     <div

@@ -251,7 +251,7 @@ function N(e) {
   }, r = e(t);
   return r.prototype = Object.create(Error.prototype), r.prototype.constructor = r, r;
 }
-var k = N(function(e) {
+var L = N(function(e) {
   return function(r) {
     e(this), this.message = r ? r.length + ` errors occurred during unsubscription:
 ` + r.map(function(n, o) {
@@ -299,7 +299,7 @@ var F = function() {
         try {
           l();
         } catch (h) {
-          i = h instanceof k ? h.errors : [h];
+          i = h instanceof L ? h.errors : [h];
         }
       var v = this._finalizers;
       if (v) {
@@ -310,7 +310,7 @@ var F = function() {
             try {
               B(m);
             } catch (h) {
-              i = i != null ? i : [], h instanceof k ? i = T(T([], S(i)), S(h.errors)) : i.push(h);
+              i = i != null ? i : [], h instanceof L ? i = T(T([], S(i)), S(h.errors)) : i.push(h);
             }
           }
         } catch (h) {
@@ -325,7 +325,7 @@ var F = function() {
         }
       }
       if (i)
-        throw new k(i);
+        throw new L(i);
     }
   }, e.prototype.add = function(t) {
     var r;
@@ -425,7 +425,7 @@ var Y = function(e) {
     }
   }, t;
 }(F), me = Function.prototype.bind;
-function L(e, t) {
+function k(e, t) {
   return me.call(e, t);
 }
 var be = function() {
@@ -474,9 +474,9 @@ var be = function() {
       i && te.useDeprecatedNextContext ? (a = Object.create(r), a.unsubscribe = function() {
         return i.unsubscribe();
       }, u = {
-        next: r.next && L(r.next, a),
-        error: r.error && L(r.error, a),
-        complete: r.complete && L(r.complete, a)
+        next: r.next && k(r.next, a),
+        error: r.error && k(r.error, a),
+        complete: r.complete && k(r.complete, a)
       }) : u = r;
     }
     return i.destination = new be(u), i;
@@ -648,12 +648,12 @@ function Ue(e) {
 function Me(e) {
   return new TypeError("You provided " + (e !== null && typeof e == "object" ? "an invalid object" : "'" + e + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
 }
-function ke() {
+function Le() {
   return typeof Symbol != "function" || !Symbol.iterator ? "@@iterator" : Symbol.iterator;
 }
-var Le = ke();
+var ke = Le();
 function De(e) {
-  return d(e == null ? void 0 : e[Le]);
+  return d(e == null ? void 0 : e[ke]);
 }
 function Re(e) {
   return ye(this, arguments, function() {
@@ -1003,11 +1003,13 @@ class it {
       D.SUIET_CONTENT
     );
   }
-  async connect() {
-    return console.log("[dappapi] handshake"), await this.windowMsgStream.post(x("handshake", null)), console.log("[dappapi] connect"), await this.windowMsgStream.post(x("dapp.connect", null));
+  async connect(t) {
+    return await this.windowMsgStream.post(x("handshake", null)), await this.windowMsgStream.post(
+      x("dapp.connect", { permissions: t })
+    );
   }
   async disconnect() {
-    return await this.windowMsgStream.post(x("dapp.disconnect", null)), await this.windowMsgStream.post(x("dhandwave", null));
+    return await this.windowMsgStream.post(x("handwave", null));
   }
   async hasPermissions(t) {
     return console.log("permissions", t), !0;
@@ -1022,7 +1024,9 @@ class it {
     return await Promise.resolve(void 0);
   }
   async getAccounts() {
-    return [];
+    return await this.windowMsgStream.post(
+      x("dapp.getAccounts", null)
+    );
   }
 }
 Object.defineProperty(window, "__suiet__", {
