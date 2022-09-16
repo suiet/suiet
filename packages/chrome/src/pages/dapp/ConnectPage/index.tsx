@@ -43,8 +43,15 @@ const ConnectPage = () => {
     });
   }
 
-  function handleCancel() {
-    navigate('/');
+  async function handleCancel() {
+    if (!permReqData) return;
+
+    // sent result via event emitter to background
+    await apiClient.callFunc('dapp.callbackPermRequestResult', {
+      id: permReqData.id,
+      status: 'rejected',
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   useEffect(() => {
