@@ -32,6 +32,7 @@ export function useWallet(walletId: string) {
         token,
       }
     );
+    await mutate();
   }
 
   return {

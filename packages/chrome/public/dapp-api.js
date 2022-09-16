@@ -31,7 +31,7 @@ function de(e, t, r) {
   return le(n);
 }
 var D = /* @__PURE__ */ ((e) => (e.DAPP = "DAPP", e.SUIET_CONTENT = "SUIET_CONTENT", e))(D || {});
-function g(e, t) {
+function x(e, t) {
   return {
     id: de(),
     funcName: e,
@@ -159,7 +159,7 @@ function P(e) {
     };
   throw new TypeError(t ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-function E(e, t) {
+function S(e, t) {
   var r = typeof Symbol == "function" && e[Symbol.iterator];
   if (!r)
     return e;
@@ -185,8 +185,8 @@ function T(e, t, r) {
       (i || !(n in t)) && (i || (i = Array.prototype.slice.call(t, 0, n)), i[n] = t[n]);
   return e.concat(i || Array.prototype.slice.call(t));
 }
-function S(e) {
-  return this instanceof S ? (this.v = e, this) : new S(e);
+function g(e) {
+  return this instanceof g ? (this.v = e, this) : new g(e);
 }
 function ye(e, t, r) {
   if (!Symbol.asyncIterator)
@@ -210,7 +210,7 @@ function ye(e, t, r) {
     }
   }
   function s(f) {
-    f.value instanceof S ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
+    f.value instanceof g ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
   }
   function c(f) {
     a("next", f);
@@ -251,7 +251,7 @@ function N(e) {
   }, r = e(t);
   return r.prototype = Object.create(Error.prototype), r.prototype.constructor = r, r;
 }
-var k = N(function(e) {
+var L = N(function(e) {
   return function(r) {
     e(this), this.message = r ? r.length + ` errors occurred during unsubscription:
 ` + r.map(function(n, o) {
@@ -299,7 +299,7 @@ var F = function() {
         try {
           l();
         } catch (h) {
-          i = h instanceof k ? h.errors : [h];
+          i = h instanceof L ? h.errors : [h];
         }
       var v = this._finalizers;
       if (v) {
@@ -310,7 +310,7 @@ var F = function() {
             try {
               B(m);
             } catch (h) {
-              i = i != null ? i : [], h instanceof k ? i = T(T([], E(i)), E(h.errors)) : i.push(h);
+              i = i != null ? i : [], h instanceof L ? i = T(T([], S(i)), S(h.errors)) : i.push(h);
             }
           }
         } catch (h) {
@@ -325,7 +325,7 @@ var F = function() {
         }
       }
       if (i)
-        throw new k(i);
+        throw new L(i);
     }
   }, e.prototype.add = function(t) {
     var r;
@@ -375,7 +375,7 @@ var te = {
     for (var r = [], n = 2; n < arguments.length; n++)
       r[n - 2] = arguments[n];
     var o = C.delegate;
-    return o != null && o.setTimeout ? o.setTimeout.apply(o, T([e, t], E(r))) : setTimeout.apply(void 0, T([e, t], E(r)));
+    return o != null && o.setTimeout ? o.setTimeout.apply(o, T([e, t], S(r))) : setTimeout.apply(void 0, T([e, t], S(r)));
   },
   clearTimeout: function(e) {
     var t = C.delegate;
@@ -425,7 +425,7 @@ var Y = function(e) {
     }
   }, t;
 }(F), me = Function.prototype.bind;
-function L(e, t) {
+function k(e, t) {
   return me.call(e, t);
 }
 var be = function() {
@@ -474,9 +474,9 @@ var be = function() {
       i && te.useDeprecatedNextContext ? (a = Object.create(r), a.unsubscribe = function() {
         return i.unsubscribe();
       }, u = {
-        next: r.next && L(r.next, a),
-        error: r.error && L(r.error, a),
-        complete: r.complete && L(r.complete, a)
+        next: r.next && k(r.next, a),
+        error: r.error && k(r.error, a),
+        complete: r.complete && k(r.complete, a)
       }) : u = r;
     }
     return i.destination = new be(u), i;
@@ -648,12 +648,12 @@ function Ue(e) {
 function Me(e) {
   return new TypeError("You provided " + (e !== null && typeof e == "object" ? "an invalid object" : "'" + e + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
 }
-function ke() {
+function Le() {
   return typeof Symbol != "function" || !Symbol.iterator ? "@@iterator" : Symbol.iterator;
 }
-var Le = ke();
+var ke = Le();
 function De(e) {
-  return d(e == null ? void 0 : e[Le]);
+  return d(e == null ? void 0 : e[ke]);
 }
 function Re(e) {
   return ye(this, arguments, function() {
@@ -665,13 +665,13 @@ function Re(e) {
         case 1:
           u.trys.push([1, , 9, 10]), u.label = 2;
         case 2:
-          return [4, S(r.read())];
+          return [4, g(r.read())];
         case 3:
-          return n = u.sent(), o = n.value, i = n.done, i ? [4, S(void 0)] : [3, 5];
+          return n = u.sent(), o = n.value, i = n.done, i ? [4, g(void 0)] : [3, 5];
         case 4:
           return [2, u.sent()];
         case 5:
-          return [4, S(o)];
+          return [4, g(o)];
         case 6:
           return [4, u.sent()];
         case 7:
@@ -842,7 +842,7 @@ function U(e, t) {
 }
 var Qe = Array.isArray;
 function Be(e, t) {
-  return Qe(t) ? e.apply(void 0, T([], E(t))) : e(t);
+  return Qe(t) ? e.apply(void 0, T([], S(t))) : e(t);
 }
 function Ke(e) {
   return U(function(t) {
@@ -857,21 +857,21 @@ function Xe(e, t, r, n, o, i, u, a) {
   }, m = function(h) {
     i && t.next(h), c++;
     var W = !1;
-    H(r(h, l++)).subscribe(I(t, function(x) {
-      o == null || o(x), i ? p(x) : t.next(x);
+    H(r(h, l++)).subscribe(I(t, function(E) {
+      o == null || o(E), i ? p(E) : t.next(E);
     }, function() {
       W = !0;
     }, void 0, function() {
       if (W)
         try {
           c--;
-          for (var x = function() {
+          for (var E = function() {
             var A = s.shift();
             u ? He(t, u, function() {
               return m(A);
             }) : m(A);
           }; s.length && c < n; )
-            x();
+            E();
           f();
         } catch (A) {
           t.error(A);
@@ -897,7 +897,7 @@ var Ze = ["addListener", "removeListener"], $e = ["addEventListener", "removeEve
 function V(e, t, r, n) {
   if (d(r) && (n = r, r = void 0), n)
     return V(e, t, r).pipe(Ke(n));
-  var o = E(tt(e) ? $e.map(function(a) {
+  var o = S(tt(e) ? $e.map(function(a) {
     return function(s) {
       return e[a](t, s, r);
     };
@@ -1004,18 +1004,18 @@ class it {
     );
   }
   async connect(t) {
-    return console.log("[dappapi] handshake"), await this.windowMsgStream.post(g("handshake", null)), console.log("[dappapi] connect"), await this.windowMsgStream.post(
-      g("dapp.connect", { permissions: t })
+    return await this.windowMsgStream.post(x("handshake", null)), await this.windowMsgStream.post(
+      x("dapp.connect", { permissions: t })
     );
   }
   async disconnect() {
-    return await this.windowMsgStream.post(g("dapp.disconnect", null)), await this.windowMsgStream.post(g("dhandwave", null));
+    return await this.windowMsgStream.post(x("handwave", null));
   }
   async hasPermissions(t) {
     return console.log("permissions", t), !0;
   }
   async requestPermissions() {
-    return await this.windowMsgStream.post(g("requestPermissions", null));
+    return await this.windowMsgStream.post(x("requestPermissions", null));
   }
   async executeMoveCall(t) {
     return await Promise.resolve(void 0);
@@ -1025,7 +1025,7 @@ class it {
   }
   async getAccounts() {
     return await this.windowMsgStream.post(
-      g("dapp.getAccounts", null)
+      x("dapp.getAccounts", null)
     );
   }
 }

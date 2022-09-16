@@ -91,10 +91,10 @@ const NftList = (props: NftListProps) => {
       )}
       style={props.style}
     >
-      {nftList.map((nft) => {
+      {nftList.map((nft, index) => {
         return (
           <NftItem
-            key={nft.id}
+            key={nft.id || index}
             loading={loading}
             id={nft.id}
             name={nft.name}

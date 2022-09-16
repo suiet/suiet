@@ -7,7 +7,7 @@ import { swrLoading } from '../utils/others';
 export function useNftList(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
-  const { data, error } = useSWR(
+  const { data, error, mutate } = useSWR(
     ['getOwnedNfts', network, address],
     fetchNftList
   );
@@ -23,6 +23,7 @@ export function useNftList(address: string, networkId: string = 'devnet') {
   return {
     data,
     error,
+    mutate,
     loading: swrLoading(data, error),
   };
 }

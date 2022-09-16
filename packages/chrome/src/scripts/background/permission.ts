@@ -80,7 +80,6 @@ export class PermissionManager {
     const allPermissions = new Set<string>();
     const result = await this.getAllPermissions(authInfo);
     result.forEach((data) => {
-      console.log('permReq', data);
       data.permissions.forEach((perm) => {
         allPermissions.add(perm);
       });
@@ -135,6 +134,7 @@ export class PermissionManager {
 
     return Object.values(storeMap).filter((permData) => {
       return (
+        permData.status === 'passed' &&
         permData.origin === authInfo.origin &&
         permData.address === authInfo.address &&
         permData.networkId === authInfo.networkId
