@@ -1,0 +1,105 @@
+@import '../../../styles/variables';
+
+.container {
+  height: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  padding: 67px 32px 24px;
+}
+.header-icons {
+  display: flex;
+  align-items: center;
+}
+.header-favicon {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  border: 2px solid #000;
+  object-fit: cover;
+}
+.header-avatar {
+  position: relative;
+  left: -18px;
+  z-index: 1;
+  width: 62px;
+  height: 62px;
+  border: 2px solid #ffffff;
+}
+.header-title {
+  margin-top: 16px;
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 33px;
+  color: $gray-900;
+}
+.connect-item {
+  display: flex;
+  align-items: center;
+}
+.connect-item-icon {
+  width: 16px;
+  height: 16px;
+}
+.connect-item-name {
+  margin-left: 4px;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-700;
+}
+.connect-item-desc {
+  margin-left: 8px;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  color: $gray-400;
+}
+
+.sections {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+}
+.perm-item {
+  display: flex;
+  align-items: flex-start;
+}
+.perm-title {
+  margin-bottom: 16px;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: $gray-900;
+}
+.perm-item-icon {
+  width: 20px;
+  height: 20px;
+}
+.perm-item-desc {
+  margin-left: 8px;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-400;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-top: 1px solid $gray-100;
+}
