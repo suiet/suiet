@@ -33,9 +33,9 @@ export class WindowMsgStream {
     );
   }
 
-  public async post(
+  public async post<T = any>(
     payload: WindowMsgDataBase & { [key: string]: any }
-  ): Promise<ResData> {
+  ): Promise<ResData<T>> {
     const msg = {
       target: this.target,
       payload,

@@ -30,6 +30,9 @@ const ImportWallet = lazy(
 const LoginPage = lazy(
   async () => await import('../pages/OnBoarding/LoginPage')
 );
+const DappConnectPage = lazy(
+  async () => await import('../pages/dapp/ConnectPage')
+);
 
 const routesConfig: RouteObject[] = [
   {
@@ -44,7 +47,7 @@ const routesConfig: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to="/home" />,
+        element: <Navigate to="home" />,
       },
       {
         path: 'home',
@@ -109,6 +112,22 @@ const routesConfig: RouteObject[] = [
         <LoginPage />
       </RequireInit>
     ),
+  },
+  {
+    path: 'dapp',
+    element: (
+      <RequireInit>
+        <RequireAuth>
+          <AppLayout hideAppLayout={true} />
+        </RequireAuth>
+      </RequireInit>
+    ),
+    children: [
+      {
+        path: 'connect',
+        element: withSus(<DappConnectPage />),
+      },
+    ],
   },
   {
     path: '*',

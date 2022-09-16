@@ -45,10 +45,22 @@ function setupMessageProxy(): chrome.runtime.Port {
 
   // window msg from dapp - content script proxy -> port msg to ext background
   const passMessageToPort = (event: MessageEvent) => {
-    console.log('[content] ready to postMessage', event.data.payload);
     if (isMsgFromSuietContext(event) && !isIgnoreMsg(event)) {
-      console.log('[content] actually postMessage', event.data.payload);
-      port.postMessage(JSON.stringify(event.data.payload));
+      console.log('[content] received event.data', event.data);
+      const { payload: trueData } = event.data;
+      const message = {
+        id: trueData.id,
+        funcName: trueData.funcName,
+        payload: {
+          params: trueData.payload,
+          context: {
+            origin: event.origin,
+            favicon: event.origin + '/favicon.ico',
+          },
+        },
+      };
+      console.log('[content] actually postMessage', message);
+      port.postMessage(JSON.stringify(message));
     }
   };
 
