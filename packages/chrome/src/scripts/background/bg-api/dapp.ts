@@ -1,11 +1,10 @@
 import { firstValueFrom, map, race, Subject, take } from 'rxjs';
 import { ChromeStorage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
-import { v4 as uuidv4 } from 'uuid';
 import { PopupWindow } from '../popup-window';
-import { StorageKeys } from '../../../store/enum';
 import { Storage } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
+import { PermissionManager } from '../permission';
 
 interface DappMessage<T> {
   params: T;
@@ -21,69 +20,17 @@ export interface PermResponse {
   updatedAt: string;
 }
 
-export interface PermRequest {
-  id: string;
-  origin: string;
-  favicon: string;
-  address: string;
-  networkId: string;
-  walletId: string;
-  accountId: string;
-  permissions: string[];
-  status: string | null;
-  createdAt: string;
-  updatedAt: string | null;
-}
-
-export class PermReqStorage {
-  storage: ChromeStorage;
-
-  constructor() {
-    this.storage = new ChromeStorage();
-  }
-
-  async getPermRequestStoreMap() {
-    const result = await this.storage.getItem(StorageKeys.PERM_REQUESTS);
-    if (!result) {
-      await this.storage.setItem(StorageKeys.PERM_REQUESTS, JSON.stringify({}));
-      return {};
-    }
-    return JSON.parse(result);
-  }
-
-  async getItem(permId: string): Promise<PermRequest | undefined> {
-    const permRequests = await this.getPermRequestStoreMap();
-    return permRequests[permId];
-  }
-
-  async setItem(data: PermRequest) {
-    const permRequests = await this.getPermRequestStoreMap();
-    permRequests[data.id] = data;
-    return await this.storage.setItem(
-      StorageKeys.PERM_REQUESTS,
-      JSON.stringify(permRequests)
-    );
-  }
-}
-
 const closeWindowSubject: Subject<PermResponse> = new Subject<PermResponse>();
 
 export class DappBgApi {
   storage: Storage;
   chromeStorage: ChromeStorage;
-  permReqStorage: PermReqStorage;
+  permManager: PermissionManager;
 
   constructor(storage: Storage) {
     this.storage = storage;
     this.chromeStorage = new ChromeStorage();
-    this.permReqStorage = new PermReqStorage();
-  }
-
-  public async callbackPermRequestResult(payload: PermResponse) {
-    if (!payload) {
-      throw new Error('params result should not be empty');
-    }
-    closeWindowSubject.next(payload); // send data to event listener so that the connect function can go on
+    this.permManager = new PermissionManager();
   }
 
   public async connect(
@@ -101,14 +48,18 @@ export class DappBgApi {
     }
     const appContext = await this.getAppContext();
     const account = await this.storage.getAccount(appContext.accountId);
-    // const checkRes = await this.checkPermissions(params.permissions, {
-    //   origin: context.origin,
-    //   address: account.address,
-    //   networkId: appContext.networkId,
-    // });
-    // if (checkRes.result) return true;
 
-    const permRequest = await this.createPermRequest({
+    const checkRes = await this.permManager.checkPermissions(
+      params.permissions,
+      {
+        origin: context.origin,
+        address: account.address,
+        networkId: appContext.networkId,
+      }
+    );
+    if (checkRes.result) return true;
+
+    const permRequest = await this.permManager.createPermRequest({
       permissions: params.permissions,
       origin: context.origin,
       favicon: context.favicon,
@@ -117,15 +68,6 @@ export class DappBgApi {
       walletId: appContext.walletId,
       accountId: appContext.accountId,
     });
-    // if (!checkRes.existedId) {
-    //
-    // } else {
-    //   permRequest = (await this.getPermRequest(
-    //     checkRes.existedId
-    //   )) as PermRequest;
-    // }
-    // closeWindowSubject = new Subject<PermResponse>();
-    // console.log('assign closeWindowSubject', closeWindowSubject);
     const reqPermWindow = this.createPopupWindow('/dapp/connect', {
       permReqId: permRequest.id,
     });
@@ -153,9 +95,16 @@ export class DappBgApi {
         )
       ).pipe(take(1))
     );
-    await this.permReqStorage.setItem(finalResult);
+    await this.permManager.setPermission(finalResult);
     await reqPermWindow.close();
     return finalResult.status === 'passed';
+  }
+
+  public async callbackPermRequestResult(payload: PermResponse) {
+    if (!payload) {
+      throw new Error('params result should not be empty');
+    }
+    closeWindowSubject.next(payload); // send data to event listener so that the connect function can go on
   }
 
   createPopupWindow(url: string, params: Record<string, any>) {
@@ -164,59 +113,6 @@ export class DappBgApi {
       chrome.runtime.getURL('index.html#' + url) +
         (queryStr ? '?' + queryStr : '')
     );
-  }
-
-  // private async checkPermissions(
-  //   perms: string[],
-  //   authInfo: {
-  //     origin: string;
-  //     address: string;
-  //     networkId: string;
-  //   }
-  // ): Promise<{
-  //   result: boolean;
-  //   existedId: string | null;
-  //   missingPerms: string[];
-  // }> {
-  //   const storeMap = await this.getPermRequestStoreMap();
-  //   const keys = Object.keys(storeMap);
-  //   const permReqKey = keys.find((key) => key.endsWith(metaKey));
-  //   const resData = {
-  //     result: false,
-  //     existedId: null as string | null,
-  //     missingPerms: [] as string[],
-  //   };
-  //   if (!permReqKey) return resData;
-  //
-  //   const existedPermReq = storeMap[permReqKey];
-  //   resData.existedId = existedPermReq.id;
-  //   perms.forEach((perm) => {
-  //     if (!existedPermReq.permissions.includes(perm)) {
-  //       resData.result = true;
-  //       resData.missingPerms.push(perm);
-  //     }
-  //   });
-  //   return resData;
-  // }
-
-  private async createPermRequest(params: {
-    origin: string;
-    favicon: string;
-    address: string;
-    networkId: string;
-    walletId: string;
-    accountId: string;
-    permissions: string[];
-  }): Promise<PermRequest> {
-    const permRequest = {
-      ...params,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-      status: null,
-      updatedAt: null,
-    };
-    await this.permReqStorage.setItem(permRequest);
-    return permRequest;
   }
 
   private async getAppContext() {
