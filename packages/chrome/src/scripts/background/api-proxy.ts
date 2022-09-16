@@ -13,7 +13,7 @@ import { ResData, resData } from '../shared';
 import { log, processPortMessage } from './utils';
 import { CallFuncData } from './types';
 import { has } from 'lodash-es';
-import { DappBgApi } from './bg-api/dapp';
+// import { DappBgApi } from './bg-api/dapp';
 
 interface RootApi {
   clearToken: () => Promise<void>;
@@ -36,7 +36,7 @@ export class BackgroundApiProxy {
   public auth: AuthApi;
   public txn: TransactionApi;
   public network: NetworkApi;
-  public dapp: DappBgApi;
+  // public dapp: DappBgApi;
 
   private constructor(port: chrome.runtime.Port) {
     this.initServices();
@@ -72,7 +72,7 @@ export class BackgroundApiProxy {
       new NetworkApi(),
       'network'
     );
-    this.dapp = this.registerProxyService<DappBgApi>(new DappBgApi(), 'dapp');
+    // this.dapp = this.registerProxyService<DappBgApi>(new DappBgApi(), 'dapp');
     this.root = this.registerProxyService<RootApi>(
       ((ctx: any) => ({
         clearToken: async () => {
