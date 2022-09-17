@@ -22,6 +22,7 @@ import {
   PermReqStorage,
   PermRequest,
 } from '../../../scripts/background/permission';
+import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 
 const ConnectPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -36,8 +37,9 @@ const ConnectPage = () => {
     if (!permReqData) return;
 
     // sent result via event emitter to background
-    await apiClient.callFunc('dapp.callbackPermRequestResult', {
+    await apiClient.callFunc('dapp.callbackApproval', {
       id: permReqData.id,
+      type: ApprovalType.PERMISSION,
       approved: true,
       updatedAt: new Date().toISOString(),
     });
@@ -47,8 +49,9 @@ const ConnectPage = () => {
     if (!permReqData) return;
 
     // sent result via event emitter to background
-    await apiClient.callFunc('dapp.callbackPermRequestResult', {
+    await apiClient.callFunc('dapp.callbackApproval', {
       id: permReqData.id,
+      type: ApprovalType.PERMISSION,
       approved: false,
       updatedAt: new Date().toISOString(),
     });

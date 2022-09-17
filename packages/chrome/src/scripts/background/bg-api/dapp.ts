@@ -1,10 +1,13 @@
-import { firstValueFrom, map, race, Subject, take } from 'rxjs';
+import { filter, firstValueFrom, map, race, Subject, take } from 'rxjs';
 import { ChromeStorage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
-import { Storage } from '@suiet/core';
+import { NetworkApi, Storage, TransactionApi } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { Permission, PermissionManager } from '../permission';
+import { MoveCallTransaction } from '@mysten/sui.js';
+import { TxRequestManager, TxRequestType } from '../transaction';
+import { data } from 'autoprefixer';
 
 interface DappMessage<T> {
   params: T;
@@ -14,23 +17,35 @@ interface DappMessage<T> {
   };
 }
 
-export interface PermResponse {
+export enum ApprovalType {
+  PERMISSION = 'PERMISSION',
+  TRANSACTION = 'TRANSACTION',
+}
+
+export interface Approval {
   id: string;
+  type: ApprovalType;
   approved: boolean;
   updatedAt: string;
 }
 
-const closeWindowSubject: Subject<PermResponse> = new Subject<PermResponse>();
+const approvalSubject: Subject<Approval> = new Subject<Approval>();
 
 export class DappBgApi {
   storage: Storage;
   chromeStorage: ChromeStorage;
   permManager: PermissionManager;
+  txManager: TxRequestManager;
+  txApi: TransactionApi;
+  networkApi: NetworkApi;
 
   constructor(storage: Storage) {
     this.storage = storage;
+    this.txApi = new TransactionApi(storage);
+    this.networkApi = new NetworkApi();
     this.chromeStorage = new ChromeStorage();
     this.permManager = new PermissionManager();
+    this.txManager = new TxRequestManager();
   }
 
   public async connect(
@@ -71,7 +86,13 @@ export class DappBgApi {
     // monitor the window close event & user action
     const finalResult = await firstValueFrom(
       race(
-        closeWindowSubject.asObservable().pipe(
+        approvalSubject.asObservable().pipe(
+          filter((result) => {
+            return (
+              result.type === ApprovalType.PERMISSION &&
+              result.id === permRequest.id
+            );
+          }),
           map((result) => {
             return {
               ...permRequest,
@@ -97,11 +118,88 @@ export class DappBgApi {
   }
 
   // get callback from ui extension
-  public async callbackPermRequestResult(payload: PermResponse) {
+  public async callbackApproval(payload: Approval) {
     if (!payload) {
       throw new Error('params result should not be empty');
     }
-    closeWindowSubject.next(payload); // send data to event listener so that the connect function can go on
+    approvalSubject.next(payload); // send data to event listener so that the connect function can go on
+  }
+
+  public async requestTransaction(
+    payload: DappMessage<{
+      type: TxRequestType;
+      data: MoveCallTransaction;
+    }>
+  ) {
+    const { params, context } = payload;
+    const checkRes = await this.checkPermissions(context.origin, [
+      Permission.VIEW_ACCOUNT,
+      Permission.SUGGEST_TX,
+    ]);
+    if (!checkRes.result) {
+      // TODO: launch request permission window
+      console.warn('TODO: launch request permission window');
+      return;
+    }
+    const txReq = this.txManager.createTxRequest({
+      origin: context.origin,
+      type: params.type,
+      data: params.data,
+    });
+    const txReqWindow = this.createPopupWindow('dapp/tx-request', {
+      txReqId: txReq.id,
+    });
+    const windowObservable = await txReqWindow.show();
+    const onWindowCloseObservable = windowObservable.pipe(
+      map(async () => {
+        return {
+          ...txReq,
+          approved: false,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+    const onApprovalObservable = approvalSubject.asObservable().pipe(
+      filter((result) => {
+        return (
+          result.type === ApprovalType.TRANSACTION && result.id === txReq.id
+        );
+      }),
+      map((result) => {
+        return {
+          ...txReq,
+          approved: result.approved,
+          updatedAt: result.updatedAt,
+        };
+      })
+    );
+    const finalResult = await firstValueFrom(
+      race(onWindowCloseObservable, onApprovalObservable).pipe(take(1))
+    );
+    if (!finalResult.approved) {
+      throw new Error('User rejected');
+    }
+
+    const appContext = await this.getAppContext();
+    const network = await this.networkApi.getNetwork(appContext.networkId);
+    if (!network) {
+      throw new Error(
+        `network metadata is not found, id=${appContext.networkId}`
+      );
+    }
+    try {
+      await this.txApi.executeMoveCall({
+        network,
+        token: appContext.token,
+        walletId: appContext.walletId,
+        accountId: appContext.accountId,
+        tx: params.data,
+      });
+      return null;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   public async hasPermissions(payload: DappMessage<{}>) {
