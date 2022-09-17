@@ -144,7 +144,10 @@ export class QueryProvider {
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
             transactionDigest: effect.certificate.transactionDigest,
-            gasUsed: effect.effects.gasUsed.computationCost,
+            gasFee:
+              effect.effects.gasUsed.computationCost +
+              effect.effects.gasUsed.storageCost -
+              effect.effects.gasUsed.storageRebate,
             from: data.sender,
             to: transferSui.recipient,
             object: {
@@ -182,7 +185,10 @@ export class QueryProvider {
               timestamp_ms: effect.timestamp_ms,
               txStatus: getExecutionStatusType(effect),
               transactionDigest: effect.certificate.transactionDigest,
-              gasUsed: effect.effects.gasUsed.computationCost,
+              gasFee:
+                effect.effects.gasUsed.computationCost +
+                effect.effects.gasUsed.storageCost -
+                effect.effects.gasUsed.storageRebate,
               from: data.sender,
               to: transferObject.recipient,
               object: txObj,
@@ -193,7 +199,10 @@ export class QueryProvider {
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
             transactionDigest: effect.certificate.transactionDigest,
-            gasUsed: effect.effects.gasUsed.computationCost,
+            gasFee:
+              effect.effects.gasUsed.computationCost +
+              effect.effects.gasUsed.storageCost -
+              effect.effects.gasUsed.storageRebate,
             from: data.sender,
             to: moveCall.package.objectId,
             object: {
