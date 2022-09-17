@@ -38,7 +38,7 @@ const ConnectPage = () => {
     // sent result via event emitter to background
     await apiClient.callFunc('dapp.callbackPermRequestResult', {
       id: permReqData.id,
-      status: 'passed',
+      approved: true,
       updatedAt: new Date().toISOString(),
     });
   }
@@ -49,7 +49,7 @@ const ConnectPage = () => {
     // sent result via event emitter to background
     await apiClient.callFunc('dapp.callbackPermRequestResult', {
       id: permReqData.id,
-      status: 'rejected',
+      approved: false,
       updatedAt: new Date().toISOString(),
     });
   }

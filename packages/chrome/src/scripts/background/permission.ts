@@ -16,7 +16,7 @@ export interface PermRequest {
   walletId: string;
   accountId: string;
   permissions: string[];
-  status: string | null;
+  approved: boolean | null;
   createdAt: string;
   updatedAt: string | null;
 }
@@ -113,7 +113,7 @@ export class PermissionManager {
       ...params,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
-      status: null,
+      approved: null,
       updatedAt: null,
     };
     await this.permReqStorage.setItem(permRequest);
@@ -134,7 +134,7 @@ export class PermissionManager {
 
     return Object.values(storeMap).filter((permData) => {
       return (
-        permData.status === 'passed' &&
+        permData.approved === true &&
         permData.origin === authInfo.origin &&
         permData.address === authInfo.address &&
         permData.networkId === authInfo.networkId

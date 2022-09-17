@@ -16,7 +16,7 @@ interface DappMessage<T> {
 
 export interface PermResponse {
   id: string;
-  status: string;
+  approved: boolean;
   updatedAt: string;
 }
 
@@ -75,7 +75,7 @@ export class DappBgApi {
           map((result) => {
             return {
               ...permRequest,
-              status: result.status,
+              approved: result.approved,
               updatedAt: result.updatedAt,
             };
           })
@@ -84,7 +84,7 @@ export class DappBgApi {
           map(async () => {
             return {
               ...permRequest,
-              status: 'rejected',
+              approved: false,
               updatedAt: new Date().toISOString(),
             };
           })
@@ -93,7 +93,7 @@ export class DappBgApi {
     );
     await this.permManager.setPermission(finalResult);
     await reqPermWindow.close();
-    return finalResult.status === 'passed';
+    return finalResult.approved;
   }
 
   // get callback from ui extension
