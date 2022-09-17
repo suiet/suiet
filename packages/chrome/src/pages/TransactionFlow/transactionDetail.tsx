@@ -113,7 +113,7 @@ function TransactionDetail() {
         ) : null}
         {object.type === 'coin' ? (
           <div className="transaction-detail-item">
-            <span className="transaction-detail-item-key">Gas Used</span>
+            <span className="transaction-detail-item-key">Gas Fee</span>
             <span>
               {Intl.NumberFormat('en-US').format(Number(gasFee))}{' '}
               {object.symbol}
