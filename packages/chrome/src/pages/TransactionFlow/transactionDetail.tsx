@@ -14,7 +14,7 @@ import { ReactComponent as IconExternal } from '../../assets/icons/external.svg'
 export interface TxnItem {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
-  gasUsed: number;
+  gasFee: number;
   from: string;
   to: string;
   timestamp_ms: number | null;
@@ -29,7 +29,7 @@ function TransactionDetail() {
   const {
     txStatus,
     transactionDigest,
-    gasUsed,
+    gasFee,
     from,
     to,
     timestamp_ms: time,
@@ -113,9 +113,9 @@ function TransactionDetail() {
         ) : null}
         {object.type === 'coin' ? (
           <div className="transaction-detail-item">
-            <span className="transaction-detail-item-key">Gas Used</span>
+            <span className="transaction-detail-item-key">Gas Fee</span>
             <span>
-              {Intl.NumberFormat('en-US').format(Number(gasUsed))}{' '}
+              {Intl.NumberFormat('en-US').format(Number(gasFee))}{' '}
               {object.symbol}
             </span>
           </div>

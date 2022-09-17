@@ -100,7 +100,7 @@ function TransactionFlow({
                     object,
                     from,
                     timestamp_ms: time,
-                    gasUsed,
+                    gasFee,
                     txStatus,
                     transactionDigest,
                   },
@@ -124,7 +124,7 @@ function TransactionFlow({
                             timestamp_ms: time,
                             txStatus,
                             transactionDigest,
-                            gasUsed,
+                            gasFee,
                             hideAppLayout: true,
                           },
                         });
