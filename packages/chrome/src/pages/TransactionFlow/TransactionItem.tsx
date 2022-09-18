@@ -74,6 +74,7 @@ function TransactionItem({
               hideCopy={true}
               className={classnames('ml-1')}
               value={from}
+              disableCopy={true}
             ></Address>
           </div>
         ) : (
@@ -83,6 +84,7 @@ function TransactionItem({
               hideCopy={true}
               className={classnames('ml-1')}
               value={to}
+              disableCopy={true}
             ></Address>
           </div>
         )}
