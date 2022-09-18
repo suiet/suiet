@@ -115,7 +115,7 @@ function TransactionFlow({
                       type={type}
                       status={txStatus}
                       onClick={() => {
-                        navigate(`/transaction/detail/${day}-${index}`, {
+                        navigate(`/transaction/detail/${transactionDigest}`, {
                           state: {
                             to,
                             type,
