@@ -1,7 +1,6 @@
 import Avatar, { withFavicon } from '../../../components/Avatar';
 import Typo from '../../../components/Typo';
 import Icon from '../../../components/Icon';
-import { ReactComponent as IconLink } from '../../../assets/icons/link.svg';
 import { ReactComponent as IconPermYes } from '../../../assets/icons/perm-yes.svg';
 import { ReactComponent as IconPermNo } from '../../../assets/icons/perm-no.svg';
 import Button from '../../../components/Button';
@@ -19,11 +18,17 @@ import Address from '../../../components/Address';
 import { isNonEmptyArray } from '../../../utils/check';
 import { useApiClient } from '../../../hooks/useApiClient';
 import {
+  Permission,
   PermReqStorage,
   PermRequest,
 } from '../../../scripts/background/permission';
 import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import HyperLink from '../../../components/HyperLink';
+
+const tips: Record<string, any> = {
+  [Permission.SUGGEST_TX]: 'Share wallet address',
+  [Permission.VIEW_ACCOUNT]: 'Suggest transactions to approve',
+};
 
 const ConnectPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -60,7 +65,6 @@ const ConnectPage = () => {
         return;
       }
       setPermReqData(reqData);
-      console.log('reqData', reqData);
     })();
   }, [permReqId]);
 
@@ -101,7 +105,7 @@ const ConnectPage = () => {
                     icon={<IconPermYes />}
                   />
                   <Typo.Small className={styles['perm-item-desc']}>
-                    {item}
+                    {tips[item] ?? ''}
                   </Typo.Small>
                 </div>
               ))

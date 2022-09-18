@@ -28,7 +28,7 @@ function useWalletAccountMap(wallets: Wallet[]) {
     return sortedAccounts[0];
   }
 
-  // generate -defaultAccount Map
+  // generate defaultAccount map
   useEffect(() => {
     (async function () {
       const map = new Map<string, AccountInWallet>();
@@ -80,7 +80,7 @@ const WalletSwitcherInstance = (props: {
       onClickLayer={props.onClickLayer}
       onClickNew={props.onClickNew}
       onClickImport={props.onClickImport}
-    ></WalletSwitcher>
+    />
   );
 };
 

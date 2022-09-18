@@ -28,10 +28,10 @@ const WalletSelector = (props: WalletSelectorProps) => {
           hideCopy={true}
           className={styles['wallet-item__address']}
         />
-        <Icon
-          icon={<IconArrowRight />}
-          className={styles['wallet-item__arrow']}
-        ></Icon>
+        {/*<Icon*/}
+        {/*  icon={<IconArrowRight />}*/}
+        {/*  className={styles['wallet-item__arrow']}*/}
+        {/*></Icon>*/}
       </div>
       {/*<WalletSwitcher wallets={[]} onSelect={} onEdit={} />*/}
     </div>
