@@ -1,11 +1,11 @@
-import { filter, firstValueFrom, map, race, Subject, take } from 'rxjs';
+import { filter, firstValueFrom, map, race, Subject, take, tap } from 'rxjs';
 import { ChromeStorage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
 import { NetworkApi, Storage, TransactionApi } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { Permission, PermissionManager } from '../permission';
-import { MoveCallTransaction } from '@mysten/sui.js';
+import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
 import { TxRequestManager, TxRequestType } from '../transaction';
 import { data } from 'autoprefixer';
 
@@ -130,8 +130,11 @@ export class DappBgApi {
       type: TxRequestType;
       data: MoveCallTransaction;
     }>
-  ) {
+  ): Promise<SuiTransactionResponse | null> {
     const { params, context } = payload;
+    if (!params?.data) {
+      throw new Error('Transaction params required');
+    }
     const checkRes = await this.checkPermissions(context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
@@ -139,14 +142,15 @@ export class DappBgApi {
     if (!checkRes.result) {
       // TODO: launch request permission window
       console.warn('TODO: launch request permission window');
-      return;
+      return null;
     }
-    const txReq = this.txManager.createTxRequest({
+    const txReq = await this.txManager.createTxRequest({
       origin: context.origin,
+      favicon: context.favicon,
       type: params.type,
       data: params.data,
     });
-    const txReqWindow = this.createPopupWindow('dapp/tx-request', {
+    const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
     });
     const windowObservable = await txReqWindow.show();
@@ -174,7 +178,12 @@ export class DappBgApi {
       })
     );
     const finalResult = await firstValueFrom(
-      race(onWindowCloseObservable, onApprovalObservable).pipe(take(1))
+      race(onWindowCloseObservable, onApprovalObservable).pipe(
+        take(1),
+        tap(async () => {
+          await txReqWindow.close();
+        })
+      )
     );
     if (!finalResult.approved) {
       throw new Error('User rejected');
@@ -188,16 +197,24 @@ export class DappBgApi {
       );
     }
     try {
-      await this.txApi.executeMoveCall({
+      const response = await this.txApi.executeMoveCall({
         network,
         token: appContext.token,
         walletId: appContext.walletId,
         accountId: appContext.accountId,
         tx: params.data,
       });
-      return null;
-    } catch (e) {
+      await this.txManager.storeTxRequest({
+        ...txReq,
+        response,
+      });
+      return response;
+    } catch (e: any) {
       console.error(e);
+      await this.txManager.storeTxRequest({
+        ...txReq,
+        responseError: e.message,
+      });
       throw e;
     }
   }
@@ -265,7 +282,6 @@ export class DappBgApi {
       console.error(e);
       throw new Error('failed to parse appContext data from local storage');
     }
-    console.log('key deserialized result', appContext);
     return appContext;
   }
 }

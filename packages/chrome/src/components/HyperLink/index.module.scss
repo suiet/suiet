@@ -1,0 +1,20 @@
+@import '../../styles/variables';
+
+.hyper-link {
+  display: flex;
+  align-items: center;
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+  }
+  &__url {
+    margin-left: 4px;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: $gray-400;
+  }
+}

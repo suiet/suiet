@@ -5,7 +5,7 @@ import { validateToken } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
-import { MoveCallTransaction } from '@mysten/sui.js';
+import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -101,7 +101,7 @@ export interface ITransactionApi {
 
   mintExampleNft: (params: MintNftParams) => Promise<void>;
 
-  executeMoveCall: (params: MoveCallParams) => Promise<void>;
+  executeMoveCall: (params: MoveCallParams) => Promise<SuiTransactionResponse>;
 
   executeSerializedMoveCall: (
     params: SerializedMoveCallParams
@@ -234,7 +234,9 @@ export class TransactionApi implements ITransactionApi {
     await provider.tx.mintExampleNft(vault);
   }
 
-  async executeMoveCall(params: MoveCallParams): Promise<void> {
+  async executeMoveCall(
+    params: MoveCallParams
+  ): Promise<SuiTransactionResponse> {
     await validateToken(this.storage, params.token);
     const provider = new Provider(
       params.network.queryRpcUrl,
@@ -245,7 +247,7 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    await provider.tx.executeMoveCall(params.tx, vault);
+    return await provider.tx.executeMoveCall(params.tx, vault);
   }
 
   async executeSerializedMoveCall(

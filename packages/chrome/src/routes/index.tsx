@@ -33,6 +33,9 @@ const LoginPage = lazy(
 const DappConnectPage = lazy(
   async () => await import('../pages/dapp/ConnectPage')
 );
+const DappTxApprovePage = lazy(
+  async () => await import('../pages/dapp/TxApprovePage')
+);
 
 const routesConfig: RouteObject[] = [
   {
@@ -126,6 +129,10 @@ const routesConfig: RouteObject[] = [
       {
         path: 'connect',
         element: withSus(<DappConnectPage />),
+      },
+      {
+        path: 'tx-approval',
+        element: withSus(<DappTxApprovePage />),
       },
     ],
   },

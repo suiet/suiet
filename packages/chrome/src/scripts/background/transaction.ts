@@ -15,6 +15,7 @@ export enum TxRequestType {
 export interface TxRequest {
   id: string;
   origin: string;
+  favicon: string;
   approved: boolean | null;
   metadata: SuiMoveNormalizedFunction | null;
   type: TxRequestType;
@@ -25,7 +26,7 @@ export interface TxRequest {
   updatedAt: string | null;
 }
 
-class TxRequestStorage {
+export class TxRequestStorage {
   private readonly storage: ChromeStorage;
   constructor() {
     this.storage = new ChromeStorage();
@@ -45,10 +46,17 @@ class TxRequestStorage {
   private async getMap(): Promise<Record<string, TxRequest>> {
     const map = await this.storage.getItem(StorageKeys.TX_REQUESTS);
     if (!map) {
-      await this.storage.setItem(StorageKeys.TX_REQUESTS, JSON.stringify({}));
+      await this.reset();
       return {};
     }
     return JSON.parse(map);
+  }
+
+  async reset() {
+    return await this.storage.setItem(
+      StorageKeys.TX_REQUESTS,
+      JSON.stringify({})
+    );
   }
 }
 
@@ -58,12 +66,13 @@ export class TxRequestManager {
     this.storage = new TxRequestStorage();
   }
 
-  createTxRequest(params: {
+  async createTxRequest(params: {
     type: TxRequestType;
     origin: string;
+    favicon: string;
     data: MoveCallTransaction | string;
-  }): TxRequest {
-    return {
+  }): Promise<TxRequest> {
+    const data = {
       ...params,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
@@ -73,6 +82,8 @@ export class TxRequestManager {
       responseError: null,
       updatedAt: null,
     };
+    await this.storage.set(data);
+    return data;
   }
 
   async storeTxRequest(data: TxRequest) {

@@ -1,0 +1,33 @@
+@import '../../../styles/variables';
+
+.wallet-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-radius: 16px;
+  background-color: $gray-50;
+
+  &__name {
+    margin-left: 8px;
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 18px;
+    color: #000;
+  }
+
+  &__address {
+    margin-left: 8px;
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    color: $gray-400;
+  }
+  &__arrow {
+    margin-left: auto;
+    transform: rotate(90deg);
+  }
+}

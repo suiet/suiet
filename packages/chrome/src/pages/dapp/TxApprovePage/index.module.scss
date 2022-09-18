@@ -1,0 +1,38 @@
+@import '../../../styles/variables';
+
+.container {
+  height: inherit;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  margin-top: 67px;
+  padding: 0 32px;
+
+  &__title {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 33px;
+    color: $gray-900;
+  }
+
+  &__desc {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+    color: $gray-900;
+  }
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-top: 1px solid $gray-100;
+}

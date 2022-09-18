@@ -1,61 +1,61 @@
-var ue = Object.defineProperty;
-var ce = (e, t, r) => t in e ? ue(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[t] = r;
-var b = (e, t, r) => (ce(e, typeof t != "symbol" ? t + "" : t, r), r);
+var ce = Object.defineProperty;
+var ae = (e, t, r) => t in e ? ce(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[t] = r;
+var b = (e, t, r) => (ae(e, typeof t != "symbol" ? t + "" : t, r), r);
 let _;
-const ae = new Uint8Array(16);
-function se() {
+const se = new Uint8Array(16);
+function le() {
   if (!_ && (_ = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !_))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return _(ae);
+  return _(se);
 }
 const y = [];
 for (let e = 0; e < 256; ++e)
   y.push((e + 256).toString(16).slice(1));
-function le(e, t = 0) {
+function fe(e, t = 0) {
   return (y[e[t + 0]] + y[e[t + 1]] + y[e[t + 2]] + y[e[t + 3]] + "-" + y[e[t + 4]] + y[e[t + 5]] + "-" + y[e[t + 6]] + y[e[t + 7]] + "-" + y[e[t + 8]] + y[e[t + 9]] + "-" + y[e[t + 10]] + y[e[t + 11]] + y[e[t + 12]] + y[e[t + 13]] + y[e[t + 14]] + y[e[t + 15]]).toLowerCase();
 }
-const fe = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), J = {
-  randomUUID: fe
+const de = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), Z = {
+  randomUUID: de
 };
-function de(e, t, r) {
-  if (J.randomUUID && !t && !e)
-    return J.randomUUID();
+function he(e, t, r) {
+  if (Z.randomUUID && !t && !e)
+    return Z.randomUUID();
   e = e || {};
-  const n = e.random || (e.rng || se)();
+  const n = e.random || (e.rng || le)();
   if (n[6] = n[6] & 15 | 64, n[8] = n[8] & 63 | 128, t) {
     r = r || 0;
     for (let o = 0; o < 16; ++o)
       t[r + o] = n[o];
     return t;
   }
-  return le(n);
+  return fe(n);
 }
-var D = /* @__PURE__ */ ((e) => (e.DAPP = "DAPP", e.SUIET_CONTENT = "SUIET_CONTENT", e))(D || {});
-function x(e, t) {
+var k = /* @__PURE__ */ ((e) => (e.DAPP = "DAPP", e.SUIET_CONTENT = "SUIET_CONTENT", e))(k || {});
+function g(e, t) {
   return {
-    id: de(),
+    id: he(),
     funcName: e,
     payload: t
   };
 }
-var R = function(e, t) {
-  return R = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(r, n) {
+var D = function(e, t) {
+  return D = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(r, n) {
     r.__proto__ = n;
   } || function(r, n) {
     for (var o in n)
       Object.prototype.hasOwnProperty.call(n, o) && (r[o] = n[o]);
-  }, R(e, t);
+  }, D(e, t);
 };
 function q(e, t) {
   if (typeof t != "function" && t !== null)
     throw new TypeError("Class extends value " + String(t) + " is not a constructor or null");
-  R(e, t);
+  D(e, t);
   function r() {
     this.constructor = e;
   }
   e.prototype = t === null ? Object.create(t) : (r.prototype = t.prototype, new r());
 }
-function he(e, t, r, n) {
+function ye(e, t, r, n) {
   function o(i) {
     return i instanceof r ? i : new r(function(u) {
       u(i);
@@ -147,7 +147,7 @@ function z(e, t) {
     return { value: c[0] ? c[1] : void 0, done: !0 };
   }
 }
-function P(e) {
+function A(e) {
   var t = typeof Symbol == "function" && Symbol.iterator, r = t && e[t], n = 0;
   if (r)
     return r.call(e);
@@ -159,7 +159,7 @@ function P(e) {
     };
   throw new TypeError(t ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-function S(e, t) {
+function E(e, t) {
   var r = typeof Symbol == "function" && e[Symbol.iterator];
   if (!r)
     return e;
@@ -179,16 +179,16 @@ function S(e, t) {
   }
   return i;
 }
-function T(e, t, r) {
+function I(e, t, r) {
   if (r || arguments.length === 2)
     for (var n = 0, o = t.length, i; n < o; n++)
       (i || !(n in t)) && (i || (i = Array.prototype.slice.call(t, 0, n)), i[n] = t[n]);
   return e.concat(i || Array.prototype.slice.call(t));
 }
-function g(e) {
-  return this instanceof g ? (this.v = e, this) : new g(e);
+function S(e) {
+  return this instanceof S ? (this.v = e, this) : new S(e);
 }
-function ye(e, t, r) {
+function pe(e, t, r) {
   if (!Symbol.asyncIterator)
     throw new TypeError("Symbol.asyncIterator is not defined.");
   var n = r.apply(e, t || []), o, i = [];
@@ -210,7 +210,7 @@ function ye(e, t, r) {
     }
   }
   function s(f) {
-    f.value instanceof g ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
+    f.value instanceof S ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
   }
   function c(f) {
     a("next", f);
@@ -222,11 +222,11 @@ function ye(e, t, r) {
     f(p), i.shift(), i.length && a(i[0][0], i[0][1]);
   }
 }
-function pe(e) {
+function ve(e) {
   if (!Symbol.asyncIterator)
     throw new TypeError("Symbol.asyncIterator is not defined.");
   var t = e[Symbol.asyncIterator], r;
-  return t ? t.call(e) : (e = typeof P == "function" ? P(e) : e[Symbol.iterator](), r = {}, n("next"), n("throw"), n("return"), r[Symbol.asyncIterator] = function() {
+  return t ? t.call(e) : (e = typeof A == "function" ? A(e) : e[Symbol.iterator](), r = {}, n("next"), n("throw"), n("return"), r[Symbol.asyncIterator] = function() {
     return this;
   }, r);
   function n(i) {
@@ -251,7 +251,7 @@ function N(e) {
   }, r = e(t);
   return r.prototype = Object.create(Error.prototype), r.prototype.constructor = r, r;
 }
-var L = N(function(e) {
+var U = N(function(e) {
   return function(r) {
     e(this), this.message = r ? r.length + ` errors occurred during unsubscription:
 ` + r.map(function(n, o) {
@@ -260,7 +260,7 @@ var L = N(function(e) {
   `) : "", this.name = "UnsubscriptionError", this.errors = r;
   };
 });
-function Q(e, t) {
+function J(e, t) {
   if (e) {
     var r = e.indexOf(t);
     0 <= r && e.splice(r, 1);
@@ -278,7 +278,7 @@ var F = function() {
       if (u)
         if (this._parentage = null, Array.isArray(u))
           try {
-            for (var a = P(u), s = a.next(); !s.done; s = a.next()) {
+            for (var a = A(u), s = a.next(); !s.done; s = a.next()) {
               var c = s.value;
               c.remove(this);
             }
@@ -299,18 +299,18 @@ var F = function() {
         try {
           l();
         } catch (h) {
-          i = h instanceof L ? h.errors : [h];
+          i = h instanceof U ? h.errors : [h];
         }
       var v = this._finalizers;
       if (v) {
         this._finalizers = null;
         try {
-          for (var f = P(v), p = f.next(); !p.done; p = f.next()) {
+          for (var f = A(v), p = f.next(); !p.done; p = f.next()) {
             var m = p.value;
             try {
-              B(m);
+              Q(m);
             } catch (h) {
-              i = i != null ? i : [], h instanceof L ? i = T(T([], S(i)), S(h.errors)) : i.push(h);
+              i = i != null ? i : [], h instanceof U ? i = I(I([], E(i)), E(h.errors)) : i.push(h);
             }
           }
         } catch (h) {
@@ -325,13 +325,13 @@ var F = function() {
         }
       }
       if (i)
-        throw new L(i);
+        throw new U(i);
     }
   }, e.prototype.add = function(t) {
     var r;
     if (t && t !== this)
       if (this.closed)
-        B(t);
+        Q(t);
       else {
         if (t instanceof e) {
           if (t.closed || t._hasParent(this))
@@ -348,10 +348,10 @@ var F = function() {
     this._parentage = Array.isArray(r) ? (r.push(t), r) : r ? [r, t] : t;
   }, e.prototype._removeParent = function(t) {
     var r = this._parentage;
-    r === t ? this._parentage = null : Array.isArray(r) && Q(r, t);
+    r === t ? this._parentage = null : Array.isArray(r) && J(r, t);
   }, e.prototype.remove = function(t) {
     var r = this._finalizers;
-    r && Q(r, t), t instanceof e && t._removeParent(this);
+    r && J(r, t), t instanceof e && t._removeParent(this);
   }, e.EMPTY = function() {
     var t = new e();
     return t.closed = !0, t;
@@ -361,7 +361,7 @@ F.EMPTY;
 function ee(e) {
   return e instanceof F || e && "closed" in e && d(e.remove) && d(e.add) && d(e.unsubscribe);
 }
-function B(e) {
+function Q(e) {
   d(e) ? e() : e.unsubscribe();
 }
 var te = {
@@ -370,37 +370,37 @@ var te = {
   Promise: void 0,
   useDeprecatedSynchronousErrorHandling: !1,
   useDeprecatedNextContext: !1
-}, C = {
+}, R = {
   setTimeout: function(e, t) {
     for (var r = [], n = 2; n < arguments.length; n++)
       r[n - 2] = arguments[n];
-    var o = C.delegate;
-    return o != null && o.setTimeout ? o.setTimeout.apply(o, T([e, t], S(r))) : setTimeout.apply(void 0, T([e, t], S(r)));
+    var o = R.delegate;
+    return o != null && o.setTimeout ? o.setTimeout.apply(o, I([e, t], E(r))) : setTimeout.apply(void 0, I([e, t], E(r)));
   },
   clearTimeout: function(e) {
-    var t = C.delegate;
+    var t = R.delegate;
     return ((t == null ? void 0 : t.clearTimeout) || clearTimeout)(e);
   },
   delegate: void 0
 };
 function re(e) {
-  C.setTimeout(function() {
+  R.setTimeout(function() {
     throw e;
   });
 }
-function K() {
+function B() {
 }
-function ve(e) {
+function me(e) {
   e();
 }
 var Y = function(e) {
   q(t, e);
   function t(r) {
     var n = e.call(this) || this;
-    return n.isStopped = !1, r ? (n.destination = r, ee(r) && r.add(n)) : n.destination = ge, n;
+    return n.isStopped = !1, r ? (n.destination = r, ee(r) && r.add(n)) : n.destination = Se, n;
   }
   return t.create = function(r, n, o) {
-    return new j(r, n, o);
+    return new V(r, n, o);
   }, t.prototype.next = function(r) {
     this.isStopped || this._next(r);
   }, t.prototype.error = function(r) {
@@ -424,11 +424,11 @@ var Y = function(e) {
       this.unsubscribe();
     }
   }, t;
-}(F), me = Function.prototype.bind;
-function k(e, t) {
-  return me.call(e, t);
+}(F), be = Function.prototype.bind;
+function C(e, t) {
+  return be.call(e, t);
 }
-var be = function() {
+var we = function() {
   function e(t) {
     this.partialObserver = t;
   }
@@ -459,7 +459,7 @@ var be = function() {
         O(r);
       }
   }, e;
-}(), j = function(e) {
+}(), V = function(e) {
   q(t, e);
   function t(r, n, o) {
     var i = e.call(this) || this, u;
@@ -474,34 +474,34 @@ var be = function() {
       i && te.useDeprecatedNextContext ? (a = Object.create(r), a.unsubscribe = function() {
         return i.unsubscribe();
       }, u = {
-        next: r.next && k(r.next, a),
-        error: r.error && k(r.error, a),
-        complete: r.complete && k(r.complete, a)
+        next: r.next && C(r.next, a),
+        error: r.error && C(r.error, a),
+        complete: r.complete && C(r.complete, a)
       }) : u = r;
     }
-    return i.destination = new be(u), i;
+    return i.destination = new we(u), i;
   }
   return t;
 }(Y);
 function O(e) {
   re(e);
 }
-function we(e) {
+function ge(e) {
   throw e;
 }
-var ge = {
+var Se = {
   closed: !0,
-  next: K,
-  error: we,
-  complete: K
+  next: B,
+  error: ge,
+  complete: B
 }, G = function() {
   return typeof Symbol == "function" && Symbol.observable || "@@observable";
 }();
-function Se(e) {
+function Ee(e) {
   return e;
 }
-function Ee(e) {
-  return e.length === 0 ? Se : e.length === 1 ? e[0] : function(r) {
+function xe(e) {
+  return e.length === 0 ? Ee : e.length === 1 ? e[0] : function(r) {
     return e.reduce(function(n, o) {
       return o(n);
     }, r);
@@ -515,8 +515,8 @@ var w = function() {
     var r = new e();
     return r.source = this, r.operator = t, r;
   }, e.prototype.subscribe = function(t, r, n) {
-    var o = this, i = Pe(t) ? t : new j(t, r, n);
-    return ve(function() {
+    var o = this, i = Ie(t) ? t : new V(t, r, n);
+    return me(function() {
       var u = o, a = u.operator, s = u.source;
       i.add(a ? a.call(i, s) : s ? o._subscribe(i) : o._trySubscribe(i));
     }), i;
@@ -528,8 +528,8 @@ var w = function() {
     }
   }, e.prototype.forEach = function(t, r) {
     var n = this;
-    return r = X(r), new r(function(o, i) {
-      var u = new j({
+    return r = K(r), new r(function(o, i) {
+      var u = new V({
         next: function(a) {
           try {
             t(a);
@@ -550,10 +550,10 @@ var w = function() {
   }, e.prototype.pipe = function() {
     for (var t = [], r = 0; r < arguments.length; r++)
       t[r] = arguments[r];
-    return Ee(t)(this);
+    return xe(t)(this);
   }, e.prototype.toPromise = function(t) {
     var r = this;
-    return t = X(t), new t(function(n, o) {
+    return t = K(t), new t(function(n, o) {
       var i;
       r.subscribe(function(u) {
         return i = u;
@@ -567,22 +567,22 @@ var w = function() {
     return new e(t);
   }, e;
 }();
-function X(e) {
+function K(e) {
   var t;
   return (t = e != null ? e : te.Promise) !== null && t !== void 0 ? t : Promise;
 }
-function xe(e) {
+function Ae(e) {
   return e && d(e.next) && d(e.error) && d(e.complete);
 }
-function Pe(e) {
-  return e && e instanceof Y || xe(e) && ee(e);
+function Ie(e) {
+  return e && e instanceof Y || Ae(e) && ee(e);
 }
-function Te(e) {
+function Pe(e) {
   return d(e == null ? void 0 : e.lift);
 }
 function M(e) {
   return function(t) {
-    if (Te(t))
+    if (Pe(t))
       return t.lift(function(r) {
         try {
           return e(r, this);
@@ -593,10 +593,10 @@ function M(e) {
     throw new TypeError("Unable to lift unknown Observable type");
   };
 }
-function I(e, t, r, n, o) {
-  return new Ie(e, t, r, n, o);
+function P(e, t, r, n, o) {
+  return new Te(e, t, r, n, o);
 }
-var Ie = function(e) {
+var Te = function(e) {
   q(t, e);
   function t(r, n, o, i, u, a) {
     var s = e.call(this, r) || this;
@@ -631,32 +631,32 @@ var Ie = function(e) {
       e.prototype.unsubscribe.call(this), !n && ((r = this.onFinalize) === null || r === void 0 || r.call(this));
     }
   }, t;
-}(Y), Ae = new w(function(e) {
+}(Y), _e = new w(function(e) {
   return e.complete();
 }), ne = function(e) {
   return e && typeof e.length == "number" && typeof e != "function";
 };
-function _e(e) {
+function Oe(e) {
   return d(e == null ? void 0 : e.then);
 }
-function Oe(e) {
+function Le(e) {
   return d(e[G]);
 }
-function Ue(e) {
+function Me(e) {
   return Symbol.asyncIterator && d(e == null ? void 0 : e[Symbol.asyncIterator]);
 }
-function Me(e) {
+function Ue(e) {
   return new TypeError("You provided " + (e !== null && typeof e == "object" ? "an invalid object" : "'" + e + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
 }
-function Le() {
+function Ce() {
   return typeof Symbol != "function" || !Symbol.iterator ? "@@iterator" : Symbol.iterator;
 }
-var ke = Le();
+var ke = Ce();
 function De(e) {
   return d(e == null ? void 0 : e[ke]);
 }
 function Re(e) {
-  return ye(this, arguments, function() {
+  return pe(this, arguments, function() {
     var r, n, o, i;
     return z(this, function(u) {
       switch (u.label) {
@@ -665,13 +665,13 @@ function Re(e) {
         case 1:
           u.trys.push([1, , 9, 10]), u.label = 2;
         case 2:
-          return [4, g(r.read())];
+          return [4, S(r.read())];
         case 3:
-          return n = u.sent(), o = n.value, i = n.done, i ? [4, g(void 0)] : [3, 5];
+          return n = u.sent(), o = n.value, i = n.done, i ? [4, S(void 0)] : [3, 5];
         case 4:
           return [2, u.sent()];
         case 5:
-          return [4, g(o)];
+          return [4, S(o)];
         case 6:
           return [4, u.sent()];
         case 7:
@@ -686,27 +686,27 @@ function Re(e) {
     });
   });
 }
-function Ce(e) {
+function Ve(e) {
   return d(e == null ? void 0 : e.getReader);
 }
 function H(e) {
   if (e instanceof w)
     return e;
   if (e != null) {
-    if (Oe(e))
+    if (Le(e))
       return je(e);
     if (ne(e))
-      return Ve(e);
-    if (_e(e))
       return qe(e);
-    if (Ue(e))
+    if (Oe(e))
+      return Fe(e);
+    if (Me(e))
       return ie(e);
     if (De(e))
-      return Fe(e);
-    if (Ce(e))
       return Ye(e);
+    if (Ve(e))
+      return Ge(e);
   }
-  throw Me(e);
+  throw Ue(e);
 }
 function je(e) {
   return new w(function(t) {
@@ -716,14 +716,14 @@ function je(e) {
     throw new TypeError("Provided object does not correctly implement Symbol.observable");
   });
 }
-function Ve(e) {
+function qe(e) {
   return new w(function(t) {
     for (var r = 0; r < e.length && !t.closed; r++)
       t.next(e[r]);
     t.complete();
   });
 }
-function qe(e) {
+function Fe(e) {
   return new w(function(t) {
     e.then(function(r) {
       t.closed || (t.next(r), t.complete());
@@ -732,11 +732,11 @@ function qe(e) {
     }).then(null, re);
   });
 }
-function Fe(e) {
+function Ye(e) {
   return new w(function(t) {
     var r, n;
     try {
-      for (var o = P(e), i = o.next(); !i.done; i = o.next()) {
+      for (var o = A(e), i = o.next(); !i.done; i = o.next()) {
         var u = i.value;
         if (t.next(u), t.closed)
           return;
@@ -756,22 +756,22 @@ function Fe(e) {
 }
 function ie(e) {
   return new w(function(t) {
-    Ge(e, t).catch(function(r) {
+    He(e, t).catch(function(r) {
       return t.error(r);
     });
   });
 }
-function Ye(e) {
+function Ge(e) {
   return ie(Re(e));
 }
-function Ge(e, t) {
+function He(e, t) {
   var r, n, o, i;
-  return he(this, void 0, void 0, function() {
+  return ye(this, void 0, void 0, function() {
     var u, a;
     return z(this, function(s) {
       switch (s.label) {
         case 0:
-          s.trys.push([0, 5, 6, 11]), r = pe(e), s.label = 1;
+          s.trys.push([0, 5, 6, 11]), r = ve(e), s.label = 1;
         case 1:
           return [4, r.next()];
         case 2:
@@ -804,7 +804,7 @@ function Ge(e, t) {
     });
   });
 }
-function He(e, t, r, n, o) {
+function We(e, t, r, n, o) {
   n === void 0 && (n = 0), o === void 0 && (o = !1);
   var i = t.schedule(function() {
     r(), o ? e.add(this.schedule(null, n)) : this.unsubscribe();
@@ -812,7 +812,7 @@ function He(e, t, r, n, o) {
   if (e.add(i), !o)
     return i;
 }
-var We = N(function(e) {
+var Ze = N(function(e) {
   return function() {
     e(this), this.name = "EmptyError", this.message = "no elements in sequence";
   };
@@ -827,25 +827,25 @@ function Je(e, t) {
       },
       error: o,
       complete: function() {
-        i ? n(u) : r ? n(t.defaultValue) : o(new We());
+        i ? n(u) : r ? n(t.defaultValue) : o(new Ze());
       }
     });
   });
 }
-function U(e, t) {
+function L(e, t) {
   return M(function(r, n) {
     var o = 0;
-    r.subscribe(I(n, function(i) {
+    r.subscribe(P(n, function(i) {
       n.next(e.call(t, i, o++));
     }));
   });
 }
 var Qe = Array.isArray;
 function Be(e, t) {
-  return Qe(t) ? e.apply(void 0, T([], S(t))) : e(t);
+  return Qe(t) ? e.apply(void 0, I([], E(t))) : e(t);
 }
 function Ke(e) {
-  return U(function(t) {
+  return L(function(t) {
     return Be(e, t);
   });
 }
@@ -857,28 +857,28 @@ function Xe(e, t, r, n, o, i, u, a) {
   }, m = function(h) {
     i && t.next(h), c++;
     var W = !1;
-    H(r(h, l++)).subscribe(I(t, function(E) {
-      o == null || o(E), i ? p(E) : t.next(E);
+    H(r(h, l++)).subscribe(P(t, function(x) {
+      o == null || o(x), i ? p(x) : t.next(x);
     }, function() {
       W = !0;
     }, void 0, function() {
       if (W)
         try {
           c--;
-          for (var E = function() {
-            var A = s.shift();
-            u ? He(t, u, function() {
-              return m(A);
-            }) : m(A);
+          for (var x = function() {
+            var T = s.shift();
+            u ? We(t, u, function() {
+              return m(T);
+            }) : m(T);
           }; s.length && c < n; )
-            E();
+            x();
           f();
-        } catch (A) {
-          t.error(A);
+        } catch (T) {
+          t.error(T);
         }
     }));
   };
-  return e.subscribe(I(t, p, function() {
+  return e.subscribe(P(t, p, function() {
     v = !0, f();
   })), function() {
     a == null || a();
@@ -886,25 +886,25 @@ function Xe(e, t, r, n, o, i, u, a) {
 }
 function oe(e, t, r) {
   return r === void 0 && (r = 1 / 0), d(t) ? oe(function(n, o) {
-    return U(function(i, u) {
+    return L(function(i, u) {
       return t(n, i, o, u);
     })(H(e(n, o)));
   }, r) : (typeof t == "number" && (r = t), M(function(n, o) {
     return Xe(n, o, e, r);
   }));
 }
-var Ze = ["addListener", "removeListener"], $e = ["addEventListener", "removeEventListener"], ze = ["on", "off"];
-function V(e, t, r, n) {
+var $e = ["addListener", "removeListener"], ze = ["addEventListener", "removeEventListener"], Ne = ["on", "off"];
+function j(e, t, r, n) {
   if (d(r) && (n = r, r = void 0), n)
-    return V(e, t, r).pipe(Ke(n));
-  var o = S(tt(e) ? $e.map(function(a) {
+    return j(e, t, r).pipe(Ke(n));
+  var o = E(rt(e) ? ze.map(function(a) {
     return function(s) {
       return e[a](t, s, r);
     };
-  }) : Ne(e) ? Ze.map(Z(e, t)) : et(e) ? ze.map(Z(e, t)) : [], 2), i = o[0], u = o[1];
+  }) : et(e) ? $e.map(X(e, t)) : tt(e) ? Ne.map(X(e, t)) : [], 2), i = o[0], u = o[1];
   if (!i && ne(e))
     return oe(function(a) {
-      return V(a, t, r);
+      return j(a, t, r);
     })(H(e));
   if (!i)
     throw new TypeError("Invalid event target");
@@ -919,41 +919,41 @@ function V(e, t, r, n) {
     };
   });
 }
-function Z(e, t) {
+function X(e, t) {
   return function(r) {
     return function(n) {
       return e[r](t, n);
     };
   };
 }
-function Ne(e) {
+function et(e) {
   return d(e.addListener) && d(e.removeListener);
 }
-function et(e) {
+function tt(e) {
   return d(e.on) && d(e.off);
 }
-function tt(e) {
+function rt(e) {
   return d(e.addEventListener) && d(e.removeEventListener);
 }
 function $(e, t) {
   return M(function(r, n) {
     var o = 0;
-    r.subscribe(I(n, function(i) {
+    r.subscribe(P(n, function(i) {
       return e.call(t, i, o++) && n.next(i);
     }));
   });
 }
-function rt(e) {
+function nt(e) {
   return e <= 0 ? function() {
-    return Ae;
+    return _e;
   } : M(function(t, r) {
     var n = 0;
-    t.subscribe(I(r, function(o) {
+    t.subscribe(P(r, function(o) {
       ++n <= e && (r.next(o), e <= n && r.complete());
     }));
   });
 }
-class nt {
+class it {
   constructor(t, r) {
     b(this, "msgObservable");
     b(this, "source");
@@ -962,7 +962,7 @@ class nt {
       throw new Error(
         "[WindowMessageStream] source and target must be different"
       );
-    this.source = t, this.target = r, this.msgObservable = V(
+    this.source = t, this.target = r, this.msgObservable = j(
       window,
       "message"
     ).pipe(
@@ -972,7 +972,7 @@ class nt {
           return n.source === window && ((o = n.data) == null ? void 0 : o.target) === this.source;
         }
       ),
-      U((n) => n.data)
+      L((n) => n.data)
     );
   }
   async post(t) {
@@ -983,8 +983,8 @@ class nt {
     return console.log("[WindowMsgStream] postMessage", r), window.postMessage(r), await Je(
       this.msgObservable.pipe(
         $((n) => n.payload.id === t.id),
-        U((n) => n.payload),
-        rt(1)
+        L((n) => n.payload),
+        nt(1)
       )
     );
   }
@@ -992,48 +992,54 @@ class nt {
     this.msgObservable.subscribe(t);
   }
 }
-class it {
+var ue = /* @__PURE__ */ ((e) => (e.MOVE_CALL = "MOVE_CALL", e.SERIALIZED_MOVE_CALL = "SERIALIZED_MOVE_CALL", e))(ue || {});
+class ot {
   constructor() {
     b(this, "name");
     b(this, "connected");
     b(this, "connecting");
     b(this, "windowMsgStream");
-    this.name = "Suiet", this.connected = !1, this.connecting = !1, this.windowMsgStream = new nt(
-      D.DAPP,
-      D.SUIET_CONTENT
+    this.name = "Suiet", this.connected = !1, this.connecting = !1, this.windowMsgStream = new it(
+      k.DAPP,
+      k.SUIET_CONTENT
     );
   }
   async connect(t) {
-    return await this.windowMsgStream.post(x("handshake", null)), await this.windowMsgStream.post(
-      x("dapp.connect", { permissions: t })
+    return await this.windowMsgStream.post(g("handshake", null)), await this.windowMsgStream.post(
+      g("dapp.connect", { permissions: t })
     );
   }
   async disconnect() {
-    return await this.windowMsgStream.post(x("handwave", null));
+    return await this.windowMsgStream.post(g("handwave", null));
   }
   async hasPermissions(t) {
     return console.log("permissions", t), !0;
   }
   async requestPermissions() {
-    return await this.windowMsgStream.post(x("requestPermissions", null));
+    return await this.windowMsgStream.post(g("requestPermissions", null));
   }
   async executeMoveCall(t) {
-    return await Promise.resolve(void 0);
+    return console.log("content script", t), await this.windowMsgStream.post(
+      g("dapp.requestTransaction", {
+        type: ue.MOVE_CALL,
+        data: t
+      })
+    );
   }
   async executeSerializedMoveCall(t) {
     return await Promise.resolve(void 0);
   }
   async getAccounts() {
     return await this.windowMsgStream.post(
-      x("dapp.getAccounts", null)
+      g("dapp.getAccounts", null)
     );
   }
 }
 Object.defineProperty(window, "__suiet__", {
   enumerable: !1,
   configurable: !1,
-  value: new it()
+  value: new ot()
 });
 export {
-  it as DAppInterface
+  ot as DAppInterface
 };

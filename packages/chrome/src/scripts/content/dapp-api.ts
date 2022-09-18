@@ -8,6 +8,7 @@ import {
 } from '@mysten/sui.js';
 import { reqData, ResData, WindowMsgTarget } from '../shared';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
+import { TxRequestType } from '../background/transaction';
 
 const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'] as const;
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
@@ -24,7 +25,7 @@ export interface ISuietWallet {
   getAccounts: () => Promise<ResData<SuiAddress[]>>;
   executeMoveCall: (
     transaction: MoveCallTransaction
-  ) => Promise<SuiTransactionResponse>;
+  ) => Promise<ResData<SuiTransactionResponse>>;
   executeSerializedMoveCall: (
     transactionBytes: Uint8Array
   ) => Promise<SuiTransactionResponse>;
@@ -68,10 +69,13 @@ export class DAppInterface implements ISuietWallet {
     return await this.windowMsgStream.post(reqData('requestPermissions', null));
   }
 
-  async executeMoveCall(
-    transaction: MoveCallTransaction
-  ): Promise<SuiTransactionResponse> {
-    return await Promise.resolve(undefined as any);
+  async executeMoveCall(transaction: MoveCallTransaction) {
+    return await this.windowMsgStream.post(
+      reqData('dapp.requestTransaction', {
+        type: TxRequestType.MOVE_CALL,
+        data: transaction,
+      })
+    );
   }
 
   async executeSerializedMoveCall(
