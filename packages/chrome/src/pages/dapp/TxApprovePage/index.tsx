@@ -69,16 +69,13 @@ const TxApprovePage = () => {
     <div className={styles['container']}>
       <header className={styles['header']}>
         {withFavicon(<Avatar model={wallet?.avatar} />, {
-          src: txReqData?.favicon ?? 'https://develop.clutchy.io/favicon.ico',
+          src: txReqData?.favicon ?? '',
           alt: txReqData?.origin ?? 'origin',
         })}
-        <HyperLink
-          url={txReqData?.origin ?? 'https://develop.clutchy.io'}
-          className={'mt-[16px]'}
-        />
-        <Typo.Title className={classnames(styles['header__title'], 'mt-[4px]')}>
-          Magic Eden
-        </Typo.Title>
+        <HyperLink url={txReqData?.origin ?? ''} className={'mt-[16px]'} />
+        {/*<Typo.Title className={classnames(styles['header__title'], 'mt-[4px]')}>*/}
+        {/*  Magic Eden*/}
+        {/*</Typo.Title>*/}
         <Typo.Normal className={styles['header__desc']}>
           wants to make a transaction from
         </Typo.Normal>

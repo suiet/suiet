@@ -81,7 +81,7 @@ export class DAppInterface implements ISuietWallet {
   async executeSerializedMoveCall(
     transactionBytes: Uint8Array
   ): Promise<SuiTransactionResponse> {
-    return await Promise.resolve(undefined as any);
+    return await Promise.reject(new Error('function not implemented yet'));
   }
 
   async getAccounts() {

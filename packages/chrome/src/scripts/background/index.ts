@@ -8,9 +8,10 @@ class ApiBridgeConnection {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let bgApiProxy: BackgroundApiProxy | null =
           BackgroundApiProxy.listenTo(port); // setup listening channel
+
         port.onDisconnect.addListener(() => {
           console.log('clear proxy instance');
-          bgApiProxy = null; // TODO: clear proxy instance
+          bgApiProxy = null;
         });
       }
     };
