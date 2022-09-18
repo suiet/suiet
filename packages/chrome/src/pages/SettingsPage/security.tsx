@@ -39,8 +39,10 @@ function MainPage() {
   return (
     <div className={styles['security-setting-container']}>
       <Nav />
-      <div className="setting-title">Security</div>
-      <div className="setting-desc">The security settings of your wallet</div>
+      <div className={styles['setting-title']}>Security</div>
+      <div className={styles['setting-desc']}>
+        The security settings of your wallet
+      </div>
       <div>
         <div className={styles['secutity-card']}>
           <div className={styles['security-title']}>Password</div>
