@@ -104,7 +104,11 @@ function Header(props: HeaderProps) {
     navigate('/');
   }
 
-  async function editWallet() {
+  async function editWallet(id: string, data: WalletData) {
+    await Promise.all([
+      dispatch(updateWalletId(id)),
+      dispatch(updateAccountId(data.accountId)),
+    ]);
     navigate('/settings/wallet', {
       state: {
         hideAppLayout: true,

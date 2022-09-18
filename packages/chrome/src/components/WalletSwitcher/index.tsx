@@ -27,25 +27,27 @@ type WalletItemProps = {
 const WalletItem = (props: WalletItemProps) => {
   const { data } = props;
   return (
-    <div
-      className={classnames(styles['wallet-item'])}
-      onClick={() => props?.onClick && props.onClick(data.id, data)}
-    >
-      <Avatar model={data.avatar} size={'sm'}></Avatar>
-      <div className={'ml-[8px]'}>
-        <Typo.Title className={styles['wallet-item-name']}>
-          {data.name}
-        </Typo.Title>
-        <Address
-          value={data.accountAddress}
-          hideCopy={true}
-          disableCopy={true}
-          textClassName={styles['wallet-item-address']}
-        />
+    <div className={classnames(styles['wallet-item'])}>
+      <div
+        className={classnames(styles['wallet-item-wrap'])}
+        onClick={() => props?.onClick && props.onClick(data.id, data)}
+      >
+        <Avatar model={data.avatar} size={'sm'}></Avatar>
+        <div className={'ml-[8px]'}>
+          <Typo.Title className={styles['wallet-item-name']}>
+            {data.name}
+          </Typo.Title>
+          <Address
+            value={data.accountAddress}
+            hideCopy={true}
+            disableCopy={true}
+            textClassName={styles['wallet-item-address']}
+          />
+        </div>
       </div>
 
       <Icon
-        className={classnames(styles['icon'], 'ml-auto')}
+        className={classnames(styles['icon'])}
         icon={<IconEdit />}
         onClick={() => props?.onEdit && props.onEdit(data.id, data)}
       />

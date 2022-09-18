@@ -1,6 +1,6 @@
-var ce = Object.defineProperty;
-var ae = (e, t, r) => t in e ? ce(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[t] = r;
-var b = (e, t, r) => (ae(e, typeof t != "symbol" ? t + "" : t, r), r);
+var ae = Object.defineProperty;
+var ce = (e, t, r) => t in e ? ae(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[t] = r;
+var b = (e, t, r) => (ce(e, typeof t != "symbol" ? t + "" : t, r), r);
 let _;
 const se = new Uint8Array(16);
 function le() {
@@ -62,24 +62,24 @@ function ye(e, t, r, n) {
     });
   }
   return new (r || (r = Promise))(function(i, u) {
-    function a(l) {
+    function c(l) {
       try {
-        c(n.next(l));
+        a(n.next(l));
       } catch (v) {
         u(v);
       }
     }
     function s(l) {
       try {
-        c(n.throw(l));
+        a(n.throw(l));
       } catch (v) {
         u(v);
       }
     }
-    function c(l) {
-      l.done ? i(l.value) : o(l.value).then(a, s);
+    function a(l) {
+      l.done ? i(l.value) : o(l.value).then(c, s);
     }
-    c((n = n.apply(e, t || [])).next());
+    a((n = n.apply(e, t || [])).next());
   });
 }
 function z(e, t) {
@@ -88,63 +88,63 @@ function z(e, t) {
       throw i[1];
     return i[1];
   }, trys: [], ops: [] }, n, o, i, u;
-  return u = { next: a(0), throw: a(1), return: a(2) }, typeof Symbol == "function" && (u[Symbol.iterator] = function() {
+  return u = { next: c(0), throw: c(1), return: c(2) }, typeof Symbol == "function" && (u[Symbol.iterator] = function() {
     return this;
   }), u;
-  function a(c) {
+  function c(a) {
     return function(l) {
-      return s([c, l]);
+      return s([a, l]);
     };
   }
-  function s(c) {
+  function s(a) {
     if (n)
       throw new TypeError("Generator is already executing.");
     for (; r; )
       try {
-        if (n = 1, o && (i = c[0] & 2 ? o.return : c[0] ? o.throw || ((i = o.return) && i.call(o), 0) : o.next) && !(i = i.call(o, c[1])).done)
+        if (n = 1, o && (i = a[0] & 2 ? o.return : a[0] ? o.throw || ((i = o.return) && i.call(o), 0) : o.next) && !(i = i.call(o, a[1])).done)
           return i;
-        switch (o = 0, i && (c = [c[0] & 2, i.value]), c[0]) {
+        switch (o = 0, i && (a = [a[0] & 2, i.value]), a[0]) {
           case 0:
           case 1:
-            i = c;
+            i = a;
             break;
           case 4:
-            return r.label++, { value: c[1], done: !1 };
+            return r.label++, { value: a[1], done: !1 };
           case 5:
-            r.label++, o = c[1], c = [0];
+            r.label++, o = a[1], a = [0];
             continue;
           case 7:
-            c = r.ops.pop(), r.trys.pop();
+            a = r.ops.pop(), r.trys.pop();
             continue;
           default:
-            if (i = r.trys, !(i = i.length > 0 && i[i.length - 1]) && (c[0] === 6 || c[0] === 2)) {
+            if (i = r.trys, !(i = i.length > 0 && i[i.length - 1]) && (a[0] === 6 || a[0] === 2)) {
               r = 0;
               continue;
             }
-            if (c[0] === 3 && (!i || c[1] > i[0] && c[1] < i[3])) {
-              r.label = c[1];
+            if (a[0] === 3 && (!i || a[1] > i[0] && a[1] < i[3])) {
+              r.label = a[1];
               break;
             }
-            if (c[0] === 6 && r.label < i[1]) {
-              r.label = i[1], i = c;
+            if (a[0] === 6 && r.label < i[1]) {
+              r.label = i[1], i = a;
               break;
             }
             if (i && r.label < i[2]) {
-              r.label = i[2], r.ops.push(c);
+              r.label = i[2], r.ops.push(a);
               break;
             }
             i[2] && r.ops.pop(), r.trys.pop();
             continue;
         }
-        c = t.call(e, r);
+        a = t.call(e, r);
       } catch (l) {
-        c = [6, l], o = 0;
+        a = [6, l], o = 0;
       } finally {
         n = i = 0;
       }
-    if (c[0] & 5)
-      throw c[1];
-    return { value: c[0] ? c[1] : void 0, done: !0 };
+    if (a[0] & 5)
+      throw a[1];
+    return { value: a[0] ? a[1] : void 0, done: !0 };
   }
 }
 function A(e) {
@@ -167,8 +167,8 @@ function E(e, t) {
   try {
     for (; (t === void 0 || t-- > 0) && !(o = n.next()).done; )
       i.push(o.value);
-  } catch (a) {
-    u = { error: a };
+  } catch (c) {
+    u = { error: c };
   } finally {
     try {
       o && !o.done && (r = n.return) && r.call(n);
@@ -198,11 +198,11 @@ function pe(e, t, r) {
   function u(f) {
     n[f] && (o[f] = function(p) {
       return new Promise(function(m, h) {
-        i.push([f, p, m, h]) > 1 || a(f, p);
+        i.push([f, p, m, h]) > 1 || c(f, p);
       });
     });
   }
-  function a(f, p) {
+  function c(f, p) {
     try {
       s(n[f](p));
     } catch (m) {
@@ -210,16 +210,16 @@ function pe(e, t, r) {
     }
   }
   function s(f) {
-    f.value instanceof S ? Promise.resolve(f.value.v).then(c, l) : v(i[0][2], f);
+    f.value instanceof S ? Promise.resolve(f.value.v).then(a, l) : v(i[0][2], f);
   }
-  function c(f) {
-    a("next", f);
+  function a(f) {
+    c("next", f);
   }
   function l(f) {
-    a("throw", f);
+    c("throw", f);
   }
   function v(f, p) {
-    f(p), i.shift(), i.length && a(i[0][0], i[0][1]);
+    f(p), i.shift(), i.length && c(i[0][0], i[0][1]);
   }
 }
 function ve(e) {
@@ -231,14 +231,14 @@ function ve(e) {
   }, r);
   function n(i) {
     r[i] = e[i] && function(u) {
-      return new Promise(function(a, s) {
-        u = e[i](u), o(a, s, u.done, u.value);
+      return new Promise(function(c, s) {
+        u = e[i](u), o(c, s, u.done, u.value);
       });
     };
   }
-  function o(i, u, a, s) {
-    Promise.resolve(s).then(function(c) {
-      i({ value: c, done: a });
+  function o(i, u, c, s) {
+    Promise.resolve(s).then(function(a) {
+      i({ value: a, done: c });
     }, u);
   }
 }
@@ -278,15 +278,15 @@ var F = function() {
       if (u)
         if (this._parentage = null, Array.isArray(u))
           try {
-            for (var a = A(u), s = a.next(); !s.done; s = a.next()) {
-              var c = s.value;
-              c.remove(this);
+            for (var c = A(u), s = c.next(); !s.done; s = c.next()) {
+              var a = s.value;
+              a.remove(this);
             }
           } catch (h) {
             t = { error: h };
           } finally {
             try {
-              s && !s.done && (r = a.return) && r.call(a);
+              s && !s.done && (r = c.return) && r.call(c);
             } finally {
               if (t)
                 throw t.error;
@@ -470,13 +470,13 @@ var we = function() {
         complete: o != null ? o : void 0
       };
     else {
-      var a;
-      i && te.useDeprecatedNextContext ? (a = Object.create(r), a.unsubscribe = function() {
+      var c;
+      i && te.useDeprecatedNextContext ? (c = Object.create(r), c.unsubscribe = function() {
         return i.unsubscribe();
       }, u = {
-        next: r.next && C(r.next, a),
-        error: r.error && C(r.error, a),
-        complete: r.complete && C(r.complete, a)
+        next: r.next && C(r.next, c),
+        error: r.error && C(r.error, c),
+        complete: r.complete && C(r.complete, c)
       }) : u = r;
     }
     return i.destination = new we(u), i;
@@ -517,8 +517,8 @@ var w = function() {
   }, e.prototype.subscribe = function(t, r, n) {
     var o = this, i = Ie(t) ? t : new V(t, r, n);
     return me(function() {
-      var u = o, a = u.operator, s = u.source;
-      i.add(a ? a.call(i, s) : s ? o._subscribe(i) : o._trySubscribe(i));
+      var u = o, c = u.operator, s = u.source;
+      i.add(c ? c.call(i, s) : s ? o._subscribe(i) : o._trySubscribe(i));
     }), i;
   }, e.prototype._trySubscribe = function(t) {
     try {
@@ -530,9 +530,9 @@ var w = function() {
     var n = this;
     return r = K(r), new r(function(o, i) {
       var u = new V({
-        next: function(a) {
+        next: function(c) {
           try {
-            t(a);
+            t(c);
           } catch (s) {
             i(s), u.unsubscribe();
           }
@@ -598,17 +598,17 @@ function P(e, t, r, n, o) {
 }
 var Te = function(e) {
   q(t, e);
-  function t(r, n, o, i, u, a) {
+  function t(r, n, o, i, u, c) {
     var s = e.call(this, r) || this;
-    return s.onFinalize = u, s.shouldUnsubscribe = a, s._next = n ? function(c) {
+    return s.onFinalize = u, s.shouldUnsubscribe = c, s._next = n ? function(a) {
       try {
-        n(c);
+        n(a);
       } catch (l) {
         r.error(l);
       }
-    } : e.prototype._next, s._error = i ? function(c) {
+    } : e.prototype._next, s._error = i ? function(a) {
       try {
-        i(c);
+        i(a);
       } catch (l) {
         r.error(l);
       } finally {
@@ -617,8 +617,8 @@ var Te = function(e) {
     } : e.prototype._error, s._complete = o ? function() {
       try {
         o();
-      } catch (c) {
-        r.error(c);
+      } catch (a) {
+        r.error(a);
       } finally {
         this.unsubscribe();
       }
@@ -741,8 +741,8 @@ function Ye(e) {
         if (t.next(u), t.closed)
           return;
       }
-    } catch (a) {
-      r = { error: a };
+    } catch (c) {
+      r = { error: c };
     } finally {
       try {
         i && !i.done && (n = o.return) && n.call(o);
@@ -767,7 +767,7 @@ function Ge(e) {
 function He(e, t) {
   var r, n, o, i;
   return ye(this, void 0, void 0, function() {
-    var u, a;
+    var u, c;
     return z(this, function(s) {
       switch (s.label) {
         case 0:
@@ -785,7 +785,7 @@ function He(e, t) {
         case 4:
           return [3, 11];
         case 5:
-          return a = s.sent(), o = { error: a }, [3, 11];
+          return c = s.sent(), o = { error: c }, [3, 11];
         case 6:
           return s.trys.push([6, , 9, 10]), n && !n.done && (i = r.return) ? [4, i.call(r)] : [3, 8];
         case 7:
@@ -822,8 +822,8 @@ function Je(e, t) {
   return new Promise(function(n, o) {
     var i = !1, u;
     e.subscribe({
-      next: function(a) {
-        u = a, i = !0;
+      next: function(c) {
+        u = c, i = !0;
       },
       error: o,
       complete: function() {
@@ -849,13 +849,13 @@ function Ke(e) {
     return Be(e, t);
   });
 }
-function Xe(e, t, r, n, o, i, u, a) {
-  var s = [], c = 0, l = 0, v = !1, f = function() {
-    v && !s.length && !c && t.complete();
+function Xe(e, t, r, n, o, i, u, c) {
+  var s = [], a = 0, l = 0, v = !1, f = function() {
+    v && !s.length && !a && t.complete();
   }, p = function(h) {
-    return c < n ? m(h) : s.push(h);
+    return a < n ? m(h) : s.push(h);
   }, m = function(h) {
-    i && t.next(h), c++;
+    i && t.next(h), a++;
     var W = !1;
     H(r(h, l++)).subscribe(P(t, function(x) {
       o == null || o(x), i ? p(x) : t.next(x);
@@ -864,13 +864,13 @@ function Xe(e, t, r, n, o, i, u, a) {
     }, void 0, function() {
       if (W)
         try {
-          c--;
+          a--;
           for (var x = function() {
             var T = s.shift();
             u ? We(t, u, function() {
               return m(T);
             }) : m(T);
-          }; s.length && c < n; )
+          }; s.length && a < n; )
             x();
           f();
         } catch (T) {
@@ -881,7 +881,7 @@ function Xe(e, t, r, n, o, i, u, a) {
   return e.subscribe(P(t, p, function() {
     v = !0, f();
   })), function() {
-    a == null || a();
+    c == null || c();
   };
 }
 function oe(e, t, r) {
@@ -897,22 +897,22 @@ var $e = ["addListener", "removeListener"], ze = ["addEventListener", "removeEve
 function j(e, t, r, n) {
   if (d(r) && (n = r, r = void 0), n)
     return j(e, t, r).pipe(Ke(n));
-  var o = E(rt(e) ? ze.map(function(a) {
+  var o = E(rt(e) ? ze.map(function(c) {
     return function(s) {
-      return e[a](t, s, r);
+      return e[c](t, s, r);
     };
   }) : et(e) ? $e.map(X(e, t)) : tt(e) ? Ne.map(X(e, t)) : [], 2), i = o[0], u = o[1];
   if (!i && ne(e))
-    return oe(function(a) {
-      return j(a, t, r);
+    return oe(function(c) {
+      return j(c, t, r);
     })(H(e));
   if (!i)
     throw new TypeError("Invalid event target");
-  return new w(function(a) {
+  return new w(function(c) {
     var s = function() {
-      for (var c = [], l = 0; l < arguments.length; l++)
-        c[l] = arguments[l];
-      return a.next(1 < c.length ? c : c[0]);
+      for (var a = [], l = 0; l < arguments.length; l++)
+        a[l] = arguments[l];
+      return c.next(1 < a.length ? a : a[0]);
     };
     return i(s), function() {
       return u(s);
@@ -1019,7 +1019,7 @@ class ot {
     return await this.windowMsgStream.post(g("requestPermissions", null));
   }
   async executeMoveCall(t) {
-    return console.log("content script", t), await this.windowMsgStream.post(
+    return await this.windowMsgStream.post(
       g("dapp.requestTransaction", {
         type: ue.MOVE_CALL,
         data: t

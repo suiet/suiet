@@ -30,7 +30,7 @@ export interface ResData<T = any> {
 
 export interface BackgroundResData<T = any> {
   id: string;
-  error: null | string;
+  error: null | { code: number; msg: string };
   data: null | T;
 }
 
@@ -52,7 +52,7 @@ export function reqData<T = any>(
 
 export function resData<T = any>(
   id: string,
-  error: null | string,
+  error: null | { code: number; msg: string },
   data: null | any
 ): BackgroundResData<T> {
   return {

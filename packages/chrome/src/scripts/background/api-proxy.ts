@@ -115,7 +115,7 @@ export class BackgroundApiProxy {
     this.portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
       const { id, service, func, payload } = callFuncData;
-      let error: null | string = null;
+      let error: null | { code: number; msg: string } = null;
       let data: null | any = null;
       const reqMeta = `id: ${id}, method: ${service}.${func}`;
       log(`request(${reqMeta})`, callFuncData);
@@ -125,7 +125,10 @@ export class BackgroundApiProxy {
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
-        error = (e as any).message;
+        error = {
+          code: -1,
+          msg: (e as any).message,
+        };
         log(`respond(${reqMeta}) failed`, e);
       }
       try {
