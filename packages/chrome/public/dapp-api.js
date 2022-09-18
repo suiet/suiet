@@ -14,12 +14,12 @@ for (let e = 0; e < 256; ++e)
 function fe(e, t = 0) {
   return (y[e[t + 0]] + y[e[t + 1]] + y[e[t + 2]] + y[e[t + 3]] + "-" + y[e[t + 4]] + y[e[t + 5]] + "-" + y[e[t + 6]] + y[e[t + 7]] + "-" + y[e[t + 8]] + y[e[t + 9]] + "-" + y[e[t + 10]] + y[e[t + 11]] + y[e[t + 12]] + y[e[t + 13]] + y[e[t + 14]] + y[e[t + 15]]).toLowerCase();
 }
-const de = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), Z = {
+const de = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), J = {
   randomUUID: de
 };
 function he(e, t, r) {
-  if (Z.randomUUID && !t && !e)
-    return Z.randomUUID();
+  if (J.randomUUID && !t && !e)
+    return J.randomUUID();
   e = e || {};
   const n = e.random || (e.rng || le)();
   if (n[6] = n[6] & 15 | 64, n[8] = n[8] & 63 | 128, t) {
@@ -260,7 +260,7 @@ var U = N(function(e) {
   `) : "", this.name = "UnsubscriptionError", this.errors = r;
   };
 });
-function J(e, t) {
+function Q(e, t) {
   if (e) {
     var r = e.indexOf(t);
     0 <= r && e.splice(r, 1);
@@ -308,7 +308,7 @@ var F = function() {
           for (var f = A(v), p = f.next(); !p.done; p = f.next()) {
             var m = p.value;
             try {
-              Q(m);
+              W(m);
             } catch (h) {
               i = i != null ? i : [], h instanceof U ? i = I(I([], E(i)), E(h.errors)) : i.push(h);
             }
@@ -331,7 +331,7 @@ var F = function() {
     var r;
     if (t && t !== this)
       if (this.closed)
-        Q(t);
+        W(t);
       else {
         if (t instanceof e) {
           if (t.closed || t._hasParent(this))
@@ -348,10 +348,10 @@ var F = function() {
     this._parentage = Array.isArray(r) ? (r.push(t), r) : r ? [r, t] : t;
   }, e.prototype._removeParent = function(t) {
     var r = this._parentage;
-    r === t ? this._parentage = null : Array.isArray(r) && J(r, t);
+    r === t ? this._parentage = null : Array.isArray(r) && Q(r, t);
   }, e.prototype.remove = function(t) {
     var r = this._finalizers;
-    r && J(r, t), t instanceof e && t._removeParent(this);
+    r && Q(r, t), t instanceof e && t._removeParent(this);
   }, e.EMPTY = function() {
     var t = new e();
     return t.closed = !0, t;
@@ -361,7 +361,7 @@ F.EMPTY;
 function ee(e) {
   return e instanceof F || e && "closed" in e && d(e.remove) && d(e.add) && d(e.unsubscribe);
 }
-function Q(e) {
+function W(e) {
   d(e) ? e() : e.unsubscribe();
 }
 var te = {
@@ -804,7 +804,7 @@ function He(e, t) {
     });
   });
 }
-function We(e, t, r, n, o) {
+function Ze(e, t, r, n, o) {
   n === void 0 && (n = 0), o === void 0 && (o = !1);
   var i = t.schedule(function() {
     r(), o ? e.add(this.schedule(null, n)) : this.unsubscribe();
@@ -812,12 +812,12 @@ function We(e, t, r, n, o) {
   if (e.add(i), !o)
     return i;
 }
-var Ze = N(function(e) {
+var Je = N(function(e) {
   return function() {
     e(this), this.name = "EmptyError", this.message = "no elements in sequence";
   };
 });
-function Je(e, t) {
+function Qe(e, t) {
   var r = typeof t == "object";
   return new Promise(function(n, o) {
     var i = !1, u;
@@ -827,7 +827,7 @@ function Je(e, t) {
       },
       error: o,
       complete: function() {
-        i ? n(u) : r ? n(t.defaultValue) : o(new Ze());
+        i ? n(u) : r ? n(t.defaultValue) : o(new Je());
       }
     });
   });
@@ -840,9 +840,9 @@ function L(e, t) {
     }));
   });
 }
-var Qe = Array.isArray;
+var We = Array.isArray;
 function Be(e, t) {
-  return Qe(t) ? e.apply(void 0, I([], E(t))) : e(t);
+  return We(t) ? e.apply(void 0, I([], E(t))) : e(t);
 }
 function Ke(e) {
   return L(function(t) {
@@ -856,18 +856,18 @@ function Xe(e, t, r, n, o, i, u, a) {
     return c < n ? m(h) : s.push(h);
   }, m = function(h) {
     i && t.next(h), c++;
-    var W = !1;
+    var Z = !1;
     H(r(h, l++)).subscribe(P(t, function(x) {
       o == null || o(x), i ? p(x) : t.next(x);
     }, function() {
-      W = !0;
+      Z = !0;
     }, void 0, function() {
-      if (W)
+      if (Z)
         try {
           c--;
           for (var x = function() {
             var T = s.shift();
-            u ? We(t, u, function() {
+            u ? Ze(t, u, function() {
               return m(T);
             }) : m(T);
           }; s.length && c < n; )
@@ -980,7 +980,7 @@ class it {
       target: this.target,
       payload: t
     };
-    return console.log("[WindowMsgStream] postMessage", r), window.postMessage(r), await Je(
+    return window.postMessage(r), await Qe(
       this.msgObservable.pipe(
         $((n) => n.payload.id === t.id),
         L((n) => n.payload),
@@ -1013,7 +1013,7 @@ class ot {
     return await this.windowMsgStream.post(g("handwave", null));
   }
   async hasPermissions(t) {
-    return console.log("permissions", t), !0;
+    return !0;
   }
   async requestPermissions() {
     return await this.windowMsgStream.post(g("requestPermissions", null));

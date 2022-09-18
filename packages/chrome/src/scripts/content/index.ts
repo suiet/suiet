@@ -46,7 +46,7 @@ function setupMessageProxy(): chrome.runtime.Port {
   // window msg from dapp - content script proxy -> port msg to ext background
   const passMessageToPort = (event: MessageEvent) => {
     if (isMsgFromSuietContext(event) && !isIgnoreMsg(event)) {
-      console.log('[content] received event.data', event.data);
+      // console.log('[content] received event.data', event.data);
       const { payload: trueData } = event.data;
       const message = {
         id: trueData.id,
@@ -59,7 +59,7 @@ function setupMessageProxy(): chrome.runtime.Port {
           },
         },
       };
-      console.log('[content] actually postMessage', message);
+      // console.log('[content] actually postMessage', message);
       port.postMessage(JSON.stringify(message));
     }
   };
@@ -83,7 +83,7 @@ function setupMessageProxy(): chrome.runtime.Port {
 
   windowMsgStream.subscribe(async (windowMsg) => {
     if (port === null && isDappHandShakeRequest(windowMsg)) {
-      console.log('[content] handshake: setup message proxy');
+      // console.log('[content] handshake: setup message proxy');
       port = setupMessageProxy();
       // respond to handshake request
       await windowMsgStream.post({
@@ -93,7 +93,7 @@ function setupMessageProxy(): chrome.runtime.Port {
       });
     }
     if (port !== null && isDappHandWaveRequest(windowMsg)) {
-      console.log('[content] handwave: close message proxy');
+      // console.log('[content] handwave: close message proxy');
       port.disconnect();
       // respond to handwave request
       await windowMsgStream.post({
