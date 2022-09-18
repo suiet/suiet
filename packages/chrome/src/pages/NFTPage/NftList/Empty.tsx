@@ -41,7 +41,7 @@ export default function Empty(props: EmptyProps) {
     };
 
     if (balanceLoading || Number(balance) < 10000) {
-      message.error('Please get some tokens via the link first');
+      message.error('Please ensure you have more than 10000 SUI to mint');
       return;
     }
     setSendLoading(true);
