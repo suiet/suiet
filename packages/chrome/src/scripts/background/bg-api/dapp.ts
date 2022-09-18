@@ -7,7 +7,12 @@ import { isNonEmptyArray } from '../../../utils/check';
 import { Permission, PermissionManager } from '../permission';
 import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
 import { TxRequestManager, TxRequestType } from '../transaction';
-import { data } from 'autoprefixer';
+import {
+  InvalidParamError,
+  NoPermissionError,
+  NotFoundError,
+  UserRejectionError,
+} from '../errors';
 
 interface DappMessage<T> {
   params: T;
@@ -55,7 +60,9 @@ export class DappBgApi {
   ): Promise<boolean> {
     const { params, context } = payload;
     if (!isNonEmptyArray(params?.permissions)) {
-      throw new Error('permissions are required for params when connecting');
+      throw new InvalidParamError(
+        'permissions are required for params when connecting'
+      );
     }
     const globalMeta = await this.storage.loadMeta();
     if (!globalMeta) {
@@ -83,37 +90,41 @@ export class DappBgApi {
       permReqId: permRequest.id,
     });
     const onWindowCloseObservable = await reqPermWindow.show();
+    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
+      map(async () => {
+        return {
+          ...permRequest,
+          approved: false,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+    const onApprovalObservable = approvalSubject.asObservable().pipe(
+      filter((result) => {
+        return (
+          result.type === ApprovalType.PERMISSION &&
+          result.id === permRequest.id
+        );
+      }),
+      map((result) => {
+        return {
+          ...permRequest,
+          approved: result.approved,
+          updatedAt: result.updatedAt,
+        };
+      })
+    );
+
     // monitor the window close event & user action
     const finalResult = await firstValueFrom(
-      race(
-        approvalSubject.asObservable().pipe(
-          filter((result) => {
-            return (
-              result.type === ApprovalType.PERMISSION &&
-              result.id === permRequest.id
-            );
-          }),
-          map((result) => {
-            return {
-              ...permRequest,
-              approved: result.approved,
-              updatedAt: result.updatedAt,
-            };
-          })
-        ),
-        onWindowCloseObservable.pipe(
-          map(async () => {
-            return {
-              ...permRequest,
-              approved: false,
-              updatedAt: new Date().toISOString(),
-            };
-          })
-        )
-      ).pipe(take(1))
+      race(onFallbackDenyObservable, onApprovalObservable).pipe(
+        take(1),
+        tap(async () => {
+          await reqPermWindow.close();
+        })
+      )
     );
     await this.permManager.setPermission(finalResult);
-    await reqPermWindow.close();
     return finalResult.approved;
   }
 
@@ -133,7 +144,7 @@ export class DappBgApi {
   ): Promise<SuiTransactionResponse | null> {
     const { params, context } = payload;
     if (!params?.data) {
-      throw new Error('Transaction params required');
+      throw new InvalidParamError('Transaction params required');
     }
     const checkRes = await this.checkPermissions(context.origin, [
       Permission.VIEW_ACCOUNT,
@@ -141,8 +152,9 @@ export class DappBgApi {
     ]);
     if (!checkRes.result) {
       // TODO: launch request permission window
-      console.warn('TODO: launch request permission window');
-      return null;
+      throw new NoPermissionError('No permissions to requestTransaction', {
+        missingPerms: checkRes.missingPerms,
+      });
     }
     const txReq = await this.txManager.createTxRequest({
       origin: context.origin,
@@ -153,8 +165,8 @@ export class DappBgApi {
     const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
     });
-    const windowObservable = await txReqWindow.show();
-    const onWindowCloseObservable = windowObservable.pipe(
+    const onWindowCloseObservable = await txReqWindow.show();
+    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
       map(async () => {
         return {
           ...txReq,
@@ -178,7 +190,7 @@ export class DappBgApi {
       })
     );
     const finalResult = await firstValueFrom(
-      race(onWindowCloseObservable, onApprovalObservable).pipe(
+      race(onFallbackDenyObservable, onApprovalObservable).pipe(
         take(1),
         tap(async () => {
           await txReqWindow.close();
@@ -186,13 +198,13 @@ export class DappBgApi {
       )
     );
     if (!finalResult.approved) {
-      throw new Error('User rejected');
+      throw new UserRejectionError();
     }
 
     const appContext = await this.getAppContext();
     const network = await this.networkApi.getNetwork(appContext.networkId);
     if (!network) {
-      throw new Error(
+      throw new NotFoundError(
         `network metadata is not found, id=${appContext.networkId}`
       );
     }
@@ -210,7 +222,6 @@ export class DappBgApi {
       });
       return response;
     } catch (e: any) {
-      console.error(e);
       await this.txManager.storeTxRequest({
         ...txReq,
         responseError: e.message,
@@ -230,19 +241,31 @@ export class DappBgApi {
     });
   }
 
-  async getAccounts(payload: DappMessage<{}>) {
-    const checkRes = await this.checkPermissions(payload.context.origin, [
+  public async getAccounts(payload: DappMessage<{}>) {
+    const { context } = payload;
+    const checkRes = await this.checkPermissions(context.origin, [
       Permission.VIEW_ACCOUNT,
     ]);
     if (!checkRes.result) {
-      throw new Error('no permission to getAccounts info');
+      throw new NoPermissionError('No permission to getAccounts info', {
+        missingPerms: checkRes.missingPerms,
+      });
     }
     const appContext = await this.getAppContext();
+    // get accounts under the active wallet
     const result = await this.storage.getAccounts(appContext.walletId);
+    if (!result) {
+      throw new NotFoundError(
+        `Accounts not found in wallet (${appContext.walletId})`,
+        {
+          walletId: appContext.walletId,
+        }
+      );
+    }
     return result.map((ac) => ac.address);
   }
 
-  createPopupWindow(url: string, params: Record<string, any>) {
+  private createPopupWindow(url: string, params: Record<string, any>) {
     const queryStr = new URLSearchParams(params).toString();
     return new PopupWindow(
       chrome.runtime.getURL('index.html#' + url) +
@@ -252,6 +275,7 @@ export class DappBgApi {
 
   private async checkPermissions(origin: string, perms: string[]) {
     const appContext = await this.getAppContext();
+    console.log('appContext', appContext);
     const account = await this.getActiveAccount(appContext.accountId);
     return await this.permManager.checkPermissions(perms, {
       address: account.address,

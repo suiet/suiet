@@ -9,11 +9,12 @@ import {
   validateToken,
 } from '@suiet/core';
 import { fromEventPattern, Observable } from 'rxjs';
-import { resData } from '../shared';
+import { PortName, resData } from '../shared';
 import { log, processPortMessage } from './utils';
 import { CallFuncData } from './types';
 import { has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
+import { BizError, ErrorCode } from './errors';
 
 interface RootApi {
   clearToken: () => Promise<void>;
@@ -112,7 +113,7 @@ export class BackgroundApiProxy {
     );
 
     // set up server-like listening model
-    this.portObservable.subscribe(async (callFuncData) => {
+    const subscription = this.portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
       const { id, service, func, payload } = callFuncData;
       let error: null | { code: number; msg: string } = null;
@@ -125,17 +126,29 @@ export class BackgroundApiProxy {
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
-        error = {
-          code: -1,
-          msg: (e as any).message,
-        };
-        log(`respond(${reqMeta}) failed`, e);
+        if (e instanceof BizError) {
+          error = {
+            code: e.code,
+            msg: e.message,
+          };
+        } else {
+          error = {
+            code: ErrorCode.UNKNOWN,
+            msg: (e as any).message,
+          };
+        }
+        log(`respond(${reqMeta}) failed`, error);
       }
       try {
         this.port.postMessage(JSON.stringify(resData(id, error, data)));
       } catch (e) {
         log(`postMessage(${reqMeta}) failed`, { e, data });
       }
+    });
+
+    this.port.onDisconnect.addListener(() => {
+      log('unsubscribe port', this.port.name);
+      subscription.unsubscribe();
     });
   }
 

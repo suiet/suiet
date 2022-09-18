@@ -85,6 +85,7 @@ function setupMessageProxy(): chrome.runtime.Port {
     if (port === null && isDappHandShakeRequest(windowMsg)) {
       console.log('[content] handshake: setup message proxy');
       port = setupMessageProxy();
+      // respond to handshake request
       await windowMsgStream.post({
         id: windowMsg.payload.id,
         error: null,
@@ -94,6 +95,7 @@ function setupMessageProxy(): chrome.runtime.Port {
     if (port !== null && isDappHandWaveRequest(windowMsg)) {
       console.log('[content] handwave: close message proxy');
       port.disconnect();
+      // respond to handwave request
       await windowMsgStream.post({
         id: windowMsg.payload.id,
         error: null,
