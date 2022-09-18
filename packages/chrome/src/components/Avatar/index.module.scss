@@ -30,3 +30,29 @@ $size-large: 56px;
     background: linear-gradient(135deg, #3078e3 0%, #fac3f7 100%);
   }
 }
+
+.with-favicon {
+  display: flex;
+  align-items: center;
+
+  &__favicon {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    object-fit: cover;
+
+    > img {
+      width: 64px;
+      border-radius: 32px;
+    }
+  }
+
+  &__avatar {
+    position: relative;
+    left: -18px;
+    z-index: 1;
+    width: 62px;
+    height: 62px;
+    border: 2px solid #ffffff;
+  }
+}

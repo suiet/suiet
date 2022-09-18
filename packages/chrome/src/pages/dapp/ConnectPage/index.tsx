@@ -1,4 +1,4 @@
-import Avatar from '../../../components/Avatar';
+import Avatar, { withFavicon } from '../../../components/Avatar';
 import Typo from '../../../components/Typo';
 import Icon from '../../../components/Icon';
 import { ReactComponent as IconLink } from '../../../assets/icons/link.svg';
@@ -22,6 +22,8 @@ import {
   PermReqStorage,
   PermRequest,
 } from '../../../scripts/background/permission';
+import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
+import HyperLink from '../../../components/HyperLink';
 
 const ConnectPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -32,24 +34,13 @@ const ConnectPage = () => {
   const [permReqData, setPermReqData] = useState<PermRequest>();
   const apiClient = useApiClient();
 
-  async function handleConnect() {
+  async function emitApproval(approved: boolean) {
     if (!permReqData) return;
 
-    // sent result via event emitter to background
-    await apiClient.callFunc('dapp.callbackPermRequestResult', {
+    await apiClient.callFunc('dapp.callbackApproval', {
+      approved,
       id: permReqData.id,
-      status: 'passed',
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  async function handleCancel() {
-    if (!permReqData) return;
-
-    // sent result via event emitter to background
-    await apiClient.callFunc('dapp.callbackPermRequestResult', {
-      id: permReqData.id,
-      status: 'rejected',
+      type: ApprovalType.PERMISSION,
       updatedAt: new Date().toISOString(),
     });
   }
@@ -76,22 +67,12 @@ const ConnectPage = () => {
   return (
     <div className={styles['container']}>
       <header className={styles['header']}>
-        <div className={styles['header-icons']}>
-          <div className={styles['header-favicon']}>
-            <img
-              src={permReqData?.favicon}
-              alt={permReqData?.origin ?? 'origin'}
-            />
-          </div>
-          <Avatar className={styles['header-avatar']} />
-        </div>
+        {withFavicon(<Avatar model={wallet?.avatar} />, {
+          src: permReqData?.favicon ?? '',
+          alt: permReqData?.origin ?? 'origin',
+        })}
         <Typo.Title className={styles['header-title']}>Connect</Typo.Title>
-        <div className={classnames(styles['connect-item'], 'mt-[16px]')}>
-          <Icon icon={<IconLink />} className={styles['connect-item-icon']} />
-          <Typo.Normal className={styles['connect-item-name']}>
-            {permReqData?.origin}
-          </Typo.Normal>
-        </div>
+        <HyperLink url={permReqData?.origin ?? ''} className={'mt-[16px]'} />
         <div className={classnames(styles['connect-item'], 'mt-[4px]')}>
           <Avatar className={styles['connect-item-icon']} />
           <Typo.Normal className={styles['connect-item-name']}>
@@ -140,11 +121,19 @@ const ConnectPage = () => {
       </div>
 
       <footer className={styles['footer']}>
-        <Button onClick={handleCancel}>Cancel</Button>
+        <Button
+          onClick={() => {
+            emitApproval(false);
+          }}
+        >
+          Cancel
+        </Button>
         <Button
           state={'primary'}
           className={'ml-[8px]'}
-          onClick={handleConnect}
+          onClick={() => {
+            emitApproval(true);
+          }}
         >
           Connect
         </Button>
