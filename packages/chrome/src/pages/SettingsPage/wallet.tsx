@@ -28,7 +28,7 @@ function Wallet() {
 
   useEffect(() => {
     if (!wallet) return;
-    setName(wallet.name);
+    setName(wallet.name ?? '');
     setAvatar(wallet.avatar ?? '1');
   }, [wallet]);
 

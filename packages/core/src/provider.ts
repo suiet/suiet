@@ -384,7 +384,7 @@ export class TxProvider {
     const data = await this.serializer.newMoveCall(address, tx);
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
-    await executeTransaction(this.provider, signedTx);
+    return await executeTransaction(this.provider, signedTx);
   }
 
   public async executeSerializedMoveCall(txBytes: Uint8Array, vault: Vault) {

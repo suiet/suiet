@@ -8,30 +8,6 @@
 .header {
   padding: 67px 32px 24px;
 }
-.header-icons {
-  display: flex;
-  align-items: center;
-}
-.header-favicon {
-  width: 64px;
-  height: 64px;
-  border-radius: 32px;
-  border: 2px solid #000;
-  object-fit: cover;
-
-  > img {
-    width: 64px;
-    border-radius: 32px;
-  }
-}
-.header-avatar {
-  position: relative;
-  left: -18px;
-  z-index: 1;
-  width: 62px;
-  height: 62px;
-  border: 2px solid #ffffff;
-}
 .header-title {
   margin-top: 16px;
   font-family: 'Work Sans';
