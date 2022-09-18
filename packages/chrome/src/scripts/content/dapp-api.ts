@@ -61,7 +61,7 @@ export class DAppInterface implements ISuietWallet {
   }
 
   async hasPermissions(permissions: readonly string[]) {
-    console.log('permissions', permissions);
+    // console.log('permissions', permissions);
     return true;
   }
 

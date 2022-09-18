@@ -40,7 +40,7 @@ export class WindowMsgStream {
       target: this.target,
       payload,
     };
-    console.log('[WindowMsgStream] postMessage', msg);
+    // console.log('[WindowMsgStream] postMessage', msg);
     window.postMessage(msg);
     return await lastValueFrom(
       this.msgObservable.pipe(
