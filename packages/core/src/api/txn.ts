@@ -1,11 +1,15 @@
 import { TxnHistoryEntry } from '../storage/types';
 import { Network } from './network';
-import { Provider } from '../provider';
+import { Provider, QueryProvider } from '../provider';
 import { validateToken } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
-import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
+import {
+  MoveCallTransaction,
+  SuiMoveNormalizedFunction,
+  SuiTransactionResponse,
+} from '@mysten/sui.js';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -86,6 +90,13 @@ export type NftObjectDto = {
 
 export type ObjectDto = CoinObjectDto | NftObjectDto;
 
+export type GetNormalizedMoveFunctionParams = {
+  network: Network;
+  objectId: string;
+  moduleName: string;
+  functionName: string;
+};
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (params: TransferCoinParams) => Promise<void>;
@@ -106,6 +117,10 @@ export interface ITransactionApi {
   executeSerializedMoveCall: (
     params: SerializedMoveCallParams
   ) => Promise<void>;
+
+  getNormalizedMoveFunction: (
+    params: GetNormalizedMoveFunctionParams
+  ) => Promise<SuiMoveNormalizedFunction>;
 }
 
 export class TransactionApi implements ITransactionApi {
@@ -281,5 +296,15 @@ export class TransactionApi implements ITransactionApi {
       wallet.encryptedMnemonic
     );
     return vault;
+  }
+
+  async getNormalizedMoveFunction(params: GetNormalizedMoveFunctionParams) {
+    const { network, objectId, moduleName, functionName } = params;
+    const queryProvider = new QueryProvider(network.queryRpcUrl);
+    return await queryProvider.getNormalizedMoveFunction(
+      objectId,
+      moduleName,
+      functionName
+    );
   }
 }

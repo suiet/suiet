@@ -36,3 +36,44 @@
   padding: 16px;
   border-top: 1px solid $gray-100;
 }
+
+.tabs {
+  padding: 0 32px;
+  margin-top: 20px;
+}
+.tab-title {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-700;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & + & {
+    margin-top: 16px;
+  }
+
+  &__key {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: $gray-700;
+  }
+
+  &__value {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: $gray-400;
+  }
+}
