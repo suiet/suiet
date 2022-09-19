@@ -3,6 +3,7 @@ import './App.css';
 import routesConfig from './routes';
 import './styles/react-toastify.scss';
 import 'react-loading-skeleton/dist/skeleton.css';
+import 'react-tabs/style/react-tabs.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useEffect } from 'react';
 import message from './components/message';
