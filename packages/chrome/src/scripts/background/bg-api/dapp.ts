@@ -2,7 +2,7 @@ import { filter, firstValueFrom, map, race, Subject, take, tap } from 'rxjs';
 import { ChromeStorage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
-import { NetworkApi, Storage, TransactionApi } from '@suiet/core';
+import { Account, NetworkApi, Storage, TransactionApi } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { Permission, PermissionManager } from '../permission';
 import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
@@ -156,11 +156,31 @@ export class DappBgApi {
         missingPerms: checkRes.missingPerms,
       });
     }
+
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    const network = await this.networkApi.getNetwork(appContext.networkId);
+    if (!network) {
+      throw new NotFoundError(
+        `network metadata is not found, id=${appContext.networkId}`
+      );
+    }
+    // load moveCall metadata
+    const metadata = await this.txApi.getNormalizedMoveFunction({
+      network,
+      functionName: params.data.function,
+      moduleName: params.data.module,
+      objectId: params.data.packageObjectId,
+    });
+    console.log('metadata', metadata);
+
     const txReq = await this.txManager.createTxRequest({
+      accountAddress: account.address,
       origin: context.origin,
       favicon: context.favicon,
       type: params.type,
       data: params.data,
+      metadata,
     });
     const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
@@ -201,13 +221,6 @@ export class DappBgApi {
       throw new UserRejectionError();
     }
 
-    const appContext = await this.getAppContext();
-    const network = await this.networkApi.getNetwork(appContext.networkId);
-    if (!network) {
-      throw new NotFoundError(
-        `network metadata is not found, id=${appContext.networkId}`
-      );
-    }
     try {
       const response = await this.txApi.executeMoveCall({
         network,
@@ -275,7 +288,6 @@ export class DappBgApi {
 
   private async checkPermissions(origin: string, perms: string[]) {
     const appContext = await this.getAppContext();
-    console.log('appContext', appContext);
     const account = await this.getActiveAccount(appContext.accountId);
     return await this.permManager.checkPermissions(perms, {
       address: account.address,
@@ -284,7 +296,7 @@ export class DappBgApi {
     });
   }
 
-  private async getActiveAccount(accountId: string) {
+  private async getActiveAccount(accountId: string): Promise<Account> {
     const account = await this.storage.getAccount(accountId);
     if (!account) {
       throw new Error(`cannot find account, id=${accountId}`);

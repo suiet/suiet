@@ -16,6 +16,7 @@ export interface TxRequest {
   id: string;
   origin: string;
   favicon: string;
+  accountAddress: string;
   approved: boolean | null;
   metadata: SuiMoveNormalizedFunction | null;
   type: TxRequestType;
@@ -70,14 +71,15 @@ export class TxRequestManager {
     type: TxRequestType;
     origin: string;
     favicon: string;
+    accountAddress: string;
     data: MoveCallTransaction | string;
+    metadata: SuiMoveNormalizedFunction;
   }): Promise<TxRequest> {
     const data = {
       ...params,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
       approved: null,
-      metadata: null,
       response: null,
       responseError: null,
       updatedAt: null,

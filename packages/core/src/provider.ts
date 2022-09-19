@@ -218,6 +218,18 @@ export class QueryProvider {
     }
     return results;
   }
+
+  public async getNormalizedMoveFunction(
+    objectId: string,
+    moduleName: string,
+    functionName: string
+  ) {
+    return await this.provider.getNormalizedMoveFunction(
+      objectId,
+      moduleName,
+      functionName
+    );
+  }
 }
 
 export const DEFAULT_GAS_BUDGET_FOR_SPLIT = 1000;
