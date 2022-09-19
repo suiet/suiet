@@ -130,6 +130,7 @@ const TxApprovePage = () => {
         return;
       }
       setTxReqData(reqData);
+      console.log('reqData', reqData);
     })();
   }, [txReqId]);
 
