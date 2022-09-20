@@ -8,13 +8,16 @@ import classnames from 'classnames';
 import { useAccount } from '../../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
+import { mutate } from 'swr';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
 import { useChromeStorage } from '../../../hooks/useChromeStorage';
 import { StorageKeys } from '../../../store/enum';
 import { formatCurrency } from '../../../utils/format';
-
+import message from '../../../components/message';
+import { useState } from 'react';
+import { useNetwork } from '../../../hooks/useNetwork';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -69,13 +72,16 @@ function MainPage({ address, networkId }: DashboardProps) {
     address ?? '',
     CoinSymbol.SUI,
     {
-      networkId: networkId,
+      networkId,
     }
   );
   const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
     useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING);
   const navigate = useNavigate();
-
+  const { data: network } = useNetwork(networkId);
+  const t = new Date();
+  const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
+  const [airdropLoading, setAirdropLoading] = useState(false);
   return (
     <div className={styles['main-content']}>
       {showDevnetWarning === true ? (
@@ -120,14 +126,53 @@ function MainPage({ address, networkId }: DashboardProps) {
       </div>
       <Address value={address} className={styles['address']} />
       <div className={styles['operations']}>
-        {/* <div
-          className={classnames(styles['operations-item'], styles['airdrop'])}
+        <div
+          className={classnames(styles['operations-item'], styles['airdrop'], {
+            [styles['operations-item-loading']]: airdropLoading,
+          })}
           onClick={() => {
-            navigate('/login');
+            const d = new Date();
+            console.log(d.getTime(), airdropTime, d.getTime() - airdropTime);
+
+            if (!airdropLoading) {
+              if (d.getTime() - airdropTime <= 5000) {
+                message.error('Please wait 5 seconds');
+              } else {
+                const options = {
+                  method: 'POST',
+                  headers: {
+                    'content-type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    FixedAmountRequest: {
+                      recipient: address,
+                    },
+                  }),
+                };
+                setAirdropLoading(true);
+                fetch('https://faucet.suiet.app/devnet/gas', options)
+                  .then(async (response) => await response.json())
+
+                  .then((response) => {
+                    if (response.error) {
+                      message.error(response.error);
+                    }
+                    message.success('Airdrop succeeded');
+                  })
+                  .catch((err) => {
+                    message.error(err.message);
+                  })
+                  .finally(() => {
+                    mutate(['fetchCoinsBalanceMap', address, network]);
+                    setAirdropTime(d.getTime());
+                    setAirdropLoading(false);
+                  });
+              }
+            }
           }}
         >
           Airdrop
-        </div> */}
+        </div>
         <ReceiveButton address={address} />
         <Link to={'/send'}>
           <div
