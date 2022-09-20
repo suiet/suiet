@@ -53,11 +53,14 @@ export type NftObject = {
   url: string;
   previousTransaction?: string;
   objectType: string;
+  fields: Record<string, any>;
 };
 
 export class Nft {
   public static isNft(obj: SuiMoveObject) {
     if (obj.fields.name && obj.fields.description && obj.fields.url) {
+      return true;
+    } else if (obj.fields.metadata) {
       return true;
     }
     return false;
@@ -74,6 +77,7 @@ export class Nft {
       url: obj.fields.url,
       previousTransaction,
       objectType: obj.type,
+      fields: obj.fields,
     };
   }
 }

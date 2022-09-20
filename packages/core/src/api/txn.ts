@@ -86,6 +86,7 @@ export type NftObjectDto = {
   url: string;
   previousTransaction?: string;
   objectType: string;
+  fields: Record<string, any>;
 };
 
 export type ObjectDto = CoinObjectDto | NftObjectDto;
@@ -232,6 +233,7 @@ export class TransactionApi implements ITransactionApi {
       url: nft.url,
       previousTransaction: nft.previousTransaction,
       objectType: nft.objectType,
+      fields: nft.fields,
     }));
   }
 
