@@ -30,9 +30,9 @@ export function withFavicon(
   props: { src: string; alt?: string }
 ) {
   const [imgError, setImgError] = useState(false);
-  if (imgError) {
+  if (!props.src || imgError) {
     return React.cloneElement(avatar, {
-      className: styles['avatar'],
+      className: styles['with-favicon__avatar'],
     });
   }
   return (
@@ -47,7 +47,10 @@ export function withFavicon(
         />
       </div>
       {React.cloneElement(avatar, {
-        className: classnames(styles['avatar'], styles['with-favicon__avatar']),
+        className: classnames(
+          styles['with-favicon__avatar'],
+          styles['with-favicon__avatar--float']
+        ),
       })}
     </div>
   );

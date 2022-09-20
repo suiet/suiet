@@ -48,13 +48,14 @@ $size-large: 56px;
   }
 
   &__avatar {
+    width: 62px;
+    height: 62px;
+    border: 2px solid #ffffff;
+  }
+
+  &__avatar--float {
     position: relative;
     left: -18px;
     z-index: 1;
   }
-}
-.avatar {
-  width: 62px;
-  height: 62px;
-  border: 2px solid #ffffff;
 }
