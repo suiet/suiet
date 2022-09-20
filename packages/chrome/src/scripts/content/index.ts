@@ -30,7 +30,10 @@ function isIgnoreMsg(event: MessageEvent<any>) {
   );
 }
 
-function setupMessageProxy(): chrome.runtime.Port {
+function setupMessageProxy(): {
+  port: chrome.runtime.Port;
+  clearWindowMsgListener: () => void;
+} {
   const port = chrome.runtime.connect({
     name: PortName.SUIET_CONTENT_BACKGROUND,
   });
@@ -65,27 +68,32 @@ function setupMessageProxy(): chrome.runtime.Port {
   };
 
   window.addEventListener('message', passMessageToPort);
-  port.onDisconnect.addListener((port) => {
-    if (port.name !== PortName.SUIET_CONTENT_BACKGROUND) return;
-    window.removeEventListener('message', passMessageToPort);
-  });
-  return port;
+  return {
+    port,
+    clearWindowMsgListener: () => {
+      window.removeEventListener('message', passMessageToPort);
+    },
+  };
 }
 
 (function main() {
   injectDappInterface();
 
-  let port: chrome.runtime.Port | null = null;
   const windowMsgStream = new WindowMsgStream(
     WindowMsgTarget.SUIET_CONTENT,
     WindowMsgTarget.DAPP
   );
+  let port: chrome.runtime.Port | null = null;
+  let clearWindowMsgListener: (() => void) | null = null;
 
   windowMsgStream.subscribe(async (windowMsg) => {
-    console.log('[content] windowMsg', windowMsg);
-    if (port === null && isDappHandShakeRequest(windowMsg)) {
-      console.log('[content] handshake: setup message proxy');
-      port = setupMessageProxy();
+    if (isDappHandShakeRequest(windowMsg)) {
+      if (port === null) {
+        const result = setupMessageProxy();
+        port = result.port;
+        clearWindowMsgListener = result.clearWindowMsgListener;
+        // console.log('[content] handshake: setup message proxy');
+      }
       // respond to handshake request
       await windowMsgStream.post({
         id: windowMsg.payload.id,
@@ -93,10 +101,16 @@ function setupMessageProxy(): chrome.runtime.Port {
         data: null,
       });
     }
-    if (port !== null && isDappHandWaveRequest(windowMsg)) {
-      console.log('[content] handwave: close message proxy');
-      port.disconnect();
-      port = null;
+    if (isDappHandWaveRequest(windowMsg)) {
+      if (port !== null) {
+        // console.log('[content] handwave: clear message proxy');
+        port.disconnect();
+        port = null;
+        if (clearWindowMsgListener) {
+          clearWindowMsgListener();
+          clearWindowMsgListener = null;
+        }
+      }
       // respond to handwave request
       await windowMsgStream.post({
         id: windowMsg.payload.id,
