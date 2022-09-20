@@ -20,6 +20,7 @@ export interface NftMeta {
   previousTransaction: string | undefined;
   url: string;
   objectType: string;
+  fields: Record<string, any>;
 }
 
 type NftItemProps = Extendable &
@@ -36,18 +37,25 @@ const NftItem = (props: NftItemProps) => {
       onClick={() => {
         props.onClick?.({
           id: props.id,
-          name: props.name,
-          description: props.description,
+          name: props.name || props.fields.metadata?.fields.name,
+          description:
+            props.description ||
+            props.fields.metadata?.fields.description ||
+            'None',
           previousTransaction: props.previousTransaction,
           objectType: props.objectType,
-          url: props.url,
+          url: props.url || props.fields.metadata?.fields.uri,
+          fields: props.fields,
         });
       }}
     >
       {loading ? (
         <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
       ) : (
-        <NftImg src={nftImgUrl(props.url)} alt={props.name} />
+        <NftImg
+          src={nftImgUrl(props.url || props.fields.metadata?.fields.uri)}
+          alt={props.name || props.fields.metadata?.fields.name}
+        />
       )}
       <div className={classnames('w-full', 'mt-2')}>
         {loading ? (
@@ -55,10 +63,12 @@ const NftItem = (props: NftItemProps) => {
         ) : (
           <div className="ml-1">
             <Typo.Normal className={classnames(styles['nft-name'])}>
-              {props.name}
+              {props.name || props.fields.metadata?.fields.name}
             </Typo.Normal>
             <Typo.Small className={classnames(styles['nft-description'])}>
-              {props.description}
+              {props.description ||
+                props.fields.metadata?.fields.description ||
+                'None'}
             </Typo.Small>
           </div>
         )}
@@ -103,6 +113,7 @@ const NftList = (props: NftListProps) => {
             previousTransaction={nft.previousTransaction}
             objectType={nft.objectType}
             onClick={handleClickNft}
+            fields={nft.fields}
           />
         );
       })}
