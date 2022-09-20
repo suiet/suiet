@@ -51,8 +51,10 @@ $size-large: 56px;
     position: relative;
     left: -18px;
     z-index: 1;
-    width: 62px;
-    height: 62px;
-    border: 2px solid #ffffff;
   }
+}
+.avatar {
+  width: 62px;
+  height: 62px;
+  border: 2px solid #ffffff;
 }

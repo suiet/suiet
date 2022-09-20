@@ -1,7 +1,7 @@
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { Extendable } from '../../types';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 
 export type AvatarProps = Extendable & {
   size?: 'md' | 'lg' | 'sm';
@@ -29,13 +29,25 @@ export function withFavicon(
   avatar: ReactElement,
   props: { src: string; alt?: string }
 ) {
+  const [imgError, setImgError] = useState(false);
+  if (imgError) {
+    return React.cloneElement(avatar, {
+      className: styles['avatar'],
+    });
+  }
   return (
     <div className={styles['with-favicon']}>
       <div className={styles['with-favicon__favicon']}>
-        <img src={props.src} alt={props?.alt} />
+        <img
+          src={props.src}
+          alt={props?.alt}
+          onError={() => {
+            setImgError(true);
+          }}
+        />
       </div>
       {React.cloneElement(avatar, {
-        className: styles['with-favicon__avatar'],
+        className: classnames(styles['avatar'], styles['with-favicon__avatar']),
       })}
     </div>
   );
