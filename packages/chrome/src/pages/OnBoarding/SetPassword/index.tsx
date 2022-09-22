@@ -11,9 +11,10 @@ import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import { useLocation } from 'react-router-dom';
 import StepButton from '../../../components/Button/StepButton';
-import classNames from 'classnames';
+import { Extendable } from '../../../types';
+import classnames from 'classnames';
 
-export type SavePasswordProps = {
+export type SavePasswordProps = Extendable & {
   onNext: (password: string, oldPassword?: string) => void;
 };
 
@@ -35,7 +36,10 @@ const SavePassword = (props: SavePasswordProps) => {
   const [oldPassword, setOldPassword] = useState('');
 
   return (
-    <div className={commonStyles['container']}>
+    <div
+      className={classnames(commonStyles['container'], props.className)}
+      style={props.style}
+    >
       <Typo.Title className={commonStyles['step-title']}>
         Set <br /> wallet <br /> password
       </Typo.Title>
@@ -51,8 +55,10 @@ const SavePassword = (props: SavePasswordProps) => {
           }}
         >
           {state.hasOldPassword && (
-            <div>
-              <Typo.Small>Old Password</Typo.Small>
+            <div className={commonStyles['control-group']}>
+              <Typo.Small className={commonStyles['control-label']}>
+                Old Password
+              </Typo.Small>
               <FormControl
                 name={'oldpassword'}
                 registerOptions={getPasswordValidation()}
@@ -73,10 +79,8 @@ const SavePassword = (props: SavePasswordProps) => {
               </FormControl>
             </div>
           )}
-          <div>
-            <Typo.Small
-              className={classNames(commonStyles['control-label'], 'mt-[24px]')}
-            >
+          <div className={commonStyles['control-group']}>
+            <Typo.Small className={commonStyles['control-label']}>
               Password
             </Typo.Small>
             <FormControl
@@ -95,7 +99,7 @@ const SavePassword = (props: SavePasswordProps) => {
               />
             </FormControl>
           </div>
-          <div className={'mt-[16px]'}>
+          <div className={commonStyles['control-group']}>
             <Typo.Small className={commonStyles['control-label']}>
               Confirm Password
             </Typo.Small>

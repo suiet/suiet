@@ -25,6 +25,12 @@
   height: 48px;
 }
 
+.control-group {
+  & + & {
+    margin-top: 16px;
+  }
+}
+
 .control-label {
   font-family: 'Inter';
   font-style: normal;
