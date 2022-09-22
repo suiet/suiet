@@ -53,7 +53,6 @@ export class Vault {
       Buffer.from(unsigned.data.getData())
     );
     const pubKey = await this.hdKey.getPublicKey();
-
     return {
       data: unsigned.data,
       signature,
@@ -64,7 +63,6 @@ export class Vault {
   public async signMessage(message: string): Promise<SignedMessage> {
     const signature = await this.hdKey.sign(Buffer.from(message));
     const pubKey = await this.hdKey.getPublicKey();
-
     return {
       signature,
       pubKey,
