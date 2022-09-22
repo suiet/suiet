@@ -3,7 +3,7 @@
 .security-setting {
   &-container {
     background-color: #fff;
-    padding: 17px 21px 40px;
+    padding: 0 21px 40px;
     overflow-y: auto;
 
     .setting-title {
@@ -11,7 +11,6 @@
       font-size: 36px;
       line-height: 36px;
       color: #000000;
-      margin-top: 37px;
     }
 
     .setting-desc {

@@ -1,8 +1,5 @@
 import styles from './index.module.scss';
-import Wallet from './wallet';
-import { Route, Routes, useNavigate } from 'react-router-dom';
-import Network from './network';
-import Security from './security';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetAppContext } from '../../store/app-context';
 import { AppDispatch, RootState } from '../../store';
@@ -14,7 +11,7 @@ import { useWallet } from '../../hooks/useWallet';
 import { version } from '../../package-json';
 import { useApiClient } from '../../hooks/useApiClient';
 
-const SettingMain = () => {
+const SettingPage = () => {
   const navigate = useNavigate();
   const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
@@ -44,7 +41,7 @@ const SettingMain = () => {
       <section className={styles['settings-container']}>
         <div
           onClick={() => {
-            navigate('wallet', {
+            navigate('/settings/wallet', {
               state: {
                 hideAppLayout: true,
               },
@@ -57,7 +54,7 @@ const SettingMain = () => {
         </div>
         <div
           onClick={() => {
-            navigate('network', {
+            navigate('/settings/network', {
               state: {
                 hideAppLayout: true,
               },
@@ -93,18 +90,5 @@ const SettingMain = () => {
     </div>
   );
 };
-
-function SettingPage() {
-  return (
-    <div>
-      <Routes>
-        <Route path="/" element={<SettingMain />} />
-        <Route path="wallet" element={<Wallet />} />
-        <Route path="network" element={<Network />} />
-        <Route path="security/*" element={<Security />} />
-      </Routes>
-    </div>
-  );
-}
 
 export default SettingPage;

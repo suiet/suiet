@@ -14,6 +14,15 @@ const WelcomePage = lazy(
   async () => await import('../pages/OnBoarding/Welcome')
 );
 const SettingPage = lazy(async () => await import('../pages/SettingsPage'));
+const SettingWalletPage = lazy(
+  async () => await import('../pages/SettingsPage/wallet')
+);
+const SettingNetworkPage = lazy(
+  async () => await import('../pages/SettingsPage/network')
+);
+const SettingSecurityPage = lazy(
+  async () => await import('../pages/SettingsPage/security')
+);
 const SendPage = lazy(async () => await import('../pages/SendPage'));
 const TransactionFlowPage = lazy(
   async () => await import('../pages/TransactionFlow')
@@ -82,8 +91,25 @@ const routesConfig: RouteObject[] = [
         element: withSus(<TransactionDetail />),
       },
       {
-        path: 'settings/*',
-        element: withSus(<SettingPage />),
+        path: 'settings',
+        children: [
+          {
+            index: true,
+            element: withSus(<SettingPage />),
+          },
+          {
+            path: 'wallet',
+            element: withSus(<SettingWalletPage />),
+          },
+          {
+            path: 'network',
+            element: withSus(<SettingNetworkPage />),
+          },
+          {
+            path: 'security/*',
+            element: withSus(<SettingSecurityPage />),
+          },
+        ],
       },
     ],
   },
