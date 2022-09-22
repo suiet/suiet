@@ -64,12 +64,12 @@ const NftDetail = () => {
             Object Details
           </Typo.Title>
           <div className={styles['sec-detail-item']}>
-            <span className={styles['sec-detail-item-key']}>Object ID</span>
+            <span className={styles['sec-detail-item-key']}>Type</span>
             <div
               className="transaction-detail-item-tx flex items-center"
               onClick={() => {
-                copy(previousTransaction);
-                message.success('Copied TX ID');
+                copy(objectType);
+                message.success('Copied Object Type');
               }}
             >
               <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap cursor-pointer">
