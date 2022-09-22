@@ -3,7 +3,7 @@ import { Ed25519HdKey } from './hdkey';
 import { decryptMnemonic } from '../crypto';
 import { SHA3 } from 'sha3';
 import { Buffer } from 'buffer';
-import { UnsignedTx, SignedTx } from './types';
+import { UnsignedTx, SignedTx, SignedMessage } from './types';
 
 const ED25519_ADDRESS_PREFIX = 0x00;
 
@@ -56,6 +56,16 @@ export class Vault {
 
     return {
       data: unsigned.data,
+      signature,
+      pubKey,
+    };
+  }
+
+  public async signMessage(message: string): Promise<SignedMessage> {
+    const signature = await this.hdKey.sign(Buffer.from(message));
+    const pubKey = await this.hdKey.getPublicKey();
+
+    return {
       signature,
       pubKey,
     };
