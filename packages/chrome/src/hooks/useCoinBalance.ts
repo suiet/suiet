@@ -73,7 +73,7 @@ export function useCoinBalance(
     balance,
     error,
     isValidating,
-    loading: swrLoading(coinsBalanceMap, error),
+    loading: swrLoading(coinsBalance, error),
     getBalance,
   };
 }
