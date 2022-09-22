@@ -11,6 +11,7 @@ import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import { useLocation } from 'react-router-dom';
 import StepButton from '../../../components/Button/StepButton';
+import classNames from 'classnames';
 
 export type SavePasswordProps = {
   onNext: (password: string, oldPassword?: string) => void;
@@ -73,7 +74,9 @@ const SavePassword = (props: SavePasswordProps) => {
             </div>
           )}
           <div>
-            <Typo.Small className={commonStyles['control-label']}>
+            <Typo.Small
+              className={classNames(commonStyles['control-label'], 'mt-[24px]')}
+            >
               Password
             </Typo.Small>
             <FormControl
