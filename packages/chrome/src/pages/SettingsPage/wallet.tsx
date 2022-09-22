@@ -12,16 +12,14 @@ import { useWallet } from '../../hooks/useWallet';
 import Nav from './nav';
 
 function Wallet() {
-  const { context } = useSelector((state: RootState) => ({
-    context: state.appContext,
-  }));
+  const appContext = useSelector((state: RootState) => state.appContext);
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState('1');
   const navigate = useNavigate();
-  const { data: wallet, updateWallet } = useWallet(context.walletId);
+  const { data: wallet, updateWallet } = useWallet(appContext.walletId);
 
   async function updateWalletInfo() {
-    await updateWallet(context.walletId, { name, avatar });
+    await updateWallet(appContext.walletId, { name, avatar });
     message.success(`Updated Wallet: ${name}`);
     navigate('..');
   }
@@ -65,7 +63,9 @@ function Wallet() {
       <input
         className="wallet-name-input"
         value={name}
-        onChange={(v) => setName(v.target.value)}
+        onChange={(v) => {
+          setName(v.target.value);
+        }}
       />
       <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
         <Button state="primary" onClick={updateWalletInfo}>

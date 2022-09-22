@@ -7,7 +7,7 @@ import Button from '../../../components/Button';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useLocationSearch } from '../../../hooks/useLocationSearch';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import message from '../../../components/message';
 import { sleep } from '../../../utils/time';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,7 @@ import {
 } from '../../../scripts/background/permission';
 import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import HyperLink from '../../../components/HyperLink';
+import { Wallet } from '@suiet/core';
 
 const tips: Record<string, any> = {
   [Permission.SUGGEST_TX]: 'Share wallet address',
@@ -33,6 +34,10 @@ const tips: Record<string, any> = {
 const ConnectPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: wallet } = useWallet(appContext.walletId);
+  const defaultAccount = useMemo(() => {
+    if (!isNonEmptyArray(wallet?.accounts)) return null;
+    return (wallet as Wallet).accounts[0];
+  }, [wallet]);
   const search = useLocationSearch();
   const permReqId = search.get('permReqId');
   const navigate = useNavigate();
@@ -84,7 +89,7 @@ const ConnectPage = () => {
           </Typo.Normal>
           <Address
             className={styles['connect-item-desc']}
-            value={wallet.defaultAccount?.address ?? ''}
+            value={defaultAccount?.address ?? ''}
             hideCopy={true}
           ></Address>
         </div>
