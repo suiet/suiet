@@ -173,11 +173,7 @@ function MainPage({ address, networkId }: DashboardProps) {
           }}
         >
           {airdropLoading ? (
-            <div
-              style={{
-                padding: '0 4px',
-              }}
-            >
+            <div>
               <LoadingSpokes width={'12px'} height={'12px'} />
             </div>
           ) : (
