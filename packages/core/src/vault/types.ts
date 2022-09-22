@@ -10,6 +10,11 @@ export type SignedTx = {
   data: Base64DataBuffer;
 };
 
+export type SignedMessage = {
+  signature: Buffer;
+  pubKey: Buffer;
+};
+
 export type CoinType = {
   object: Coin;
 };

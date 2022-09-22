@@ -5,9 +5,9 @@ import { Buffer } from 'buffer';
 export async function validateToken(storage: Storage, token: string) {
   const meta = await storage.loadMeta();
   if (!meta) {
-    throw new Error('Empty old password');
+    throw new Error('Meta not initialized');
   }
   if (!crypto.validateToken(Buffer.from(token, 'hex'), meta.cipher)) {
-    throw new Error('Invalid old password');
+    throw new Error('Invalid token');
   }
 }

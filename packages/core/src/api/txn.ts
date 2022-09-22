@@ -10,6 +10,7 @@ import {
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
 } from '@mysten/sui.js';
+import { SignedMessage } from '../vault/types';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -98,6 +99,13 @@ export type GetNormalizedMoveFunctionParams = {
   functionName: string;
 };
 
+export type SignMessageParams = {
+  walletId: string;
+  accountId: string;
+  message: string;
+  token: string;
+};
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (params: TransferCoinParams) => Promise<void>;
@@ -122,6 +130,8 @@ export interface ITransactionApi {
   getNormalizedMoveFunction: (
     params: GetNormalizedMoveFunctionParams
   ) => Promise<SuiMoveNormalizedFunction>;
+
+  signMessage: (params: SignMessageParams) => Promise<SignedMessage>;
 }
 
 export class TransactionApi implements ITransactionApi {
@@ -308,5 +318,12 @@ export class TransactionApi implements ITransactionApi {
       moduleName,
       functionName
     );
+  }
+
+  async signMessage(params: SignMessageParams) {
+    const { walletId, accountId, message, token } = params;
+    const vault = await this.prepareVault(walletId, accountId, token);
+    const signedMsg = await vault.signMessage(message);
+    return signedMsg;
   }
 }
