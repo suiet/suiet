@@ -69,10 +69,7 @@ const CreateNewWallet = () => {
   }
 
   async function handleSetPassword(password: string) {
-    await apiClient.callFunc<UpdatePasswordParams, undefined>(
-      'auth.updatePassword',
-      { oldPassword: null, newPassword: password }
-    );
+    await apiClient.callFunc<string, undefined>('auth.initPassword', password);
     const token = await apiClient.callFunc<string, string>(
       'auth.loadTokenWithPassword',
       password

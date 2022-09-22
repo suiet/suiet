@@ -28,6 +28,7 @@ export interface Storage {
   loadMeta: () => Promise<GlobalMeta | null>;
   saveMeta: (meta: GlobalMeta) => Promise<void>;
   clearMeta: () => Promise<void>;
+  updateMetaAndWallets: (meta: GlobalMeta, wallets: Wallet[]) => Promise<void>;
 
   reset: () => Promise<void>;
 }
