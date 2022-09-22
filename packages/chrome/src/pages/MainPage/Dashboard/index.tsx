@@ -18,6 +18,7 @@ import { formatCurrency } from '../../../utils/format';
 import message from '../../../components/message';
 import { useState } from 'react';
 import { useNetwork } from '../../../hooks/useNetwork';
+import Loading, { LoadingSpokes } from '../../../components/Loading';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -171,7 +172,17 @@ function MainPage({ address, networkId }: DashboardProps) {
             }
           }}
         >
-          Airdrop
+          {airdropLoading ? (
+            <div
+              style={{
+                padding: '0 4px',
+              }}
+            >
+              <LoadingSpokes width={'12px'} height={'12px'} />
+            </div>
+          ) : (
+            'Airdrop'
+          )}
         </div>
         <ReceiveButton address={address} />
         <Link to={'/send'}>
