@@ -1,10 +1,15 @@
-import { Wallet as IWallet } from '../api/wallet';
+import { AccountInWallet } from '../api/wallet';
 
 export const WALLET_PREFIX = 'wallet-';
 
-export interface Wallet extends IWallet {
+export type Wallet = {
+  id: string;
+  name: string;
+  accounts: AccountInWallet[];
+  nextAccountId: number;
+  avatar?: string;
   encryptedMnemonic: string;
-}
+};
 
 export type Account = {
   id: string;

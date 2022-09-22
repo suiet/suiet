@@ -188,29 +188,6 @@ function PasswordSetting() {
   const context = useSelector((state: RootState) => state.appContext);
   const { updateWallet } = useWallet(context.walletId);
 
-  async function createWalletAndAccount(token: string) {
-    const wallet = await apiClient.callFunc<CreateWalletParams, Wallet>(
-      'wallet.createWallet',
-      {
-        token,
-      }
-    );
-
-    const accounts = await apiClient.callFunc<string, Account[]>(
-      'account.getAccounts',
-      wallet.id
-    );
-    const defaultAccount = accounts[0];
-    await updateWallet(wallet.id, {
-      avatar: wallet.avatar ?? '1',
-      name: wallet.name,
-    });
-
-    await dispatch(updateToken(token));
-    await dispatch(updateWalletId(wallet.id));
-    await dispatch(updateAccountId(defaultAccount.id));
-    await dispatch(updateInitialized(true));
-  }
   async function handleSetPassword(password: string, oldPassword?: string) {
     await apiClient.callFunc<UpdatePasswordParams, undefined>(
       'auth.updatePassword',
@@ -223,10 +200,11 @@ function PasswordSetting() {
       'auth.loadTokenWithPassword',
       password
     );
-
-    await createWalletAndAccount(token);
+    await dispatch(updateToken(token));
+    message.success('Update password succeeded');
     navigate('..');
   }
+
   return <SetPassword onNext={handleSetPassword} />;
 }
 

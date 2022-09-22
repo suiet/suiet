@@ -359,6 +359,37 @@ export class IndexedDBStorage implements Storage {
     );
   }
 
+  async updateMetaAndWallets(
+    meta: GlobalMeta,
+    wallets: Wallet[]
+  ): Promise<void> {
+    return await this.connection.then(
+      async (db) =>
+        await new Promise((resolve, reject) => {
+          const transaction = db.transaction(
+            [StoreName.META, StoreName.WALLETS],
+            'readwrite'
+          );
+          const metaStore = transaction.objectStore(StoreName.META);
+          const walletStore = transaction.objectStore(StoreName.WALLETS);
+          metaStore.put({
+            id: GLOBAL_META_ID,
+            ...meta,
+          });
+          for (const wallet of wallets) {
+            walletStore.put(wallet);
+          }
+
+          transaction.oncomplete = (event) => {
+            resolve();
+          };
+          transaction.onerror = (event) => {
+            reject(event);
+          };
+        })
+    );
+  }
+
   async reset(): Promise<void> {
     return await this.connection.then(
       async (db) =>
