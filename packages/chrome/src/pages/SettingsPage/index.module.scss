@@ -28,7 +28,8 @@
   .icon-wallet,
   .icon-network,
   .icon-security,
-  .icon-right-arrow {
+  .icon-right-arrow,
+  .icon-reset {
     width: 24px;
     height: 24px;
     background: no-repeat center;
@@ -47,6 +48,10 @@
 
   .icon-security {
     background-image: url('./assets/security.svg');
+  }
+
+  .icon-reset {
+    background-image: url('./assets/reset.svg');
   }
 
   .icon-right-arrow {

@@ -90,8 +90,7 @@ export class BackgroundApiProxy {
             throw new Error('Clear meta failed');
           }
         },
-        resetAppData: async (token: string) => {
-          await validateToken(storage, token);
+        resetAppData: async () => {
           await storage.reset();
           ctx.initServices();
         },
