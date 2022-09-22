@@ -1,5 +1,5 @@
 import { Network, GetOwnedObjParams } from '@suiet/core';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
@@ -11,7 +11,7 @@ export enum CoinSymbol {
 
 export function useCoinBalance(
   address: string,
-  symbol?: CoinSymbol,
+  symbol: CoinSymbol | null = null, // if null, means only lazy get function is available
   opts: {
     networkId?: string;
   } = {}
@@ -21,18 +21,26 @@ export function useCoinBalance(
   const { networkId = 'devnet' } = opts;
   const { data: network } = useNetwork(networkId);
   const {
-    data: coinsBalanceMap,
+    data: coinsBalance,
     error,
     isValidating,
   } = useSWR(['fetchCoinsBalanceMap', address, network], fetchCoinsBalanceMap);
+
+  const coinsBalanceMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    if (!coinsBalance) return {};
+    coinsBalance.forEach((item) => {
+      map[item.symbol] = item.balance;
+    });
+    return map;
+  }, [coinsBalance]);
 
   async function fetchCoinsBalanceMap(
     _: string,
     address: string,
     network: Network
   ) {
-    const map = new Map<string, string>();
-    if (!address || !network) return map;
+    if (!address || !network) return [];
 
     const coinsBalance = await apiClient.callFunc<
       GetOwnedObjParams,
@@ -44,24 +52,20 @@ export function useCoinBalance(
     if (!coinsBalance) {
       throw new Error(`fetch coinsBalance failed: ${address}, ${networkId}`);
     }
-    coinsBalance.forEach((item) => {
-      map.set(item.symbol, item.balance);
-    });
-
-    return map;
+    return coinsBalance;
   }
 
   const getBalance = useCallback(
     (symbol: string): string => {
       if (!symbol || !coinsBalanceMap) return '0';
-      return coinsBalanceMap.get(symbol) ?? '0';
+      return coinsBalanceMap[symbol] ?? '0';
     },
     [coinsBalanceMap]
   );
 
   useEffect(() => {
     if (!coinsBalanceMap || !symbol) return;
-    const result = coinsBalanceMap.get(symbol);
+    const result = coinsBalanceMap ? coinsBalanceMap[symbol] : undefined;
     setBalance(result ?? '0');
   }, [coinsBalanceMap, symbol]);
 

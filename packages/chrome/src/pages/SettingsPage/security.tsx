@@ -4,26 +4,14 @@ import styles from './security.module.scss';
 import Button from '../../components/Button';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Modal from '../../components/Modal';
-import {
-  Account,
-  CreateWalletParams,
-  RevealMnemonicParams,
-  UpdatePasswordParams,
-  Wallet,
-} from '@suiet/core';
+import { RevealMnemonicParams, UpdatePasswordParams } from '@suiet/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { useState } from 'react';
 import SetPassword from '../OnBoarding/SetPassword';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
-import {
-  updateAccountId,
-  updateInitialized,
-  updateToken,
-  updateWalletId,
-} from '../../store/app-context';
-import { useWallet } from '../../hooks/useWallet';
+import { updateToken } from '../../store/app-context';
 import Nav from './nav';
 import { useApiClient } from '../../hooks/useApiClient';
 
@@ -185,8 +173,6 @@ function PasswordSetting() {
   const apiClient = useApiClient();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const context = useSelector((state: RootState) => state.appContext);
-  const { updateWallet } = useWallet(context.walletId);
 
   async function handleSetPassword(password: string, oldPassword?: string) {
     await apiClient.callFunc<UpdatePasswordParams, undefined>(

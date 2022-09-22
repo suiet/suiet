@@ -60,7 +60,6 @@ const ImportWallet = () => {
       await createWalletAndAccount(appContext.token, _secret);
       message.success('Wallet Created!');
 
-      await dispatch(updateNetworkId('devnet'));
       await sleep(300); // wait for wallet created
       navigate('/', {
         state: { openSwitcher: true }, // open the wallet switcher
@@ -81,6 +80,7 @@ const ImportWallet = () => {
     );
     await createWalletAndAccount(token, secret);
     await dispatch(updateToken(token));
+    await dispatch(updateNetworkId('devnet'));
     await dispatch(updateInitialized(true));
     message.success('Wallet Created!');
     navigate('/');

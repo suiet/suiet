@@ -14,9 +14,7 @@ import {
 import { useApiClient } from '../hooks/useApiClient';
 
 function RequireInit({ children }: any) {
-  const initialized = useSelector(
-    (state: RootState) => state.appContext.initialized
-  );
+  const appContext = useSelector((state: RootState) => state.appContext);
   const dispatch = useDispatch<AppDispatch>();
   const apiClient = useApiClient();
 
@@ -26,7 +24,7 @@ function RequireInit({ children }: any) {
       null
     );
     if (!isNonEmptyArray(wallets)) {
-      if (initialized) {
+      if (appContext.initialized) {
         // no wallets, reset app
         await dispatch(resetAppContext());
       }
@@ -39,13 +37,20 @@ function RequireInit({ children }: any) {
       await dispatch(resetAppContext());
       return;
     }
-    const [firstAccountId] = firstWallet.accounts;
+
+    const [firstAccount] = firstWallet.accounts;
     // if wallet data is correct, but context data is not, re-initialize app
-    if (!initialized) {
+    if (!appContext.initialized) {
       // if db has data but context is incorrect, then update
       await dispatch(updateInitialized(true));
       await dispatch(updateWalletId(firstWallet.id));
-      await dispatch(updateAccountId(firstAccountId));
+      await dispatch(updateAccountId(firstAccount.id));
+      await dispatch(updateNetworkId('devnet'));
+      return;
+    }
+
+    // if initialized, check essential context data
+    if (!appContext.networkId) {
       await dispatch(updateNetworkId('devnet'));
     }
   }
@@ -55,7 +60,11 @@ function RequireInit({ children }: any) {
     adjustInitializedStatus();
   }, []);
 
-  return initialized ? children : <Navigate to={'/onboard'} replace />;
+  return appContext.initialized ? (
+    children
+  ) : (
+    <Navigate to={'/onboard'} replace />
+  );
 }
 
 export default RequireInit;

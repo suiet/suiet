@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { resetAppContext } from '../../store/app-context';
 import { AppDispatch, RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import { isDev } from '../../utils/env';
 import Address from '../../components/Address';
 import Avatar from '../../components/Avatar';
 import classnames from 'classnames';
@@ -29,11 +28,6 @@ const SettingMain = () => {
   // reset redux & db
   async function handleResetAppData() {
     await apiClient.callFunc<string, undefined>('root.resetAppData', token);
-    await dispatch(resetAppContext()).unwrap();
-  }
-
-  // reset redux only
-  async function handleResetAppContext() {
     await dispatch(resetAppContext()).unwrap();
   }
 
@@ -87,25 +81,10 @@ const SettingMain = () => {
           <span className={styles['icon-security']}></span>Security
           <span className={styles['icon-right-arrow']} />
         </div>
-        {/* dev use */}
-        {isDev && (
-          <>
-            {/* <div
-              onClick={handleResetAppContext}
-              className={styles['settings-item']}
-            >
-              <span className={styles['icon-security']}></span>
-              Reset Context
-            </div> */}
-            <div
-              onClick={handleResetAppData}
-              className={styles['settings-item']}
-            >
-              <span className={styles['icon-security']}></span>
-              Reset All
-            </div>
-          </>
-        )}
+        <div onClick={handleResetAppData} className={styles['settings-item']}>
+          <span className={styles['icon-reset']}></span>
+          Reset All
+        </div>
       </section>
 
       <div className={classnames(styles['app-version'], 'mt-[16px]')}>
