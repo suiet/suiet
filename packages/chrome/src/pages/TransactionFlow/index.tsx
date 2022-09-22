@@ -106,6 +106,8 @@ function TransactionFlow({
                   },
                   index
                 ) => {
+                  const encodedTransactionDigest =
+                    encodeURIComponent(transactionDigest);
                   return (
                     <TransactionItem
                       key={index}
@@ -115,19 +117,22 @@ function TransactionFlow({
                       type={type}
                       status={txStatus}
                       onClick={() => {
-                        navigate(`/transaction/detail/${transactionDigest}`, {
-                          state: {
-                            to,
-                            type,
-                            object,
-                            from,
-                            timestamp_ms: time,
-                            txStatus,
-                            transactionDigest,
-                            gasFee,
-                            hideAppLayout: true,
-                          },
-                        });
+                        navigate(
+                          `/transaction/detail/${encodedTransactionDigest}`,
+                          {
+                            state: {
+                              to,
+                              type,
+                              object,
+                              from,
+                              timestamp_ms: time,
+                              txStatus,
+                              transactionDigest,
+                              gasFee,
+                              hideAppLayout: true,
+                            },
+                          }
+                        );
                       }}
                     />
                   );
