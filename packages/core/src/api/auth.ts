@@ -97,6 +97,10 @@ export class AuthApi implements IAuthApi {
     return token;
   }
 
+  public async isAuthed() {
+    return !!this.getToken();
+  }
+
   public async login(password: string) {
     const token = await this.loadTokenWithPassword(password);
     this.session.setToken(token);
