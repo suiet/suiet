@@ -15,10 +15,9 @@ const Session = (props: Extendable) => {
 
   async function verifyAuthStatus() {
     try {
-      await apiClient.callFunc('auth.getToken', null);
+      await apiClient.callFunc('auth.isAuthed', null);
       dispatch(updateAuthed(true));
     } catch (e) {
-      console.error('auth getToken', e);
       dispatch(updateAuthed(false));
     }
   }
