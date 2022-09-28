@@ -2,7 +2,13 @@ import { filter, firstValueFrom, map, race, Subject, take, tap } from 'rxjs';
 import { ChromeStorage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
-import { Account, NetworkApi, Storage, TransactionApi } from '@suiet/core';
+import {
+  Account,
+  AuthApi,
+  NetworkApi,
+  Storage,
+  TransactionApi,
+} from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { Permission, PermissionManager } from '../permission';
 import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
@@ -43,11 +49,18 @@ export class DappBgApi {
   txManager: TxRequestManager;
   txApi: TransactionApi;
   networkApi: NetworkApi;
+  authApi: AuthApi;
 
-  constructor(storage: Storage) {
+  constructor(
+    storage: Storage,
+    txApi: TransactionApi,
+    networkApi: NetworkApi,
+    authApi: AuthApi
+  ) {
     this.storage = storage;
-    this.txApi = new TransactionApi(storage);
-    this.networkApi = new NetworkApi();
+    this.txApi = txApi;
+    this.networkApi = networkApi;
+    this.authApi = authApi;
     this.chromeStorage = new ChromeStorage();
     this.permManager = new PermissionManager();
     this.txManager = new TxRequestManager();
@@ -220,11 +233,11 @@ export class DappBgApi {
     if (!finalResult.approved) {
       throw new UserRejectionError();
     }
-
+    const token = this.authApi.getToken();
     try {
       const response = await this.txApi.executeMoveCall({
         network,
-        token: appContext.token,
+        token,
         walletId: appContext.walletId,
         accountId: appContext.accountId,
         tx: params.data,

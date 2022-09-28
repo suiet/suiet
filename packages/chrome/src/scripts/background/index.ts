@@ -2,17 +2,21 @@ import { PortName } from '../shared';
 import { BackgroundApiProxy } from './api-proxy';
 
 class ApiBridgeConnection {
-  static connectTo(portName: PortName) {
-    const handleConnect = (port: chrome.runtime.Port) => {
-      if (port.name === portName) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        let bgApiProxy: BackgroundApiProxy | null =
-          BackgroundApiProxy.listenTo(port); // setup listening channel
+  private bgApiProxy: BackgroundApiProxy;
+  private readonly portName: PortName;
 
-        port.onDisconnect.addListener(() => {
-          console.log('clear proxy instance');
-          bgApiProxy = null;
-        });
+  constructor(portName: PortName) {
+    this.portName = portName;
+  }
+
+  connect() {
+    const handleConnect = (port: chrome.runtime.Port) => {
+      if (port.name === this.portName) {
+        if (!this.bgApiProxy) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          this.bgApiProxy = new BackgroundApiProxy(); // setup listening channel
+        }
+        this.bgApiProxy.listen(port);
       }
     };
     chrome.runtime.onConnect.addListener(handleConnect);
@@ -24,6 +28,13 @@ class ApiBridgeConnection {
     // eslint-disable-next-line no-console
     console.log('Extension installed');
   });
-  ApiBridgeConnection.connectTo(PortName.SUIET_UI_BACKGROUND);
-  ApiBridgeConnection.connectTo(PortName.SUIET_CONTENT_BACKGROUND);
+  const uiBgBridgeConnection = new ApiBridgeConnection(
+    PortName.SUIET_UI_BACKGROUND
+  );
+  uiBgBridgeConnection.connect();
+
+  const cntBgBridgeConnection = new ApiBridgeConnection(
+    PortName.SUIET_CONTENT_BACKGROUND
+  );
+  cntBgBridgeConnection.connect();
 })();

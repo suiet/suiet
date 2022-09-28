@@ -10,6 +10,7 @@ import classnames from 'classnames';
 import { useWallet } from '../../hooks/useWallet';
 import { version } from '../../package-json';
 import { useApiClient } from '../../hooks/useApiClient';
+import { useAuth } from '../../hooks/useAuth';
 
 const SettingPage = () => {
   const navigate = useNavigate();
@@ -21,10 +22,11 @@ const SettingPage = () => {
   const { data: wallet } = useWallet(context.walletId);
   const { data: account } = useAccount(context.accountId);
   const apiClient = useApiClient();
+  const { logout } = useAuth();
 
   // reset redux & db
   async function handleResetAppData() {
-    await apiClient.callFunc<string, undefined>('root.resetAppData', token);
+    await apiClient.callFunc<null, undefined>('root.resetAppData', null);
     await dispatch(resetAppContext()).unwrap();
   }
 
@@ -77,6 +79,15 @@ const SettingPage = () => {
         >
           <span className={styles['icon-security']}></span>Security
           <span className={styles['icon-right-arrow']} />
+        </div>
+        <div
+          onClick={() => {
+            logout();
+          }}
+          className={styles['settings-item']}
+        >
+          <span className={styles['icon-reset']}></span>
+          Lock
         </div>
         <div onClick={handleResetAppData} className={styles['settings-item']}>
           <span className={styles['icon-reset']}></span>

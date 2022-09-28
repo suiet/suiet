@@ -1,4 +1,4 @@
-import { BackgroundResData, PortName, reqData } from './index';
+import { BackgroundResData, CallFuncOption, PortName, reqData } from './index';
 import {
   filter,
   fromEventPattern,
@@ -45,10 +45,15 @@ export class BackgroundApiClient {
     );
   }
 
-  async callFunc<Req, Res>(funcName: string, payload: Req): Promise<Res> {
+  async callFunc<Req, Res>(
+    funcName: string,
+    payload: Req,
+    options?: CallFuncOption
+  ): Promise<Res> {
     const reqParams = reqData(
       funcName,
-      typeof payload === 'undefined' ? null : payload
+      typeof payload === 'undefined' ? null : payload,
+      options
     );
     this.port.postMessage(JSON.stringify(reqParams));
     const result = await lastValueFrom(

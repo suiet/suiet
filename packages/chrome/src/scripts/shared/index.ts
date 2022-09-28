@@ -14,9 +14,22 @@ export interface WindowMsgDataBase {
   id: string;
 }
 
+export interface CallFuncData {
+  id: string;
+  service: string;
+  func: string;
+  payload: any;
+  options?: CallFuncOption;
+}
+
+export type CallFuncOption = {
+  withAuth?: boolean;
+};
+
 export type WindowMsgReqData<T = any> = WindowMsgDataBase & {
   funcName: string;
   payload: T;
+  options?: CallFuncOption;
 };
 
 export interface ResData<T = any> {
@@ -41,12 +54,14 @@ export enum WindowMsgTarget {
 
 export function reqData<T = any>(
   funcName: string,
-  payload: T
+  payload: T,
+  options?: CallFuncOption
 ): WindowMsgReqData<T> {
   return {
     id: uuidv4(),
     funcName,
     payload,
+    options,
   };
 }
 

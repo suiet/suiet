@@ -1,8 +1,7 @@
 import { UpdateWalletParams, Wallet } from '@suiet/core';
 import useSWR from 'swr';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
 import { useApiClient } from './useApiClient';
+import { OmitToken } from '../types';
 
 export function useWallet(walletId: string) {
   const apiClient = useApiClient();
@@ -10,7 +9,6 @@ export function useWallet(walletId: string) {
     ['fetchWallet', walletId],
     fetchWallet
   );
-  const token = useSelector((state: RootState) => state.appContext.token);
 
   async function fetchWallet(_: string, walletId: string) {
     if (!walletId) return;
@@ -24,13 +22,13 @@ export function useWallet(walletId: string) {
     walletId: string,
     meta: { avatar: string; name: string }
   ) {
-    await apiClient.callFunc<UpdateWalletParams, undefined>(
+    await apiClient.callFunc<OmitToken<UpdateWalletParams>, undefined>(
       'wallet.updateWallet',
       {
         walletId,
         meta,
-        token,
-      }
+      },
+      { withAuth: true }
     );
     await mutate();
   }

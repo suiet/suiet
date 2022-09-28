@@ -9,6 +9,7 @@ import { useState } from 'react';
 import styles from './empty.module.scss';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import { useApiClient } from '../../../hooks/useApiClient';
+import { OmitToken } from '../../../types';
 
 export type EmptyProps = {
   onMintSuccess: () => void;
@@ -37,7 +38,6 @@ export default function Empty(props: EmptyProps) {
       network,
       walletId: appContext.walletId,
       accountId: appContext.accountId,
-      token: appContext.token,
     };
 
     if (balanceLoading || Number(balance) < 10000) {
@@ -46,9 +46,10 @@ export default function Empty(props: EmptyProps) {
     }
     setSendLoading(true);
     try {
-      await apiClient.callFunc<MintNftParams, undefined>(
+      await apiClient.callFunc<OmitToken<MintNftParams>, undefined>(
         'txn.mintExampleNft',
-        params
+        params,
+        { withAuth: true }
       );
       message.success('Mint NFT succeed');
       props.onMintSuccess();
@@ -56,7 +57,6 @@ export default function Empty(props: EmptyProps) {
       message.error(`Mint NFT failed: ${e?.message}`);
     } finally {
       setSendLoading(false);
-      console.log('mint nft');
     }
   }
 

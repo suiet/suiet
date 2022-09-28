@@ -3,7 +3,7 @@ import storage from './storage';
 
 export interface AppContextState {
   initialized: boolean;
-  token: string;
+  authed: boolean;
   walletId: string;
   accountId: string;
   networkId: string;
@@ -11,7 +11,7 @@ export interface AppContextState {
 
 const initialState: AppContextState = {
   initialized: false,
-  token: '',
+  authed: false,
   walletId: '',
   accountId: '',
   networkId: '',
@@ -23,7 +23,7 @@ export const resetAppContext = createAsyncThunk(
   async (_, thunkApi) => {
     // memory clear
     await thunkApi.dispatch(updateInitialized(false));
-    await thunkApi.dispatch(updateToken(''));
+    await thunkApi.dispatch(updateAuthed(false));
     await thunkApi.dispatch(updateAccountId(''));
     await thunkApi.dispatch(updateWalletId(''));
     await thunkApi.dispatch(updateNetworkId(''));
@@ -38,8 +38,8 @@ export const appContextSlice = createSlice({
     updateInitialized(state, action: PayloadAction<boolean>) {
       state.initialized = action.payload;
     },
-    updateToken(state, action: PayloadAction<string>) {
-      state.token = action.payload;
+    updateAuthed(state, action: PayloadAction<boolean>) {
+      state.authed = action.payload;
     },
     updateWalletId(state, action: PayloadAction<string>) {
       state.walletId = action.payload;
@@ -58,7 +58,7 @@ export const appContextSlice = createSlice({
 
 export const {
   updateInitialized,
-  updateToken,
+  updateAuthed,
   updateWalletId,
   updateAccountId,
   updateNetworkId,

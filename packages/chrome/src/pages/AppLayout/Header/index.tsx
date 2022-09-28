@@ -143,12 +143,12 @@ function Header(props: HeaderProps) {
             setDoSwitch(false);
           }}
           onClickNew={() => {
-            navigate('/onboard/create-new-wallet', {
+            navigate('/wallet/create', {
               state: { pageEntry: PageEntry.SWITCHER },
             });
           }}
           onClickImport={() => {
-            navigate('/onboard/import-wallet', {
+            navigate('/wallet/import', {
               state: { pageEntry: PageEntry.SWITCHER },
             });
           }}

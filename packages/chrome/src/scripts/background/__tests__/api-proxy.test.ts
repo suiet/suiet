@@ -8,6 +8,9 @@ describe('Port message process', function () {
       payload: {
         key1: 'aaa',
       },
+      options: {
+        withAuth: true,
+      },
     });
     expect(processPortMessage(input)).toEqual({
       id: '1',
@@ -15,6 +18,9 @@ describe('Port message process', function () {
       func: 'funcB',
       payload: {
         key1: 'aaa',
+      },
+      options: {
+        withAuth: true,
       },
     });
   });
@@ -25,6 +31,9 @@ describe('Port message process', function () {
           id: '1',
           funcName: 'funcC',
           payload: null,
+          options: {
+            withAuth: true,
+          },
         })
       )
     ).toEqual({
@@ -32,6 +41,9 @@ describe('Port message process', function () {
       service: 'root',
       func: 'funcC',
       payload: null,
+      options: {
+        withAuth: true,
+      },
     });
   });
   test('ensure input is a Json string that can be de-serialize to object', () => {
