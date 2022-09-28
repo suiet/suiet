@@ -41,7 +41,7 @@ const NftItem = (props: NftItemProps) => {
           description:
             props.description ||
             props.fields.metadata?.fields.description ||
-            'None',
+            'No Description',
           previousTransaction: props.previousTransaction,
           objectType: props.objectType,
           url: props.url || props.fields.metadata?.fields.uri,
@@ -68,7 +68,7 @@ const NftItem = (props: NftItemProps) => {
             <Typo.Small className={classnames(styles['nft-description'])}>
               {props.description ||
                 props.fields.metadata?.fields.description ||
-                'None'}
+                'No Description'}
             </Typo.Small>
           </div>
         )}
