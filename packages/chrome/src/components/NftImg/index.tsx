@@ -13,17 +13,20 @@ export type NftImgProps = Extendable & {
 
 const NftImg = (props: NftImgProps) => {
   const { src = '', alt = 'nft' } = props;
+  const imgUrl = nftImgUrl(src);
   return (
     <div
       className={classnames(styles['nft-img-wrap'], props.className)}
       style={props.style}
     >
-      <img
-        src={nftImgUrl(src)}
-        alt={alt}
-        className={classnames(styles['nft-img'], props.elClassName)}
-        style={props.elStyle}
-      />
+      {imgUrl && (
+        <img
+          src={imgUrl}
+          alt={alt}
+          className={classnames(styles['nft-img'], props.elClassName)}
+          style={props.elStyle}
+        />
+      )}
     </div>
   );
 };
