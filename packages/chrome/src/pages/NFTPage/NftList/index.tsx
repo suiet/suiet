@@ -44,7 +44,10 @@ const NftItem = (props: NftItemProps) => {
             'No Description',
           previousTransaction: props.previousTransaction,
           objectType: props.objectType,
-          url: props.url || props.fields.metadata?.fields.uri,
+          url:
+            props.url ||
+            props.fields.metadata?.fields.uri ||
+            props.fields.metadata?.fields.url,
           fields: props.fields,
         });
       }}
@@ -53,7 +56,11 @@ const NftItem = (props: NftItemProps) => {
         <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
       ) : (
         <NftImg
-          src={nftImgUrl(props.url || props.fields.metadata?.fields.uri)}
+          src={nftImgUrl(
+            props.url ||
+              props.fields.metadata?.fields.uri ||
+              props.fields.metadata?.fields.url
+          )}
           alt={props.name || props.fields.metadata?.fields.name}
         />
       )}
