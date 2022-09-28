@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../store';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../../store';
 import { useState } from 'react';
 import SetPassword from '../SetPassword';
 import ImportPhrase from '../ImportPhrase';
@@ -10,19 +10,14 @@ import {
   updateAccountId,
   updateInitialized,
   updateNetworkId,
-  updateToken,
   updateWalletId,
 } from '../../../store/app-context';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
 import { useApiClient } from '../../../hooks/useApiClient';
-import {
-  Account,
-  CreateWalletParams,
-  UpdatePasswordParams,
-  Wallet,
-} from '@suiet/core';
+import { Account, CreateWalletParams, Wallet } from '@suiet/core';
 import { sleep } from '../../../utils/time';
+import { OmitToken } from '../../../types';
 
 const ImportWallet = () => {
   const apiClient = useApiClient();
@@ -30,16 +25,18 @@ const ImportWallet = () => {
   const [secret, setSecret] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
 
-  async function createWalletAndAccount(token: string, mnemonic: string) {
-    const wallet = await apiClient.callFunc<CreateWalletParams, Wallet>(
+  async function createWalletAndAccount(mnemonic: string) {
+    const wallet = await apiClient.callFunc<
+      OmitToken<CreateWalletParams>,
+      Wallet
+    >(
       'wallet.createWallet',
       {
-        token,
         mnemonic,
-      }
+      },
+      { withAuth: true }
     );
     const accounts = await apiClient.callFunc<string, Account[]>(
       'account.getAccounts',
@@ -55,9 +52,8 @@ const ImportWallet = () => {
 
   async function handleImport(_secret: string) {
     // TODO: check duplicated wallet
-    if (pageEntry === PageEntry.SWITCHER && appContext.token) {
-      // already has token
-      await createWalletAndAccount(appContext.token, _secret);
+    if (pageEntry === PageEntry.SWITCHER) {
+      await createWalletAndAccount(_secret);
       message.success('Wallet Created!');
 
       await sleep(300); // wait for wallet created
@@ -74,12 +70,7 @@ const ImportWallet = () => {
 
   async function handleSetPassword(password: string) {
     await apiClient.callFunc<string, undefined>('auth.initPassword', password);
-    const token = await apiClient.callFunc<string, string>(
-      'auth.loadTokenWithPassword',
-      password
-    );
-    await createWalletAndAccount(token, secret);
-    await dispatch(updateToken(token));
+    await createWalletAndAccount(secret);
     await dispatch(updateNetworkId('devnet'));
     await dispatch(updateInitialized(true));
     message.success('Wallet Created!');

@@ -14,13 +14,12 @@ import Icon from '../../../components/Icon';
 import { ReactComponent as LogoGrey } from '../../../assets/icons/logo-grey.svg';
 import classnames from 'classnames';
 import Input from '../../../components/Input';
-import { useDispatch, useSelector } from 'react-redux';
-import { resetAppContext, updateToken } from '../../../store/app-context';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { resetAppContext, updateAuthed } from '../../../store/app-context';
 import { useState } from 'react';
 import ForgetPassword from '../ForgetPassword';
 import Nav from '../../../components/Nav';
-import { AppDispatch, RootState } from '../../../store';
+import { AppDispatch } from '../../../store';
 import { useApiClient } from '../../../hooks/useApiClient';
 
 type FormData = {
@@ -29,7 +28,6 @@ type FormData = {
 
 const LoginPage = () => {
   const apiClient = useApiClient();
-  const navigate = useNavigate();
   const form = useForm({
     mode: 'onBlur',
     defaultValues: {
@@ -37,30 +35,24 @@ const LoginPage = () => {
     },
   });
   const [step, setStep] = useState(1);
-  const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
 
-  async function requestToken(password: string) {
-    try {
-      return await apiClient.callFunc<string, string>(
-        'auth.loadTokenWithPassword',
-        password
-      );
-    } catch (e) {
-      return '';
-    }
-  }
   async function handleSubmit(data: FormData) {
-    const token = await requestToken(data.password);
-    if (!token) {
+    const result = await apiClient.callFunc<string, string>(
+      'auth.verifyPassword',
+      data.password
+    );
+    if (!result) {
       form.setError('password', {
         type: 'custom',
         message: 'Password is incorrect, please try again',
       });
       return;
     }
-    await dispatch(updateToken(token));
-    navigate('/');
+    // update backend token
+    await apiClient.callFunc<string, string>('auth.login', data.password);
+    // effect Session Guard Component
+    dispatch(updateAuthed(true));
   }
 
   if (step === 2) {
@@ -74,9 +66,9 @@ const LoginPage = () => {
         ></Nav>
         <ForgetPassword
           onConfirmReset={async () => {
-            await apiClient.callFunc<string, undefined>(
+            await apiClient.callFunc<null, undefined>(
               'root.resetAppData',
-              token
+              null
             );
             await dispatch(resetAppContext()).unwrap();
           }}

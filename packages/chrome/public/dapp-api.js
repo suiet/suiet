@@ -31,11 +31,12 @@ function he(e, t, r) {
   return fe(n);
 }
 var k = /* @__PURE__ */ ((e) => (e.DAPP = "DAPP", e.SUIET_CONTENT = "SUIET_CONTENT", e))(k || {});
-function g(e, t) {
+function g(e, t, r) {
   return {
     id: he(),
     funcName: e,
-    payload: t
+    payload: t,
+    options: r
   };
 }
 var D = function(e, t) {

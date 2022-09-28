@@ -2,12 +2,11 @@ import SetPassword from '../SetPassword';
 import SavePhrase from '../SavePhrase';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   updateAccountId,
   updateInitialized,
   updateNetworkId,
-  updateToken,
   updateWalletId,
 } from '../../../store/app-context';
 import { isNonEmptyArray } from '../../../utils/check';
@@ -16,38 +15,38 @@ import {
   Account,
   CreateWalletParams,
   RevealMnemonicParams,
-  UpdatePasswordParams,
   Wallet,
 } from '@suiet/core';
-import { AppDispatch, RootState } from '../../../store';
+import { AppDispatch } from '../../../store';
 import { PageEntry, usePageEntry } from '../../../hooks/usePageEntry';
 import Nav from '../../../components/Nav';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { sleep } from '../../../utils/time';
+import { OmitToken } from '../../../types';
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
   const [phrases, setPhrases] = useState<string[]>([]);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const appContext = useSelector((state: RootState) => state.appContext);
   const pageEntry = usePageEntry();
   const apiClient = useApiClient();
 
-  async function createWalletAndAccount(token: string) {
-    const wallet = await apiClient.callFunc<CreateWalletParams, Wallet>(
-      'wallet.createWallet',
-      {
-        token,
-      }
-    );
+  async function createWalletAndAccount() {
+    const wallet = await apiClient.callFunc<
+      OmitToken<CreateWalletParams>,
+      Wallet
+    >('wallet.createWallet', {}, { withAuth: true });
 
-    const rawPhrases = await apiClient.callFunc<RevealMnemonicParams, string>(
+    const rawPhrases = await apiClient.callFunc<
+      OmitToken<RevealMnemonicParams>,
+      string
+    >(
       'wallet.revealMnemonic',
       {
         walletId: wallet.id,
-        token,
-      }
+      },
+      { withAuth: true }
     );
     setPhrases(rawPhrases.split(' '));
 
@@ -61,7 +60,6 @@ const CreateNewWallet = () => {
     }
     const defaultAccount = accounts[0];
 
-    await dispatch(updateToken(token));
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
     await dispatch(updateNetworkId('devnet'));
@@ -70,11 +68,7 @@ const CreateNewWallet = () => {
 
   async function handleSetPassword(password: string) {
     await apiClient.callFunc<string, undefined>('auth.initPassword', password);
-    const token = await apiClient.callFunc<string, string>(
-      'auth.loadTokenWithPassword',
-      password
-    );
-    await createWalletAndAccount(token);
+    await createWalletAndAccount();
     setStep((s) => s + 1);
   }
 
@@ -88,17 +82,15 @@ const CreateNewWallet = () => {
     navigate('/home');
   }
 
-  async function handleCreateFromSwitcher(token: string) {
-    if (!token) throw new Error('token should not be empty');
-
-    await createWalletAndAccount(token);
+  async function handleCreateFromSwitcher() {
+    await createWalletAndAccount();
     setStep((s) => s + 1);
   }
 
   // detect if coming from other entry
   useEffect(() => {
     if (pageEntry === PageEntry.SWITCHER) {
-      handleCreateFromSwitcher(appContext.token);
+      handleCreateFromSwitcher();
     }
   }, [pageEntry]);
 

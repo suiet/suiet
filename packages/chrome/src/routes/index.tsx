@@ -1,9 +1,9 @@
 import { lazy } from 'react';
-import { Navigate, RouteObject } from 'react-router-dom';
+import { Navigate, Outlet, RouteObject } from 'react-router-dom';
 import RequireInit from '../components/RequireInit';
-import RequireAuth from '../components/RequireAuth';
 import AppLayout from '../pages/AppLayout';
 import { withSus } from '../components/TheSuspense';
+import Session from '../components/Session';
 
 const MainPage = lazy(async () => await import('../pages/MainPage'));
 const NFTPage = lazy(async () => await import('../pages/NFTPage'));
@@ -51,9 +51,9 @@ const routesConfig: RouteObject[] = [
     path: '/',
     element: (
       <RequireInit>
-        <RequireAuth>
+        <Session>
           <AppLayout />
-        </RequireAuth>
+        </Session>
       </RequireInit>
     ),
     children: [
@@ -135,20 +135,31 @@ const routesConfig: RouteObject[] = [
     ],
   },
   {
-    path: 'login',
-    element: withSus(
-      <RequireInit>
-        <LoginPage />
-      </RequireInit>
+    path: 'wallet/*',
+    element: (
+      <Session>
+        <Outlet />
+      </Session>
     ),
+    children: [
+      // reuse page component but with session project
+      {
+        path: 'create',
+        element: withSus(<CreateNewWallet />),
+      },
+      {
+        path: 'import',
+        element: withSus(<ImportWallet />),
+      },
+    ],
   },
   {
     path: 'dapp',
     element: (
       <RequireInit>
-        <RequireAuth>
+        <Session>
           <AppLayout hideAppLayout={true} />
-        </RequireAuth>
+        </Session>
       </RequireInit>
     ),
     children: [

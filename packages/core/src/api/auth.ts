@@ -16,12 +16,14 @@ export interface IAuthApi {
 
 export class AuthApi implements IAuthApi {
   storage: Storage;
+  private readonly session: Session;
 
   constructor(storage: Storage) {
     this.storage = storage;
+    this.session = new Session();
   }
 
-  async initPassword(password: string): Promise<void> {
+  public async initPassword(password: string): Promise<void> {
     if (password.length < 6) {
       throw new Error('Password must be at least 6 characters');
     }
@@ -37,10 +39,12 @@ export class AuthApi implements IAuthApi {
     };
     await this.storage.reset();
     await this.storage.saveMeta(newMeta);
+
+    await this.login(password);
   }
 
   // Implement Auth API
-  async updatePassword(params: UpdatePasswordParams): Promise<void> {
+  public async updatePassword(params: UpdatePasswordParams): Promise<void> {
     const { oldPassword, newPassword } = params;
     if (newPassword.length < 6) {
       throw new Error('Password must be at least 6 characters');
@@ -71,9 +75,38 @@ export class AuthApi implements IAuthApi {
         .toString('hex');
     });
     await this.storage.updateMetaAndWallets(newMeta, wallets);
+
+    await this.login(newPassword);
   }
 
-  async loadTokenWithPassword(password: string): Promise<string> {
+  public async verifyPassword(password: string) {
+    try {
+      // if password can be used to decrypt token, then yes
+      await this.loadTokenWithPassword(password);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public getToken() {
+    const token = this.session.getToken();
+    if (!token) {
+      throw new Error('No authentication');
+    }
+    return token;
+  }
+
+  public async login(password: string) {
+    const token = await this.loadTokenWithPassword(password);
+    this.session.setToken(token);
+  }
+
+  public async logout() {
+    this.session.clearToken();
+  }
+
+  public async loadTokenWithPassword(password: string): Promise<string> {
     const meta = await this.storage.loadMeta();
     if (!meta) {
       throw new Error('Password uninitialized');
@@ -84,5 +117,25 @@ export class AuthApi implements IAuthApi {
       throw new Error('Invalid password');
     }
     return token.toString('hex');
+  }
+}
+
+class Session {
+  private token: string | undefined;
+
+  constructor() {
+    this.token = undefined;
+  }
+
+  public setToken(token: string) {
+    this.token = token;
+  }
+
+  public getToken() {
+    return this.token;
+  }
+
+  public clearToken() {
+    this.token = undefined;
   }
 }

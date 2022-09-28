@@ -8,3 +8,5 @@ export interface StyleExtendable {
 export type Extendable<T = ReactNode> = StyleExtendable & {
   children?: T;
 };
+
+export type OmitToken<T> = Omit<T, 'token'>;

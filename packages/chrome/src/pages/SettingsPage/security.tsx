@@ -5,15 +5,15 @@ import Button from '../../components/Button';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Modal from '../../components/Modal';
 import { RevealMnemonicParams, UpdatePasswordParams } from '@suiet/core';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { useState } from 'react';
 import SetPassword from '../OnBoarding/SetPassword';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
-import { updateToken } from '../../store/app-context';
 import { useApiClient } from '../../hooks/useApiClient';
 import Nav from '../../components/Nav';
+import { OmitToken } from '../../types';
 
 function MainPage() {
   const navigate = useNavigate();
@@ -79,12 +79,15 @@ function MainPage() {
               }}
               onOpenChange={async () => {
                 const rawPhrases = await apiClient.callFunc<
-                  RevealMnemonicParams,
+                  OmitToken<RevealMnemonicParams>,
                   string
-                >('wallet.revealMnemonic', {
-                  walletId: context.walletId,
-                  token: context.token,
-                });
+                >(
+                  'wallet.revealMnemonic',
+                  {
+                    walletId: context.walletId,
+                  },
+                  { withAuth: true }
+                );
                 setPhrase(rawPhrases.split(' '));
               }}
             >
@@ -143,12 +146,15 @@ function MainPage() {
               }}
               onOpenChange={async () => {
                 const privateKey = await apiClient.callFunc<
-                  RevealMnemonicParams,
+                  OmitToken<RevealMnemonicParams>,
                   string
-                >('wallet.revealPrivate', {
-                  walletId: context.walletId,
-                  token: context.token,
-                });
+                >(
+                  'wallet.revealPrivate',
+                  {
+                    walletId: context.walletId,
+                  },
+                  { withAuth: true }
+                );
                 setPrivate(privateKey);
               }}
             >
@@ -178,7 +184,6 @@ function MainPage() {
 function PasswordSetting() {
   const apiClient = useApiClient();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
 
   async function handleSetPassword(password: string, oldPassword?: string) {
     await apiClient.callFunc<UpdatePasswordParams, undefined>(
@@ -188,11 +193,7 @@ function PasswordSetting() {
         newPassword: password,
       }
     );
-    const token = await apiClient.callFunc<string, string>(
-      'auth.loadTokenWithPassword',
-      password
-    );
-    await dispatch(updateToken(token));
+    await apiClient.callFunc('session.setToken', password);
     message.success('Update password succeeded');
     navigate('..');
   }

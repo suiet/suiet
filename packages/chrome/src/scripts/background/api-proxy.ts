@@ -6,15 +6,13 @@ import {
   WalletApi,
   getStorage,
   Storage,
-  validateToken,
 } from '@suiet/core';
-import { fromEventPattern, Observable } from 'rxjs';
-import { PortName, resData } from '../shared';
+import { fromEventPattern } from 'rxjs';
+import { CallFuncOption, resData } from '../shared';
 import { log, processPortMessage } from './utils';
-import { CallFuncData } from './types';
 import { has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
-import { BizError, ErrorCode } from './errors';
+import { BizError, ErrorCode, NoAuthError } from './errors';
 
 interface RootApi {
   clearToken: () => Promise<void>;
@@ -27,26 +25,25 @@ interface RootApi {
  */
 export class BackgroundApiProxy {
   private port: chrome.runtime.Port;
-  private portObservable: Observable<CallFuncData>;
   private storage: Storage;
   private serviceProxyCache: Record<string, any>;
 
-  public root: RootApi;
-  public wallet: WalletApi;
-  public account: AccountApi;
-  public auth: AuthApi;
-  public txn: TransactionApi;
-  public network: NetworkApi;
-  public dapp: DappBgApi;
+  private root: RootApi;
+  private wallet: WalletApi;
+  private account: AccountApi;
+  private auth: AuthApi;
+  private txn: TransactionApi;
+  private network: NetworkApi;
+  private dapp: DappBgApi;
 
-  private constructor(port: chrome.runtime.Port) {
+  constructor() {
     this.initServices();
-    this.setUpFuncCallProxy(port);
   }
 
-  static listenTo(port: chrome.runtime.Port) {
-    log('set up lister for port', port);
-    return new BackgroundApiProxy(port);
+  public listen(port: chrome.runtime.Port) {
+    log('set up listener for port', port);
+    this.port = port;
+    this.setUpFuncCallProxy(port);
   }
 
   private initServices() {
@@ -74,7 +71,7 @@ export class BackgroundApiProxy {
       'network'
     );
     this.dapp = this.registerProxyService<DappBgApi>(
-      new DappBgApi(storage),
+      new DappBgApi(storage, this.txn, this.network, this.auth),
       'dapp'
     );
     this.root = this.registerProxyService<RootApi>(
@@ -101,27 +98,28 @@ export class BackgroundApiProxy {
   }
 
   private setUpFuncCallProxy(port: chrome.runtime.Port) {
-    this.port = port;
     // create msg source from chrome port to be subscribed
-    this.portObservable = fromEventPattern(
-      (h) => this.port.onMessage.addListener(h),
-      (h) => this.port.onMessage.removeListener(h),
+    const portObservable = fromEventPattern(
+      (h) => port.onMessage.addListener(h),
+      (h) => port.onMessage.removeListener(h),
       (msg) => {
         return processPortMessage(msg);
       }
     );
 
     // set up server-like listening model
-    const subscription = this.portObservable.subscribe(async (callFuncData) => {
+    const subscription = portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
-      const { id, service, func, payload } = callFuncData;
+
+      log('callFuncData', callFuncData);
+      const { id, service, func, payload, options } = callFuncData;
       let error: null | { code: number; msg: string } = null;
       let data: null | any = null;
       const reqMeta = `id: ${id}, method: ${service}.${func}`;
       log(`request(${reqMeta})`, callFuncData);
       try {
         const startTime = Date.now();
-        data = await this.callBackgroundMethod(service, func, payload);
+        data = await this.callBackgroundMethod(service, func, payload, options);
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
@@ -139,14 +137,14 @@ export class BackgroundApiProxy {
         log(`respond(${reqMeta}) failed`, error);
       }
       try {
-        this.port.postMessage(JSON.stringify(resData(id, error, data)));
+        port.postMessage(JSON.stringify(resData(id, error, data)));
       } catch (e) {
         log(`postMessage(${reqMeta}) failed`, { e, data });
       }
     });
 
-    this.port.onDisconnect.addListener(() => {
-      log('unsubscribe port', this.port.name);
+    port.onDisconnect.addListener(() => {
+      log('unsubscribe port', port.name);
       subscription.unsubscribe();
     });
   }
@@ -170,7 +168,8 @@ export class BackgroundApiProxy {
   private async callBackgroundMethod<T = any>(
     serviceName: string,
     funcName: string,
-    payload: any
+    payload: any,
+    options?: CallFuncOption
   ) {
     if (!has(this.serviceProxyCache, serviceName)) {
       throw new Error(`service (${serviceName}) not exist`);
@@ -181,7 +180,17 @@ export class BackgroundApiProxy {
         `method ${funcName} not exist in service (${serviceName})`
       );
     }
-    return await (service[funcName](payload) as Promise<T>);
+    const params = payload;
+    if (options && options?.withAuth === true) {
+      try {
+        // inject token to payload
+        const token = this.auth.getToken();
+        Object.assign(params, { token });
+      } catch {
+        throw new NoAuthError();
+      }
+    }
+    return await (service[funcName](params) as Promise<T>);
   }
 
   private getStorage() {

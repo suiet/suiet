@@ -1,6 +1,7 @@
 export enum ErrorCode {
   UNKNOWN = -1,
   INVALID_PARAM = -4000,
+  NO_AUTH = -4001,
   NO_PERMISSION = -4003,
   NOT_FOUND = -4004,
   USER_REJECTION = -5000,
@@ -60,5 +61,14 @@ export class UserRejectionError extends BizError {
 export class NotFoundError extends BizError {
   constructor(message = 'Resource not found', details?: Record<string, any>) {
     super(message, details, NotFoundError.name, ErrorCode.NOT_FOUND);
+  }
+}
+
+export class NoAuthError extends BizError {
+  constructor(
+    message = 'Authentication failed',
+    details?: Record<string, any>
+  ) {
+    super(message, details, NoAuthError.name, ErrorCode.NO_AUTH);
   }
 }

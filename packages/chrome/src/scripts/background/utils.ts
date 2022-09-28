@@ -2,8 +2,8 @@ import {
   InvalidPortMessageDataError,
   PortMessageNotAJsonStringError,
 } from './errors';
-import { CallFuncData } from './types';
 import { isDev } from '../../utils/env';
+import { CallFuncData, CallFuncOption } from '../shared';
 
 export function processPortMessage(input: unknown): CallFuncData {
   if (typeof input !== 'string') {
@@ -32,6 +32,7 @@ export function processPortMessage(input: unknown): CallFuncData {
     id: string;
     funcName: string;
     payload: any;
+    options?: CallFuncOption;
   }) {
     let [service, func] = params.funcName.split('.');
     // if funcName be like just `func`, means called root func
@@ -44,6 +45,7 @@ export function processPortMessage(input: unknown): CallFuncData {
       service: service,
       func: func,
       payload: params.payload,
+      options: params.options,
     };
   }
 
