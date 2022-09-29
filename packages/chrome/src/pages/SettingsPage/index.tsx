@@ -19,9 +19,10 @@ import { ReactComponent as IconSecurity } from '../../assets/icons/security.svg'
 import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow.svg';
 import { ReactComponent as IconWallet } from '../../assets/icons/wallet.svg';
 import { ReactComponent as IconNetwork } from '../../assets/icons/net.svg';
-
+import { ReactComponent as IconLock } from '../../assets/icons/lock.svg';
 type SettingItemProps = Extendable & {
   icon: JSX.Element;
+  hideArrow?: boolean;
   onClick?: () => void;
 };
 
@@ -30,7 +31,12 @@ const SettingItem = (props: SettingItemProps) => {
     <div onClick={props.onClick} className={styles['settings-item']}>
       <Icon icon={props.icon} className={'mr-[16px]'} />
       {props.children}
-      <Icon icon={<IconRightArrow />} className={styles['icon-right-arrow']} />
+      {!props.hideArrow && (
+        <Icon
+          icon={<IconRightArrow />}
+          className={styles['icon-right-arrow']}
+        />
+      )}
     </div>
   );
 };
@@ -73,7 +79,7 @@ const SettingPage = () => {
               navigate('/settings/wallet');
             }}
           >
-            Edit Wallet
+            Wallet
           </SettingItem>
           <SettingItem
             icon={<IconNetwork />}
@@ -91,16 +97,20 @@ const SettingPage = () => {
           >
             Security
           </SettingItem>
-
           <SettingItem
-            icon={<IconSecurity />}
+            icon={<IconLock />}
             onClick={() => {
               logout();
             }}
+            hideArrow={true}
           >
             Lock
           </SettingItem>
-          <SettingItem icon={<IconReset />} onClick={handleResetAppData}>
+          <SettingItem
+            icon={<IconReset />}
+            onClick={handleResetAppData}
+            hideArrow={true}
+          >
             Reset All
           </SettingItem>
         </section>
