@@ -111,7 +111,6 @@ export class BackgroundApiProxy {
     const subscription = portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
 
-      log('callFuncData', callFuncData);
       const { id, service, func, payload, options } = callFuncData;
       let error: null | { code: number; msg: string } = null;
       let data: null | any = null;

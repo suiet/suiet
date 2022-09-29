@@ -21,6 +21,7 @@ import { useAccount } from '../../hooks/useAccount';
 import { useState } from 'react';
 import { useApiClient } from '../../hooks/useApiClient';
 import { TransferCoinParams } from '@suiet/core';
+import { OmitToken } from '../../types';
 
 interface SendFormValues {
   address: string;
@@ -58,16 +59,14 @@ const SendPage = () => {
       recipient: data.address,
       walletId: appContext.walletId,
       accountId: appContext.accountId,
-      token: appContext.token,
     };
 
-    console.log('current account', account);
-    console.log('send input: ', params);
     setSendLoading(true);
     try {
-      await apiClient.callFunc<TransferCoinParams, undefined>(
+      await apiClient.callFunc<OmitToken<TransferCoinParams>, undefined>(
         'txn.transferCoin',
-        params
+        params,
+        { withAuth: true }
       );
       message.success('Send transaction succeed');
       navigate('/transaction/flow');
