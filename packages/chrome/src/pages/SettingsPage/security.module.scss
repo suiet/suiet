@@ -25,19 +25,28 @@
 }
 
 .secutity-card {
+  & + & {
+    margin-top: 32px;
+  }
+
   .security-title {
+    font-family: 'Inter';
+    font-style: normal;
     font-weight: 600;
     font-size: 18px;
-    line-height: 21px;
+    line-height: 22px;
     color: $gray-900;
   }
 
   .security-desc {
+    font-family: 'Inter';
+    font-style: normal;
     font-weight: 400;
     font-size: 14px;
     line-height: 20px;
-    margin-top: 8px;
     color: $gray-400;
+
+    margin-top: 8px;
     margin-bottom: 16px;
 
     &.warning {

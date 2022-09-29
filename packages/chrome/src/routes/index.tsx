@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { Navigate, Outlet, RouteObject } from 'react-router-dom';
 import RequireInit from '../components/RequireInit';
-import AppLayout from '../pages/AppLayout';
+import AppLayout from '../layouts/AppLayout';
 import { withSus } from '../components/TheSuspense';
 import Session from '../components/Session';
 
@@ -11,7 +11,7 @@ const NFTDetailPage = lazy(
   async () => await import('../pages/NFTPage/NftDetail')
 );
 const WelcomePage = lazy(
-  async () => await import('../pages/OnBoarding/Welcome')
+  async () => await import('../pages/onboarding/WelcomePage')
 );
 const SettingPage = lazy(async () => await import('../pages/SettingsPage'));
 const SettingWalletPage = lazy(
@@ -30,14 +30,11 @@ const TransactionFlowPage = lazy(
 const TransactionDetail = lazy(
   async () => await import('../pages/TransactionFlow/transactionDetail')
 );
-const CreateNewWallet = lazy(
-  async () => await import('../pages/OnBoarding/CreateNewWallet')
+const CreateNewWalletPage = lazy(
+  async () => await import('../pages/onboarding/CreateNewWalletPage')
 );
-const ImportWallet = lazy(
-  async () => await import('../pages/OnBoarding/ImportWallet')
-);
-const LoginPage = lazy(
-  async () => await import('../pages/OnBoarding/LoginPage')
+const ImportWalletPage = lazy(
+  async () => await import('../pages/onboarding/ImportWalletPage')
 );
 const DappConnectPage = lazy(
   async () => await import('../pages/dapp/ConnectPage')
@@ -52,7 +49,7 @@ const routesConfig: RouteObject[] = [
     element: (
       <RequireInit>
         <Session>
-          <AppLayout />
+          <Outlet />
         </Session>
       </RequireInit>
     ),
@@ -126,11 +123,11 @@ const routesConfig: RouteObject[] = [
       },
       {
         path: 'create-new-wallet',
-        element: withSus(<CreateNewWallet />),
+        element: withSus(<CreateNewWalletPage />),
       },
       {
         path: 'import-wallet',
-        element: withSus(<ImportWallet />),
+        element: withSus(<ImportWalletPage />),
       },
     ],
   },
@@ -145,11 +142,11 @@ const routesConfig: RouteObject[] = [
       // reuse page component but with session project
       {
         path: 'create',
-        element: withSus(<CreateNewWallet />),
+        element: withSus(<CreateNewWalletPage />),
       },
       {
         path: 'import',
-        element: withSus(<ImportWallet />),
+        element: withSus(<ImportWalletPage />),
       },
     ],
   },
@@ -158,7 +155,7 @@ const routesConfig: RouteObject[] = [
     element: (
       <RequireInit>
         <Session>
-          <AppLayout hideAppLayout={true} />
+          <Outlet />
         </Session>
       </RequireInit>
     ),

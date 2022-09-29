@@ -1,4 +1,3 @@
-import commonStyles from '../common.module.scss';
 import Typo from '../../../components/Typo';
 import Textarea from '../../../components/Textarea';
 import Button from '../../../components/Button';
@@ -7,6 +6,7 @@ import FormControl from '../../../components/form/FormControl';
 import { useForm } from 'react-hook-form';
 import { getInputStateByFormState } from '../../../utils/form';
 import { useApiClient } from '../../../hooks/useApiClient';
+import SettingOneLayout from '../../../layouts/SettingOneLayout';
 
 type FormData = {
   secret: string;
@@ -39,18 +39,10 @@ const ImportPhrase = (props: ImportPhraseProps) => {
   }
 
   return (
-    <div className={commonStyles['container']}>
-      <Typo.Title className={commonStyles['step-title']}>
-        Input
-        <br />
-        Recovery
-        <br />
-        Phrase
-      </Typo.Title>
-      <Typo.Normal className={commonStyles['step-desc']}>
-        From an existing wallet.
-      </Typo.Normal>
-
+    <SettingOneLayout
+      titles={['Input', 'Recovery', 'Phrase']}
+      desc={'From an existing wallet.'}
+    >
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
           <FormControl
@@ -77,7 +69,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
           </Button>
         </Form>
       </section>
-    </div>
+    </SettingOneLayout>
   );
 };
 

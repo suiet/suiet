@@ -1,5 +1,4 @@
-import './wallet.scss';
-import './common.scss';
+import styles from './wallet.module.scss';
 import classnames from 'classnames';
 import Button from '../../components/Button';
 import { RootState } from '../../store';
@@ -9,7 +8,12 @@ import { useNavigate } from 'react-router-dom';
 import Avatar from '../../components/Avatar';
 import message from '../../components/message';
 import { useWallet } from '../../hooks/useWallet';
-import Nav from './nav';
+import SettingTwoLayout from '../../layouts/SettingTwoLayout';
+import Nav from '../../components/Nav';
+import Input from '../../components/Input';
+import Icon from '../../components/Icon';
+import { ReactComponent as IconCheck } from '../../assets/icons/check.svg';
+import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg';
 
 function Wallet() {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -31,48 +35,54 @@ function Wallet() {
   }, [wallet]);
 
   return (
-    <div className="wallet-setting-container">
-      <Nav />
-      <div className="setting-title">Edit Wallet</div>
-      <div className="setting-desc">Manage your wallet informations here.</div>
-      <div
-        className="wallet-item-title"
-        style={{
-          marginTop: 36,
+    <SettingTwoLayout
+      title={'Edit Wallet'}
+      desc={'Manage your wallet informations here.'}
+    >
+      <Nav
+        position={'absolute'}
+        onNavBack={() => {
+          navigate('..');
         }}
-      >
+      />
+      <div className={classnames(styles['wallet-item-title'], 'mt-[36px]')}>
         Icon
       </div>
       <div className="flex gap-4 mb-4">
         {[1, 2, 3, 4].map((num) => {
+          const active = num.toString() === avatar;
           return (
             <div
               key={num}
               onClick={() => setAvatar(num.toString())}
-              className={classnames('wallet-avatar-container', {
-                active: num.toString() === avatar,
+              className={classnames(styles['wallet-avatar-container'], {
+                [styles['active']]: active,
               })}
             >
               <Avatar model={num} />
-              <div className="wallet-check" />
+              <Icon
+                icon={active ? <IconCheck /> : <IconNotCheck />}
+                className={styles['wallet-check']}
+              />
             </div>
           );
         })}
       </div>
-      <div className="wallet-item-title">Name</div>
-      <input
-        className="wallet-name-input"
+      <div className={styles['wallet-item-title']}>Name</div>
+      <Input
         value={name}
         onChange={(v) => {
           setName(v.target.value);
         }}
       />
-      <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
-        <Button state="primary" onClick={updateWalletInfo}>
-          Save
-        </Button>
-      </div>
-    </div>
+      <Button
+        state="primary"
+        onClick={updateWalletInfo}
+        className={'mt-[88px]'}
+      >
+        Save
+      </Button>
+    </SettingTwoLayout>
   );
 }
 

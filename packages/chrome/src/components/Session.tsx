@@ -2,11 +2,9 @@ import { Extendable } from '../types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useEffect } from 'react';
-// import Lock from './Lock';
-
 import { useApiClient } from '../hooks/useApiClient';
 import { updateAuthed } from '../store/app-context';
-import LoginPage from '../pages/OnBoarding/LoginPage';
+import LockPage from '../pages/LockPage';
 
 const Session = (props: Extendable) => {
   const authed = useSelector((state: RootState) => state.appContext.authed);
@@ -26,7 +24,7 @@ const Session = (props: Extendable) => {
     verifyAuthStatus();
   }, []);
 
-  if (!authed) return <LoginPage />;
+  if (!authed) return <LockPage />;
   return <>{props.children}</>;
 };
 

@@ -1,10 +1,9 @@
-import commonStyles from '../common.module.scss';
 import styles from './index.module.scss';
-import Typo from '../../../components/Typo';
 import Button from '../../../components/Button';
 import { Extendable } from '../../../types';
 import CopyIcon from '../../../components/CopyIcon';
 import message from '../../../components/message';
+import SettingOneLayout from '../../../layouts/SettingOneLayout';
 
 type PhraseDisplayProps = Extendable & {
   phrases: string[];
@@ -36,17 +35,10 @@ export const PhraseDisplay = (props: PhraseDisplayProps) => {
 
 const SavePhrase = (props: { phrases: string[]; onNext: () => void }) => {
   return (
-    <div className={commonStyles['container']}>
-      <Typo.Title className={commonStyles['step-title']}>
-        Backup
-        <br />
-        Your
-        <br />
-        Wallet
-      </Typo.Title>
-      <Typo.Normal className={commonStyles['step-desc']}>
-        Copy and save your recovery phrase.
-      </Typo.Normal>
+    <SettingOneLayout
+      titles={['Backup', 'Your', 'Wallet']}
+      desc={'Copy and save your recovery phrase.'}
+    >
       <section className={'mt-[24px]'}>
         <PhraseDisplay phrases={props.phrases}></PhraseDisplay>
         <Button
@@ -57,7 +49,7 @@ const SavePhrase = (props: { phrases: string[]; onNext: () => void }) => {
           Confirm and Create
         </Button>
       </section>
-    </div>
+    </SettingOneLayout>
   );
 };
 

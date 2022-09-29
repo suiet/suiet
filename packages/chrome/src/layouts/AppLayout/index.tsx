@@ -1,9 +1,9 @@
 import Header from './Header';
 import Menu from './Menu';
 import styles from './index.module.scss';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import classnames from 'classnames';
-import { useEffect, useState } from 'react';
+import { Extendable } from '../../types';
 
 export enum LayoutMode {
   DEFAULT = 'default',
@@ -11,23 +11,14 @@ export enum LayoutMode {
   WITHOUT_MENU = 'without-menu',
   EMPTY = 'empty',
 }
-
-export interface AppLayoutProps {
-  hideAppLayout?: boolean;
-}
+export type AppLayoutProps = Extendable & {
+  layoutMode?: LayoutMode;
+};
 
 function AppLayout(props: AppLayoutProps) {
+  const { layoutMode = LayoutMode.DEFAULT } = props;
   const location = useLocation();
   const state = (location.state || {}) as Record<string, any>;
-  const [layoutMode, setLayoutMode] = useState(LayoutMode.DEFAULT);
-
-  useEffect(() => {
-    if (props?.hideAppLayout ?? state?.hideAppLayout) {
-      setLayoutMode(LayoutMode.EMPTY);
-    } else {
-      setLayoutMode(LayoutMode.DEFAULT);
-    }
-  }, [props.hideAppLayout, state]);
 
   return (
     <div
@@ -37,10 +28,7 @@ function AppLayout(props: AppLayoutProps) {
       )}
     >
       <Header className={styles['header']} openSwitcher={state?.openSwitcher} />
-      {/* child route view */}
-      <main className={styles['main']}>
-        <Outlet />
-      </main>
+      <main className={styles['main']}>{props.children}</main>
       <Menu className={classnames(styles['menu'], 'mt-auto')} />
     </div>
   );

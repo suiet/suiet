@@ -11,6 +11,29 @@ import { useWallet } from '../../hooks/useWallet';
 import { version } from '../../package-json';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useAuth } from '../../hooks/useAuth';
+import AppLayout from '../../layouts/AppLayout';
+import { Extendable } from '../../types';
+import Icon from '../../components/Icon';
+import { ReactComponent as IconReset } from '../../assets/icons/reset.svg';
+import { ReactComponent as IconSecurity } from '../../assets/icons/security.svg';
+import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow.svg';
+import { ReactComponent as IconWallet } from '../../assets/icons/wallet.svg';
+import { ReactComponent as IconNetwork } from '../../assets/icons/net.svg';
+
+type SettingItemProps = Extendable & {
+  icon: JSX.Element;
+  onClick?: () => void;
+};
+
+const SettingItem = (props: SettingItemProps) => {
+  return (
+    <div onClick={props.onClick} className={styles['settings-item']}>
+      <Icon icon={props.icon} className={'mr-[16px]'} />
+      {props.children}
+      <Icon icon={<IconRightArrow />} className={styles['icon-right-arrow']} />
+    </div>
+  );
+};
 
 const SettingPage = () => {
   const navigate = useNavigate();
@@ -30,74 +53,63 @@ const SettingPage = () => {
   }
 
   return (
-    <div className={styles['container']}>
-      <div className={'flex flex-col items-center'}>
-        <Avatar size={'lg'} model={wallet?.avatar}></Avatar>
-        <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
-          {wallet?.name}
+    <AppLayout>
+      <div className={styles['container']}>
+        <div className={'flex flex-col items-center'}>
+          <Avatar size={'lg'} model={wallet?.avatar}></Avatar>
+          <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
+            {wallet?.name}
+          </div>
+          <Address
+            value={account?.address ?? ''}
+            className={styles['address']}
+          />
         </div>
-        <Address value={account?.address ?? ''} className={styles['address']} />
-      </div>
 
-      <section className={styles['settings-container']}>
-        <div
-          onClick={() => {
-            navigate('/settings/wallet', {
-              state: {
-                hideAppLayout: true,
-              },
-            });
-          }}
-          className={styles['settings-item']}
-        >
-          <span className={styles['icon-wallet']}></span>Wallet
-          <span className={styles['icon-right-arrow']} />
-        </div>
-        <div
-          onClick={() => {
-            navigate('/settings/network', {
-              state: {
-                hideAppLayout: true,
-              },
-            });
-          }}
-          className={styles['settings-item']}
-        >
-          <span className={styles['icon-network']}></span>Network
-          <span className={styles['icon-right-arrow']} />
-        </div>
-        <div
-          onClick={() => {
-            navigate('security', {
-              state: {
-                hideAppLayout: true,
-              },
-            });
-          }}
-          className={styles['settings-item']}
-        >
-          <span className={styles['icon-security']}></span>Security
-          <span className={styles['icon-right-arrow']} />
-        </div>
-        <div
-          onClick={() => {
-            logout();
-          }}
-          className={styles['settings-item']}
-        >
-          <span className={styles['icon-reset']}></span>
-          Lock
-        </div>
-        <div onClick={handleResetAppData} className={styles['settings-item']}>
-          <span className={styles['icon-reset']}></span>
-          Reset All
-        </div>
-      </section>
+        <section className={styles['settings-container']}>
+          <SettingItem
+            icon={<IconWallet />}
+            onClick={() => {
+              navigate('/settings/wallet');
+            }}
+          >
+            Edit Wallet
+          </SettingItem>
+          <SettingItem
+            icon={<IconNetwork />}
+            onClick={() => {
+              navigate('/settings/network');
+            }}
+          >
+            Network
+          </SettingItem>
+          <SettingItem
+            icon={<IconSecurity />}
+            onClick={() => {
+              navigate('security');
+            }}
+          >
+            Security
+          </SettingItem>
 
-      <div className={classnames(styles['app-version'], 'mt-[16px]')}>
-        version v{version}
+          <SettingItem
+            icon={<IconSecurity />}
+            onClick={() => {
+              logout();
+            }}
+          >
+            Lock
+          </SettingItem>
+          <SettingItem icon={<IconReset />} onClick={handleResetAppData}>
+            Reset All
+          </SettingItem>
+        </section>
+
+        <div className={classnames(styles['app-version'], 'mt-[16px]')}>
+          version v{version}
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

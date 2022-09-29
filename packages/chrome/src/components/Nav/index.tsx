@@ -11,11 +11,12 @@ export type NavProps = Extendable & {
   title?: string | React.ReactNode;
   titleClassName?: string;
   titleStyle?: CSSProperties;
+  position?: 'relative' | 'absolute';
   onNavBack?: () => void;
 };
 
 const Nav = (props: NavProps) => {
-  const { navDisabled = false } = props;
+  const { navDisabled = false, position = 'relative' } = props;
   function renderTitle() {
     if (typeof props.title === 'string') {
       return (
@@ -32,7 +33,11 @@ const Nav = (props: NavProps) => {
   }
   return (
     <nav
-      className={classnames(styles['nav'], props.className)}
+      className={classnames(
+        styles['nav'],
+        styles[`nav--${position}`],
+        props.className
+      )}
       style={props.style}
     >
       <Icon

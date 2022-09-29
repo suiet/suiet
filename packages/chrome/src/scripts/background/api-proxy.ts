@@ -24,7 +24,7 @@ interface RootApi {
  * Proxy the port message function call to the actual method
  */
 export class BackgroundApiProxy {
-  private port: chrome.runtime.Port;
+  private readonly ports: chrome.runtime.Port[] = [];
   private storage: Storage;
   private serviceProxyCache: Record<string, any>;
 
@@ -42,7 +42,7 @@ export class BackgroundApiProxy {
 
   public listen(port: chrome.runtime.Port) {
     log('set up listener for port', port);
-    this.port = port;
+    this.ports.push(port);
     this.setUpFuncCallProxy(port);
   }
 
@@ -145,6 +145,8 @@ export class BackgroundApiProxy {
     port.onDisconnect.addListener(() => {
       log('unsubscribe port', port.name);
       subscription.unsubscribe();
+      const index = this.ports.findIndex((p) => p === port);
+      this.ports.splice(index, 1);
     });
   }
 

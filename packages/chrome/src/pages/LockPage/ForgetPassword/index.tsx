@@ -1,4 +1,3 @@
-import commonStyles from '../common.module.scss';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import Input from '../../../components/Input';
@@ -10,6 +9,7 @@ import {
 import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import Button from '../../../components/Button';
+import SettingOneLayout from '../../../layouts/SettingOneLayout';
 
 export type ForgetPasswordProps = {
   onConfirmReset: () => void;
@@ -29,14 +29,10 @@ const ForgetPassword = (props: ForgetPasswordProps) => {
   });
 
   return (
-    <div className={commonStyles['container']}>
-      <Typo.Title className={commonStyles['step-title']}>
-        Forget <br /> Password
-      </Typo.Title>
-      <Typo.Normal className={commonStyles['step-desc']}>
-        You need to reset the Suiet app.
-      </Typo.Normal>
-
+    <SettingOneLayout
+      titles={['Forget', 'Password']}
+      desc={'You need to reset the Suiet app.'}
+    >
       <section className={'mt-[24px] w-full'}>
         <Form
           form={form}
@@ -80,7 +76,7 @@ const ForgetPassword = (props: ForgetPasswordProps) => {
           </Button>
         </Form>
       </section>
-    </div>
+    </SettingOneLayout>
   );
 };
 

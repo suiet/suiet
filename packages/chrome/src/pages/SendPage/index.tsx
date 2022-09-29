@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { useApiClient } from '../../hooks/useApiClient';
 import { TransferCoinParams } from '@suiet/core';
 import { OmitToken } from '../../types';
+import AppLayout from '../../layouts/AppLayout';
 
 interface SendFormValues {
   address: string;
@@ -79,84 +80,88 @@ const SendPage = () => {
   }
 
   return (
-    <div className={styles['container']}>
-      <Form form={form} onSubmit={submitTransaction}>
-        <section className={styles['section']}>
-          <Typo.Title>Address</Typo.Title>
-          <FormControl
-            name={'address'}
-            registerOptions={{
-              required: 'address should not be empty',
-              validate: (val) => {
-                return isValidSuiAddress(val) || 'this is not a valid address';
-              },
-            }}
-            className={'mt-[6px]'}
-          >
-            <Textarea
-              placeholder="Enter SUI address"
-              state={getInputStateByFormState(form.formState, 'address')}
-            />
-          </FormControl>
-        </section>
+    <AppLayout>
+      <div className={styles['container']}>
+        <Form form={form} onSubmit={submitTransaction}>
+          <section className={styles['section']}>
+            <Typo.Title>Address</Typo.Title>
+            <FormControl
+              name={'address'}
+              registerOptions={{
+                required: 'address should not be empty',
+                validate: (val) => {
+                  return (
+                    isValidSuiAddress(val) || 'this is not a valid address'
+                  );
+                },
+              }}
+              className={'mt-[6px]'}
+            >
+              <Textarea
+                placeholder="Enter SUI address"
+                state={getInputStateByFormState(form.formState, 'address')}
+              />
+            </FormControl>
+          </section>
 
-        <section className={classnames(styles['section'], 'mt-[20px]')}>
-          <Typo.Title>Amount</Typo.Title>
-          <FormControl
-            name={'amount'}
-            registerOptions={{
-              required: 'amount should not be empty',
-              valueAsNumber: true,
-              validate: (val) => {
-                return val > 0 || 'amount should be greater than 0';
-              },
-            }}
-            className={'mt-[6px]'}
-          >
-            <InputGroup
-              type={'number'}
-              state={getInputStateByFormState(form.formState, 'amount')}
-              placeholder={'Please enter the amount'}
-              suffix={
-                <div className={styles['input-suffix']}>
-                  <WaterDropIcon size={'small'} />
-                  <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
-                </div>
-              }
-            />
-          </FormControl>
-          <Typo.Small className={classnames('mt-[6px]', 'text-gray-400')}>
-            current balance: {balance} SUI
-          </Typo.Small>
-        </section>
+          <section className={classnames(styles['section'], 'mt-[20px]')}>
+            <Typo.Title>Amount</Typo.Title>
+            <FormControl
+              name={'amount'}
+              registerOptions={{
+                required: 'amount should not be empty',
+                valueAsNumber: true,
+                validate: (val) => {
+                  return val > 0 || 'amount should be greater than 0';
+                },
+              }}
+              className={'mt-[6px]'}
+            >
+              <InputGroup
+                type={'number'}
+                state={getInputStateByFormState(form.formState, 'amount')}
+                placeholder={'Please enter the amount'}
+                suffix={
+                  <div className={styles['input-suffix']}>
+                    <WaterDropIcon size={'small'} />
+                    <Typo.Normal className={'ml-[8px]'}>SUI</Typo.Normal>
+                  </div>
+                }
+              />
+            </FormControl>
+            <Typo.Small className={classnames('mt-[6px]', 'text-gray-400')}>
+              current balance: {balance} SUI
+            </Typo.Small>
+          </section>
 
-        <section className={styles['section']}>
-          <Divider type={'horizontal'} />
-          <Typo.Title>Gas fee budget</Typo.Title>
-          <div className={'flex items-center'}>
-            <WaterDropIcon size={'small'} />
-            <Typo.Normal className={'ml-[6px]'}>100 SUI</Typo.Normal>
-          </div>
+          <section className={styles['section']}>
+            <Divider type={'horizontal'} />
+            <Typo.Title>Gas fee budget</Typo.Title>
+            <div className={'flex items-center'}>
+              <WaterDropIcon size={'small'} />
+              <Typo.Normal className={'ml-[6px]'}>100 SUI</Typo.Normal>
+            </div>
 
-          <Button
-            type={'submit'}
-            state={'primary'}
-            className={'mt-[20px]'}
-            loading={sendLoading}
-          >
-            Send
-          </Button>
-          <Button
-            className={'mt-[10px]'}
-            onClick={() => {
-              navigate('/');
-            }}
-          >
-            Cancel
-          </Button>
-        </section>
-      </Form>
-    </div>
+            <Button
+              type={'submit'}
+              state={'primary'}
+              className={'mt-[20px]'}
+              loading={sendLoading}
+            >
+              Send
+            </Button>
+            <Button
+              className={'mt-[10px]'}
+              onClick={() => {
+                navigate('/');
+              }}
+            >
+              Cancel
+            </Button>
+          </section>
+        </Form>
+      </div>
+    </AppLayout>
   );
 };
 

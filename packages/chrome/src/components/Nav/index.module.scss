@@ -9,6 +9,12 @@ $nav-height: 56px;
   align-items: center;
   width: 100%;
   height: 56px;
+
+  &--absolute {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 }
 
 .icon-back {
