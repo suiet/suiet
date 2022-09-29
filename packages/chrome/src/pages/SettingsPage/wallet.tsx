@@ -48,7 +48,7 @@ function Wallet() {
       <div className={classnames(styles['wallet-item-title'], 'mt-[36px]')}>
         Icon
       </div>
-      <div className="flex gap-4 mb-4">
+      <div className="flex justify-between items-center mt-[6px]">
         {[1, 2, 3, 4].map((num) => {
           const active = num.toString() === avatar;
           return (
@@ -68,12 +68,16 @@ function Wallet() {
           );
         })}
       </div>
-      <div className={styles['wallet-item-title']}>Name</div>
+
+      <div className={classnames(styles['wallet-item-title'], 'mt-[16px]')}>
+        Name
+      </div>
       <Input
         value={name}
         onChange={(v) => {
           setName(v.target.value);
         }}
+        className={'mt-[6px]'}
       />
       <Button
         state="primary"
