@@ -157,8 +157,9 @@ function MainPage({ address, networkId }: DashboardProps) {
                   .then((response) => {
                     if (response.error) {
                       message.error(response.error);
+                    } else {
+                      message.success('Airdrop succeeded');
                     }
-                    message.success('Airdrop succeed');
                   })
                   .catch((err) => {
                     message.error(err.message);
