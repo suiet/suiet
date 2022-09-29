@@ -10,6 +10,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
 import { formatCurrency } from '../../../utils/format';
+import { useCoins } from '../../../hooks/useCoins';
+import { isNonEmptyArray } from '../../../utils/check';
 
 export type TokenListProps = StyleExtendable;
 
@@ -39,19 +41,18 @@ const TokenItem = (props: TokenItemProps) => {
 
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
-  const { data: supportedCoins } = useSupportedCoins();
   const { data: account } = useAccount(appContext.accountId);
-  const { getBalance } = useCoinBalance(account?.address ?? '');
+  const { data: coins } = useCoins(account?.address ?? '');
 
-  if (!supportedCoins) return null;
+  if (!isNonEmptyArray(coins)) return null;
   return (
     <div className={classnames(props.className)} style={props.style}>
-      {supportedCoins.map((coin) => {
+      {(coins as Array<{ symbol: string; balance: string }>).map((coin) => {
         return (
           <TokenItem
-            key={coin.packageId}
+            key={coin.symbol}
             symbol={coin.symbol}
-            amount={getBalance(coin.symbol)}
+            amount={coin.balance}
           />
         );
       })}
