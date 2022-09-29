@@ -52,7 +52,7 @@ const TokenItem = (props: TokenItemProps) => {
               props.symbol === 'SUI' ? styles['token-amount-sui'] : null
             )}
           >
-            {amount ? formatCurrency(amount) : '0'}
+            {amount ? parseFloat(String(amount)).toLocaleString() : '0'}
           </Typo.Small>
         </div>
       </div>
