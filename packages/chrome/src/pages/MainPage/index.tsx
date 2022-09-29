@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { useNftList } from '../../hooks/useNftList';
 import useTransactionList from '../../hooks/useTransactionList';
+import AppLayout from '../../layouts/AppLayout';
 
 function MainPage() {
   const { accountId, networkId } = useSelector(
@@ -17,10 +18,10 @@ function MainPage() {
   useTransactionList(address, networkId);
 
   return (
-    <div>
+    <AppLayout>
       <Dashboard address={address} networkId={networkId} />
       <TokenList />
-    </div>
+    </AppLayout>
   );
 }
 

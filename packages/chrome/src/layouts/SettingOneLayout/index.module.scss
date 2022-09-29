@@ -1,0 +1,21 @@
+@import '../../styles/variables';
+
+.container {
+  @apply flex flex-col items-center;
+  padding: 32px 32px;
+}
+
+.title {
+  width: 100%;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 36px;
+  color: $gray-900;
+}
+
+.desc {
+  @apply text-base text-left;
+  width: 100%;
+  margin-top: 8px;
+}

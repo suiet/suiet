@@ -1,18 +1,39 @@
 import classnames from 'classnames';
 import { useState } from 'react';
-import './common.scss';
-import './network.scss';
+import styles from './network.module.scss';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { updateNetworkId } from '../../store/app-context';
 import message from '../../components/message';
-import Nav from './nav';
+import SettingTwoLayout from '../../layouts/SettingTwoLayout';
+import Nav from '../../components/Nav';
+import Typo from '../../components/Typo';
+import Icon from '../../components/Icon';
+
+import { ReactComponent as IconCheck } from '../../assets/icons/check.svg';
+import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg';
+import { ReactComponent as IconDevnet } from '../../assets/icons/devnet.svg';
+import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
+
 const networkType = ['devnet', 'mainnet'];
 
-interface NetworkProps {
-  type: string[];
-}
+const networks: Record<
+  string,
+  {
+    name: string;
+    icon: JSX.Element;
+  }
+> = {
+  devnet: {
+    name: 'Devnet',
+    icon: <IconDevnet />,
+  },
+  mainnet: {
+    name: 'Mainnet',
+    icon: <IconMainnet />,
+  },
+};
 
 function Network() {
   const [network, setNetwork] = useState('devnet');
@@ -26,36 +47,56 @@ function Network() {
   }
 
   return (
-    <div className="network-setting-container">
-      <Nav />
-      <div className="setting-title">Network</div>
-      <div className="setting-desc">Switch between different network</div>
-      {networkType.map((type) => {
-        return (
-          <div
-            className={classnames('network-selection-container', {
-              active: network === type,
-            })}
-            onClick={() => {
-              if (type === 'mainnet') return;
-              setNetwork(type);
-            }}
-            key={type}
-          >
-            <div className="network-selection-icon" />
-            <span>{type}</span>
-            <div className="network-selection-check" />
-          </div>
-        );
-      })}
+    <SettingTwoLayout
+      title={'Network'}
+      desc={'Switch between different network.'}
+    >
+      <Nav
+        position={'absolute'}
+        onNavBack={() => {
+          navigate('..');
+        }}
+      />
+
+      <section className={'mt-[36px]'}>
+        {networkType.map((type) => {
+          const active = network === type;
+          const config = networks[type];
+
+          return (
+            <div
+              key={type}
+              className={classnames(styles['network-selection-container'], {
+                [styles['active']]: active,
+              })}
+              onClick={() => {
+                if (type === 'mainnet') return;
+                setNetwork(type);
+              }}
+            >
+              <Icon
+                icon={config.icon}
+                className={styles['network-selection-icon']}
+              />
+              <Typo.Normal className={styles['network-item-name']}>
+                {config.name}
+              </Typo.Normal>
+              <Icon
+                icon={active ? <IconCheck /> : <IconNotCheck />}
+                className={styles['network-selection-check']}
+              />
+            </div>
+          );
+        })}
+      </section>
       {/* not supported yet */}
-      {/* <div>+ Add new custom network</div> */}
-      <div className="flex flex-col gap-2 mt-2 absolute bottom-12 w-full px-8 left-0">
-        <Button state="primary" onClick={handleSave}>
-          Save
-        </Button>
-      </div>
-    </div>
+      <Typo.Normal className={styles['add-custom']}>
+        + Add custom network
+      </Typo.Normal>
+      <Button state="primary" onClick={handleSave} className={'mt-[100px]'}>
+        Save
+      </Button>
+    </SettingTwoLayout>
   );
 }
 

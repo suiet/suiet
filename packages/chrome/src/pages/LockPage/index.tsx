@@ -1,31 +1,27 @@
-import welcomeStyles from '../Welcome/index.module.scss';
-import commonStyles from '../common.module.scss';
-import Typo from '../../../components/Typo';
-import Button from '../../../components/Button';
-import Form from '../../../components/form/Form';
-import FormControl from '../../../components/form/FormControl';
+import Typo from '../../components/Typo';
+import Button from '../../components/Button';
+import Form from '../../components/form/Form';
+import FormControl from '../../components/form/FormControl';
 import { useForm } from 'react-hook-form';
 import {
   getInputStateByFormState,
   getPasswordValidation,
-} from '../../../utils/form';
-import Icon from '../../../components/Icon';
-import { ReactComponent as LogoGrey } from '../../../assets/icons/logo-grey.svg';
-import classnames from 'classnames';
-import Input from '../../../components/Input';
+} from '../../utils/form';
+import Input from '../../components/Input';
 import { useDispatch } from 'react-redux';
-import { resetAppContext, updateAuthed } from '../../../store/app-context';
+import { resetAppContext, updateAuthed } from '../../store/app-context';
 import { useState } from 'react';
-import ForgetPassword from '../ForgetPassword';
-import Nav from '../../../components/Nav';
-import { AppDispatch } from '../../../store';
-import { useApiClient } from '../../../hooks/useApiClient';
+import ForgetPassword from './ForgetPassword';
+import Nav from '../../components/Nav';
+import { AppDispatch } from '../../store';
+import { useApiClient } from '../../hooks/useApiClient';
+import BrandLayout from '../../layouts/BrandLayout';
 
 type FormData = {
   password: string;
 };
 
-const LoginPage = () => {
+const LockPage = () => {
   const apiClient = useApiClient();
   const form = useForm({
     mode: 'onSubmit',
@@ -76,26 +72,11 @@ const LoginPage = () => {
     );
   }
   return (
-    <div className={welcomeStyles['main-page']}>
-      <Icon elClassName={commonStyles['logo']} icon={<LogoGrey />} />
-
-      <Typo.Title
-        className={classnames(welcomeStyles['suiet-title'], 'mt-[64px]')}
-      >
-        Back to
-      </Typo.Title>
-      <Typo.Title
-        className={classnames(
-          welcomeStyles['suiet-title'],
-          welcomeStyles['suiet-title--black']
-        )}
-      >
-        Suiet
-      </Typo.Title>
-      <Typo.Normal className={welcomeStyles['suiet-desc']}>
-        The wallet for everyone.
-      </Typo.Normal>
-
+    <BrandLayout
+      grayTitle={'Back to'}
+      blackTitle={'Suiet'}
+      desc={'The wallet for everyone.'}
+    >
       <section className={'mt-[50px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
           <FormControl
@@ -122,8 +103,8 @@ const LoginPage = () => {
       >
         Forget Password?
       </Typo.Normal>
-    </div>
+    </BrandLayout>
   );
 };
 
-export default LoginPage;
+export default LockPage;

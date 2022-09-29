@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import { TxnItem } from './transactionDetail';
 import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
+import AppLayout from '../../layouts/AppLayout';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
@@ -176,20 +177,22 @@ function TransactionPage() {
   //   getHistory();
   // }, [account.address, network]);
 
-  if (history === null || loading)
-    return (
-      <div className="m-4">
-        <Skeleton className="w-full" height="200px" />
+  function renderContent() {
+    if (history === null || loading)
+      return (
+        <div className="m-4">
+          <Skeleton className="w-full" height="200px" />
+        </div>
+      );
+    return !history?.length ? (
+      <Empty />
+    ) : (
+      <div className="bg-gray-50 w-full p-4 min-h-full">
+        <TransactionFlow history={history} address={account?.address ?? ''} />
       </div>
     );
-
-  return !history?.length ? (
-    <Empty />
-  ) : (
-    <div className="bg-gray-50 w-full p-4 min-h-full">
-      <TransactionFlow history={history} address={account?.address ?? ''} />
-    </div>
-  );
+  }
+  return <AppLayout>{renderContent()}</AppLayout>;
 }
 
 export default TransactionPage;

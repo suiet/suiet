@@ -15,7 +15,7 @@ const Modal = (props: ModalProps) => {
 
   return (
     <Dialog.Root {...restProps}>
-      <Dialog.Trigger>{trigger}</Dialog.Trigger>
+      <Dialog.Trigger asChild={true}>{trigger}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className={styles['overlay']}>
           <Dialog.Content className={styles['content']} {...contentProps}>

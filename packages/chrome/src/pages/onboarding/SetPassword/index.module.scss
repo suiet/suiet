@@ -1,0 +1,16 @@
+@import '../../../styles/variables';
+
+.control-group {
+  & + & {
+    margin-top: 16px;
+  }
+}
+
+.control-label {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-400;
+}

@@ -1,13 +1,16 @@
 @import '../../styles/variables';
 
 .overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: $full-width;
-  height: $full-height;
+  background: rgba(239, 241, 245, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .content {

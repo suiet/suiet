@@ -1,4 +1,4 @@
-import commonStyles from '../common.module.scss';
+import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import Input from '../../../components/Input';
 import { useForm } from 'react-hook-form';
@@ -12,7 +12,7 @@ import FormControl from '../../../components/form/FormControl';
 import { useLocation } from 'react-router-dom';
 import StepButton from '../../../components/Button/StepButton';
 import { Extendable } from '../../../types';
-import classnames from 'classnames';
+import SettingOneLayout from '../../../layouts/SettingOneLayout';
 
 export type SavePasswordProps = Extendable & {
   onNext: (password: string, oldPassword?: string) => void;
@@ -36,17 +36,10 @@ const SavePassword = (props: SavePasswordProps) => {
   const [oldPassword, setOldPassword] = useState('');
 
   return (
-    <div
-      className={classnames(commonStyles['container'], props.className)}
-      style={props.style}
+    <SettingOneLayout
+      titles={['Set', 'wallet', 'password']}
+      desc={'Used to unlock your wallet.'}
     >
-      <Typo.Title className={commonStyles['step-title']}>
-        Set <br /> wallet <br /> password
-      </Typo.Title>
-      <Typo.Normal className={commonStyles['step-desc']}>
-        Used to unlock your wallet.
-      </Typo.Normal>
-
       <section className={'mt-[24px] w-full'}>
         <Form
           form={form}
@@ -55,8 +48,8 @@ const SavePassword = (props: SavePasswordProps) => {
           }}
         >
           {state.hasOldPassword && (
-            <div className={commonStyles['control-group']}>
-              <Typo.Small className={commonStyles['control-label']}>
+            <div className={styles['control-group']}>
+              <Typo.Small className={styles['control-label']}>
                 Old Password
               </Typo.Small>
               <FormControl
@@ -79,8 +72,8 @@ const SavePassword = (props: SavePasswordProps) => {
               </FormControl>
             </div>
           )}
-          <div className={commonStyles['control-group']}>
-            <Typo.Small className={commonStyles['control-label']}>
+          <div className={styles['control-group']}>
+            <Typo.Small className={styles['control-label']}>
               Password
             </Typo.Small>
             <FormControl
@@ -99,8 +92,8 @@ const SavePassword = (props: SavePasswordProps) => {
               />
             </FormControl>
           </div>
-          <div className={commonStyles['control-group']}>
-            <Typo.Small className={commonStyles['control-label']}>
+          <div className={styles['control-group']}>
+            <Typo.Small className={styles['control-label']}>
               Confirm Password
             </Typo.Small>
             <FormControl
@@ -131,7 +124,7 @@ const SavePassword = (props: SavePasswordProps) => {
           </StepButton>
         </Form>
       </section>
-    </div>
+    </SettingOneLayout>
   );
 };
 
