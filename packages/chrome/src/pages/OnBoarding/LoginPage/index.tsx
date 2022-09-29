@@ -6,7 +6,6 @@ import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import { useForm } from 'react-hook-form';
 import {
-  getButtonDisabledState,
   getInputStateByFormState,
   getPasswordValidation,
 } from '../../../utils/form';
@@ -29,7 +28,7 @@ type FormData = {
 const LoginPage = () => {
   const apiClient = useApiClient();
   const form = useForm({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       password: '',
     },
@@ -110,12 +109,7 @@ const LoginPage = () => {
             />
           </FormControl>
 
-          <Button
-            type={'submit'}
-            state={'primary'}
-            disabled={getButtonDisabledState(form.formState)}
-            className={'mt-[24px]'}
-          >
+          <Button type={'submit'} state={'primary'} className={'mt-[24px]'}>
             Unlock
           </Button>
         </Form>

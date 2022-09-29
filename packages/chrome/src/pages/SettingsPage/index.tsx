@@ -14,7 +14,6 @@ import { useAuth } from '../../hooks/useAuth';
 
 const SettingPage = () => {
   const navigate = useNavigate();
-  const token = useSelector((state: RootState) => state.appContext.token);
   const dispatch = useDispatch<AppDispatch>();
   const { context } = useSelector((state: RootState) => ({
     context: state.appContext,
