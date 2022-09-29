@@ -17,6 +17,7 @@ import SettingTwoLayout from '../../layouts/SettingTwoLayout';
 import Typo from '../../components/Typo';
 import PhraseModal from '../../components/secrets/PhraseModal';
 import SecretModal from '../../components/secrets/SecretModal';
+import ForgetPassword from '../LockPage/ForgetPassword';
 
 type SecurityItemProps = Extendable & {
   title: string;
@@ -176,10 +177,29 @@ function PasswordSetting() {
 }
 
 export default function Security() {
+  const navigate = useNavigate();
+
   return (
     <Routes>
       <Route path="/" element={<MainPage />} />
       <Route path="password" element={<PasswordSetting />} />
+      <Route
+        path="reset"
+        element={
+          <div>
+            <Nav
+              title={'Reset Suiet'}
+              onNavBack={() => {
+                navigate('..');
+              }}
+            />
+            <ForgetPassword
+              titles={['Reset', 'Suiet']}
+              desc={'Be careful! You may reset your app here.'}
+            />
+          </div>
+        }
+      />
     </Routes>
   );
 }

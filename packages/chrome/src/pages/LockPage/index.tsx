@@ -9,7 +9,7 @@ import {
 } from '../../utils/form';
 import Input from '../../components/Input';
 import { useDispatch } from 'react-redux';
-import { resetAppContext, updateAuthed } from '../../store/app-context';
+import { updateAuthed } from '../../store/app-context';
 import { useState } from 'react';
 import ForgetPassword from './ForgetPassword';
 import Nav from '../../components/Nav';
@@ -58,16 +58,8 @@ const LockPage = () => {
           onNavBack={() => {
             setStep(1);
           }}
-        ></Nav>
-        <ForgetPassword
-          onConfirmReset={async () => {
-            await apiClient.callFunc<null, undefined>(
-              'root.resetAppData',
-              null
-            );
-            await dispatch(resetAppContext()).unwrap();
-          }}
         />
+        <ForgetPassword />
       </div>
     );
   }

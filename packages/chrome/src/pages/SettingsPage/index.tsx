@@ -1,15 +1,13 @@
 import styles from './index.module.scss';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { resetAppContext } from '../../store/app-context';
-import { AppDispatch, RootState } from '../../store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import Address from '../../components/Address';
 import Avatar from '../../components/Avatar';
 import classnames from 'classnames';
 import { useWallet } from '../../hooks/useWallet';
 import { version } from '../../package-json';
-import { useApiClient } from '../../hooks/useApiClient';
 import { useAuth } from '../../hooks/useAuth';
 import AppLayout from '../../layouts/AppLayout';
 import { Extendable } from '../../types';
@@ -43,20 +41,12 @@ const SettingItem = (props: SettingItemProps) => {
 
 const SettingPage = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
   const { context } = useSelector((state: RootState) => ({
     context: state.appContext,
   }));
   const { data: wallet } = useWallet(context.walletId);
   const { data: account } = useAccount(context.accountId);
-  const apiClient = useApiClient();
   const { logout } = useAuth();
-
-  // reset redux & db
-  async function handleResetAppData() {
-    await apiClient.callFunc<null, undefined>('root.resetAppData', null);
-    await dispatch(resetAppContext()).unwrap();
-  }
 
   return (
     <AppLayout>
@@ -108,7 +98,9 @@ const SettingPage = () => {
           </SettingItem>
           <SettingItem
             icon={<IconReset />}
-            onClick={handleResetAppData}
+            onClick={() => {
+              navigate('security/reset');
+            }}
             hideArrow={true}
           >
             Reset All
