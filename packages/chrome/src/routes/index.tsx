@@ -1,7 +1,6 @@
 import { lazy } from 'react';
 import { Navigate, Outlet, RouteObject } from 'react-router-dom';
 import RequireInit from '../components/RequireInit';
-import AppLayout from '../layouts/AppLayout';
 import { withSus } from '../components/TheSuspense';
 import Session from '../components/Session';
 

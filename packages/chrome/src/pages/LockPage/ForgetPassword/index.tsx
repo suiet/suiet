@@ -10,9 +10,14 @@ import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
 import Button from '../../../components/Button';
 import SettingOneLayout from '../../../layouts/SettingOneLayout';
+import { resetAppContext } from '../../../store/app-context';
+import { useApiClient } from '../../../hooks/useApiClient';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../../store';
 
 export type ForgetPasswordProps = {
-  onConfirmReset: () => void;
+  titles?: string[];
+  desc?: string;
 };
 
 type FormData = {
@@ -21,23 +26,30 @@ type FormData = {
 
 const ForgetPassword = (props: ForgetPasswordProps) => {
   const RESET_KEYWORD = 'RESET';
+  const apiClient = useApiClient();
+  const dispatch = useDispatch<AppDispatch>();
   const form = useForm<FormData>({
     mode: 'onBlur',
     defaultValues: {
       reset: '',
     },
   });
+  const {
+    titles = ['Forget', 'Password'],
+    desc = 'You need to reset the Suiet app.',
+  } = props;
 
   return (
-    <SettingOneLayout
-      titles={['Forget', 'Password']}
-      desc={'You need to reset the Suiet app.'}
-    >
+    <SettingOneLayout titles={titles} desc={desc}>
       <section className={'mt-[24px] w-full'}>
         <Form
           form={form}
-          onSubmit={() => {
-            props.onConfirmReset();
+          onSubmit={async () => {
+            await apiClient.callFunc<null, undefined>(
+              'root.resetAppData',
+              null
+            );
+            await dispatch(resetAppContext()).unwrap();
           }}
         >
           <div>
