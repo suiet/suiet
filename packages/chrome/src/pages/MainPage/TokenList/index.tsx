@@ -1,6 +1,7 @@
 import classnames from 'classnames';
 import type { Extendable, StyleExtendable } from '../../../types';
 import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
+import IconToken from '../../../assets/icons/token.svg';
 import styles from './index.module.scss';
 import TokenIcon from '../../../components/TokenIcon';
 import { useSupportedCoins } from '../../../hooks/useSupportedCoins';
@@ -22,15 +23,35 @@ type TokenItemProps = Extendable & {
 
 const TokenItem = (props: TokenItemProps) => {
   const { amount = 0 } = props;
+
   return (
-    <div className={styles['token-item']}>
+    <div
+      className={classnames(
+        styles['token-item'],
+        props.symbol === 'SUI' ? styles['token-item-sui'] : null
+      )}
+    >
       <div className="flex items-center">
-        <TokenIcon icon={IconWaterDrop} alt="water-drop" />
+        <TokenIcon
+          icon={props.symbol === 'SUI' ? IconWaterDrop : IconToken}
+          alt="water-drop"
+          className={props.symbol === 'SUI' ? '' : styles['icon-wrap-default']}
+        />
         <div className={'flex flex-col ml-[32px]'}>
-          <Typo.Normal className={classnames(styles['token-name'])}>
+          <Typo.Normal
+            className={classnames(
+              styles['token-name'],
+              props.symbol === 'SUI' ? styles['token-name-sui'] : null
+            )}
+          >
             {props.symbol}
           </Typo.Normal>
-          <Typo.Small className={classnames(styles['token-amount'])}>
+          <Typo.Small
+            className={classnames(
+              styles['token-amount'],
+              props.symbol === 'SUI' ? styles['token-amount-sui'] : null
+            )}
+          >
             {amount ? formatCurrency(amount) : '0'}
           </Typo.Small>
         </div>
