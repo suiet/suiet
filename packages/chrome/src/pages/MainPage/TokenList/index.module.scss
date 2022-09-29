@@ -7,22 +7,27 @@ $icon-size: 40px;
   padding: 26px 24px;
   margin: 12px 12px;
 
-  background: $primary-25;
+  background: $gray-50;
   border-radius: 16px;
   transition: 0.2s;
-
   &:hover {
     /* Gray/50 */
-    background: $primary-50;
+    background: $gray-100;
+  }
+  &-sui {
+    background: $primary-25;
+
+    &:hover {
+      /* Gray/50 */
+      background: $primary-50;
+    }
   }
 }
 
 .icon-wrap {
-  @apply flex justify-center items-center;
-  @apply rounded-full;
-  width: $icon-size;
-  height: $icon-size;
-  background: rgba(62, 162, 248, 1);
+  &-default {
+    background: $gray-500;
+  }
 }
 
 .token-name {
