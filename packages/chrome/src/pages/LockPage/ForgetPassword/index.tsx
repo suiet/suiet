@@ -14,6 +14,7 @@ import { resetAppContext } from '../../../store/app-context';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../store';
+import classNames from 'classnames';
 
 export type ForgetPasswordProps = {
   titles?: string[];
@@ -56,7 +57,9 @@ const ForgetPassword = (props: ForgetPasswordProps) => {
             <Typo.Normal className={styles['reset-title']}>
               Reset Suiet App
             </Typo.Normal>
-            <Typo.Hints className={'mt-[8px]'}>
+            <Typo.Hints
+              className={classNames('mt-[8px]', styles['reset-desc'])}
+            >
               Suiet will clear all the data and you need to re-import wallets.
               Input “RESET” to confirm and reset.
             </Typo.Hints>
