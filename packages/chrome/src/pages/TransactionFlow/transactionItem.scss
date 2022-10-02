@@ -63,7 +63,7 @@
   }
 
   &-detail {
-    width: 120px;
+    width: 100px;
     font-weight: 400;
     font-size: 12px;
     line-height: 15px;
@@ -79,9 +79,11 @@
   }
 
   &-amount {
+    width: 100px;
     right: 15px;
+    white-space: nowrap;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 19px;
     color: #3fb534;
     text-align: right;
