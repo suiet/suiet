@@ -1,9 +1,10 @@
 import classnames from 'classnames';
 import './transactionItem.scss';
 import Address from '../../components/Address';
-import { CoinObject, TxObject } from '@suiet/core/src/storage/types';
+import { TxObject } from '@suiet/core/src/storage/types';
 import { nftImgUrl } from '../../utils/nft';
-import { formatCurrency } from '../../utils/format';
+import { fullyFormatCurrency } from '../../utils/format';
+import { capitalize } from 'lodash-es';
 
 interface TransactionItemProps {
   type: string;
@@ -26,20 +27,49 @@ function TransactionItem({
   onClick,
   status,
 }: TransactionItemProps) {
+  function render(object: any) {
+    if (object.type === 'coin') {
+      return (
+        <div className={classnames('transaction-item-amount', type, status)}>
+          {status === 'failure'
+            ? 'Failed'
+            : `${type === 'sent' ? '- ' : '+ '} ${fullyFormatCurrency(
+                object.balance
+              )} ${coin.toUpperCase()}`}
+        </div>
+      );
+    }
+    if (object.type === 'nft') {
+      return (
+        <div className={classnames('transaction-item-amount', type, status)}>
+          <img
+            src={nftImgUrl(object.url)}
+            className={classnames('h-[40px]', 'w-fit', 'ml-auto')}
+            alt=""
+          />
+        </div>
+      );
+    }
+    if (object.type === 'move_call') {
+      return (
+        <div
+          className={classnames('transaction-item-amount', type, status)}
+        ></div>
+      );
+    }
+    return null;
+  }
+
   return (
     <div className="transaction-item-container" onClick={onClick}>
       <div className={classnames('transaction-item-icon', type, status)} />
-      <div className="transaction-item-detail">
-        <div className="transaction-item-type">
-          {object.type === 'move_call'
-            ? 'MoveCall'
-            : type // insert a space before all caps
-                .replace(/([A-Z])/g, ' $1')
-                // uppercase the first character
-                .replace(/^./, function (str) {
-                  return str.toUpperCase();
-                })}
-          {date && <span>{date}</span>}
+      <div className={'transaction-item-wrap'}>
+        <div className="transaction-item-detail">
+          <div className="transaction-item-type">
+            {object.type === 'move_call' ? 'MoveCall' : capitalize(type)}
+            {date && <span>{date}</span>}
+          </div>
+          {render(object)}
         </div>
         {type === 'received' ? (
           <div className="transaction-item-desc">
@@ -63,29 +93,6 @@ function TransactionItem({
           </div>
         )}
       </div>
-      {object.type === 'coin' ? (
-        <div className={classnames('transaction-item-amount', type, status)}>
-          {status === 'failure'
-            ? 'Failed'
-            : `${type === 'sent' ? '- ' : '+ '} ${formatCurrency(
-                Number(object.balance)
-              )} ${coin.toUpperCase()}`}
-        </div>
-      ) : null}
-      {object.type === 'nft' ? (
-        <div className={classnames('transaction-item-amount', type, status)}>
-          <img
-            src={nftImgUrl(object.url)}
-            className={classnames('h-[40px]', 'w-fit', 'ml-auto')}
-            alt=""
-          />
-        </div>
-      ) : null}
-      {object.type === 'move_call' ? (
-        <div
-          className={classnames('transaction-item-amount', type, status)}
-        ></div>
-      ) : null}
     </div>
   );
 }

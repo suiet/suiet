@@ -50,7 +50,7 @@ function formatSmallCurrency(amount: number | string) {
   const _amount = Number(amount) / 1e9;
 
   if (_amount === 0) {
-    return 0;
+    return '0';
   }
 
   // 0.000000001123123 -> 0.00000000112
@@ -66,15 +66,11 @@ function formatSmallCurrency(amount: number | string) {
     minimalDigits = minimalDigits + 1;
   }
 
-  // check last 2 digits
-  console.log(Number(amount), Math.pow(10, 10 - (fixNum + 2)));
-
   // if both last 2 digits are 0
   if (
     Number(amount) % Math.pow(10, 10 - (fixNum + 2)) === 0 &&
     Number(amount) % Math.pow(10, 10 - (fixNum + 1)) === 0
   ) {
-    console.log('both last 2 digits are 0');
     return toFixed(_amount, fixNum);
   }
 
@@ -83,11 +79,8 @@ function formatSmallCurrency(amount: number | string) {
     Number(amount) % Math.pow(10, 10 - (fixNum + 2)) === 0 &&
     Number(amount) % Math.pow(10, 10 - (fixNum + 1)) !== 0
   ) {
-    console.log('only last 1 digit is 0');
     return toFixed(_amount, fixNum + 1);
   }
-
-  // console.log(fixNum, minimalDigits);
 
   return toFixed(_amount, fixNum + 2);
 }
@@ -101,13 +94,13 @@ function toFixed(num: number, fixed: number) {
 function getFullNum(num: number) {
   // if not num
   if (isNaN(num)) {
-    return num;
+    return num.toString();
   }
 
   // parse string no need to transform
   const str = '' + num;
   if (!/e/i.test(str)) {
-    return num;
+    return num.toString();
   }
 
   return num.toFixed(18).replace(/\.?0+$/, '');

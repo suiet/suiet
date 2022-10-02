@@ -20,7 +20,7 @@ export type ImportPhraseProps = {
 const ImportPhrase = (props: ImportPhraseProps) => {
   const apiClient = useApiClient();
   const form = useForm({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       secret: props.phrases,
     },

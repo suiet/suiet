@@ -25,7 +25,7 @@ type FormData = {
 
 const SavePassword = (props: SavePasswordProps) => {
   const form = useForm<FormData>({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       password: '',
     },

@@ -30,7 +30,7 @@ const ForgetPassword = (props: ForgetPasswordProps) => {
   const apiClient = useApiClient();
   const dispatch = useDispatch<AppDispatch>();
   const form = useForm<FormData>({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       reset: '',
     },
@@ -81,12 +81,7 @@ const ForgetPassword = (props: ForgetPasswordProps) => {
             </FormControl>
           </div>
 
-          <Button
-            type={'submit'}
-            state={'danger'}
-            disabled={getButtonDisabledState(form.formState)}
-            className={'mt-[28px]'}
-          >
+          <Button type={'submit'} state={'danger'} className={'mt-[28px]'}>
             Reset Suiet
           </Button>
         </Form>

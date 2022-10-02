@@ -24,6 +24,18 @@
   border-radius: 16px;
   color: $gray-900;
 
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  &[type='number'] {
+    -moz-appearance: textfield;
+  }
+
   &::placeholder {
     color: $gray-300;
   }

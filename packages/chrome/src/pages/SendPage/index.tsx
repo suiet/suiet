@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useAccount } from '../../hooks/useAccount';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useApiClient } from '../../hooks/useApiClient';
 import { TransferCoinParams } from '@suiet/core';
 import { OmitToken } from '../../types';
@@ -30,6 +30,8 @@ interface SendFormValues {
   amount: number;
 }
 
+const GAS_BUDGET = 100;
+
 const SendPage = () => {
   const apiClient = useApiClient();
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ const SendPage = () => {
   const { data: network } = useNetwork(appContext.networkId);
   const { data: account } = useAccount(appContext.accountId);
   const [sendLoading, setSendLoading] = useState(false);
+  const [inputAmount, setInputAmount] = useState('');
 
   const context = useSelector((state: RootState) => state.appContext);
   const { balance } = useCoinBalance(account?.address ?? '', CoinSymbol.SUI, {
@@ -46,9 +49,21 @@ const SendPage = () => {
     mode: 'onChange',
     defaultValues: {
       address: '',
-      amount: 0,
+      amount: undefined,
     },
   });
+
+  const handleBalanceSubmit = useCallback(
+    (val: any) => {
+      const _val = Number(val);
+      if (_val <= 0) return 'amount should be greater than 0';
+      if (_val < 1e-9) return 'amount is too small';
+      if (_val > (Number(balance) - GAS_BUDGET) * 1e-9)
+        return `you don't have enough balance`;
+      return true;
+    },
+    [balance]
+  );
 
   async function submitTransaction(data: SendFormValues) {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
@@ -111,10 +126,7 @@ const SendPage = () => {
               name={'amount'}
               registerOptions={{
                 required: 'amount should not be empty',
-                // valueAsNumber: true,
-                validate: (val) => {
-                  return val > 0 || 'amount should be greater than 0';
-                },
+                validate: handleBalanceSubmit,
               }}
               className={'mt-[6px]'}
             >
@@ -122,6 +134,12 @@ const SendPage = () => {
                 type={'number'}
                 state={getInputStateByFormState(form.formState, 'amount')}
                 placeholder={'Please enter the amount'}
+                value={inputAmount}
+                onInput={(e) => {
+                  const value = (e.target as any).value;
+                  if (Number.isNaN(Number(value))) return;
+                  setInputAmount(value);
+                }}
                 suffix={
                   <div className={styles['input-suffix']}>
                     <WaterDropIcon size={'small'} />
@@ -141,7 +159,7 @@ const SendPage = () => {
             <div className={'flex items-center'}>
               <WaterDropIcon size={'small'} />
               <Typo.Normal className={'ml-[6px]'}>
-                {formatCurrency(100)} SUI
+                {formatCurrency(GAS_BUDGET)} SUI
               </Typo.Normal>
             </div>
 

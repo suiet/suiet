@@ -3,9 +3,8 @@
 .transaction-item {
   &-container {
     display: flex;
-    padding: 16px;
-    justify-content: space-between;
     align-items: center;
+    padding: 16px;
     position: relative;
     // border-bottom: 1px solid #eaecf0;
     border-radius: 16px;
@@ -62,8 +61,17 @@
     }
   }
 
+  &-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-left: 16px;
+  }
+
   &-detail {
-    width: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-weight: 400;
     font-size: 12px;
     line-height: 15px;
@@ -79,8 +87,7 @@
   }
 
   &-amount {
-    width: 100px;
-    right: 15px;
+    margin-left: auto;
     white-space: nowrap;
     font-weight: 500;
     font-size: 14px;
