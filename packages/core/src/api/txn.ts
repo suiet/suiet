@@ -102,7 +102,7 @@ export type GetNormalizedMoveFunctionParams = {
 export type SignMessageParams = {
   walletId: string;
   accountId: string;
-  message: string;
+  message: Uint8Array | string;
   token: string;
 };
 

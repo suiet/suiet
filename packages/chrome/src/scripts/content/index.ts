@@ -1,6 +1,7 @@
-import { PortName, resData, WindowMsg, WindowMsgTarget } from '../shared';
+import { PortName, WindowMsg, WindowMsgTarget } from '../shared';
 import { has } from 'lodash-es';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
+import { getSiteMetadata, SiteMetadata } from './utils';
 
 function injectDappInterface() {
   const script = document.createElement('script');
@@ -30,7 +31,7 @@ function isIgnoreMsg(event: MessageEvent<any>) {
   );
 }
 
-function setupMessageProxy(): {
+function setupMessageProxy(siteMetadata: SiteMetadata): {
   port: chrome.runtime.Port;
   clearWindowMsgListener: () => void;
 } {
@@ -58,7 +59,8 @@ function setupMessageProxy(): {
           params: trueData.payload,
           context: {
             origin: event.origin,
-            favicon: event.origin + '/favicon.ico',
+            name: siteMetadata.name,
+            favicon: siteMetadata.icon,
           },
         },
       };
@@ -89,7 +91,8 @@ function setupMessageProxy(): {
   windowMsgStream.subscribe(async (windowMsg) => {
     if (isDappHandShakeRequest(windowMsg)) {
       if (port === null) {
-        const result = setupMessageProxy();
+        const siteMetadata = await getSiteMetadata();
+        const result = setupMessageProxy(siteMetadata);
         port = result.port;
         clearWindowMsgListener = result.clearWindowMsgListener;
         // console.log('[content] handshake: setup message proxy');

@@ -1,10 +1,12 @@
 import XhrShim from 'xhr-shim';
 import { isExtBackgroundServiceWork } from './utils/platform';
+import { Buffer } from 'buffer';
 
 const serviceWorkerScope: any = self;
 if (isExtBackgroundServiceWork()) {
   // shim XHR for service worker env
   serviceWorkerScope.XMLHttpRequest = XhrShim;
+  serviceWorkerScope.Buffer = Buffer;
 }
 
 export { validateToken } from './utils/token';

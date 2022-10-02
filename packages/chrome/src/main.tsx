@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { MemoryRouter, HashRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
 import { Provider } from 'react-redux';
@@ -10,6 +10,10 @@ import { SWRConfig } from 'swr';
 import { swrConfig } from './configs/swr';
 import { ApiClientContext } from './hooks/useApiClient';
 import { BackgroundApiClient } from './scripts/shared/ui-api-client';
+import { Buffer } from 'buffer';
+
+// @ts-expect-error
+window.Buffer = Buffer;
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

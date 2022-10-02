@@ -41,6 +41,9 @@ const DappConnectPage = lazy(
 const DappTxApprovePage = lazy(
   async () => await import('../pages/dapp/TxApprovePage')
 );
+const DappSignMsgPage = lazy(
+  async () => await import('../pages/dapp/SignMsgPage')
+);
 
 const routesConfig: RouteObject[] = [
   {
@@ -166,6 +169,10 @@ const routesConfig: RouteObject[] = [
       {
         path: 'tx-approval',
         element: withSus(<DappTxApprovePage />),
+      },
+      {
+        path: 'sign-msg',
+        element: withSus(<DappSignMsgPage />),
       },
     ],
   },
