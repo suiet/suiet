@@ -3,7 +3,11 @@ import './transactionDetail.scss';
 import Button from '../../components/Button';
 import dayjs from 'dayjs';
 import classnames from 'classnames';
-import { addressEllipsis, formatCurrency } from '../../utils/format';
+import {
+  addressEllipsis,
+  formatCurrency,
+  fullyFormatCurrency,
+} from '../../utils/format';
 import Address from '../../components/Address';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
@@ -66,8 +70,12 @@ function TransactionDetail() {
             {txStatus === 'failure'
               ? 'FAILED'
               : type === 'sent'
-              ? `- ${formatCurrency(Number(object.balance))} ${object.symbol}`
-              : `+ ${formatCurrency(Number(object.balance))} ${object.symbol}`}
+              ? `- ${fullyFormatCurrency(Number(object.balance))} ${
+                  object.symbol
+                }`
+              : `+ ${fullyFormatCurrency(Number(object.balance))} ${
+                  object.symbol
+                }`}
           </div>
         ) : null}
       </div>
