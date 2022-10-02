@@ -1,1 +1,1 @@
-# SUI Wallet Chrome Extension
+# Sui Wallet Chrome Extension
