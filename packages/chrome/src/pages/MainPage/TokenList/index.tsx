@@ -10,7 +10,7 @@ import { useCoinBalance } from '../../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
-import { formatCurrency } from '../../../utils/format';
+import { formatCurrency, fullyFormatCurrency } from '../../../utils/format';
 import { useCoins } from '../../../hooks/useCoins';
 import { isNonEmptyArray } from '../../../utils/check';
 
@@ -52,7 +52,7 @@ const TokenItem = (props: TokenItemProps) => {
               props.symbol === 'SUI' ? styles['token-amount-sui'] : null
             )}
           >
-            {amount ? parseFloat(String(amount)).toLocaleString() : '0'}
+            {fullyFormatCurrency(amount)}
           </Typo.Small>
         </div>
       </div>
