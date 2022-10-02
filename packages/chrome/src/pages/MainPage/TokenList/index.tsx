@@ -65,7 +65,12 @@ const TokenList = (props: TokenListProps) => {
   const { data: account } = useAccount(appContext.accountId);
   const { data: coins } = useCoins(account?.address ?? '');
 
-  if (!isNonEmptyArray(coins)) return null;
+  if (!isNonEmptyArray(coins))
+    return (
+      <div className={classnames(props.className)} style={props.style}>
+        <TokenItem key={'SUI'} symbol={'SUI'} amount={0} />
+      </div>
+    );
   return (
     <div className={classnames(props.className)} style={props.style}>
       {(coins as Array<{ symbol: string; balance: string }>).map((coin) => {
