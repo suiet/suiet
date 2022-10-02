@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { useApiClient } from '../../hooks/useApiClient';
 import { TransferCoinParams } from '@suiet/core';
 import { OmitToken } from '../../types';
+import { formatCurrency } from '../../utils/format';
 import AppLayout from '../../layouts/AppLayout';
 
 interface SendFormValues {
@@ -56,7 +57,7 @@ const SendPage = () => {
     const params = {
       network,
       symbol: CoinSymbol.SUI,
-      amount: data.amount,
+      amount: Math.ceil(data.amount * 1e9),
       recipient: data.address,
       walletId: appContext.walletId,
       accountId: appContext.accountId,
@@ -110,7 +111,7 @@ const SendPage = () => {
               name={'amount'}
               registerOptions={{
                 required: 'amount should not be empty',
-                valueAsNumber: true,
+                // valueAsNumber: true,
                 validate: (val) => {
                   return val > 0 || 'amount should be greater than 0';
                 },
@@ -130,7 +131,7 @@ const SendPage = () => {
               />
             </FormControl>
             <Typo.Small className={classnames('mt-[6px]', 'text-gray-400')}>
-              current balance: {balance} SUI
+              current balance: {formatCurrency(balance)} SUI
             </Typo.Small>
           </section>
 
@@ -139,7 +140,9 @@ const SendPage = () => {
             <Typo.Title>Gas fee budget</Typo.Title>
             <div className={'flex items-center'}>
               <WaterDropIcon size={'small'} />
-              <Typo.Normal className={'ml-[6px]'}>100 SUI</Typo.Normal>
+              <Typo.Normal className={'ml-[6px]'}>
+                {formatCurrency(100)} SUI
+              </Typo.Normal>
             </div>
 
             <Button
