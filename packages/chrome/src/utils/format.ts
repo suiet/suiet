@@ -68,6 +68,7 @@ function formatSmallCurrency(amount: number | string) {
 
   // check last 2 digits
   console.log(Number(amount), Math.pow(10, 10 - (fixNum + 2)));
+
   // if both last 2 digits are 0
   if (
     Number(amount) % Math.pow(10, 10 - (fixNum + 2)) === 0 &&
@@ -94,5 +95,20 @@ function formatSmallCurrency(amount: number | string) {
 function toFixed(num: number, fixed: number) {
   fixed = fixed || 0;
   fixed = Math.pow(10, fixed);
-  return Math.floor(num * fixed) / fixed;
+  return getFullNum(Math.floor(num * fixed) / fixed);
+}
+
+function getFullNum(num: number) {
+  // if not num
+  if (isNaN(num)) {
+    return num;
+  }
+
+  // parse string no need to transform
+  const str = '' + num;
+  if (!/e/i.test(str)) {
+    return num;
+  }
+
+  return num.toFixed(18).replace(/\.?0+$/, '');
 }
