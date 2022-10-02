@@ -19,11 +19,14 @@ import {
   NotFoundError,
   UserRejectionError,
 } from '../errors';
+import { baseDecode, baseEncode } from 'borsh';
+import { SignRequestManager } from '../sign-msg';
 
 interface DappMessage<T> {
   params: T;
   context: {
     origin: string;
+    name: string;
     favicon: string;
   };
 }
@@ -31,6 +34,7 @@ interface DappMessage<T> {
 export enum ApprovalType {
   PERMISSION = 'PERMISSION',
   TRANSACTION = 'TRANSACTION',
+  SIGN_MSG = 'SIGN_MSG',
 }
 
 export interface Approval {
@@ -47,6 +51,7 @@ export class DappBgApi {
   chromeStorage: ChromeStorage;
   permManager: PermissionManager;
   txManager: TxRequestManager;
+  signManager: SignRequestManager;
   txApi: TransactionApi;
   networkApi: NetworkApi;
   authApi: AuthApi;
@@ -64,6 +69,7 @@ export class DappBgApi {
     this.chromeStorage = new ChromeStorage();
     this.permManager = new PermissionManager();
     this.txManager = new TxRequestManager();
+    this.signManager = new SignRequestManager();
   }
 
   public async connect(
@@ -92,6 +98,7 @@ export class DappBgApi {
 
     const permRequest = await this.permManager.createPermRequest({
       permissions: params.permissions,
+      name: context.name,
       origin: context.origin,
       favicon: context.favicon,
       address: account.address,
@@ -188,8 +195,10 @@ export class DappBgApi {
     console.log('metadata', metadata);
 
     const txReq = await this.txManager.createTxRequest({
-      accountAddress: account.address,
+      walletId: appContext.walletId,
+      address: account.address,
       origin: context.origin,
+      name: context.name,
       favicon: context.favicon,
       type: params.type,
       data: params.data,
@@ -265,6 +274,90 @@ export class DappBgApi {
       networkId: appContext.networkId,
       origin: context.origin,
     });
+  }
+
+  public async signMessage(payload: DappMessage<{ message: string }>): Promise<{
+    signature: string;
+    signedMessage: string;
+  }> {
+    const { params, context } = payload;
+    if (!params?.message) {
+      throw new InvalidParamError(`params 'message' required`);
+    }
+    const decodeMsg = baseDecode(params.message);
+    const checkRes = await this.checkPermissions(context.origin, [
+      Permission.VIEW_ACCOUNT,
+      Permission.SUGGEST_TX,
+    ]);
+    if (!checkRes.result) {
+      // TODO: launch request permission window
+      throw new NoPermissionError('No permissions to signMessage', {
+        missingPerms: checkRes.missingPerms,
+      });
+    }
+
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    const signReq = await this.signManager.createSignRequest({
+      walletId: appContext.walletId,
+      address: account.address,
+      origin: context.origin,
+      name: context.name,
+      favicon: context.favicon,
+      data: params.message,
+    });
+    const signReqWindow = this.createPopupWindow('/dapp/sign-msg', {
+      reqId: signReq.id,
+    });
+    const onWindowCloseObservable = await signReqWindow.show();
+    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
+      map(async () => {
+        return {
+          ...signReq,
+          approved: false,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+    const onApprovalObservable = approvalSubject.asObservable().pipe(
+      filter((result) => {
+        return (
+          result.type === ApprovalType.SIGN_MSG && result.id === signReq.id
+        );
+      }),
+      map((result) => {
+        return {
+          ...signReq,
+          approved: result.approved,
+          updatedAt: result.updatedAt,
+        };
+      })
+    );
+    const finalResult = await firstValueFrom(
+      race(onFallbackDenyObservable, onApprovalObservable).pipe(
+        take(1),
+        tap(async () => {
+          await signReqWindow.close();
+          // remove localstorage record after signed for safety purpose
+          await this.signManager.removeSignRequest(signReq.id);
+        })
+      )
+    );
+    if (!finalResult.approved) {
+      throw new UserRejectionError();
+    }
+
+    const token = this.authApi.getToken();
+    const result = await this.txApi.signMessage({
+      token,
+      message: decodeMsg,
+      walletId: appContext.walletId,
+      accountId: appContext.accountId,
+    });
+    return {
+      signature: baseEncode(result.signature),
+      signedMessage: params.message,
+    };
   }
 
   public async getAccounts(payload: DappMessage<{}>) {

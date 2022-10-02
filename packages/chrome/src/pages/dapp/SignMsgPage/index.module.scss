@@ -1,0 +1,23 @@
+@import '../../../styles/variables';
+
+.title {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: $gray-900;
+}
+
+.desc {
+  margin-top: 8px;
+  height: 120px;
+  overflow-y: auto;
+  word-break: break-all;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-400;
+}

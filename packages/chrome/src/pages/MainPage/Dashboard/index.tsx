@@ -5,9 +5,6 @@ import WaterDropIcon from '../../../components/WaterDropIcon';
 import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
-import { useAccount } from '../../../hooks/useAccount';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
 import { mutate } from 'swr';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
@@ -18,7 +15,7 @@ import { formatCurrency } from '../../../utils/format';
 import message from '../../../components/message';
 import { useState } from 'react';
 import { useNetwork } from '../../../hooks/useNetwork';
-import Loading, { LoadingSpokes } from '../../../components/Loading';
+import { LoadingSpokes } from '../../../components/Loading';
 export type ReceiveButtonProps = {
   address: string;
 };

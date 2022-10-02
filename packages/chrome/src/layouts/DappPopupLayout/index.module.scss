@@ -1,0 +1,52 @@
+@import '../../styles/variables';
+
+.container {
+  position: relative;
+  width: $full-width;
+  height: $full-height;
+  display: flex;
+  flex-direction: column;
+}
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: $full-width;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-top: 1px solid $gray-100;
+  background-color: $white;
+}
+
+.header {
+  margin-top: 67px;
+  padding: 0 32px;
+
+  &__title {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 33px;
+    color: $gray-900;
+  }
+
+  &__desc {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+    color: $gray-900;
+  }
+}
+
+.main {
+  padding-bottom: 104px;
+}

@@ -7,13 +7,17 @@ export enum Permission {
   SUGGEST_TX = 'suggestTransactions',
 }
 
-export interface PermRequest {
+export interface DappBaseRequest {
   id: string;
+  name: string;
   origin: string;
   favicon: string;
   address: string;
-  networkId: string;
   walletId: string;
+}
+
+export interface PermRequest extends DappBaseRequest {
+  networkId: string;
   accountId: string;
   permissions: string[];
   approved: boolean | null;
@@ -102,6 +106,7 @@ export class PermissionManager {
 
   async createPermRequest(params: {
     origin: string;
+    name: string;
     favicon: string;
     address: string;
     networkId: string;

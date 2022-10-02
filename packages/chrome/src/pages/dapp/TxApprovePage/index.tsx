@@ -1,5 +1,3 @@
-import Avatar, { withFavicon } from '../../../components/Avatar';
-import HyperLink from '../../../components/HyperLink';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useWallet } from '../../../hooks/useWallet';
@@ -15,23 +13,21 @@ import {
 } from '../../../scripts/background/transaction';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
-import WalletSelector from '../WalletSelector';
-import Button from '../../../components/Button';
 import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import { useApiClient } from '../../../hooks/useApiClient';
-import { SuiMoveNormalizedFunction } from '@mysten/sui.js/src/types/objects';
 import { MoveCallTransaction } from '@mysten/sui.js';
 import { unwrapTypeReference } from '../../../utils/sui';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import Address from '../../../components/Address';
+import DappPopupLayout from '../../../layouts/DappPopupLayout';
 
 interface MetadataGroup {
   name: string;
-  children: { id: string; module: string }[];
+  children: Array<{ id: string; module: string }>;
 }
 const TX_CONTEXT_TYPE = '0x2::tx_context::TxContext';
 
-function useTxReqMetadata(metadata: SuiMoveNormalizedFunction) {}
+// function useTxReqMetadata(metadata: SuiMoveNormalizedFunction) {}
 
 const TxApprovePage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -134,22 +130,21 @@ const TxApprovePage = () => {
   }, [txReqId]);
 
   return (
-    <div className={styles['container']}>
-      <header className={styles['header']}>
-        {withFavicon(<Avatar model={wallet?.avatar} />, {
-          src: txReqData?.favicon ?? '',
-          alt: txReqData?.origin ?? 'origin',
-        })}
-        <HyperLink url={txReqData?.origin ?? ''} className={'mt-[16px]'} />
-        {/*<Typo.Title className={classnames(styles['header__title'], 'mt-[4px]')}>*/}
-        {/*  Magic Eden*/}
-        {/*</Typo.Title>*/}
-        <Typo.Normal className={styles['header__desc']}>
-          wants to make a transaction from
-        </Typo.Normal>
-      </header>
-      <WalletSelector className={'mx-[32px] mt-[10px]'} />
-
+    <DappPopupLayout
+      originTitle={txReqData?.name ?? ''}
+      desc={'wants to make a transaction from'}
+      originUrl={txReqData?.origin ?? ''}
+      avatarMode={wallet?.avatar}
+      favicon={txReqData?.favicon ?? ''}
+      okText={'Approve'}
+      onOk={() => {
+        emitApproval(true);
+      }}
+      cancelText={'Reject'}
+      onCancel={() => {
+        emitApproval(false);
+      }}
+    >
       <Tabs className={styles['tabs']}>
         <TabList>
           <Tab>
@@ -163,7 +158,7 @@ const TxApprovePage = () => {
               Wallet
             </Typo.Normal>
             <Address
-              value={txReqData?.accountAddress ?? ''}
+              value={txReqData?.address ?? ''}
               className={styles['detail-item__value']}
               hideCopy={true}
             />
@@ -188,29 +183,7 @@ const TxApprovePage = () => {
           </div>
         </TabPanel>
       </Tabs>
-
-      <footer className={styles['footer']}>
-        <Button
-          state={'danger'}
-          disabled={loading}
-          onClick={() => {
-            emitApproval(false);
-          }}
-        >
-          Reject
-        </Button>
-        <Button
-          state={'primary'}
-          className={'ml-[8px]'}
-          loading={loading}
-          onClick={() => {
-            emitApproval(true);
-          }}
-        >
-          Approve
-        </Button>
-      </footer>
-    </div>
+    </DappPopupLayout>
   );
 };
 

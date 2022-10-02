@@ -16,7 +16,7 @@ const HyperLink = (props: HyperLinkProps) => {
       style={props.style}
     >
       <Icon icon={<IconLink />} className={styles['hyper-link__icon']} />
-      <Typo.Normal className={styles['hyper-link__url']}>
+      <Typo.Normal ellipsis={true} className={styles['hyper-link__url']}>
         {props.url}
       </Typo.Normal>
     </div>

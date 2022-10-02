@@ -1,39 +1,27 @@
-// compile by vite-rollup individually, see configuration in vite.config.ts
+// This file will be compiled by vite-rollup individually, see configuration in vite.config.ts
 // dynamically load by browser getURL in the content script of extension
-
 import {
   MoveCallTransaction,
   SuiAddress,
   SuiTransactionResponse,
 } from '@mysten/sui.js';
-import { reqData, ResData, WindowMsgTarget } from '../shared';
+import { reqData, WindowMsgTarget } from '../shared';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
 import { TxRequestType } from '../background/transaction';
+import { IWindowSuietApi, Permission } from '@suiet/wallet-adapter';
+import { baseDecode, baseEncode } from 'borsh';
+import { Buffer } from 'buffer';
 
-const ALL_PERMISSION_TYPES = ['viewAccount', 'suggestTransactions'] as const;
-type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
-type PermissionType = AllPermissionsType[number];
-
-enum Permission {
-  VIEW_ACCOUNT = 'viewAccount',
-  SUGGEST_TX = 'suggestTransactions',
+function injectPolyfill(window: Window) {
+  // @ts-expect-error
+  window.Buffer = Buffer;
 }
 
-export interface ISuietWallet {
-  connect: (perms: Permission[]) => Promise<ResData>;
-  disconnect: () => Promise<ResData>;
-  getAccounts: () => Promise<ResData<SuiAddress[]>>;
-  executeMoveCall: (
-    transaction: MoveCallTransaction
-  ) => Promise<ResData<SuiTransactionResponse>>;
-  executeSerializedMoveCall: (
-    transactionBytes: Uint8Array
-  ) => Promise<SuiTransactionResponse>;
-  hasPermissions: (permissions: readonly PermissionType[]) => Promise<boolean>;
-  requestPermissions: () => Promise<ResData>;
-}
-
-export class DAppInterface implements ISuietWallet {
+/**
+ * Script to be injected in each Dapp page
+ * Provide Api connected to ext's service worker with window messaging mechanism
+ */
+export class DAppInterface implements IWindowSuietApi {
   name: string;
   connected: boolean;
   connecting: boolean;
@@ -60,13 +48,14 @@ export class DAppInterface implements ISuietWallet {
     return await this.windowMsgStream.post(reqData('handwave', null));
   }
 
+  // @ts-expect-error
   async hasPermissions(permissions: readonly string[]) {
-    // console.log('permissions', permissions);
-    return true;
+    throw new Error('function not implemented yet');
   }
 
+  // @ts-expect-error
   async requestPermissions() {
-    return await this.windowMsgStream.post(reqData('requestPermissions', null));
+    throw new Error('function not implemented yet');
   }
 
   async executeMoveCall(transaction: MoveCallTransaction) {
@@ -78,10 +67,11 @@ export class DAppInterface implements ISuietWallet {
     );
   }
 
+  // @ts-expect-error
   async executeSerializedMoveCall(
     transactionBytes: Uint8Array
   ): Promise<SuiTransactionResponse> {
-    return await Promise.reject(new Error('function not implemented yet'));
+    throw new Error('function not implemented yet');
   }
 
   async getAccounts() {
@@ -89,8 +79,29 @@ export class DAppInterface implements ISuietWallet {
       reqData('dapp.getAccounts', null)
     );
   }
+
+  async signMessage(input: { message: Uint8Array }) {
+    const encodedInput = { message: baseEncode(input.message) };
+    const result = await this.windowMsgStream.post(
+      reqData('dapp.signMessage', encodedInput)
+    );
+    if (result.error) return result;
+
+    const data = result.data as {
+      signature: string;
+      signedMessage: string;
+    };
+    return {
+      ...result,
+      data: {
+        signature: baseDecode(data.signature),
+        signedMessage: baseDecode(data.signedMessage),
+      },
+    };
+  }
 }
 
+injectPolyfill(window);
 // mount __suiet__ object on DApp's window environment
 Object.defineProperty(window, '__suiet__', {
   enumerable: false,

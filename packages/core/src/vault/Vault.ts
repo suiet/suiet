@@ -60,8 +60,21 @@ export class Vault {
     };
   }
 
-  public async signMessage(message: string): Promise<SignedMessage> {
-    const signature = await this.hdKey.sign(Buffer.from(message));
+  public async signMessage(
+    message: Uint8Array | string
+  ): Promise<SignedMessage> {
+    function Uint8ArrayToBuffer(bytes: Uint8Array) {
+      const buffer = Buffer.alloc(bytes.byteLength);
+      for (let i = 0; i < buffer.length; ++i) {
+        buffer[i] = bytes[i];
+      }
+      return buffer;
+    }
+    const buffer =
+      message instanceof Uint8Array
+        ? Uint8ArrayToBuffer(message)
+        : Buffer.from(message);
+    const signature = await this.hdKey.sign(buffer);
     const pubKey = await this.hdKey.getPublicKey();
     return {
       signature,

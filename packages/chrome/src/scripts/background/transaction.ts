@@ -6,17 +6,14 @@ import {
 import { ChromeStorage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
+import { DappBaseRequest } from './permission';
 
 export enum TxRequestType {
   MOVE_CALL = 'MOVE_CALL',
   SERIALIZED_MOVE_CALL = 'SERIALIZED_MOVE_CALL',
 }
 
-export interface TxRequest {
-  id: string;
-  origin: string;
-  favicon: string;
-  accountAddress: string;
+export interface TxRequest extends DappBaseRequest {
   approved: boolean | null;
   metadata: SuiMoveNormalizedFunction | null;
   type: TxRequestType;
@@ -69,9 +66,11 @@ export class TxRequestManager {
 
   async createTxRequest(params: {
     type: TxRequestType;
+    name: string;
     origin: string;
     favicon: string;
-    accountAddress: string;
+    walletId: string;
+    address: string;
     data: MoveCallTransaction | string;
     metadata: SuiMoveNormalizedFunction;
   }): Promise<TxRequest> {
