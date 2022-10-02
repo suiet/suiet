@@ -3,14 +3,13 @@ import './transactionDetail.scss';
 import Button from '../../components/Button';
 import dayjs from 'dayjs';
 import classnames from 'classnames';
-import { addressEllipsis } from '../../utils/format';
+import { addressEllipsis, formatCurrency } from '../../utils/format';
 import Address from '../../components/Address';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
 import CopyIcon from '../../components/CopyIcon';
 import { TxObject, CoinObject, NftObject } from '@suiet/core/src/storage/types';
 import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
-
 export interface TxnItem {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
@@ -67,12 +66,8 @@ function TransactionDetail() {
             {txStatus === 'failure'
               ? 'FAILED'
               : type === 'sent'
-              ? `- ${Intl.NumberFormat('en-US').format(
-                  Number(object.balance)
-                )} ${object.symbol}`
-              : `+ ${Intl.NumberFormat('en-US').format(
-                  Number(object.balance)
-                )} ${object.symbol}`}
+              ? `- ${formatCurrency(Number(object.balance))} ${object.symbol}`
+              : `+ ${formatCurrency(Number(object.balance))} ${object.symbol}`}
           </div>
         ) : null}
       </div>
@@ -106,8 +101,7 @@ function TransactionDetail() {
           <div className="transaction-detail-item">
             <span className="transaction-detail-item-key">Token</span>
             <span>
-              {Intl.NumberFormat('en-US').format(Number(object.balance))}{' '}
-              {object.symbol}
+              {formatCurrency(Number(object.balance))} {object.symbol}
             </span>
           </div>
         ) : null}
@@ -115,8 +109,7 @@ function TransactionDetail() {
           <div className="transaction-detail-item">
             <span className="transaction-detail-item-key">Gas Fee</span>
             <span>
-              {Intl.NumberFormat('en-US').format(Number(gasFee))}{' '}
-              {object.symbol}
+              {formatCurrency(gasFee)} {object.symbol}
             </span>
           </div>
         ) : null}
