@@ -3,7 +3,7 @@ import { useState } from 'react';
 import styles from './network.module.scss';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateNetworkId } from '../../store/app-context';
 import message from '../../components/message';
 import SettingTwoLayout from '../../layouts/SettingTwoLayout';
@@ -15,6 +15,7 @@ import { ReactComponent as IconCheck } from '../../assets/icons/check.svg';
 import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg';
 import { ReactComponent as IconDevnet } from '../../assets/icons/devnet.svg';
 import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
+import { RootState } from '../../store';
 
 const networkType = ['devnet', 'testnet'];
 
@@ -36,7 +37,8 @@ const networks: Record<
 };
 
 function Network() {
-  const [network, setNetwork] = useState('devnet');
+  const { networkId } = useSelector((state: RootState) => state.appContext);
+  const [network, setNetwork] = useState(networkId);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
