@@ -1,6 +1,6 @@
 @import '../../../styles/variables';
 
-.container {
+.title-container {
   padding: 48px 32px 0px;
 }
 
@@ -97,4 +97,7 @@
 .btn-container {
   padding: 16px;
   border-top: 1px solid $gray-100;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }

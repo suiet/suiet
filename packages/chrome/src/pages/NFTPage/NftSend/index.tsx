@@ -81,11 +81,11 @@ export default function SendNft() {
   }
 
   return (
-    <div>
+    <div className="pb-16">
       <Nav
         title={'NFT Details'}
         onNavBack={() => {
-          navigate('/nft/detail', {
+          navigate('/nft/details', {
             state: {
               id,
               name,
@@ -97,7 +97,7 @@ export default function SendNft() {
           });
         }}
       />
-      <div className={styles['container']}>
+      <div className={styles['title-container']}>
         <div className={styles['title']}>Send NFT</div>
         <div className={styles['description']}>
           Choose the token you want to send
