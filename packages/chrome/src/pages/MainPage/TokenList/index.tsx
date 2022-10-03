@@ -4,13 +4,11 @@ import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import IconToken from '../../../assets/icons/token.svg';
 import styles from './index.module.scss';
 import TokenIcon from '../../../components/TokenIcon';
-import { useSupportedCoins } from '../../../hooks/useSupportedCoins';
 import Typo from '../../../components/Typo';
-import { useCoinBalance } from '../../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
-import { formatCurrency, fullyFormatCurrency } from '../../../utils/format';
+import { fullyFormatCurrency } from '../../../utils/format';
 import { useCoins } from '../../../hooks/useCoins';
 import { isNonEmptyArray } from '../../../utils/check';
 
@@ -63,7 +61,9 @@ const TokenItem = (props: TokenItemProps) => {
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: account } = useAccount(appContext.accountId);
-  const { data: coins } = useCoins(account?.address ?? '');
+  const { data: coins } = useCoins(account?.address ?? '', {
+    networkId: appContext.networkId,
+  });
 
   if (!isNonEmptyArray(coins))
     return (

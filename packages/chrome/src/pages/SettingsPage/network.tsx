@@ -16,7 +16,7 @@ import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg
 import { ReactComponent as IconDevnet } from '../../assets/icons/devnet.svg';
 import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
 
-const networkType = ['devnet', 'mainnet'];
+const networkType = ['devnet', 'testnet'];
 
 const networks: Record<
   string,
@@ -29,8 +29,8 @@ const networks: Record<
     name: 'Devnet',
     icon: <IconDevnet />,
   },
-  mainnet: {
-    name: 'Mainnet',
+  testnet: {
+    name: 'Testnet',
     icon: <IconMainnet />,
   },
 };
@@ -70,7 +70,6 @@ function Network() {
                 [styles['active']]: active,
               })}
               onClick={() => {
-                if (type === 'mainnet') return;
                 setNetwork(type);
               }}
             >
