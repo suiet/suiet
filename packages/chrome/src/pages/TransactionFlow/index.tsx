@@ -151,7 +151,9 @@ function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { data: account } = useAccount(context.accountId);
   // const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
-  const { history, loading } = useTransactionList(account?.address ?? '');
+  const { history, loading } = useTransactionList(account?.address ?? '', {
+    networkId: context.networkId,
+  });
 
   // useEffect(() => {
   //   if (!account.address) {

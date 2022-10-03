@@ -133,7 +133,7 @@ function Header(props: HeaderProps) {
         hideCopy={true}
         className={classnames(styles['address'], 'ml-[18px]')}
       />
-      <div className={styles['net']}>devnet</div>
+      <div className={styles['net']}>{context.networkId}</div>
 
       {doSwitch && (
         <WalletSwitcherInstance
