@@ -22,6 +22,15 @@ const DEFAULT_NETWORKS = new Map([
     },
   ],
   [
+    'testnet',
+    {
+      id: 'testnet',
+      name: 'testnet',
+      queryRpcUrl: 'https://fullnode.testnet.sui.io/',
+      gatewayRpcUrl: 'https://gateway.testnet.sui.io:443',
+    },
+  ],
+  [
     'local',
     {
       id: 'local',
