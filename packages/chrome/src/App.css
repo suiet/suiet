@@ -8,3 +8,7 @@
   box-shadow: 0px 20px 24px -4px rgba(58, 76, 112, 0.04),
     0px 8px 8px -4px rgba(58, 76, 112, 0.03);
 }
+
+small {
+  font-size: 100%;
+}

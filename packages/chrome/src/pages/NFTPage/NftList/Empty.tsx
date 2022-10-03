@@ -51,7 +51,7 @@ export default function Empty(props: EmptyProps) {
         params,
         { withAuth: true }
       );
-      message.success('Mint NFT succeed');
+      message.success('Mint NFT succeeded');
       props.onMintSuccess();
     } catch (e: any) {
       message.error(`Mint NFT failed: ${e?.message}`);

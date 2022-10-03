@@ -35,9 +35,9 @@ const Address = (props: AddressProps) => {
         }
       }}
     >
-      <Typo.Small className={props.textClassName} style={props.textStyle}>
+      <p className={props.textClassName} style={props.textStyle}>
         {ellipsis ? addressEllipsis(props.value) : props.value}
-      </Typo.Small>
+      </p>
       {!hideCopy && (
         <CopyIcon
           className={classnames('ml-[5px]', props.copyClassName)}

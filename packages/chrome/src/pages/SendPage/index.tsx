@@ -85,7 +85,7 @@ const SendPage = () => {
         params,
         { withAuth: true }
       );
-      message.success('Send transaction succeed');
+      message.success('Send transaction succeeded');
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);
