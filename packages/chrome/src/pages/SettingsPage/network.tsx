@@ -91,9 +91,9 @@ function Network() {
         })}
       </section>
       {/* not supported yet */}
-      <Typo.Normal className={styles['add-custom']}>
+      {/* <Typo.Normal className={styles['add-custom']}>
         + Add custom network
-      </Typo.Normal>
+      </Typo.Normal> */}
       <Button state="primary" onClick={handleSave} className={'mt-[100px]'}>
         Save
       </Button>

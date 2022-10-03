@@ -148,7 +148,7 @@ function MainPage({ address, networkId }: DashboardProps) {
                   }),
                 };
                 setAirdropLoading(true);
-                fetch('https://faucet.suiet.app/devnet/gas', options)
+                fetch(`https://faucet.suiet.app/${networkId}/gas`, options)
                   .then(async (response) => await response.json())
 
                   .then((response) => {
