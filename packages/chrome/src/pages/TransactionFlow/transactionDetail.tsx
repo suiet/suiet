@@ -14,6 +14,8 @@ import message from '../../components/message';
 import CopyIcon from '../../components/CopyIcon';
 import { TxObject, CoinObject, NftObject } from '@suiet/core/src/storage/types';
 import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 export interface TxnItem {
   txStatus: 'success' | 'failure';
   transactionDigest: string;
@@ -39,7 +41,9 @@ function TransactionDetail() {
     object,
     type,
   } = state;
-
+  const { accountId, networkId } = useSelector(
+    (state: RootState) => state.appContext
+  );
   return (
     <div className="transaction-detail-container">
       <div className="transaction-detail-header">
@@ -129,7 +133,7 @@ function TransactionDetail() {
           <a
             target="_blank"
             href={
-              'https://explorer.devnet.sui.io/transactions/' +
+              `https://explorer.${networkId}.sui.io/transactions/` +
               encodeURIComponent(transactionDigest)
             }
             className="m-auto"
