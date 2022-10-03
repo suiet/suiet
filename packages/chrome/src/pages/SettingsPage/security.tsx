@@ -155,7 +155,7 @@ function PasswordSetting() {
       }
     );
     await apiClient.callFunc('session.setToken', password);
-    message.success('Update password succeed');
+    message.success('Update password succeeded');
     navigate('..');
   }
 

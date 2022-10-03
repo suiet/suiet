@@ -21,10 +21,16 @@
 }
 
 .nft-bg {
-  background: #eff1f5;
+  // background: #eff1f5;
+  border: $gray-100 2px solid;
   border-radius: 20px;
   padding: 10px;
   margin: 33px 22px 0;
+  transition: background-color 0.3s ease-in-out;
+  &:hover {
+    background-color: $gray-50;
+    border: $gray-200 2px solid;
+  }
 }
 
 .nft-img {

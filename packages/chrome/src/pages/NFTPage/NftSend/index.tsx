@@ -65,7 +65,7 @@ export default function SendNft() {
 
     setSendLoading(true);
     try {
-      message.success('Send transaction succeed');
+      message.success('Send succeeded');
       await apiClient.callFunc<OmitToken<TransferObjectParams>, undefined>(
         'txn.transferObject',
         params,
@@ -74,7 +74,7 @@ export default function SendNft() {
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);
-      message.error(`Send transaction failed: ${e?.message}`);
+      message.error(`Send failed: ${e?.message}`);
     } finally {
       setSendLoading(false);
     }
@@ -99,9 +99,7 @@ export default function SendNft() {
       />
       <div className={styles['title-container']}>
         <div className={styles['title']}>Send NFT</div>
-        <div className={styles['description']}>
-          Choose the token you want to send
-        </div>
+        <div className={styles['description']}>Send your NFT to others</div>
       </div>
       <div className={classNames(styles['nft-bg'], 'flex')}>
         <NftImg src={url} alt={name} className={styles['nft-img']} />
