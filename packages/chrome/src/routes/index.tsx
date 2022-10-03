@@ -9,6 +9,7 @@ const NFTPage = lazy(async () => await import('../pages/NFTPage'));
 const NFTDetailPage = lazy(
   async () => await import('../pages/NFTPage/NftDetail')
 );
+const NFTSendPage = lazy(async () => await import('../pages/NFTPage/NftSend'));
 const WelcomePage = lazy(
   async () => await import('../pages/onboarding/WelcomePage')
 );
@@ -74,6 +75,10 @@ const routesConfig: RouteObject[] = [
           {
             path: 'details',
             element: withSus(<NFTDetailPage />),
+          },
+          {
+            path: 'send',
+            element: withSus(<NFTSendPage />),
           },
         ],
       },

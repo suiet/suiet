@@ -37,19 +37,38 @@ const NftDetail = () => {
       />
       <div className={styles['container']}>
         <NftImg src={url} alt={name} className={styles['nft-img']} />
-        <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
-          {name}
-        </Typo.Title>
-        <div className="flex">
-          <Typo.Small
-            className={classnames(styles['nft-tag'])}
+        <div className="relative">
+          <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
+            {name}
+          </Typo.Title>
+          <div
+            className={styles['nft-send']}
             onClick={() => {
-              copy(id);
-              message.success('Copied Object ID');
+              navigate('/nft/send', {
+                state: {
+                  id,
+                  name,
+                  description,
+                  previousTransaction,
+                  objectType,
+                  url,
+                },
+              });
             }}
           >
-            {'ID: ' + addressEllipsis(id)}
-          </Typo.Small>
+            Send
+          </div>
+          <div className="flex">
+            <Typo.Small
+              className={classnames(styles['nft-tag'])}
+              onClick={() => {
+                copy(id);
+                message.success('Copied Object ID');
+              }}
+            >
+              {'ID: ' + addressEllipsis(id)}
+            </Typo.Small>
+          </div>
         </div>
 
         <section className={styles['nft-meta']}>
