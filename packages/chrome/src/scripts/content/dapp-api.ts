@@ -99,6 +99,10 @@ export class DAppInterface implements IWindowSuietApi {
       },
     };
   }
+
+  async getPublicKey() {
+    return await this.windowMsgStream.post(reqData('dapp.getPublicKey', null));
+  }
 }
 
 injectPolyfill(window);

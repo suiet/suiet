@@ -71,7 +71,7 @@ export class BackgroundApiProxy {
       'network'
     );
     this.dapp = this.registerProxyService<DappBgApi>(
-      new DappBgApi(storage, this.txn, this.network, this.auth),
+      new DappBgApi(storage, this.txn, this.network, this.auth, this.account),
       'dapp'
     );
     this.root = this.registerProxyService<RootApi>(

@@ -90,6 +90,14 @@ export class AccountApi implements IAccountApi {
     return await this.storage.getAccounts(walletId);
   }
 
+  async getPublicKey(accountId: string) {
+    const account = await this.getAccount(accountId);
+    if (!account) {
+      throw new Error('Account Not Exist');
+    }
+    return account.pubkey;
+  }
+
   async getAccount(accountId: string): Promise<Account | null> {
     return await this.storage.getAccount(accountId);
   }

@@ -4,6 +4,7 @@ import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
 import {
   Account,
+  AccountApi,
   AuthApi,
   NetworkApi,
   Storage,
@@ -53,6 +54,7 @@ export class DappBgApi {
   txManager: TxRequestManager;
   signManager: SignRequestManager;
   txApi: TransactionApi;
+  accountApi: AccountApi;
   networkApi: NetworkApi;
   authApi: AuthApi;
 
@@ -60,12 +62,14 @@ export class DappBgApi {
     storage: Storage,
     txApi: TransactionApi,
     networkApi: NetworkApi,
-    authApi: AuthApi
+    authApi: AuthApi,
+    accountApi: AccountApi
   ) {
     this.storage = storage;
     this.txApi = txApi;
     this.networkApi = networkApi;
     this.authApi = authApi;
+    this.accountApi = accountApi;
     this.chromeStorage = new ChromeStorage();
     this.permManager = new PermissionManager();
     this.txManager = new TxRequestManager();
@@ -381,7 +385,23 @@ export class DappBgApi {
         }
       );
     }
-    return result.map((ac) => ac.address);
+    return result.map((ac: Account) => ac.address);
+  }
+
+  public async getPublicKey(payload: DappMessage<{}>): Promise<string> {
+    const { context } = payload;
+    const checkRes = await this.checkPermissions(context.origin, [
+      Permission.VIEW_ACCOUNT,
+    ]);
+    if (!checkRes.result) {
+      throw new NoPermissionError('No permission to getAccounts info', {
+        missingPerms: checkRes.missingPerms,
+      });
+    }
+
+    const appContext = await this.getAppContext();
+    const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
+    return publicKey;
   }
 
   private createPopupWindow(url: string, params: Record<string, any>) {
