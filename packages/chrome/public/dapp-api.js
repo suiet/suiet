@@ -31,7 +31,7 @@ function Ve(n, o, u) {
   return qe(h);
 }
 var Zr = /* @__PURE__ */ ((n) => (n.DAPP = "DAPP", n.SUIET_CONTENT = "SUIET_CONTENT", n))(Zr || {});
-function Ht(n, o, u) {
+function Kt(n, o, u) {
   return {
     id: Ve(),
     funcName: n,
@@ -47,7 +47,7 @@ var Vr = function(n, o) {
       Object.prototype.hasOwnProperty.call(h, m) && (u[m] = h[m]);
   }, Vr(n, o);
 };
-function Kr(n, o) {
+function Hr(n, o) {
   if (typeof o != "function" && o !== null)
     throw new TypeError("Class extends value " + String(o) + " is not a constructor or null");
   Vr(n, o);
@@ -223,7 +223,7 @@ function Ye(n, o, u) {
     D(I), f.shift(), f.length && w(f[0][0], f[0][1]);
   }
 }
-function We(n) {
+function Ke(n) {
   if (!Symbol.asyncIterator)
     throw new TypeError("Symbol.asyncIterator is not defined.");
   var o = n[Symbol.asyncIterator], u;
@@ -243,7 +243,7 @@ function We(n) {
     }, x);
   }
 }
-function H(n) {
+function j(n) {
   return typeof n == "function";
 }
 function Me(n) {
@@ -296,7 +296,7 @@ var Jr = function() {
         else
           x.remove(this);
       var S = this.initialTeardown;
-      if (H(S))
+      if (j(S))
         try {
           S();
         } catch (N) {
@@ -360,10 +360,10 @@ var Jr = function() {
 }();
 Jr.EMPTY;
 function be(n) {
-  return n instanceof Jr || n && "closed" in n && H(n.remove) && H(n.add) && H(n.unsubscribe);
+  return n instanceof Jr || n && "closed" in n && j(n.remove) && j(n.add) && j(n.unsubscribe);
 }
 function me(n) {
-  H(n) ? n() : n.unsubscribe();
+  j(n) ? n() : n.unsubscribe();
 }
 var Ee = {
   onUnhandledError: null,
@@ -391,11 +391,11 @@ function Be(n) {
 }
 function ye() {
 }
-function je(n) {
+function We(n) {
   n();
 }
 var Xr = function(n) {
-  Kr(o, n);
+  Hr(o, n);
   function o(u) {
     var h = n.call(this) || this;
     return h.isStopped = !1, u ? (h.destination = u, be(u) && u.add(h)) : h.destination = Xe, h;
@@ -425,11 +425,11 @@ var Xr = function(n) {
       this.unsubscribe();
     }
   }, o;
-}(Jr), He = Function.prototype.bind;
+}(Jr), je = Function.prototype.bind;
 function Nr(n, o) {
-  return He.call(n, o);
+  return je.call(n, o);
 }
-var Ke = function() {
+var He = function() {
   function n(o) {
     this.partialObserver = o;
   }
@@ -461,10 +461,10 @@ var Ke = function() {
       }
   }, n;
 }(), Yr = function(n) {
-  Kr(o, n);
+  Hr(o, n);
   function o(u, h, m) {
     var f = n.call(this) || this, x;
-    if (H(u) || !u)
+    if (j(u) || !u)
       x = {
         next: u != null ? u : void 0,
         error: h != null ? h : void 0,
@@ -480,7 +480,7 @@ var Ke = function() {
         complete: u.complete && Nr(u.complete, w)
       }) : x = u;
     }
-    return f.destination = new Ke(x), f;
+    return f.destination = new He(x), f;
   }
   return o;
 }(Xr);
@@ -517,7 +517,7 @@ var Yt = function() {
     return u.source = this, u.operator = o, u;
   }, n.prototype.subscribe = function(o, u, h) {
     var m = this, f = ei(o) ? o : new Yr(o, u, h);
-    return je(function() {
+    return We(function() {
       var x = m, w = x.operator, A = x.source;
       f.add(w ? w.call(f, A) : A ? m._subscribe(f) : m._trySubscribe(f));
     }), f;
@@ -573,13 +573,13 @@ function ve(n) {
   return (o = n != null ? n : Ee.Promise) !== null && o !== void 0 ? o : Promise;
 }
 function ri(n) {
-  return n && H(n.next) && H(n.error) && H(n.complete);
+  return n && j(n.next) && j(n.error) && j(n.complete);
 }
 function ei(n) {
   return n && n instanceof Xr || ri(n) && be(n);
 }
 function ii(n) {
-  return H(n == null ? void 0 : n.lift);
+  return j(n == null ? void 0 : n.lift);
 }
 function yr(n) {
   return function(o) {
@@ -598,7 +598,7 @@ function nr(n, o, u, h, m) {
   return new ni(n, o, u, h, m);
 }
 var ni = function(n) {
-  Kr(o, n);
+  Hr(o, n);
   function o(u, h, m, f, x, w) {
     var A = n.call(this, u) || this;
     return A.onFinalize = x, A.shouldUnsubscribe = w, A._next = h ? function(F) {
@@ -638,13 +638,13 @@ var ni = function(n) {
   return n && typeof n.length == "number" && typeof n != "function";
 };
 function fi(n) {
-  return H(n == null ? void 0 : n.then);
+  return j(n == null ? void 0 : n.then);
 }
 function si(n) {
-  return H(n[Qr]);
+  return j(n[Qr]);
 }
 function ui(n) {
-  return Symbol.asyncIterator && H(n == null ? void 0 : n[Symbol.asyncIterator]);
+  return Symbol.asyncIterator && j(n == null ? void 0 : n[Symbol.asyncIterator]);
 }
 function hi(n) {
   return new TypeError("You provided " + (n !== null && typeof n == "object" ? "an invalid object" : "'" + n + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
@@ -654,7 +654,7 @@ function ai() {
 }
 var li = ai();
 function ci(n) {
-  return H(n == null ? void 0 : n[li]);
+  return j(n == null ? void 0 : n[li]);
 }
 function di(n) {
   return Ye(this, arguments, function() {
@@ -688,7 +688,7 @@ function di(n) {
   });
 }
 function pi(n) {
-  return H(n == null ? void 0 : n.getReader);
+  return j(n == null ? void 0 : n.getReader);
 }
 function te(n) {
   if (n instanceof Yt)
@@ -712,7 +712,7 @@ function te(n) {
 function mi(n) {
   return new Yt(function(o) {
     var u = n[Qr]();
-    if (H(u.subscribe))
+    if (j(u.subscribe))
       return u.subscribe(o);
     throw new TypeError("Provided object does not correctly implement Symbol.observable");
   });
@@ -772,7 +772,7 @@ function xi(n, o) {
     return xe(this, function(A) {
       switch (A.label) {
         case 0:
-          A.trys.push([0, 5, 6, 11]), u = We(n), A.label = 1;
+          A.trys.push([0, 5, 6, 11]), u = Ke(n), A.label = 1;
         case 1:
           return [4, u.next()];
         case 2:
@@ -858,21 +858,21 @@ function Fi(n, o, u, h, m, f, x, w) {
   }, z = function(N) {
     f && o.next(N), F++;
     var _t = !1;
-    te(u(N, S++)).subscribe(nr(o, function(K) {
-      m == null || m(K), f ? I(K) : o.next(K);
+    te(u(N, S++)).subscribe(nr(o, function(H) {
+      m == null || m(H), f ? I(H) : o.next(H);
     }, function() {
       _t = !0;
     }, void 0, function() {
       if (_t)
         try {
           F--;
-          for (var K = function() {
+          for (var H = function() {
             var ot = A.shift();
             x ? Mi(o, x, function() {
               return z(ot);
             }) : z(ot);
           }; A.length && F < h; )
-            K();
+            H();
           D();
         } catch (ot) {
           o.error(ot);
@@ -886,7 +886,7 @@ function Fi(n, o, u, h, m, f, x, w) {
   };
 }
 function Fe(n, o, u) {
-  return u === void 0 && (u = 1 / 0), H(o) ? Fe(function(h, m) {
+  return u === void 0 && (u = 1 / 0), j(o) ? Fe(function(h, m) {
     return lr(function(f, x) {
       return o(h, f, m, x);
     })(te(n(h, m)));
@@ -895,9 +895,9 @@ function Fe(n, o, u) {
   }));
 }
 var Ii = ["addListener", "removeListener"], Si = ["addEventListener", "removeEventListener"], Ui = ["on", "off"];
-function Wr(n, o, u, h) {
-  if (H(u) && (h = u, u = void 0), h)
-    return Wr(n, o, u).pipe(Ai(h));
+function Kr(n, o, u, h) {
+  if (j(u) && (h = u, u = void 0), h)
+    return Kr(n, o, u).pipe(Ai(h));
   var m = Xt(Oi(n) ? Si.map(function(w) {
     return function(A) {
       return n[w](o, A, u);
@@ -905,7 +905,7 @@ function Wr(n, o, u, h) {
   }) : Ri(n) ? Ii.map(we(n, o)) : Ti(n) ? Ui.map(we(n, o)) : [], 2), f = m[0], x = m[1];
   if (!f && _e(n))
     return Fe(function(w) {
-      return Wr(w, o, u);
+      return Kr(w, o, u);
     })(te(n));
   if (!f)
     throw new TypeError("Invalid event target");
@@ -928,13 +928,13 @@ function we(n, o) {
   };
 }
 function Ri(n) {
-  return H(n.addListener) && H(n.removeListener);
+  return j(n.addListener) && j(n.removeListener);
 }
 function Ti(n) {
-  return H(n.on) && H(n.off);
+  return j(n.on) && j(n.off);
 }
 function Oi(n) {
-  return H(n.addEventListener) && H(n.removeEventListener);
+  return j(n.addEventListener) && j(n.removeEventListener);
 }
 function ge(n, o) {
   return yr(function(u, h) {
@@ -963,7 +963,7 @@ class ki {
       throw new Error(
         "[WindowMessageStream] source and target must be different"
       );
-    this.source = o, this.target = u, this.msgObservable = Wr(
+    this.source = o, this.target = u, this.msgObservable = Kr(
       window,
       "message"
     ).pipe(
@@ -1467,7 +1467,7 @@ const Ci = {}, Di = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
     }, f.prototype.sub = function(t) {
       return this.clone().isub(t);
     };
-    function K(g, t, s) {
+    function H(g, t, s) {
       s.negative = t.negative ^ g.negative;
       var l = g.length + t.length | 0;
       s.length = l, l = l - 1 | 0;
@@ -1483,7 +1483,7 @@ const Ci = {}, Di = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
       return d !== 0 ? s.words[i] = d | 0 : s.length--, s._strip();
     }
     var ot = function(t, s, l) {
-      var p = t.words, v = s.words, b = l.words, B = 0, d, i, y, R = p[0] | 0, U = R & 8191, O = R >>> 13, Bt = p[1] | 0, $ = Bt & 8191, Z = Bt >>> 13, rr = p[2] | 0, tt = rr & 8191, X = rr >>> 13, qt = p[3] | 0, V = qt & 8191, rt = qt >>> 13, fr = p[4] | 0, W = fr & 8191, et = fr >>> 13, sr = p[5] | 0, Q = sr & 8191, G = sr >>> 13, Tt = p[6] | 0, j = Tt & 8191, it = Tt >>> 13, kt = p[7] | 0, nt = kt & 8191, a = kt >>> 13, r = p[8] | 0, e = r & 8191, c = r >>> 13, M = p[9] | 0, E = M & 8191, _ = M >>> 13, C = v[0] | 0, k = C & 8191, L = C >>> 13, Y = v[1] | 0, T = Y & 8191, st = Y >>> 13, oe = v[2] | 0, ut = oe & 8191, ht = oe >>> 13, fe = v[3] | 0, at = fe & 8191, lt = fe >>> 13, se = v[4] | 0, ct = se & 8191, dt = se >>> 13, ue = v[5] | 0, pt = ue & 8191, mt = ue >>> 13, he = v[6] | 0, yt = he & 8191, vt = he >>> 13, ae = v[7] | 0, wt = ae & 8191, gt = ae >>> 13, le = v[8] | 0, xt = le & 8191, Mt = le >>> 13, ce = v[9] | 0, bt = ce & 8191, Et = ce >>> 13;
+      var p = t.words, v = s.words, b = l.words, B = 0, d, i, y, R = p[0] | 0, U = R & 8191, O = R >>> 13, Bt = p[1] | 0, $ = Bt & 8191, Z = Bt >>> 13, rr = p[2] | 0, tt = rr & 8191, X = rr >>> 13, qt = p[3] | 0, V = qt & 8191, rt = qt >>> 13, fr = p[4] | 0, K = fr & 8191, et = fr >>> 13, sr = p[5] | 0, Q = sr & 8191, G = sr >>> 13, Tt = p[6] | 0, W = Tt & 8191, it = Tt >>> 13, kt = p[7] | 0, nt = kt & 8191, a = kt >>> 13, r = p[8] | 0, e = r & 8191, c = r >>> 13, M = p[9] | 0, E = M & 8191, _ = M >>> 13, C = v[0] | 0, k = C & 8191, L = C >>> 13, Y = v[1] | 0, T = Y & 8191, st = Y >>> 13, oe = v[2] | 0, ut = oe & 8191, ht = oe >>> 13, fe = v[3] | 0, at = fe & 8191, lt = fe >>> 13, se = v[4] | 0, ct = se & 8191, dt = se >>> 13, ue = v[5] | 0, pt = ue & 8191, mt = ue >>> 13, he = v[6] | 0, yt = he & 8191, vt = he >>> 13, ae = v[7] | 0, wt = ae & 8191, gt = ae >>> 13, le = v[8] | 0, xt = le & 8191, Mt = le >>> 13, ce = v[9] | 0, bt = ce & 8191, Et = ce >>> 13;
       l.negative = t.negative ^ s.negative, l.length = 19, d = Math.imul(U, k), i = Math.imul(U, L), i = i + Math.imul(O, k) | 0, y = Math.imul(O, L);
       var gr = (B + d | 0) + ((i & 8191) << 13) | 0;
       B = (y + (i >>> 13) | 0) + (gr >>> 26) | 0, gr &= 67108863, d = Math.imul($, k), i = Math.imul($, L), i = i + Math.imul(Z, k) | 0, y = Math.imul(Z, L), d = d + Math.imul(U, T) | 0, i = i + Math.imul(U, st) | 0, i = i + Math.imul(O, T) | 0, y = y + Math.imul(O, st) | 0;
@@ -1492,29 +1492,29 @@ const Ci = {}, Di = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
       var Mr = (B + d | 0) + ((i & 8191) << 13) | 0;
       B = (y + (i >>> 13) | 0) + (Mr >>> 26) | 0, Mr &= 67108863, d = Math.imul(V, k), i = Math.imul(V, L), i = i + Math.imul(rt, k) | 0, y = Math.imul(rt, L), d = d + Math.imul(tt, T) | 0, i = i + Math.imul(tt, st) | 0, i = i + Math.imul(X, T) | 0, y = y + Math.imul(X, st) | 0, d = d + Math.imul($, ut) | 0, i = i + Math.imul($, ht) | 0, i = i + Math.imul(Z, ut) | 0, y = y + Math.imul(Z, ht) | 0, d = d + Math.imul(U, at) | 0, i = i + Math.imul(U, lt) | 0, i = i + Math.imul(O, at) | 0, y = y + Math.imul(O, lt) | 0;
       var br = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (br >>> 26) | 0, br &= 67108863, d = Math.imul(W, k), i = Math.imul(W, L), i = i + Math.imul(et, k) | 0, y = Math.imul(et, L), d = d + Math.imul(V, T) | 0, i = i + Math.imul(V, st) | 0, i = i + Math.imul(rt, T) | 0, y = y + Math.imul(rt, st) | 0, d = d + Math.imul(tt, ut) | 0, i = i + Math.imul(tt, ht) | 0, i = i + Math.imul(X, ut) | 0, y = y + Math.imul(X, ht) | 0, d = d + Math.imul($, at) | 0, i = i + Math.imul($, lt) | 0, i = i + Math.imul(Z, at) | 0, y = y + Math.imul(Z, lt) | 0, d = d + Math.imul(U, ct) | 0, i = i + Math.imul(U, dt) | 0, i = i + Math.imul(O, ct) | 0, y = y + Math.imul(O, dt) | 0;
+      B = (y + (i >>> 13) | 0) + (br >>> 26) | 0, br &= 67108863, d = Math.imul(K, k), i = Math.imul(K, L), i = i + Math.imul(et, k) | 0, y = Math.imul(et, L), d = d + Math.imul(V, T) | 0, i = i + Math.imul(V, st) | 0, i = i + Math.imul(rt, T) | 0, y = y + Math.imul(rt, st) | 0, d = d + Math.imul(tt, ut) | 0, i = i + Math.imul(tt, ht) | 0, i = i + Math.imul(X, ut) | 0, y = y + Math.imul(X, ht) | 0, d = d + Math.imul($, at) | 0, i = i + Math.imul($, lt) | 0, i = i + Math.imul(Z, at) | 0, y = y + Math.imul(Z, lt) | 0, d = d + Math.imul(U, ct) | 0, i = i + Math.imul(U, dt) | 0, i = i + Math.imul(O, ct) | 0, y = y + Math.imul(O, dt) | 0;
       var Er = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Er >>> 26) | 0, Er &= 67108863, d = Math.imul(Q, k), i = Math.imul(Q, L), i = i + Math.imul(G, k) | 0, y = Math.imul(G, L), d = d + Math.imul(W, T) | 0, i = i + Math.imul(W, st) | 0, i = i + Math.imul(et, T) | 0, y = y + Math.imul(et, st) | 0, d = d + Math.imul(V, ut) | 0, i = i + Math.imul(V, ht) | 0, i = i + Math.imul(rt, ut) | 0, y = y + Math.imul(rt, ht) | 0, d = d + Math.imul(tt, at) | 0, i = i + Math.imul(tt, lt) | 0, i = i + Math.imul(X, at) | 0, y = y + Math.imul(X, lt) | 0, d = d + Math.imul($, ct) | 0, i = i + Math.imul($, dt) | 0, i = i + Math.imul(Z, ct) | 0, y = y + Math.imul(Z, dt) | 0, d = d + Math.imul(U, pt) | 0, i = i + Math.imul(U, mt) | 0, i = i + Math.imul(O, pt) | 0, y = y + Math.imul(O, mt) | 0;
+      B = (y + (i >>> 13) | 0) + (Er >>> 26) | 0, Er &= 67108863, d = Math.imul(Q, k), i = Math.imul(Q, L), i = i + Math.imul(G, k) | 0, y = Math.imul(G, L), d = d + Math.imul(K, T) | 0, i = i + Math.imul(K, st) | 0, i = i + Math.imul(et, T) | 0, y = y + Math.imul(et, st) | 0, d = d + Math.imul(V, ut) | 0, i = i + Math.imul(V, ht) | 0, i = i + Math.imul(rt, ut) | 0, y = y + Math.imul(rt, ht) | 0, d = d + Math.imul(tt, at) | 0, i = i + Math.imul(tt, lt) | 0, i = i + Math.imul(X, at) | 0, y = y + Math.imul(X, lt) | 0, d = d + Math.imul($, ct) | 0, i = i + Math.imul($, dt) | 0, i = i + Math.imul(Z, ct) | 0, y = y + Math.imul(Z, dt) | 0, d = d + Math.imul(U, pt) | 0, i = i + Math.imul(U, mt) | 0, i = i + Math.imul(O, pt) | 0, y = y + Math.imul(O, mt) | 0;
       var Br = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Br >>> 26) | 0, Br &= 67108863, d = Math.imul(j, k), i = Math.imul(j, L), i = i + Math.imul(it, k) | 0, y = Math.imul(it, L), d = d + Math.imul(Q, T) | 0, i = i + Math.imul(Q, st) | 0, i = i + Math.imul(G, T) | 0, y = y + Math.imul(G, st) | 0, d = d + Math.imul(W, ut) | 0, i = i + Math.imul(W, ht) | 0, i = i + Math.imul(et, ut) | 0, y = y + Math.imul(et, ht) | 0, d = d + Math.imul(V, at) | 0, i = i + Math.imul(V, lt) | 0, i = i + Math.imul(rt, at) | 0, y = y + Math.imul(rt, lt) | 0, d = d + Math.imul(tt, ct) | 0, i = i + Math.imul(tt, dt) | 0, i = i + Math.imul(X, ct) | 0, y = y + Math.imul(X, dt) | 0, d = d + Math.imul($, pt) | 0, i = i + Math.imul($, mt) | 0, i = i + Math.imul(Z, pt) | 0, y = y + Math.imul(Z, mt) | 0, d = d + Math.imul(U, yt) | 0, i = i + Math.imul(U, vt) | 0, i = i + Math.imul(O, yt) | 0, y = y + Math.imul(O, vt) | 0;
+      B = (y + (i >>> 13) | 0) + (Br >>> 26) | 0, Br &= 67108863, d = Math.imul(W, k), i = Math.imul(W, L), i = i + Math.imul(it, k) | 0, y = Math.imul(it, L), d = d + Math.imul(Q, T) | 0, i = i + Math.imul(Q, st) | 0, i = i + Math.imul(G, T) | 0, y = y + Math.imul(G, st) | 0, d = d + Math.imul(K, ut) | 0, i = i + Math.imul(K, ht) | 0, i = i + Math.imul(et, ut) | 0, y = y + Math.imul(et, ht) | 0, d = d + Math.imul(V, at) | 0, i = i + Math.imul(V, lt) | 0, i = i + Math.imul(rt, at) | 0, y = y + Math.imul(rt, lt) | 0, d = d + Math.imul(tt, ct) | 0, i = i + Math.imul(tt, dt) | 0, i = i + Math.imul(X, ct) | 0, y = y + Math.imul(X, dt) | 0, d = d + Math.imul($, pt) | 0, i = i + Math.imul($, mt) | 0, i = i + Math.imul(Z, pt) | 0, y = y + Math.imul(Z, mt) | 0, d = d + Math.imul(U, yt) | 0, i = i + Math.imul(U, vt) | 0, i = i + Math.imul(O, yt) | 0, y = y + Math.imul(O, vt) | 0;
       var _r = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (_r >>> 26) | 0, _r &= 67108863, d = Math.imul(nt, k), i = Math.imul(nt, L), i = i + Math.imul(a, k) | 0, y = Math.imul(a, L), d = d + Math.imul(j, T) | 0, i = i + Math.imul(j, st) | 0, i = i + Math.imul(it, T) | 0, y = y + Math.imul(it, st) | 0, d = d + Math.imul(Q, ut) | 0, i = i + Math.imul(Q, ht) | 0, i = i + Math.imul(G, ut) | 0, y = y + Math.imul(G, ht) | 0, d = d + Math.imul(W, at) | 0, i = i + Math.imul(W, lt) | 0, i = i + Math.imul(et, at) | 0, y = y + Math.imul(et, lt) | 0, d = d + Math.imul(V, ct) | 0, i = i + Math.imul(V, dt) | 0, i = i + Math.imul(rt, ct) | 0, y = y + Math.imul(rt, dt) | 0, d = d + Math.imul(tt, pt) | 0, i = i + Math.imul(tt, mt) | 0, i = i + Math.imul(X, pt) | 0, y = y + Math.imul(X, mt) | 0, d = d + Math.imul($, yt) | 0, i = i + Math.imul($, vt) | 0, i = i + Math.imul(Z, yt) | 0, y = y + Math.imul(Z, vt) | 0, d = d + Math.imul(U, wt) | 0, i = i + Math.imul(U, gt) | 0, i = i + Math.imul(O, wt) | 0, y = y + Math.imul(O, gt) | 0;
+      B = (y + (i >>> 13) | 0) + (_r >>> 26) | 0, _r &= 67108863, d = Math.imul(nt, k), i = Math.imul(nt, L), i = i + Math.imul(a, k) | 0, y = Math.imul(a, L), d = d + Math.imul(W, T) | 0, i = i + Math.imul(W, st) | 0, i = i + Math.imul(it, T) | 0, y = y + Math.imul(it, st) | 0, d = d + Math.imul(Q, ut) | 0, i = i + Math.imul(Q, ht) | 0, i = i + Math.imul(G, ut) | 0, y = y + Math.imul(G, ht) | 0, d = d + Math.imul(K, at) | 0, i = i + Math.imul(K, lt) | 0, i = i + Math.imul(et, at) | 0, y = y + Math.imul(et, lt) | 0, d = d + Math.imul(V, ct) | 0, i = i + Math.imul(V, dt) | 0, i = i + Math.imul(rt, ct) | 0, y = y + Math.imul(rt, dt) | 0, d = d + Math.imul(tt, pt) | 0, i = i + Math.imul(tt, mt) | 0, i = i + Math.imul(X, pt) | 0, y = y + Math.imul(X, mt) | 0, d = d + Math.imul($, yt) | 0, i = i + Math.imul($, vt) | 0, i = i + Math.imul(Z, yt) | 0, y = y + Math.imul(Z, vt) | 0, d = d + Math.imul(U, wt) | 0, i = i + Math.imul(U, gt) | 0, i = i + Math.imul(O, wt) | 0, y = y + Math.imul(O, gt) | 0;
       var Ar = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Ar >>> 26) | 0, Ar &= 67108863, d = Math.imul(e, k), i = Math.imul(e, L), i = i + Math.imul(c, k) | 0, y = Math.imul(c, L), d = d + Math.imul(nt, T) | 0, i = i + Math.imul(nt, st) | 0, i = i + Math.imul(a, T) | 0, y = y + Math.imul(a, st) | 0, d = d + Math.imul(j, ut) | 0, i = i + Math.imul(j, ht) | 0, i = i + Math.imul(it, ut) | 0, y = y + Math.imul(it, ht) | 0, d = d + Math.imul(Q, at) | 0, i = i + Math.imul(Q, lt) | 0, i = i + Math.imul(G, at) | 0, y = y + Math.imul(G, lt) | 0, d = d + Math.imul(W, ct) | 0, i = i + Math.imul(W, dt) | 0, i = i + Math.imul(et, ct) | 0, y = y + Math.imul(et, dt) | 0, d = d + Math.imul(V, pt) | 0, i = i + Math.imul(V, mt) | 0, i = i + Math.imul(rt, pt) | 0, y = y + Math.imul(rt, mt) | 0, d = d + Math.imul(tt, yt) | 0, i = i + Math.imul(tt, vt) | 0, i = i + Math.imul(X, yt) | 0, y = y + Math.imul(X, vt) | 0, d = d + Math.imul($, wt) | 0, i = i + Math.imul($, gt) | 0, i = i + Math.imul(Z, wt) | 0, y = y + Math.imul(Z, gt) | 0, d = d + Math.imul(U, xt) | 0, i = i + Math.imul(U, Mt) | 0, i = i + Math.imul(O, xt) | 0, y = y + Math.imul(O, Mt) | 0;
+      B = (y + (i >>> 13) | 0) + (Ar >>> 26) | 0, Ar &= 67108863, d = Math.imul(e, k), i = Math.imul(e, L), i = i + Math.imul(c, k) | 0, y = Math.imul(c, L), d = d + Math.imul(nt, T) | 0, i = i + Math.imul(nt, st) | 0, i = i + Math.imul(a, T) | 0, y = y + Math.imul(a, st) | 0, d = d + Math.imul(W, ut) | 0, i = i + Math.imul(W, ht) | 0, i = i + Math.imul(it, ut) | 0, y = y + Math.imul(it, ht) | 0, d = d + Math.imul(Q, at) | 0, i = i + Math.imul(Q, lt) | 0, i = i + Math.imul(G, at) | 0, y = y + Math.imul(G, lt) | 0, d = d + Math.imul(K, ct) | 0, i = i + Math.imul(K, dt) | 0, i = i + Math.imul(et, ct) | 0, y = y + Math.imul(et, dt) | 0, d = d + Math.imul(V, pt) | 0, i = i + Math.imul(V, mt) | 0, i = i + Math.imul(rt, pt) | 0, y = y + Math.imul(rt, mt) | 0, d = d + Math.imul(tt, yt) | 0, i = i + Math.imul(tt, vt) | 0, i = i + Math.imul(X, yt) | 0, y = y + Math.imul(X, vt) | 0, d = d + Math.imul($, wt) | 0, i = i + Math.imul($, gt) | 0, i = i + Math.imul(Z, wt) | 0, y = y + Math.imul(Z, gt) | 0, d = d + Math.imul(U, xt) | 0, i = i + Math.imul(U, Mt) | 0, i = i + Math.imul(O, xt) | 0, y = y + Math.imul(O, Mt) | 0;
       var Fr = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Fr >>> 26) | 0, Fr &= 67108863, d = Math.imul(E, k), i = Math.imul(E, L), i = i + Math.imul(_, k) | 0, y = Math.imul(_, L), d = d + Math.imul(e, T) | 0, i = i + Math.imul(e, st) | 0, i = i + Math.imul(c, T) | 0, y = y + Math.imul(c, st) | 0, d = d + Math.imul(nt, ut) | 0, i = i + Math.imul(nt, ht) | 0, i = i + Math.imul(a, ut) | 0, y = y + Math.imul(a, ht) | 0, d = d + Math.imul(j, at) | 0, i = i + Math.imul(j, lt) | 0, i = i + Math.imul(it, at) | 0, y = y + Math.imul(it, lt) | 0, d = d + Math.imul(Q, ct) | 0, i = i + Math.imul(Q, dt) | 0, i = i + Math.imul(G, ct) | 0, y = y + Math.imul(G, dt) | 0, d = d + Math.imul(W, pt) | 0, i = i + Math.imul(W, mt) | 0, i = i + Math.imul(et, pt) | 0, y = y + Math.imul(et, mt) | 0, d = d + Math.imul(V, yt) | 0, i = i + Math.imul(V, vt) | 0, i = i + Math.imul(rt, yt) | 0, y = y + Math.imul(rt, vt) | 0, d = d + Math.imul(tt, wt) | 0, i = i + Math.imul(tt, gt) | 0, i = i + Math.imul(X, wt) | 0, y = y + Math.imul(X, gt) | 0, d = d + Math.imul($, xt) | 0, i = i + Math.imul($, Mt) | 0, i = i + Math.imul(Z, xt) | 0, y = y + Math.imul(Z, Mt) | 0, d = d + Math.imul(U, bt) | 0, i = i + Math.imul(U, Et) | 0, i = i + Math.imul(O, bt) | 0, y = y + Math.imul(O, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Fr >>> 26) | 0, Fr &= 67108863, d = Math.imul(E, k), i = Math.imul(E, L), i = i + Math.imul(_, k) | 0, y = Math.imul(_, L), d = d + Math.imul(e, T) | 0, i = i + Math.imul(e, st) | 0, i = i + Math.imul(c, T) | 0, y = y + Math.imul(c, st) | 0, d = d + Math.imul(nt, ut) | 0, i = i + Math.imul(nt, ht) | 0, i = i + Math.imul(a, ut) | 0, y = y + Math.imul(a, ht) | 0, d = d + Math.imul(W, at) | 0, i = i + Math.imul(W, lt) | 0, i = i + Math.imul(it, at) | 0, y = y + Math.imul(it, lt) | 0, d = d + Math.imul(Q, ct) | 0, i = i + Math.imul(Q, dt) | 0, i = i + Math.imul(G, ct) | 0, y = y + Math.imul(G, dt) | 0, d = d + Math.imul(K, pt) | 0, i = i + Math.imul(K, mt) | 0, i = i + Math.imul(et, pt) | 0, y = y + Math.imul(et, mt) | 0, d = d + Math.imul(V, yt) | 0, i = i + Math.imul(V, vt) | 0, i = i + Math.imul(rt, yt) | 0, y = y + Math.imul(rt, vt) | 0, d = d + Math.imul(tt, wt) | 0, i = i + Math.imul(tt, gt) | 0, i = i + Math.imul(X, wt) | 0, y = y + Math.imul(X, gt) | 0, d = d + Math.imul($, xt) | 0, i = i + Math.imul($, Mt) | 0, i = i + Math.imul(Z, xt) | 0, y = y + Math.imul(Z, Mt) | 0, d = d + Math.imul(U, bt) | 0, i = i + Math.imul(U, Et) | 0, i = i + Math.imul(O, bt) | 0, y = y + Math.imul(O, Et) | 0;
       var Ir = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Ir >>> 26) | 0, Ir &= 67108863, d = Math.imul(E, T), i = Math.imul(E, st), i = i + Math.imul(_, T) | 0, y = Math.imul(_, st), d = d + Math.imul(e, ut) | 0, i = i + Math.imul(e, ht) | 0, i = i + Math.imul(c, ut) | 0, y = y + Math.imul(c, ht) | 0, d = d + Math.imul(nt, at) | 0, i = i + Math.imul(nt, lt) | 0, i = i + Math.imul(a, at) | 0, y = y + Math.imul(a, lt) | 0, d = d + Math.imul(j, ct) | 0, i = i + Math.imul(j, dt) | 0, i = i + Math.imul(it, ct) | 0, y = y + Math.imul(it, dt) | 0, d = d + Math.imul(Q, pt) | 0, i = i + Math.imul(Q, mt) | 0, i = i + Math.imul(G, pt) | 0, y = y + Math.imul(G, mt) | 0, d = d + Math.imul(W, yt) | 0, i = i + Math.imul(W, vt) | 0, i = i + Math.imul(et, yt) | 0, y = y + Math.imul(et, vt) | 0, d = d + Math.imul(V, wt) | 0, i = i + Math.imul(V, gt) | 0, i = i + Math.imul(rt, wt) | 0, y = y + Math.imul(rt, gt) | 0, d = d + Math.imul(tt, xt) | 0, i = i + Math.imul(tt, Mt) | 0, i = i + Math.imul(X, xt) | 0, y = y + Math.imul(X, Mt) | 0, d = d + Math.imul($, bt) | 0, i = i + Math.imul($, Et) | 0, i = i + Math.imul(Z, bt) | 0, y = y + Math.imul(Z, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Ir >>> 26) | 0, Ir &= 67108863, d = Math.imul(E, T), i = Math.imul(E, st), i = i + Math.imul(_, T) | 0, y = Math.imul(_, st), d = d + Math.imul(e, ut) | 0, i = i + Math.imul(e, ht) | 0, i = i + Math.imul(c, ut) | 0, y = y + Math.imul(c, ht) | 0, d = d + Math.imul(nt, at) | 0, i = i + Math.imul(nt, lt) | 0, i = i + Math.imul(a, at) | 0, y = y + Math.imul(a, lt) | 0, d = d + Math.imul(W, ct) | 0, i = i + Math.imul(W, dt) | 0, i = i + Math.imul(it, ct) | 0, y = y + Math.imul(it, dt) | 0, d = d + Math.imul(Q, pt) | 0, i = i + Math.imul(Q, mt) | 0, i = i + Math.imul(G, pt) | 0, y = y + Math.imul(G, mt) | 0, d = d + Math.imul(K, yt) | 0, i = i + Math.imul(K, vt) | 0, i = i + Math.imul(et, yt) | 0, y = y + Math.imul(et, vt) | 0, d = d + Math.imul(V, wt) | 0, i = i + Math.imul(V, gt) | 0, i = i + Math.imul(rt, wt) | 0, y = y + Math.imul(rt, gt) | 0, d = d + Math.imul(tt, xt) | 0, i = i + Math.imul(tt, Mt) | 0, i = i + Math.imul(X, xt) | 0, y = y + Math.imul(X, Mt) | 0, d = d + Math.imul($, bt) | 0, i = i + Math.imul($, Et) | 0, i = i + Math.imul(Z, bt) | 0, y = y + Math.imul(Z, Et) | 0;
       var Sr = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Sr >>> 26) | 0, Sr &= 67108863, d = Math.imul(E, ut), i = Math.imul(E, ht), i = i + Math.imul(_, ut) | 0, y = Math.imul(_, ht), d = d + Math.imul(e, at) | 0, i = i + Math.imul(e, lt) | 0, i = i + Math.imul(c, at) | 0, y = y + Math.imul(c, lt) | 0, d = d + Math.imul(nt, ct) | 0, i = i + Math.imul(nt, dt) | 0, i = i + Math.imul(a, ct) | 0, y = y + Math.imul(a, dt) | 0, d = d + Math.imul(j, pt) | 0, i = i + Math.imul(j, mt) | 0, i = i + Math.imul(it, pt) | 0, y = y + Math.imul(it, mt) | 0, d = d + Math.imul(Q, yt) | 0, i = i + Math.imul(Q, vt) | 0, i = i + Math.imul(G, yt) | 0, y = y + Math.imul(G, vt) | 0, d = d + Math.imul(W, wt) | 0, i = i + Math.imul(W, gt) | 0, i = i + Math.imul(et, wt) | 0, y = y + Math.imul(et, gt) | 0, d = d + Math.imul(V, xt) | 0, i = i + Math.imul(V, Mt) | 0, i = i + Math.imul(rt, xt) | 0, y = y + Math.imul(rt, Mt) | 0, d = d + Math.imul(tt, bt) | 0, i = i + Math.imul(tt, Et) | 0, i = i + Math.imul(X, bt) | 0, y = y + Math.imul(X, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Sr >>> 26) | 0, Sr &= 67108863, d = Math.imul(E, ut), i = Math.imul(E, ht), i = i + Math.imul(_, ut) | 0, y = Math.imul(_, ht), d = d + Math.imul(e, at) | 0, i = i + Math.imul(e, lt) | 0, i = i + Math.imul(c, at) | 0, y = y + Math.imul(c, lt) | 0, d = d + Math.imul(nt, ct) | 0, i = i + Math.imul(nt, dt) | 0, i = i + Math.imul(a, ct) | 0, y = y + Math.imul(a, dt) | 0, d = d + Math.imul(W, pt) | 0, i = i + Math.imul(W, mt) | 0, i = i + Math.imul(it, pt) | 0, y = y + Math.imul(it, mt) | 0, d = d + Math.imul(Q, yt) | 0, i = i + Math.imul(Q, vt) | 0, i = i + Math.imul(G, yt) | 0, y = y + Math.imul(G, vt) | 0, d = d + Math.imul(K, wt) | 0, i = i + Math.imul(K, gt) | 0, i = i + Math.imul(et, wt) | 0, y = y + Math.imul(et, gt) | 0, d = d + Math.imul(V, xt) | 0, i = i + Math.imul(V, Mt) | 0, i = i + Math.imul(rt, xt) | 0, y = y + Math.imul(rt, Mt) | 0, d = d + Math.imul(tt, bt) | 0, i = i + Math.imul(tt, Et) | 0, i = i + Math.imul(X, bt) | 0, y = y + Math.imul(X, Et) | 0;
       var Ur = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Ur >>> 26) | 0, Ur &= 67108863, d = Math.imul(E, at), i = Math.imul(E, lt), i = i + Math.imul(_, at) | 0, y = Math.imul(_, lt), d = d + Math.imul(e, ct) | 0, i = i + Math.imul(e, dt) | 0, i = i + Math.imul(c, ct) | 0, y = y + Math.imul(c, dt) | 0, d = d + Math.imul(nt, pt) | 0, i = i + Math.imul(nt, mt) | 0, i = i + Math.imul(a, pt) | 0, y = y + Math.imul(a, mt) | 0, d = d + Math.imul(j, yt) | 0, i = i + Math.imul(j, vt) | 0, i = i + Math.imul(it, yt) | 0, y = y + Math.imul(it, vt) | 0, d = d + Math.imul(Q, wt) | 0, i = i + Math.imul(Q, gt) | 0, i = i + Math.imul(G, wt) | 0, y = y + Math.imul(G, gt) | 0, d = d + Math.imul(W, xt) | 0, i = i + Math.imul(W, Mt) | 0, i = i + Math.imul(et, xt) | 0, y = y + Math.imul(et, Mt) | 0, d = d + Math.imul(V, bt) | 0, i = i + Math.imul(V, Et) | 0, i = i + Math.imul(rt, bt) | 0, y = y + Math.imul(rt, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Ur >>> 26) | 0, Ur &= 67108863, d = Math.imul(E, at), i = Math.imul(E, lt), i = i + Math.imul(_, at) | 0, y = Math.imul(_, lt), d = d + Math.imul(e, ct) | 0, i = i + Math.imul(e, dt) | 0, i = i + Math.imul(c, ct) | 0, y = y + Math.imul(c, dt) | 0, d = d + Math.imul(nt, pt) | 0, i = i + Math.imul(nt, mt) | 0, i = i + Math.imul(a, pt) | 0, y = y + Math.imul(a, mt) | 0, d = d + Math.imul(W, yt) | 0, i = i + Math.imul(W, vt) | 0, i = i + Math.imul(it, yt) | 0, y = y + Math.imul(it, vt) | 0, d = d + Math.imul(Q, wt) | 0, i = i + Math.imul(Q, gt) | 0, i = i + Math.imul(G, wt) | 0, y = y + Math.imul(G, gt) | 0, d = d + Math.imul(K, xt) | 0, i = i + Math.imul(K, Mt) | 0, i = i + Math.imul(et, xt) | 0, y = y + Math.imul(et, Mt) | 0, d = d + Math.imul(V, bt) | 0, i = i + Math.imul(V, Et) | 0, i = i + Math.imul(rt, bt) | 0, y = y + Math.imul(rt, Et) | 0;
       var Rr = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Rr >>> 26) | 0, Rr &= 67108863, d = Math.imul(E, ct), i = Math.imul(E, dt), i = i + Math.imul(_, ct) | 0, y = Math.imul(_, dt), d = d + Math.imul(e, pt) | 0, i = i + Math.imul(e, mt) | 0, i = i + Math.imul(c, pt) | 0, y = y + Math.imul(c, mt) | 0, d = d + Math.imul(nt, yt) | 0, i = i + Math.imul(nt, vt) | 0, i = i + Math.imul(a, yt) | 0, y = y + Math.imul(a, vt) | 0, d = d + Math.imul(j, wt) | 0, i = i + Math.imul(j, gt) | 0, i = i + Math.imul(it, wt) | 0, y = y + Math.imul(it, gt) | 0, d = d + Math.imul(Q, xt) | 0, i = i + Math.imul(Q, Mt) | 0, i = i + Math.imul(G, xt) | 0, y = y + Math.imul(G, Mt) | 0, d = d + Math.imul(W, bt) | 0, i = i + Math.imul(W, Et) | 0, i = i + Math.imul(et, bt) | 0, y = y + Math.imul(et, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Rr >>> 26) | 0, Rr &= 67108863, d = Math.imul(E, ct), i = Math.imul(E, dt), i = i + Math.imul(_, ct) | 0, y = Math.imul(_, dt), d = d + Math.imul(e, pt) | 0, i = i + Math.imul(e, mt) | 0, i = i + Math.imul(c, pt) | 0, y = y + Math.imul(c, mt) | 0, d = d + Math.imul(nt, yt) | 0, i = i + Math.imul(nt, vt) | 0, i = i + Math.imul(a, yt) | 0, y = y + Math.imul(a, vt) | 0, d = d + Math.imul(W, wt) | 0, i = i + Math.imul(W, gt) | 0, i = i + Math.imul(it, wt) | 0, y = y + Math.imul(it, gt) | 0, d = d + Math.imul(Q, xt) | 0, i = i + Math.imul(Q, Mt) | 0, i = i + Math.imul(G, xt) | 0, y = y + Math.imul(G, Mt) | 0, d = d + Math.imul(K, bt) | 0, i = i + Math.imul(K, Et) | 0, i = i + Math.imul(et, bt) | 0, y = y + Math.imul(et, Et) | 0;
       var Tr = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Tr >>> 26) | 0, Tr &= 67108863, d = Math.imul(E, pt), i = Math.imul(E, mt), i = i + Math.imul(_, pt) | 0, y = Math.imul(_, mt), d = d + Math.imul(e, yt) | 0, i = i + Math.imul(e, vt) | 0, i = i + Math.imul(c, yt) | 0, y = y + Math.imul(c, vt) | 0, d = d + Math.imul(nt, wt) | 0, i = i + Math.imul(nt, gt) | 0, i = i + Math.imul(a, wt) | 0, y = y + Math.imul(a, gt) | 0, d = d + Math.imul(j, xt) | 0, i = i + Math.imul(j, Mt) | 0, i = i + Math.imul(it, xt) | 0, y = y + Math.imul(it, Mt) | 0, d = d + Math.imul(Q, bt) | 0, i = i + Math.imul(Q, Et) | 0, i = i + Math.imul(G, bt) | 0, y = y + Math.imul(G, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Tr >>> 26) | 0, Tr &= 67108863, d = Math.imul(E, pt), i = Math.imul(E, mt), i = i + Math.imul(_, pt) | 0, y = Math.imul(_, mt), d = d + Math.imul(e, yt) | 0, i = i + Math.imul(e, vt) | 0, i = i + Math.imul(c, yt) | 0, y = y + Math.imul(c, vt) | 0, d = d + Math.imul(nt, wt) | 0, i = i + Math.imul(nt, gt) | 0, i = i + Math.imul(a, wt) | 0, y = y + Math.imul(a, gt) | 0, d = d + Math.imul(W, xt) | 0, i = i + Math.imul(W, Mt) | 0, i = i + Math.imul(it, xt) | 0, y = y + Math.imul(it, Mt) | 0, d = d + Math.imul(Q, bt) | 0, i = i + Math.imul(Q, Et) | 0, i = i + Math.imul(G, bt) | 0, y = y + Math.imul(G, Et) | 0;
       var Or = (B + d | 0) + ((i & 8191) << 13) | 0;
-      B = (y + (i >>> 13) | 0) + (Or >>> 26) | 0, Or &= 67108863, d = Math.imul(E, yt), i = Math.imul(E, vt), i = i + Math.imul(_, yt) | 0, y = Math.imul(_, vt), d = d + Math.imul(e, wt) | 0, i = i + Math.imul(e, gt) | 0, i = i + Math.imul(c, wt) | 0, y = y + Math.imul(c, gt) | 0, d = d + Math.imul(nt, xt) | 0, i = i + Math.imul(nt, Mt) | 0, i = i + Math.imul(a, xt) | 0, y = y + Math.imul(a, Mt) | 0, d = d + Math.imul(j, bt) | 0, i = i + Math.imul(j, Et) | 0, i = i + Math.imul(it, bt) | 0, y = y + Math.imul(it, Et) | 0;
+      B = (y + (i >>> 13) | 0) + (Or >>> 26) | 0, Or &= 67108863, d = Math.imul(E, yt), i = Math.imul(E, vt), i = i + Math.imul(_, yt) | 0, y = Math.imul(_, vt), d = d + Math.imul(e, wt) | 0, i = i + Math.imul(e, gt) | 0, i = i + Math.imul(c, wt) | 0, y = y + Math.imul(c, gt) | 0, d = d + Math.imul(nt, xt) | 0, i = i + Math.imul(nt, Mt) | 0, i = i + Math.imul(a, xt) | 0, y = y + Math.imul(a, Mt) | 0, d = d + Math.imul(W, bt) | 0, i = i + Math.imul(W, Et) | 0, i = i + Math.imul(it, bt) | 0, y = y + Math.imul(it, Et) | 0;
       var Lr = (B + d | 0) + ((i & 8191) << 13) | 0;
       B = (y + (i >>> 13) | 0) + (Lr >>> 26) | 0, Lr &= 67108863, d = Math.imul(E, wt), i = Math.imul(E, gt), i = i + Math.imul(_, wt) | 0, y = Math.imul(_, gt), d = d + Math.imul(e, xt) | 0, i = i + Math.imul(e, Mt) | 0, i = i + Math.imul(c, xt) | 0, y = y + Math.imul(c, Mt) | 0, d = d + Math.imul(nt, bt) | 0, i = i + Math.imul(nt, Et) | 0, i = i + Math.imul(a, bt) | 0, y = y + Math.imul(a, Et) | 0;
       var kr = (B + d | 0) + ((i & 8191) << 13) | 0;
@@ -1524,7 +1524,7 @@ const Ci = {}, Di = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
       var Dr = (B + d | 0) + ((i & 8191) << 13) | 0;
       return B = (y + (i >>> 13) | 0) + (Dr >>> 26) | 0, Dr &= 67108863, b[0] = gr, b[1] = xr, b[2] = Mr, b[3] = br, b[4] = Er, b[5] = Br, b[6] = _r, b[7] = Ar, b[8] = Fr, b[9] = Ir, b[10] = Sr, b[11] = Ur, b[12] = Rr, b[13] = Tr, b[14] = Or, b[15] = Lr, b[16] = kr, b[17] = Cr, b[18] = Dr, B !== 0 && (b[19] = B, l.length++), l;
     };
-    Math.imul || (ot = K);
+    Math.imul || (ot = H);
     function At(g, t, s) {
       s.negative = t.negative ^ g.negative, s.length = g.length + t.length;
       for (var l = 0, p = 0, v = 0; v < s.length - 1; v++) {
@@ -1543,7 +1543,7 @@ const Ci = {}, Di = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
     }
     f.prototype.mulTo = function(t, s) {
       var l, p = this.length + t.length;
-      return this.length === 10 && t.length === 10 ? l = ot(this, t, s) : p < 63 ? l = K(this, t, s) : p < 1024 ? l = At(this, t, s) : l = Ut(this, t, s), l;
+      return this.length === 10 && t.length === 10 ? l = ot(this, t, s) : p < 63 ? l = H(this, t, s) : p < 1024 ? l = At(this, t, s) : l = Ut(this, t, s), l;
     }, f.prototype.mul = function(t) {
       var s = new f(null);
       return s.words = new Array(this.length + t.length), this.mulTo(t, s);
@@ -2170,13 +2170,13 @@ const Ci = {}, Di = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
     };
   })(n, Ct);
 })(Ue);
-var jr = { exports: {} }, re = {}, vr = {};
+var Wr = { exports: {} }, re = {}, vr = {};
 vr.byteLength = zi;
 vr.toByteArray = Zi;
 vr.fromByteArray = Yi;
 var Dt = [], Lt = [], Ni = typeof Uint8Array < "u" ? Uint8Array : Array, $r = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-for (var Kt = 0, $i = $r.length; Kt < $i; ++Kt)
-  Dt[Kt] = $r[Kt], Lt[$r.charCodeAt(Kt)] = Kt;
+for (var Ht = 0, $i = $r.length; Ht < $i; ++Ht)
+  Dt[Ht] = $r[Ht], Lt[$r.charCodeAt(Ht)] = Ht;
 Lt["-".charCodeAt(0)] = 62;
 Lt["_".charCodeAt(0)] = 63;
 function Re(n) {
@@ -2339,7 +2339,7 @@ ee.write = function(n, o, u, h, m, f) {
     return S(a, r, e);
   };
   function P(a) {
-    return F(a), x(a < 0 ? 0 : K(a) | 0);
+    return F(a), x(a < 0 ? 0 : H(a) | 0);
   }
   w.allocUnsafe = function(a) {
     return P(a);
@@ -2355,7 +2355,7 @@ ee.write = function(n, o, u, h, m, f) {
     return M !== e && (c = c.slice(0, M)), c;
   }
   function I(a) {
-    const r = a.length < 0 ? 0 : K(a.length) | 0, e = x(r);
+    const r = a.length < 0 ? 0 : H(a.length) | 0, e = x(r);
     for (let c = 0; c < r; c += 1)
       e[c] = a[c] & 255;
     return e;
@@ -2377,15 +2377,15 @@ ee.write = function(n, o, u, h, m, f) {
   }
   function _t(a) {
     if (w.isBuffer(a)) {
-      const r = K(a.length) | 0, e = x(r);
+      const r = H(a.length) | 0, e = x(r);
       return e.length === 0 || a.copy(e, 0, 0, r), e;
     }
     if (a.length !== void 0)
-      return typeof a.length != "number" || j(a.length) ? x(0) : I(a);
+      return typeof a.length != "number" || W(a.length) ? x(0) : I(a);
     if (a.type === "Buffer" && Array.isArray(a.data))
       return I(a.data);
   }
-  function K(a) {
+  function H(a) {
     if (a >= m)
       throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x" + m.toString(16) + " bytes");
     return a | 0;
@@ -2474,7 +2474,7 @@ ee.write = function(n, o, u, h, m, f) {
           return e;
         case "utf8":
         case "utf-8":
-          return W(a).length;
+          return K(a).length;
         case "ucs2":
         case "ucs-2":
         case "utf16le":
@@ -2486,7 +2486,7 @@ ee.write = function(n, o, u, h, m, f) {
           return Q(a).length;
         default:
           if (M)
-            return c ? -1 : W(a).length;
+            return c ? -1 : K(a).length;
           r = ("" + r).toLowerCase(), M = !0;
       }
   }
@@ -2584,7 +2584,7 @@ ee.write = function(n, o, u, h, m, f) {
   function q(a, r, e, c, M) {
     if (a.length === 0)
       return -1;
-    if (typeof e == "string" ? (c = e, e = 0) : e > 2147483647 ? e = 2147483647 : e < -2147483648 && (e = -2147483648), e = +e, j(e) && (e = M ? 0 : a.length - 1), e < 0 && (e = a.length + e), e >= a.length) {
+    if (typeof e == "string" ? (c = e, e = 0) : e > 2147483647 ? e = 2147483647 : e < -2147483648 && (e = -2147483648), e = +e, W(e) && (e = M ? 0 : a.length - 1), e < 0 && (e = a.length + e), e >= a.length) {
       if (M)
         return -1;
       e = a.length - 1;
@@ -2647,14 +2647,14 @@ ee.write = function(n, o, u, h, m, f) {
     let _;
     for (_ = 0; _ < c; ++_) {
       const C = parseInt(r.substr(_ * 2, 2), 16);
-      if (j(C))
+      if (W(C))
         return _;
       a[e + _] = C;
     }
     return _;
   }
   function or(a, r, e, c) {
-    return G(W(r, a.length - e), a, e, c);
+    return G(K(r, a.length - e), a, e, c);
   }
   function tr(a, r, e, c) {
     return G(et(r), a, e, c);
@@ -3115,7 +3115,7 @@ ee.write = function(n, o, u, h, m, f) {
       a = a + "=";
     return a;
   }
-  function W(a, r) {
+  function K(a, r) {
     r = r || 1 / 0;
     let e;
     const c = a.length;
@@ -3199,7 +3199,7 @@ ee.write = function(n, o, u, h, m, f) {
   function Tt(a, r) {
     return a instanceof r || a != null && a.constructor != null && a.constructor.name != null && a.constructor.name === r.name;
   }
-  function j(a) {
+  function W(a) {
     return a !== a;
   }
   const it = function() {
@@ -3246,9 +3246,9 @@ ee.write = function(n, o, u, h, m, f) {
       throw new TypeError("Argument must be a number");
     return u.SlowBuffer(x);
   };
-})(jr, jr.exports);
-var ar = jr.exports.Buffer;
-function Wi(n) {
+})(Wr, Wr.exports);
+var ar = Wr.exports.Buffer;
+function Ki(n) {
   if (n.length >= 255)
     throw new TypeError("Alphabet too long");
   for (var o = new Uint8Array(256), u = 0; u < o.length; u++)
@@ -3265,9 +3265,9 @@ function Wi(n) {
       throw new TypeError("Expected Buffer");
     if (I.length === 0)
       return "";
-    for (var z = 0, N = 0, _t = 0, K = I.length; _t !== K && I[_t] === 0; )
+    for (var z = 0, N = 0, _t = 0, H = I.length; _t !== H && I[_t] === 0; )
       _t++, z++;
-    for (var ot = (K - _t) * F + 1 >>> 0, At = new Uint8Array(ot); _t !== K; ) {
+    for (var ot = (H - _t) * F + 1 >>> 0, At = new Uint8Array(ot); _t !== H; ) {
       for (var Ut = I[_t], ft = 0, q = ot - 1; (Ut !== 0 || ft < N) && q !== -1; q--, ft++)
         Ut += 256 * At[q] >>> 0, At[q] = Ut % x >>> 0, Ut = Ut / x >>> 0;
       if (Ut !== 0)
@@ -3287,21 +3287,21 @@ function Wi(n) {
       return ar.alloc(0);
     for (var z = 0, N = 0, _t = 0; I[z] === w; )
       N++, z++;
-    for (var K = (I.length - z) * A + 1 >>> 0, ot = new Uint8Array(K); I[z]; ) {
+    for (var H = (I.length - z) * A + 1 >>> 0, ot = new Uint8Array(H); I[z]; ) {
       var At = o[I.charCodeAt(z)];
       if (At === 255)
         return;
-      for (var Ut = 0, ft = K - 1; (At !== 0 || Ut < _t) && ft !== -1; ft--, Ut++)
+      for (var Ut = 0, ft = H - 1; (At !== 0 || Ut < _t) && ft !== -1; ft--, Ut++)
         At += x * ot[ft] >>> 0, ot[ft] = At % 256 >>> 0, At = At / 256 >>> 0;
       if (At !== 0)
         throw new Error("Non-zero carry");
       _t = Ut, z++;
     }
-    for (var q = K - _t; q !== K && ot[q] === 0; )
+    for (var q = H - _t; q !== H && ot[q] === 0; )
       q++;
-    var Ft = ar.allocUnsafe(N + (K - q));
+    var Ft = ar.allocUnsafe(N + (H - q));
     Ft.fill(0, 0, N);
-    for (var $t = N; q !== K; )
+    for (var $t = N; q !== H; )
       Ft[$t++] = ot[q++];
     return Ft;
   }
@@ -3317,7 +3317,7 @@ function Wi(n) {
     decode: D
   };
 }
-var ji = Wi, Hi = ji, Ki = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz", Ji = Hi(Ki);
+var Wi = Ki, ji = Wi, Hi = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz", Ji = ji(Hi);
 function Zt(n, o, u) {
   return o <= n && n <= u;
 }
@@ -3519,7 +3519,7 @@ var on = Ct && Ct.__createBinding || (Object.create ? function(n, o, u, h) {
   return n && n.__esModule ? n : { default: n };
 };
 Object.defineProperty(St, "__esModule", { value: !0 });
-St.deserializeUnchecked = St.deserialize = St.serialize = St.BinaryReader = St.BinaryWriter = St.BorshError = Hr = St.baseDecode = Le = St.baseEncode = void 0;
+St.deserializeUnchecked = St.deserialize = St.serialize = St.BinaryReader = St.BinaryWriter = St.BorshError = jr = St.baseDecode = Le = St.baseEncode = void 0;
 const Gt = Te(Ue.exports), Oe = Te(Ji), un = sn(nn), hn = typeof TextDecoder != "function" ? un.TextDecoder : TextDecoder, an = new hn("utf-8", { fatal: !0 });
 function ln(n) {
   return typeof n == "string" && (n = Buffer.from(n, "utf8")), Oe.default.encode(Buffer.from(n));
@@ -3528,7 +3528,7 @@ var Le = St.baseEncode = ln;
 function cn(n) {
   return Buffer.from(Oe.default.decode(n));
 }
-var Hr = St.baseDecode = cn;
+var jr = St.baseDecode = cn;
 const qr = 1024;
 class Rt extends Error {
   constructor(o) {
@@ -3844,12 +3844,12 @@ class vn {
     );
   }
   async connect(o) {
-    return await this.windowMsgStream.post(Ht("handshake", null)), await this.windowMsgStream.post(
-      Ht("dapp.connect", { permissions: o })
+    return await this.windowMsgStream.post(Kt("handshake", null)), await this.windowMsgStream.post(
+      Kt("dapp.connect", { permissions: o })
     );
   }
   async disconnect() {
-    return await this.windowMsgStream.post(Ht("handwave", null));
+    return await this.windowMsgStream.post(Kt("handwave", null));
   }
   async hasPermissions(o) {
     throw new Error("function not implemented yet");
@@ -3859,7 +3859,7 @@ class vn {
   }
   async executeMoveCall(o) {
     return await this.windowMsgStream.post(
-      Ht("dapp.requestTransaction", {
+      Kt("dapp.requestTransaction", {
         type: Ie.MOVE_CALL,
         data: o
       })
@@ -3870,12 +3870,12 @@ class vn {
   }
   async getAccounts() {
     return await this.windowMsgStream.post(
-      Ht("dapp.getAccounts", null)
+      Kt("dapp.getAccounts", null)
     );
   }
   async signMessage(o) {
     const u = { message: Le(o.message) }, h = await this.windowMsgStream.post(
-      Ht("dapp.signMessage", u)
+      Kt("dapp.signMessage", u)
     );
     if (h.error)
       return h;
@@ -3883,10 +3883,13 @@ class vn {
     return {
       ...h,
       data: {
-        signature: Hr(m.signature),
-        signedMessage: Hr(m.signedMessage)
+        signature: jr(m.signature),
+        signedMessage: jr(m.signedMessage)
       }
     };
+  }
+  async getPublicKey() {
+    return console.log("getPublicKey"), await this.windowMsgStream.post(Kt("dapp.getPublicKey", null));
   }
 }
 yn(window);
