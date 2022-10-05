@@ -15,7 +15,7 @@ function MainPage() {
   const address = account?.address ?? '';
   // prefetch other tabs' data
   useNftList(address, networkId);
-  useTransactionList(address, networkId);
+  useTransactionList(address, { networkId });
 
   return (
     <AppLayout>
