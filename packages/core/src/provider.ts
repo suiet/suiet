@@ -418,9 +418,7 @@ export class TxProvider {
 async function trySyncAccountState(provider: JsonRpcProvider, address: string) {
   try {
     await provider.syncAccountState(address);
-  } catch (err) {
-    console.log('sync account state failed', err);
-  }
+  } catch {}
 }
 
 async function executeTransaction(provider: JsonRpcProvider, txn: SignedTx) {
