@@ -67,7 +67,7 @@ export class QueryProvider {
   provider: JsonRpcProvider;
 
   constructor(queryEndpoint: string) {
-    this.provider = new JsonRpcProvider(queryEndpoint);
+    this.provider = new JsonRpcProvider(queryEndpoint, true);
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
@@ -258,7 +258,7 @@ export class TxProvider {
   serializer: RpcTxnDataSerializer;
 
   constructor(gatewayEndpoint: string) {
-    this.provider = new JsonRpcProvider(gatewayEndpoint);
+    this.provider = new JsonRpcProvider(gatewayEndpoint, true);
     this.serializer = new RpcTxnDataSerializer(gatewayEndpoint);
   }
 
