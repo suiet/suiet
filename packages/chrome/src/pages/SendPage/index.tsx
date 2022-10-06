@@ -40,11 +40,11 @@ const SendPage = () => {
   const { data: account } = useAccount(appContext.accountId);
   const [sendLoading, setSendLoading] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
-
-  const context = useSelector((state: RootState) => state.appContext);
-  const { balance } = useCoinBalance(account?.address ?? '', CoinSymbol.SUI, {
-    networkId: context.networkId,
-  });
+  const { balance } = useCoinBalance(
+    CoinSymbol.SUI,
+    account?.address ?? '',
+    appContext.networkId
+  );
   const form = useForm<SendFormValues>({
     mode: 'onChange',
     defaultValues: {
@@ -69,20 +69,18 @@ const SendPage = () => {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     if (!network) throw new Error('require network selected');
 
-    const params = {
-      network,
-      symbol: CoinSymbol.SUI,
-      amount: Math.ceil(data.amount * 1e9),
-      recipient: data.address,
-      walletId: appContext.walletId,
-      accountId: appContext.accountId,
-    };
-
     setSendLoading(true);
     try {
       await apiClient.callFunc<OmitToken<TransferCoinParams>, undefined>(
         'txn.transferCoin',
-        params,
+        {
+          network,
+          symbol: CoinSymbol.SUI,
+          amount: Math.ceil(data.amount * 1e9),
+          recipient: data.address,
+          walletId: appContext.walletId,
+          accountId: appContext.accountId,
+        },
         { withAuth: true }
       );
       message.success('Send transaction succeeded');

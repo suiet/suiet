@@ -44,8 +44,11 @@ function Network() {
 
   async function handleSave() {
     await dispatch(updateNetworkId(network));
-    message.success(`Switch to ${network}`);
-    navigate('..');
+    // avoid toast flashing after navigation
+    setTimeout(() => {
+      message.success(`Switched to ${network}`);
+    }, 0);
+    navigate(-1);
   }
 
   return (
@@ -56,7 +59,7 @@ function Network() {
       <Nav
         position={'absolute'}
         onNavBack={() => {
-          navigate('..');
+          navigate(-1);
         }}
       />
 

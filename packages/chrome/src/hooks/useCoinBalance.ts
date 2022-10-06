@@ -7,11 +7,9 @@ export enum CoinSymbol {
 }
 
 export function useCoinBalance(
-  address: string,
   symbol: CoinSymbol | null = null, // if null, means only lazy get function is available
-  opts: {
-    networkId?: string;
-  } = {}
+  address: string,
+  networkId: string = 'devnet'
 ) {
   const [balance, setBalance] = useState<string>('0');
   const {
@@ -19,7 +17,7 @@ export function useCoinBalance(
     getBalance,
     error,
     isValidating,
-  } = useCoins(address, opts);
+  } = useCoins(address, networkId);
 
   useEffect(() => {
     if (!coinsBalance || !symbol) return;

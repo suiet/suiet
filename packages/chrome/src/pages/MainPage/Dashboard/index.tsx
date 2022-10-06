@@ -67,11 +67,9 @@ export type DashboardProps = {
 
 function MainPage({ address, networkId }: DashboardProps) {
   const { balance, loading: balanceLoading } = useCoinBalance(
-    address ?? '',
     CoinSymbol.SUI,
-    {
-      networkId,
-    }
+    address ?? '',
+    networkId
   );
   const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
     useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING);

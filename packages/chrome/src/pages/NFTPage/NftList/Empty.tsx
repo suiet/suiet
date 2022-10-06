@@ -23,22 +23,14 @@ export default function Empty(props: EmptyProps) {
   const { data: account } = useAccount(appContext.accountId);
 
   const { balance, loading: balanceLoading } = useCoinBalance(
-    account?.address ?? '',
     CoinSymbol.SUI,
-    {
-      networkId: appContext.networkId,
-    }
+    account?.address ?? '',
+    appContext.networkId
   );
 
   async function mintSampleNFT() {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     if (!network) throw new Error('require network selected');
-
-    const params = {
-      network,
-      walletId: appContext.walletId,
-      accountId: appContext.accountId,
-    };
 
     if (balanceLoading || Number(balance) < 10000) {
       message.error('Please ensure you have more than 10000 SUI to mint');
@@ -48,7 +40,11 @@ export default function Empty(props: EmptyProps) {
     try {
       await apiClient.callFunc<OmitToken<MintNftParams>, undefined>(
         'txn.mintExampleNft',
-        params,
+        {
+          network,
+          walletId: appContext.walletId,
+          accountId: appContext.accountId,
+        },
         { withAuth: true }
       );
       message.success('Mint NFT succeeded');
