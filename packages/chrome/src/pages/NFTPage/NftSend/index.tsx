@@ -55,20 +55,18 @@ export default function SendNft() {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     if (!network) throw new Error('require network selected');
 
-    const params: OmitToken<TransferObjectParams> = {
-      network,
-      recipient: data.address,
-      walletId: appContext.walletId,
-      accountId: appContext.accountId,
-      objectId: id,
-    };
-
     setSendLoading(true);
     try {
       message.success('Send succeeded');
       await apiClient.callFunc<OmitToken<TransferObjectParams>, undefined>(
         'txn.transferObject',
-        params,
+        {
+          network,
+          recipient: data.address,
+          walletId: appContext.walletId,
+          accountId: appContext.accountId,
+          objectId: id,
+        },
         { withAuth: true }
       );
       navigate('/transaction/flow');

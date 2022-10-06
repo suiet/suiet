@@ -10,6 +10,8 @@ import copy from 'copy-to-clipboard';
 import message from '../../../components/message';
 import CopyIcon from '../../../components/CopyIcon';
 import { ReactComponent as IconExternal } from '../../../assets/icons/external.svg';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 
 const NftDetail = () => {
   const navigate = useNavigate();
@@ -22,10 +24,17 @@ const NftDetail = () => {
     objectType = '',
     url = '',
   } = location.state || ({} as any);
+  const appContext = useSelector((state: RootState) => state.appContext);
 
   useEffect(() => {
     if (!id) throw new Error('id should be passed within location state');
   }, [id]);
+
+  function getExplorerUrl(id: string, networkId: string) {
+    return (
+      `https://explorer.${networkId}.sui.io/objects/` + encodeURIComponent(id)
+    );
+  }
 
   return (
     <div>
@@ -129,10 +138,7 @@ const NftDetail = () => {
           <div className={styles['sec-detail-item']}>
             <a
               target="_blank"
-              href={
-                'https://explorer.devnet.sui.io/objects/' +
-                encodeURIComponent(id)
-              }
+              href={getExplorerUrl(id, appContext.networkId)}
               className="m-auto"
               rel="noreferrer"
             >

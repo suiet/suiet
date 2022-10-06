@@ -4,14 +4,8 @@ import { useApiClient } from './useApiClient';
 import { swrLoading } from '../utils/others';
 import { useNetwork } from './useNetwork';
 
-function useTransactionList(
-  address: string,
-  opts: {
-    networkId?: string;
-  } = {}
-) {
+function useTransactionList(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
-  const { networkId = 'devnet' } = opts;
   const { data: network } = useNetwork(networkId);
   const { data: history, error } = useSWR(
     ['getTransactionHistory', address, network],

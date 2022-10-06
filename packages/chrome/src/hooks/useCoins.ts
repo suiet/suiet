@@ -5,14 +5,8 @@ import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
 import { useNetwork } from './useNetwork';
 
-export function useCoins(
-  address: string,
-  opts: {
-    networkId?: string;
-  } = {}
-) {
+export function useCoins(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
-  const { networkId = 'devnet' } = opts;
   const { data: network } = useNetwork(networkId);
   const {
     data: coins,

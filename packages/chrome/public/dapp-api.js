@@ -3889,7 +3889,7 @@ class vn {
     };
   }
   async getPublicKey() {
-    return console.log("getPublicKey"), await this.windowMsgStream.post(Kt("dapp.getPublicKey", null));
+    return await this.windowMsgStream.post(Kt("dapp.getPublicKey", null));
   }
 }
 yn(window);
