@@ -61,9 +61,10 @@ const TokenItem = (props: TokenItemProps) => {
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: account } = useAccount(appContext.accountId);
-  const { data: coins } = useCoins(account?.address ?? '', {
-    networkId: appContext.networkId,
-  });
+  const { data: coins } = useCoins(
+    account?.address ?? '',
+    appContext.networkId
+  );
 
   if (!isNonEmptyArray(coins))
     return (
