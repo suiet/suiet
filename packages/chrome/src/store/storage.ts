@@ -2,7 +2,7 @@ interface WebStorage {
   /**
    * @desc Fetches key and returns item in a promise.
    */
-  getItem: (key: string) => Promise<string | null>;
+  getItem: (key: string) => Promise<string | undefined>;
   /**
    * @desc Sets value for key and returns item in a promise.
    */
@@ -14,9 +14,9 @@ interface WebStorage {
 }
 
 export class ChromeStorage implements WebStorage {
-  async getItem(key: string): Promise<string | null> {
-    const result = await chrome.storage.local.get(key);
-    return result[key];
+  async getItem(key: string): Promise<string | undefined> {
+    const results = await chrome.storage.local.get(key);
+    return results[key];
   }
 
   async removeItem(key: string): Promise<void> {
