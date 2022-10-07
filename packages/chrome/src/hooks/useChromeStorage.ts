@@ -2,7 +2,7 @@ import { StorageKeys } from '../store/enum';
 import { useEffect, useState } from 'react';
 import storage from '../store/storage';
 
-export function useChromeStorage<T = any>(key: StorageKeys) {
+export function useChromeStorage<T = any>(key: StorageKeys, defaultValue?: T) {
   const [data, setData] = useState<T | undefined>();
 
   async function setItem(value: T) {
@@ -10,7 +10,9 @@ export function useChromeStorage<T = any>(key: StorageKeys) {
     setData(value);
   }
 
-  function safeParse(val: string): any {
+  function safeParse(val: string | undefined): any {
+    if (typeof val === 'undefined') return undefined;
+    if (val === null || val === 'null') return null;
     try {
       return JSON.parse(val);
     } catch (e) {
@@ -19,20 +21,24 @@ export function useChromeStorage<T = any>(key: StorageKeys) {
     }
   }
 
-  async function getItem(key: string) {
+  async function getItem(key: string, defaultValue?: T) {
     const result = await storage.getItem(key);
-    const val =
-      typeof result === 'undefined' || result === null
-        ? undefined
-        : safeParse(result);
+    if (typeof result === 'undefined') {
+      if (typeof defaultValue !== 'undefined') {
+        await setItem(defaultValue);
+        setData(defaultValue);
+        return defaultValue;
+      }
+    }
+    const val = safeParse(result);
     setData(val);
     return val;
   }
 
   useEffect(() => {
     if (!key) return;
-    getItem(key);
-  }, [key]);
+    getItem(key, defaultValue);
+  }, [key, defaultValue]);
 
   return {
     data,

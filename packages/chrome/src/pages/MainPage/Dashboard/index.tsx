@@ -1,5 +1,5 @@
 import styles from './index.module.scss';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Modal from '../../../components/Modal';
 import WaterDropIcon from '../../../components/WaterDropIcon';
 import Typo from '../../../components/Typo';
@@ -13,7 +13,7 @@ import { useChromeStorage } from '../../../hooks/useChromeStorage';
 import { StorageKeys } from '../../../store/enum';
 import { formatCurrency } from '../../../utils/format';
 import message from '../../../components/message';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { LoadingSpokes } from '../../../components/Loading';
 export type ReceiveButtonProps = {
@@ -71,13 +71,20 @@ function MainPage({ address, networkId }: DashboardProps) {
     address ?? '',
     networkId
   );
-  const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
-    useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING);
-  const navigate = useNavigate();
   const { data: network } = useNetwork(networkId);
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
+
+  const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
+    useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING, true);
+  useEffect(() => {
+    if (!networkId) return;
+    if (networkId !== 'devnet' && showDevnetWarning === true) {
+      setShowDevnetWarning(false);
+    }
+  }, [networkId, showDevnetWarning]);
+
   return (
     <div className={styles['main-content']}>
       {showDevnetWarning === true ? (
