@@ -54,7 +54,12 @@
   font-weight: 500;
   font-size: 12px;
   line-height: 18px;
-  background: #fef0c7;
-  color: #dc6803;
+  background: $orange-100;
+  color: $orange-600;
   cursor: pointer;
+
+  &-testnet {
+    background: $yellow-100;
+    color: $yellow-600;
+  }
 }

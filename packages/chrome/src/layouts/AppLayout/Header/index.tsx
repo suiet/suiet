@@ -134,7 +134,10 @@ function Header(props: HeaderProps) {
         className={classnames(styles['address'], 'ml-[18px]')}
       />
       <div
-        className={styles['net']}
+        className={classnames(
+          styles['net'],
+          styles['net-' + context.networkId]
+        )}
         onClick={() => {
           navigate('/settings/network');
         }}
