@@ -31,10 +31,11 @@ function isIgnoreMsg(event: MessageEvent<any>) {
   );
 }
 
-function setupMessageProxy(siteMetadata: SiteMetadata): {
-  port: chrome.runtime.Port;
-  clearWindowMsgListener: () => void;
-} {
+/**
+ * Set up proxy between in-page window message and chrome ext port
+ * @param siteMetadata
+ */
+function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   const port = chrome.runtime.connect({
     name: PortName.SUIET_CONTENT_BACKGROUND,
   });
@@ -70,34 +71,20 @@ function setupMessageProxy(siteMetadata: SiteMetadata): {
   };
 
   window.addEventListener('message', passMessageToPort);
-  return {
-    port,
-    clearWindowMsgListener: () => {
-      window.removeEventListener('message', passMessageToPort);
-    },
-  };
+  return port;
 }
 
-(function main() {
-  injectDappInterface();
-
+/**
+ * @deprecated abandon lazy setup in order to keep service-worker alive
+ */
+function legacyHandShakeAndWaveListener() {
   const windowMsgStream = new WindowMsgStream(
     WindowMsgTarget.SUIET_CONTENT,
     WindowMsgTarget.DAPP
   );
-  let port: chrome.runtime.Port | null = null;
-  let clearWindowMsgListener: (() => void) | null = null;
-
   windowMsgStream.subscribe(async (windowMsg) => {
     if (isDappHandShakeRequest(windowMsg)) {
-      if (port === null) {
-        const siteMetadata = await getSiteMetadata();
-        const result = setupMessageProxy(siteMetadata);
-        port = result.port;
-        clearWindowMsgListener = result.clearWindowMsgListener;
-        // console.log('[content] handshake: setup message proxy');
-      }
-      // respond to handshake request
+      // do nothing but respond
       await windowMsgStream.post({
         id: windowMsg.payload.id,
         error: null,
@@ -105,16 +92,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): {
       });
     }
     if (isDappHandWaveRequest(windowMsg)) {
-      if (port !== null) {
-        // console.log('[content] handwave: clear message proxy');
-        port.disconnect();
-        port = null;
-        if (clearWindowMsgListener) {
-          clearWindowMsgListener();
-          clearWindowMsgListener = null;
-        }
-      }
-      // respond to handwave request
+      // do nothing but respond
       await windowMsgStream.post({
         id: windowMsg.payload.id,
         error: null,
@@ -122,4 +100,13 @@ function setupMessageProxy(siteMetadata: SiteMetadata): {
       });
     }
   });
+}
+
+(async function main() {
+  injectDappInterface();
+
+  const siteMetadata = await getSiteMetadata();
+  setupMessageProxy(siteMetadata);
+
+  legacyHandShakeAndWaveListener();
 })();
