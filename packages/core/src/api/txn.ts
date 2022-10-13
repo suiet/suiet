@@ -147,7 +147,6 @@ export class TransactionApi implements ITransactionApi {
   }
 
   async transferCoin(params: TransferCoinParams): Promise<void> {
-    console.log('params', params);
     await validateToken(this.storage, params.token);
     const provider = new Provider(
       params.network.queryRpcUrl,

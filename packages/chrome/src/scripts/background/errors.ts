@@ -34,9 +34,9 @@ export class InvalidParamError extends BizError {
   }
 }
 
-export class PortMessageNotAJsonStringError extends InvalidParamError {
-  constructor(message = 'port message must be a serialized json object') {
-    super('port message must be a serialized json object');
+export class PortMessageNotObjectError extends InvalidParamError {
+  constructor(message = 'port message must be an object') {
+    super(message);
   }
 }
 

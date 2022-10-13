@@ -6,13 +6,18 @@ import {
   Account,
   AccountApi,
   AuthApi,
+  Network,
   NetworkApi,
   Storage,
   TransactionApi,
 } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { Permission, PermissionManager } from '../permission';
-import { MoveCallTransaction, SuiTransactionResponse } from '@mysten/sui.js';
+import {
+  MoveCallTransaction,
+  SignableTransaction,
+  SuiTransactionResponse,
+} from '@mysten/sui.js';
 import { TxRequestManager, TxRequestType } from '../transaction';
 import {
   InvalidParamError,
@@ -46,6 +51,11 @@ export interface Approval {
 }
 
 const approvalSubject: Subject<Approval> = new Subject<Approval>();
+
+export interface AccountInfo {
+  address: string;
+  publicKey: string;
+}
 
 export class DappBgApi {
   storage: Storage;
@@ -160,124 +170,14 @@ export class DappBgApi {
     approvalSubject.next(payload); // send data to event listener so that the connect function can go on
   }
 
-  public async requestTransaction(
-    payload: DappMessage<{
-      type: TxRequestType;
-      data: MoveCallTransaction;
-    }>
-  ): Promise<SuiTransactionResponse | null> {
-    const { params, context } = payload;
-    if (!params?.data) {
-      throw new InvalidParamError('Transaction params required');
-    }
-    const checkRes = await this.checkPermissions(context.origin, [
-      Permission.VIEW_ACCOUNT,
-      Permission.SUGGEST_TX,
-    ]);
-    if (!checkRes.result) {
-      // TODO: launch request permission window
-      throw new NoPermissionError('No permissions to requestTransaction', {
-        missingPerms: checkRes.missingPerms,
-      });
-    }
-
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
-    const network = await this.networkApi.getNetwork(appContext.networkId);
-    if (!network) {
-      throw new NotFoundError(
-        `network metadata is not found, id=${appContext.networkId}`
-      );
-    }
-    // load moveCall metadata
-    const metadata = await this.txApi.getNormalizedMoveFunction({
-      network,
-      functionName: params.data.function,
-      moduleName: params.data.module,
-      objectId: params.data.packageObjectId,
-    });
-    console.log('metadata', metadata);
-
-    const txReq = await this.txManager.createTxRequest({
-      walletId: appContext.walletId,
-      address: account.address,
-      origin: context.origin,
-      name: context.name,
-      favicon: context.favicon,
-      type: params.type,
-      data: params.data,
-      metadata,
-    });
-    const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
-      txReqId: txReq.id,
-    });
-    const onWindowCloseObservable = await txReqWindow.show();
-    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
-      map(async () => {
-        return {
-          ...txReq,
-          approved: false,
-          updatedAt: new Date().toISOString(),
-        };
-      })
-    );
-    const onApprovalObservable = approvalSubject.asObservable().pipe(
-      filter((result) => {
-        return (
-          result.type === ApprovalType.TRANSACTION && result.id === txReq.id
-        );
-      }),
-      map((result) => {
-        return {
-          ...txReq,
-          approved: result.approved,
-          updatedAt: result.updatedAt,
-        };
-      })
-    );
-    const finalResult = await firstValueFrom(
-      race(onFallbackDenyObservable, onApprovalObservable).pipe(
-        take(1),
-        tap(async () => {
-          await txReqWindow.close();
-        })
-      )
-    );
-    if (!finalResult.approved) {
-      throw new UserRejectionError();
-    }
-    const token = this.authApi.getToken();
-    try {
-      const response = await this.txApi.executeMoveCall({
-        network,
-        token,
-        walletId: appContext.walletId,
-        accountId: appContext.accountId,
-        tx: params.data,
-      });
-      await this.txManager.storeTxRequest({
-        ...txReq,
-        response,
-      });
-      return response;
-    } catch (e: any) {
-      await this.txManager.storeTxRequest({
-        ...txReq,
-        responseError: e.message,
-      });
-      throw e;
-    }
-  }
-
-  public async hasPermissions(payload: DappMessage<{}>) {
-    const { context } = payload;
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
-    return await this.permManager.getAllPermissions({
-      address: account.address,
-      networkId: appContext.networkId,
-      origin: context.origin,
-    });
+  public async getAccountsInfo(
+    payload: DappMessage<{}>
+  ): Promise<AccountInfo[]> {
+    const result = await this._getAccounts(payload);
+    return result.map((ac: Account) => ({
+      address: ac.address,
+      publicKey: ac.pubkey,
+    }));
   }
 
   public async signMessage(payload: DappMessage<{ message: string }>): Promise<{
@@ -364,7 +264,241 @@ export class DappBgApi {
     };
   }
 
+  public async signAndExecuteTransaction(
+    payload: DappMessage<{ transaction: SignableTransaction }>
+  ) {
+    const { params, context } = payload;
+    if (!params?.transaction) {
+      throw new InvalidParamError('params transaction is required');
+    }
+    const checkRes = await this.checkPermissions(context.origin, [
+      Permission.VIEW_ACCOUNT,
+      Permission.SUGGEST_TX,
+    ]);
+    if (!checkRes.result) {
+      throw new NoPermissionError(
+        'No permission to signAndExecuteTransaction',
+        {
+          missingPerms: checkRes.missingPerms,
+        }
+      );
+    }
+
+    const { transaction } = params;
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    const network = await this.networkApi.getNetwork(appContext.networkId);
+    if (!network) {
+      throw new NotFoundError(
+        `network metadata is not found, id=${appContext.networkId}`
+      );
+    }
+
+    const { finalResult } = await this.promptForTxApproval({
+      network,
+      walletId: appContext.walletId,
+      address: account.address,
+      txType: transaction.kind,
+      txData: transaction.data,
+      favicon: context.favicon,
+      name: context.name,
+      origin: context.origin,
+    });
+    if (!finalResult.approved) {
+      throw new UserRejectionError();
+    }
+
+    const token = this.authApi.getToken();
+    // TODO: support other transaction type
+    switch (transaction.kind) {
+      case 'moveCall':
+        return await this.txApi.executeMoveCall({
+          token,
+          network,
+          walletId: appContext.walletId,
+          accountId: appContext.accountId,
+          tx: transaction.data,
+        });
+      default:
+        throw new Error(
+          `transaction type is not supported, kind=${transaction.kind}`
+        );
+    }
+  }
+
+  /**
+   * @deprecated use getAccountsInfo instead
+   * @param payload
+   */
   public async getAccounts(payload: DappMessage<{}>) {
+    const result = await this._getAccounts(payload);
+    return result.map((ac: Account) => ac.address);
+  }
+
+  /**
+   * @deprecated use signAndExecuteTransaction instead
+   * @param payload
+   */
+  public async requestTransaction(
+    payload: DappMessage<{
+      type: TxRequestType;
+      data: MoveCallTransaction;
+    }>
+  ): Promise<SuiTransactionResponse | null> {
+    const { params, context } = payload;
+    if (!params?.data) {
+      throw new InvalidParamError('Transaction params required');
+    }
+    const checkRes = await this.checkPermissions(context.origin, [
+      Permission.VIEW_ACCOUNT,
+      Permission.SUGGEST_TX,
+    ]);
+    if (!checkRes.result) {
+      // TODO: launch request permission window
+      throw new NoPermissionError('No permissions to requestTransaction', {
+        missingPerms: checkRes.missingPerms,
+      });
+    }
+
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    const network = await this.networkApi.getNetwork(appContext.networkId);
+    if (!network) {
+      throw new NotFoundError(
+        `network metadata is not found, id=${appContext.networkId}`
+      );
+    }
+    const { txReq, finalResult } = await this.promptForTxApproval({
+      network,
+      walletId: appContext.walletId,
+      address: account.address,
+      txType: params.type,
+      txData: params.data,
+      favicon: context.favicon,
+      name: context.name,
+      origin: context.origin,
+    });
+    if (!finalResult.approved) {
+      throw new UserRejectionError();
+    }
+    const token = this.authApi.getToken();
+    try {
+      const response = await this.txApi.executeMoveCall({
+        network,
+        token,
+        walletId: appContext.walletId,
+        accountId: appContext.accountId,
+        tx: params.data,
+      });
+      await this.txManager.storeTxRequest({
+        ...txReq,
+        response,
+      });
+      return response;
+    } catch (e: any) {
+      await this.txManager.storeTxRequest({
+        ...txReq,
+        responseError: e.message,
+      });
+      throw e;
+    }
+  }
+
+  private async promptForTxApproval(params: {
+    network: Network;
+    walletId: string;
+    address: string;
+    txType: string;
+    txData: any;
+    origin: string;
+    name: string;
+    favicon: string;
+  }) {
+    // load moveCall metadata
+    const metadata = await this.txApi.getNormalizedMoveFunction({
+      network: params.network,
+      functionName: params.txData.function,
+      moduleName: params.txData.module,
+      objectId: params.txData.packageObjectId,
+    });
+    console.log('metadata', metadata);
+
+    const txReq = await this.txManager.createTxRequest({
+      walletId: params.walletId,
+      address: params.address,
+      origin: params.origin,
+      name: params.name,
+      favicon: params.favicon,
+      type: params.txType,
+      data: params.txData,
+      metadata,
+    });
+    const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
+      txReqId: txReq.id,
+    });
+    const onWindowCloseObservable = await txReqWindow.show();
+    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
+      map(async () => {
+        return {
+          ...txReq,
+          approved: false,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+    const onApprovalObservable = approvalSubject.asObservable().pipe(
+      filter((result) => {
+        return (
+          result.type === ApprovalType.TRANSACTION && result.id === txReq.id
+        );
+      }),
+      map((result) => {
+        return {
+          ...txReq,
+          approved: result.approved,
+          updatedAt: result.updatedAt,
+        };
+      })
+    );
+    const finalResult = await firstValueFrom(
+      race(onFallbackDenyObservable, onApprovalObservable).pipe(
+        take(1),
+        tap(async () => {
+          await txReqWindow.close();
+        })
+      )
+    );
+    return { txReq, finalResult };
+  }
+
+  public async hasPermissions(payload: DappMessage<{}>) {
+    const { context } = payload;
+    const appContext = await this.getAppContext();
+    const account = await this.getActiveAccount(appContext.accountId);
+    return await this.permManager.getAllPermissions({
+      address: account.address,
+      networkId: appContext.networkId,
+      origin: context.origin,
+    });
+  }
+
+  public async getPublicKey(payload: DappMessage<{}>): Promise<string> {
+    const { context } = payload;
+    const checkRes = await this.checkPermissions(context.origin, [
+      Permission.VIEW_ACCOUNT,
+    ]);
+    if (!checkRes.result) {
+      throw new NoPermissionError('No permission to getAccounts info', {
+        missingPerms: checkRes.missingPerms,
+      });
+    }
+
+    const appContext = await this.getAppContext();
+    const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
+    return publicKey;
+  }
+
+  private async _getAccounts(payload: DappMessage<{}>) {
     const { context } = payload;
     const checkRes = await this.checkPermissions(context.origin, [
       Permission.VIEW_ACCOUNT,
@@ -385,23 +519,7 @@ export class DappBgApi {
         }
       );
     }
-    return result.map((ac: Account) => ac.address);
-  }
-
-  public async getPublicKey(payload: DappMessage<{}>): Promise<string> {
-    const { context } = payload;
-    const checkRes = await this.checkPermissions(context.origin, [
-      Permission.VIEW_ACCOUNT,
-    ]);
-    if (!checkRes.result) {
-      throw new NoPermissionError('No permission to getAccounts info', {
-        missingPerms: checkRes.missingPerms,
-      });
-    }
-
-    const appContext = await this.getAppContext();
-    const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
-    return publicKey;
+    return result;
   }
 
   private createPopupWindow(url: string, params: Record<string, any>) {

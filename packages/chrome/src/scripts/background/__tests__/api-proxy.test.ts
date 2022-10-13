@@ -1,8 +1,8 @@
 import { processPortMessage } from '../utils';
 
 describe('Port message process', function () {
-  test('de-serialized and get real params', () => {
-    const input = JSON.stringify({
+  test('parse params', () => {
+    const input = {
       id: '1',
       funcName: 'serviceA.funcB',
       payload: {
@@ -11,7 +11,7 @@ describe('Port message process', function () {
       options: {
         withAuth: true,
       },
-    });
+    };
     expect(processPortMessage(input)).toEqual({
       id: '1',
       service: 'serviceA',
@@ -26,16 +26,14 @@ describe('Port message process', function () {
   });
   test('process funcName can be just func, which means call the root method', () => {
     expect(
-      processPortMessage(
-        JSON.stringify({
-          id: '1',
-          funcName: 'funcC',
-          payload: null,
-          options: {
-            withAuth: true,
-          },
-        })
-      )
+      processPortMessage({
+        id: '1',
+        funcName: 'funcC',
+        payload: null,
+        options: {
+          withAuth: true,
+        },
+      })
     ).toEqual({
       id: '1',
       service: 'root',
@@ -47,38 +45,27 @@ describe('Port message process', function () {
     });
   });
   test('ensure input is a Json string that can be de-serialize to object', () => {
-    const expectErrorMsg = 'port message must be a serialized json object';
-    expect(() =>
-      processPortMessage(
-        JSON.stringify({
-          id: '1',
-          funcName: 'serviceA.funcB',
-          payload: {},
-        })
-      )
-    ).not.toThrow();
-    expect(() => processPortMessage(undefined as any)).toThrow(expectErrorMsg);
+    const expectErrorMsg = 'port message must be an object';
     expect(() =>
       processPortMessage({
         id: '1',
         funcName: 'serviceA.funcB',
         payload: {},
-      } as any)
-    ).toThrow(expectErrorMsg);
+      })
+    ).not.toThrow();
+    expect(() => processPortMessage(undefined as any)).toThrow(expectErrorMsg);
 
     // if input is not de-serializable, throw
     expect(() => processPortMessage(`{id: '1', funcName: errrrrrorr!`)).toThrow(
       expectErrorMsg
     );
 
-    // if de-serialized object is not the required structure, throw error
+    // if object is not the required structure, throw error
     expect(() =>
-      processPortMessage(
-        JSON.stringify({
-          id: undefined,
-          funcName: undefined,
-        })
-      )
+      processPortMessage({
+        id: undefined,
+        funcName: undefined,
+      })
     ).toThrow();
   });
 });

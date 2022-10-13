@@ -44,7 +44,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   port.onMessage.addListener((msg) => {
     window.postMessage({
       target: WindowMsgTarget.DAPP,
-      payload: JSON.parse(msg),
+      payload: msg,
     });
   });
 
@@ -65,8 +65,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
           },
         },
       };
-      // console.log('[content] actually postMessage', message);
-      port.postMessage(JSON.stringify(message));
+      port.postMessage(message);
     }
   };
 

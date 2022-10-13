@@ -1,5 +1,4 @@
 import {
-  MoveCallTransaction,
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
 } from '@mysten/sui.js';
@@ -9,15 +8,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { DappBaseRequest } from './permission';
 
 export enum TxRequestType {
-  MOVE_CALL = 'MOVE_CALL',
+  MOVE_CALL = 'moveCall',
   SERIALIZED_MOVE_CALL = 'SERIALIZED_MOVE_CALL',
 }
 
 export interface TxRequest extends DappBaseRequest {
   approved: boolean | null;
   metadata: SuiMoveNormalizedFunction | null;
-  type: TxRequestType;
-  data: MoveCallTransaction | string; // depends on the type
+  type: string;
+  data: any; // depends on the type
   response: SuiTransactionResponse | null;
   responseError: string | null;
   createdAt: string;
@@ -65,13 +64,13 @@ export class TxRequestManager {
   }
 
   async createTxRequest(params: {
-    type: TxRequestType;
+    type: string;
     name: string;
     origin: string;
     favicon: string;
     walletId: string;
     address: string;
-    data: MoveCallTransaction | string;
+    data: any;
     metadata: SuiMoveNormalizedFunction;
   }): Promise<TxRequest> {
     const data = {

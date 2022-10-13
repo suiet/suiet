@@ -136,7 +136,7 @@ export class BackgroundApiProxy {
         log(`respond(${reqMeta}) failed`, error);
       }
       try {
-        port.postMessage(JSON.stringify(resData(id, error, data)));
+        port.postMessage(resData(id, error, data));
       } catch (e) {
         console.error(e);
         log(`postMessage(${reqMeta}) failed`, { e, data });

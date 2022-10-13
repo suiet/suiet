@@ -1,19 +1,19 @@
 import {
   InvalidPortMessageDataError,
-  PortMessageNotAJsonStringError,
+  PortMessageNotObjectError,
 } from './errors';
 import { isDev } from '../../utils/env';
 import { CallFuncData, CallFuncOption } from '../shared';
 
 export function processPortMessage(input: unknown): CallFuncData {
-  if (typeof input !== 'string') {
-    throw new PortMessageNotAJsonStringError();
+  if (input === null || typeof input !== 'object') {
+    throw new PortMessageNotObjectError();
   }
   let inputParams;
   try {
-    inputParams = JSON.parse(input);
+    inputParams = input;
   } catch {
-    throw new PortMessageNotAJsonStringError();
+    throw new PortMessageNotObjectError();
   }
 
   function checkStructure(result: Record<string, any>) {
@@ -50,7 +50,7 @@ export function processPortMessage(input: unknown): CallFuncData {
   }
 
   checkStructure(inputParams);
-  return transformToCallFuncData(inputParams);
+  return transformToCallFuncData(inputParams as any);
 }
 
 export function log(message: string, details: any, devOnly = true) {
