@@ -42,7 +42,7 @@ export class Provider {
       (coin) => coin.symbol === symbol
     );
     if (coins.length === 0) {
-      throw new Error('no coin to transfer');
+      throw new Error('No coin to transfer');
     }
 
     if (symbol === GAS_SYMBOL) {
@@ -57,9 +57,22 @@ export class Provider {
       (object) => object.reference.objectId === objectId
     );
     if (!object) {
-      throw new Error('no object to transfer');
+      throw new Error('No object to transfer');
     }
     await this.tx.transferObject(objectId, recipient, vault);
+  }
+
+  async mintExampleNft(vault: Vault) {
+    const gasObject = (await this.query.getOwnedCoins(vault.getAddress()))
+      .filter((coin) => coin.symbol === GAS_SYMBOL)
+      .find((coin) => coin.balance >= MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget);
+    if (!gasObject) {
+      // Try to merge coins in this case.
+      throw new Error(
+        `No gas object found with value > budget ${MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget}`
+      );
+    }
+    this.tx.mintExampleNft(vault, gasObject.objectId);
   }
 }
 
@@ -407,11 +420,17 @@ export class TxProvider {
     await executeTransaction(this.provider, signedTx);
   }
 
-  public async mintExampleNft(vault: Vault) {
+  public async mintExampleNft(vault: Vault, gasObjectId: string) {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
 
-    await this.executeMoveCall(MINT_EXAMPLE_NFT_MOVE_CALL, vault);
+    await this.executeMoveCall(
+      {
+        gasPayment: gasObjectId,
+        ...MINT_EXAMPLE_NFT_MOVE_CALL,
+      },
+      vault
+    );
   }
 }
 

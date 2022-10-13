@@ -67,7 +67,7 @@ export class WalletApi implements IWalletApi {
     const { walletId, token } = params;
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error('Wallet Not Exist');
+      throw new Error('Wallet not exist');
     }
     return crypto.decryptMnemonic(
       Buffer.from(token, 'hex'),
@@ -79,7 +79,7 @@ export class WalletApi implements IWalletApi {
     const { walletId, token } = params;
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error('Wallet Not Exist');
+      throw new Error('Wallet not exist');
     }
     const mnemonic = crypto.decryptMnemonic(
       Buffer.from(token, 'hex'),
@@ -100,12 +100,12 @@ export class WalletApi implements IWalletApi {
     }
     const token = Buffer.from(params.token, 'hex');
     if (await this.checkMnemonicDuplicated(mnemonic, token)) {
-      throw new Error('Wallet Already Exist');
+      throw new Error('Wallet already exist');
     }
     const encryptedMnemonic = crypto.encryptMnemonic(token, mnemonic);
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password Not Initialized');
+      throw new Error('Password not initialized');
     }
     const walletId = meta.nextWalletId;
     meta.nextWalletId += 1;
@@ -155,7 +155,7 @@ export class WalletApi implements IWalletApi {
     await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error('Wallet Not Exist');
+      throw new Error('Wallet not exist');
     }
     if (meta.name) {
       wallet.name = meta.name;

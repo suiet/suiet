@@ -261,7 +261,7 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    await provider.tx.mintExampleNft(vault);
+    await provider.mintExampleNft(vault);
   }
 
   async executeMoveCall(
