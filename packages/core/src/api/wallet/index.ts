@@ -99,10 +99,13 @@ export class WalletApi implements IWalletApi {
       mnemonic = crypto.generateMnemonic();
     }
     const token = Buffer.from(params.token, 'hex');
+    if (await this.checkMnemonicDuplicated(mnemonic, token)) {
+      throw new Error('Wallet Already Exist');
+    }
     const encryptedMnemonic = crypto.encryptMnemonic(token, mnemonic);
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password not initialized');
+      throw new Error('Password Not Initialized');
     }
     const walletId = meta.nextWalletId;
     meta.nextWalletId += 1;
@@ -166,6 +169,23 @@ export class WalletApi implements IWalletApi {
   async deleteWallet(walletId: string, token: string) {
     await validateToken(this.storage, token);
     return await this.storage.deleteWallet(walletId);
+  }
+
+  async checkMnemonicDuplicated(
+    mnemonic: string,
+    token: Buffer
+  ): Promise<boolean> {
+    const wallets = await this.storage.getWallets();
+    for (const wallet of wallets) {
+      const decryptedMnemonic = crypto.decryptMnemonic(
+        token,
+        wallet.encryptedMnemonic
+      );
+      if (decryptedMnemonic === mnemonic) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
