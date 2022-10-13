@@ -38,7 +38,7 @@ export class AccountApi implements IAccountApi {
     await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
-      throw new Error('Wallet Not Exist');
+      throw new Error('Wallet not exist');
     }
 
     const accountId = wallet.nextAccountId;
@@ -78,7 +78,7 @@ export class AccountApi implements IAccountApi {
     await validateToken(this.storage, token);
     const account = await this.storage.getAccount(accountId);
     if (!account) {
-      throw new Error('Account Not Exist');
+      throw new Error('Account not exist');
     }
     if (meta.name) {
       account.name = meta.name;
@@ -93,7 +93,7 @@ export class AccountApi implements IAccountApi {
   async getPublicKey(accountId: string) {
     const account = await this.getAccount(accountId);
     if (!account) {
-      throw new Error('Account Not Exist');
+      throw new Error('Account not exist');
     }
     return account.pubkey;
   }
