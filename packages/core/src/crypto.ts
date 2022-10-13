@@ -88,7 +88,7 @@ export function validateToken(token: Buffer, cipher: Cipher): boolean {
 }
 
 export function derivationHdPath(id: number) {
-  return `m/44'/${COIN_TYPE_SUI}'/${id}'`;
+  return `m/44'/${COIN_TYPE_SUI}'/0'/0'/${id}'`;
 }
 
 const BIP32_ALL_WORDLISTS = [
