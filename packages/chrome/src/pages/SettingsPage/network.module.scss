@@ -17,7 +17,7 @@
     padding: 16px 20px 16px 16px;
     height: 60px;
     background: $gray-50;
-    border: 1px solid #eaecf0;
+    border: 1px solid $gray-50;
     border-radius: 8px;
     margin-bottom: 16px;
     font-weight: 500;
@@ -28,8 +28,8 @@
     cursor: pointer;
 
     &.active {
-      border: 1px solid #3ea2f8;
-      background: #e9f6fa;
+      border: 1px solid $primary-400;
+      background: $primary-25;
     }
   }
 
