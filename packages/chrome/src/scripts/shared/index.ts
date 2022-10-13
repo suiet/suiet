@@ -77,3 +77,7 @@ export function resData<T = any>(
     data,
   };
 }
+
+export function suietSay(msg: string) {
+  return `[SUIET_WALLET]: ${msg}`;
+}

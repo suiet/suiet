@@ -37,7 +37,7 @@ export class BackgroundApiClient {
       (h) => this.port.onMessage.removeListener(h),
       (data) => {
         try {
-          return JSON.parse(data);
+          return data;
         } catch (e) {
           throw new Error('cannot parse res data');
         }
@@ -55,7 +55,7 @@ export class BackgroundApiClient {
       typeof payload === 'undefined' ? null : payload,
       options
     );
-    this.port.postMessage(JSON.stringify(reqParams));
+    this.port.postMessage(reqParams);
     const result = await lastValueFrom(
       this.portObservable.pipe(
         filter((data) => data.id === reqParams.id),

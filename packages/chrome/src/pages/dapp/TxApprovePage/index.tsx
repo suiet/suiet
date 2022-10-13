@@ -168,9 +168,7 @@ const TxApprovePage = () => {
               Transaction Type
             </Typo.Normal>
             <Typo.Normal className={styles['detail-item__value']}>
-              {txReqData?.type === TxRequestType.MOVE_CALL
-                ? 'MoveCall'
-                : 'Unknown'}
+              {txReqData?.type}
             </Typo.Normal>
           </div>
           <div className={styles['detail-item']}>
