@@ -13,7 +13,10 @@ import Icon from '../../components/Icon';
 
 import { ReactComponent as IconCheck } from '../../assets/icons/check.svg';
 import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg';
-import { ReactComponent as IconDevnet } from '../../assets/icons/devnet.svg';
+import { ReactComponent as IconDevnetSelected } from '../../assets/icons/devnet-selected.svg';
+import { ReactComponent as IconDevnetUnselected } from '../../assets/icons/devnet-unselected.svg';
+import { ReactComponent as IconTestnetSelected } from '../../assets/icons/testnet-selected.svg';
+import { ReactComponent as IconTestnetUnselected } from '../../assets/icons/testnet-unselected.svg';
 import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
 import { RootState } from '../../store';
 
@@ -23,16 +26,25 @@ const networks: Record<
   string,
   {
     name: string;
-    icon: JSX.Element;
+    icon: {
+      selected: JSX.Element;
+      unselected: JSX.Element;
+    };
   }
 > = {
   devnet: {
     name: 'Devnet',
-    icon: <IconDevnet />,
+    icon: {
+      selected: <IconDevnetSelected />,
+      unselected: <IconDevnetUnselected />,
+    },
   },
   testnet: {
     name: 'Testnet',
-    icon: <IconMainnet />,
+    icon: {
+      selected: <IconTestnetSelected />,
+      unselected: <IconTestnetUnselected />,
+    },
   },
 };
 
@@ -79,7 +91,7 @@ function Network() {
               }}
             >
               <Icon
-                icon={config.icon}
+                icon={active ? config.icon.selected : config.icon.unselected}
                 className={styles['network-selection-icon']}
               />
               <Typo.Normal className={styles['network-item-name']}>
