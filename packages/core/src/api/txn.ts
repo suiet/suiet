@@ -276,7 +276,7 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    return await provider.tx.executeMoveCall(params.tx, vault);
+    return await provider.executeMoveCall(params.tx, vault);
   }
 
   async executeSerializedMoveCall(
