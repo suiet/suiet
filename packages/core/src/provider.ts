@@ -63,16 +63,26 @@ export class Provider {
   }
 
   async mintExampleNft(vault: Vault) {
-    const gasObject = (await this.query.getOwnedCoins(vault.getAddress()))
-      .filter((coin) => coin.symbol === GAS_SYMBOL)
-      .find((coin) => coin.balance >= MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget);
-    if (!gasObject) {
-      // Try to merge coins in this case.
-      throw new Error(
-        `No gas object found with value > budget ${MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget}`
-      );
-    }
-    this.tx.mintExampleNft(vault, gasObject.objectId);
+    const gasObject = await this.query.getGasObject(
+      vault.getAddress(),
+      MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget
+    );
+    await this.tx.mintExampleNft(
+      vault,
+      gasObject ? gasObject.objectId : undefined
+    );
+  }
+
+  async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
+    const gasObject = await this.query.getGasObject(
+      vault.getAddress(),
+      MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget
+    );
+    return await this.tx.executeMoveCall(
+      tx,
+      vault,
+      gasObject ? gasObject.objectId : undefined
+    );
   }
 }
 
@@ -113,6 +123,17 @@ export class QueryProvider {
       .filter((item) => item.object && Coin.isCoin(item.object))
       .map((item) => Coin.getCoinObject(item.object as SuiMoveObject));
     return res;
+  }
+
+  public async getGasObject(
+    address: string,
+    gasBudget: number
+  ): Promise<CoinObject | undefined> {
+    // TODO: Try to merge coins in this case if gas object is undefined.
+    const coins = await this.getOwnedCoins(address);
+    return coins
+      .filter((coin) => coin.symbol === GAS_SYMBOL)
+      .find((coin) => coin.balance >= gasBudget);
   }
 
   public async getOwnedNfts(address: string): Promise<NftObject[]> {
@@ -404,8 +425,15 @@ export class TxProvider {
     await executeTransaction(this.provider, signedTx);
   }
 
-  public async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
+  public async executeMoveCall(
+    tx: MoveCallTransaction,
+    vault: Vault,
+    gasObjectId: string | undefined
+  ) {
     const address = vault.getAddress();
+    if (!tx.gasPayment) {
+      tx.gasPayment = gasObjectId;
+    }
     const data = await this.serializer.newMoveCall(address, tx);
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
@@ -420,17 +448,11 @@ export class TxProvider {
     await executeTransaction(this.provider, signedTx);
   }
 
-  public async mintExampleNft(vault: Vault, gasObjectId: string) {
+  public async mintExampleNft(vault: Vault, gasObjectId: string | undefined) {
     const address = vault.getAddress();
     trySyncAccountState(this.provider, address);
 
-    await this.executeMoveCall(
-      {
-        gasPayment: gasObjectId,
-        ...MINT_EXAMPLE_NFT_MOVE_CALL,
-      },
-      vault
-    );
+    await this.executeMoveCall(MINT_EXAMPLE_NFT_MOVE_CALL, vault, gasObjectId);
   }
 }
 
