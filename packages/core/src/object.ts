@@ -54,7 +54,7 @@ export type NftObject = {
   previousTransaction?: string;
   objectType: string;
   fields: Record<string, any>;
-  has_public_transfer: boolean;
+  hasPublicTransfer: boolean;
 };
 
 export class Nft {
@@ -79,7 +79,7 @@ export class Nft {
       previousTransaction,
       objectType: obj.type,
       fields: obj.fields,
-      has_public_transfer: obj.has_public_transfer
+      hasPublicTransfer: obj.has_public_transfer
         ? obj.has_public_transfer
         : false,
     };

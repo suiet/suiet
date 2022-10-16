@@ -23,6 +23,7 @@ const NftDetail = () => {
     previousTransaction = '',
     objectType = '',
     url = '',
+    hasPublicTransfer = false,
   } = location.state || ({} as any);
   const appContext = useSelector((state: RootState) => state.appContext);
 
@@ -50,23 +51,26 @@ const NftDetail = () => {
           <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
             {name}
           </Typo.Title>
-          <div
-            className={styles['nft-send']}
-            onClick={() => {
-              navigate('/nft/send', {
-                state: {
-                  id,
-                  name,
-                  description,
-                  previousTransaction,
-                  objectType,
-                  url,
-                },
-              });
-            }}
-          >
-            Send
-          </div>
+          {hasPublicTransfer && (
+            <div
+              className={styles['nft-send']}
+              onClick={() => {
+                navigate('/nft/send', {
+                  state: {
+                    id,
+                    name,
+                    description,
+                    previousTransaction,
+                    objectType,
+                    url,
+                    hasPublicTransfer,
+                  },
+                });
+              }}
+            >
+              Send
+            </div>
+          )}
           <div className="flex">
             <Typo.Small
               className={classnames(styles['nft-tag'])}

@@ -21,6 +21,7 @@ export interface NftMeta {
   url: string;
   objectType: string;
   fields: Record<string, any>;
+  hasPublicTransfer: boolean;
 }
 
 type NftItemProps = Extendable &
@@ -49,6 +50,7 @@ const NftItem = (props: NftItemProps) => {
             props.fields.metadata?.fields.uri ||
             props.fields.metadata?.fields.url,
           fields: props.fields,
+          hasPublicTransfer: props.hasPublicTransfer,
         });
       }}
     >
@@ -121,6 +123,7 @@ const NftList = (props: NftListProps) => {
             objectType={nft.objectType}
             onClick={handleClickNft}
             fields={nft.fields}
+            hasPublicTransfer={nft.hasPublicTransfer}
           />
         );
       })}
