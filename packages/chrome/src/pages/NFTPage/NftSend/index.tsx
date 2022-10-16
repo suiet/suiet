@@ -38,6 +38,7 @@ export default function SendNft() {
     previousTransaction = '',
     objectType = '',
     url = '',
+    hasPublicTransfer = false,
   } = location.state || ({} as any);
 
   const form = useForm<SendFormValues>({
@@ -91,6 +92,7 @@ export default function SendNft() {
               previousTransaction,
               objectType,
               url,
+              hasPublicTransfer,
             },
           });
         }}

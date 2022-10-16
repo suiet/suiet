@@ -33,7 +33,7 @@ export default function Empty(props: EmptyProps) {
     if (!network) throw new Error('require network selected');
 
     if (balanceLoading || Number(balance) < 10000) {
-      message.error('Please ensure you have more than 10000 SUI to mint');
+      message.error('Please ensure you have more than 0.00001 SUI to mint');
       return;
     }
     setSendLoading(true);

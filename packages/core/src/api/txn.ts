@@ -88,7 +88,7 @@ export type NftObjectDto = {
   previousTransaction?: string;
   objectType: string;
   fields: Record<string, any>;
-  has_public_transfer: boolean;
+  hasPublicTransfer: boolean;
 };
 
 export type ObjectDto = CoinObjectDto | NftObjectDto;
@@ -245,7 +245,7 @@ export class TransactionApi implements ITransactionApi {
       previousTransaction: nft.previousTransaction,
       objectType: nft.objectType,
       fields: nft.fields,
-      has_public_transfer: nft.has_public_transfer,
+      hasPublicTransfer: nft.hasPublicTransfer,
     }));
   }
 
