@@ -14,6 +14,8 @@ import {
   MoveCallTransaction,
   Base64DataBuffer,
   getMoveCallTransaction,
+  getObjectId,
+  OwnedObjectRef,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -245,12 +247,48 @@ export class QueryProvider {
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
+              created: await this.getTxObjects(effect.effects.created),
+              mutated: await this.getTxObjects(effect.effects.mutated),
             },
           });
         }
       }
     }
     return results;
+  }
+
+  public async getTxObjects(
+    objectRefs: OwnedObjectRef[] | undefined
+  ): Promise<TxObject[]> {
+    if (!objectRefs) {
+      return [];
+    }
+    const objectIds = objectRefs.map((obj) => obj.reference.objectId);
+    const resps = await this.provider.getObjectBatch(objectIds);
+    const objects = resps.map((resp) => {
+      const existResp = getObjectExistsResponse(resp);
+      if (existResp) {
+        const obj = getMoveObject(existResp);
+        if (obj) {
+          if (Coin.isCoin(obj)) {
+            return {
+              type: 'coin' as 'coin',
+              ...Coin.getCoinObject(obj),
+            };
+          } else if (Nft.isNft(obj)) {
+            return {
+              type: 'nft' as 'nft',
+              ...Nft.getNftObject(obj),
+            };
+          }
+        }
+      }
+      return {
+        type: 'object_id' as 'object_id',
+        id: getObjectId(resp),
+      };
+    });
+    return objects;
   }
 
   public async getNormalizedMoveFunction(
