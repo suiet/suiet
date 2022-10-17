@@ -36,11 +36,11 @@ export type TxnHistoryEntry<T = TxObject> = {
   gasFee: number;
   from: string;
   to: string;
-  object: T;
+  object: T | MoveCallInfo<T>;
   timestamp_ms: number | null;
 };
 
-export type TxObject = CoinObject | NftObject | MoveCallInfo;
+export type TxObject = CoinObject | NftObject | SuiObjectId;
 
 export type CoinObject = {
   type: 'coin';
@@ -55,10 +55,17 @@ export type NftObject = {
   url: string;
 };
 
-export type MoveCallInfo = {
+export type MoveCallInfo<T = TxObject> = {
   type: 'move_call';
   packageObjectId: string;
   module: string;
   function: string;
   arguments?: string[];
+  created: T[];
+  mutated: T[];
+};
+
+export type SuiObjectId = {
+  type: 'object_id';
+  id: string;
 };
