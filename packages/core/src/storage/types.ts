@@ -1,3 +1,4 @@
+import { ExecutionStatusType } from '@mysten/sui.js';
 import { AccountInWallet } from '../api/wallet';
 
 export const WALLET_PREFIX = 'wallet-';
@@ -31,7 +32,7 @@ export type Cipher = {
 };
 
 export type TxnHistoryEntry<T = TxObject> = {
-  txStatus: 'success' | 'failure';
+  txStatus?: ExecutionStatusType;
   transactionDigest: string;
   gasFee: number;
   from: string;
