@@ -1,7 +1,6 @@
 import {
   getObjectExistsResponse,
   JsonRpcProvider,
-  RpcTxnDataSerializer,
   SuiMoveObject,
   SuiObject,
   getTransferObjectTransaction,
@@ -16,6 +15,7 @@ import {
   getMoveCallTransaction,
   getObjectId,
   OwnedObjectRef,
+  LocalTxnDataSerializer,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -29,9 +29,9 @@ export class Provider {
   query: QueryProvider;
   tx: TxProvider;
 
-  constructor(queryEndpoint: string, gatewayEndpoint: string) {
+  constructor(queryEndpoint: string, txEndpoint: string) {
     this.query = new QueryProvider(queryEndpoint);
-    this.tx = new TxProvider(gatewayEndpoint);
+    this.tx = new TxProvider(txEndpoint);
   }
 
   async transferCoin(
@@ -105,7 +105,6 @@ export class QueryProvider {
   }
 
   public async getOwnedObjects(address: string): Promise<SuiObject[]> {
-    trySyncAccountState(this.provider, address);
     const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
     const objectIds = objectInfos.map((obj) => obj.objectId);
     const resps = await this.provider.getObjectBatch(objectIds);
@@ -115,7 +114,6 @@ export class QueryProvider {
   }
 
   public async getOwnedCoins(address: string): Promise<CoinObject[]> {
-    trySyncAccountState(this.provider, address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
@@ -139,7 +137,6 @@ export class QueryProvider {
   }
 
   public async getOwnedNfts(address: string): Promise<NftObject[]> {
-    trySyncAccountState(this.provider, address);
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
@@ -158,7 +155,6 @@ export class QueryProvider {
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistoryEntry[]> {
-    trySyncAccountState(this.provider, address);
     const txs = await this.provider.getTransactionsForAddress(address);
     if (txs.length === 0 || !txs[0]) {
       return [];
@@ -327,11 +323,11 @@ export const MINT_EXAMPLE_NFT_MOVE_CALL = {
 
 export class TxProvider {
   provider: JsonRpcProvider;
-  serializer: RpcTxnDataSerializer;
+  serializer: LocalTxnDataSerializer;
 
-  constructor(gatewayEndpoint: string) {
-    this.provider = new JsonRpcProvider(gatewayEndpoint, true);
-    this.serializer = new RpcTxnDataSerializer(gatewayEndpoint);
+  constructor(txEndpoint: string) {
+    this.provider = new JsonRpcProvider(txEndpoint, true);
+    this.serializer = new LocalTxnDataSerializer(this.provider);
   }
 
   async transferObject(objectId: string, recipient: string, vault: Vault) {
@@ -372,7 +368,6 @@ export class TxProvider {
       throw new Error('Insufficient balance');
     }
     const address = vault.getAddress();
-    trySyncAccountState(this.provider, address);
     for (const coin of coinsToMerge) {
       const data = await this.serializer.newMergeCoin(address, {
         primaryCoin: primaryCoin.objectId,
@@ -417,8 +412,6 @@ export class TxProvider {
     recipient: string,
     vault: Vault
   ) {
-    const address = vault.getAddress();
-    trySyncAccountState(this.provider, address);
     const mergedCoin = await this.mergeCoinsForBalance(
       coins,
       BigInt(amount),
@@ -439,7 +432,6 @@ export class TxProvider {
     vault: Vault
   ) {
     const address = vault.getAddress();
-    trySyncAccountState(this.provider, address);
     const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
     const coin = await this.mergeCoinsForBalance(
       coins,
@@ -487,17 +479,8 @@ export class TxProvider {
   }
 
   public async mintExampleNft(vault: Vault, gasObjectId: string | undefined) {
-    const address = vault.getAddress();
-    trySyncAccountState(this.provider, address);
-
     await this.executeMoveCall(MINT_EXAMPLE_NFT_MOVE_CALL, vault, gasObjectId);
   }
-}
-
-async function trySyncAccountState(provider: JsonRpcProvider, address: string) {
-  try {
-    await provider.syncAccountState(address);
-  } catch {}
 }
 
 async function executeTransaction(provider: JsonRpcProvider, txn: SignedTx) {

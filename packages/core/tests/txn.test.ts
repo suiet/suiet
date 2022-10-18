@@ -3,7 +3,7 @@ import { Vault } from '../src/vault/Vault';
 import * as crypto from '../src/crypto';
 
 const RPC_URL = 'http://127.0.0.1:5001';
-// const RPC_URL = 'https://gateway.devnet.sui.io:443';
+// const RPC_URL = 'https://fullnode.devnet.sui.io:443';
 const ADDRESS = '0x497c0b76ad06f09bd85012fe6a6e22f55f77eea0';
 const OBJECT_ID = '0xe76fdca766fb603f3188ab88f0a9b4b799d54c37';
 const MNEMONIC =

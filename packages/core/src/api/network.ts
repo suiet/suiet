@@ -2,7 +2,7 @@ export type Network = {
   id: string;
   name: string;
   queryRpcUrl: string;
-  gatewayRpcUrl: string;
+  txRpcUrl: string;
 };
 
 export interface INetworkApi {
@@ -18,7 +18,7 @@ const DEFAULT_NETWORKS = new Map([
       id: 'devnet',
       name: 'devnet',
       queryRpcUrl: 'https://fullnode.devnet.sui.io/',
-      gatewayRpcUrl: 'https://gateway.devnet.sui.io:443',
+      txRpcUrl: 'https://fullnode.devnet.sui.io:443',
     },
   ],
   [
@@ -27,7 +27,7 @@ const DEFAULT_NETWORKS = new Map([
       id: 'testnet',
       name: 'testnet',
       queryRpcUrl: 'https://fullnode.testnet.sui.io/',
-      gatewayRpcUrl: 'https://gateway.testnet.sui.io:443',
+      txRpcUrl: 'https://fullnode.testnet.sui.io:443',
     },
   ],
   [
@@ -36,7 +36,7 @@ const DEFAULT_NETWORKS = new Map([
       id: 'local',
       name: 'local',
       queryRpcUrl: 'http://localhost:5001',
-      gatewayRpcUrl: 'http://localhost:5001',
+      txRpcUrl: 'http://localhost:5001',
     },
   ],
 ]);
