@@ -6,9 +6,13 @@ import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
+  CertifiedTransaction,
+  getCertifiedTransaction,
+  getTransactionEffects,
   MoveCallTransaction,
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
+  TransactionEffects,
 } from '@mysten/sui.js';
 import { SignedMessage } from '../vault/types';
 
@@ -276,7 +280,13 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    return await provider.executeMoveCall(params.tx, vault);
+    const response = await provider.executeMoveCall(params.tx, vault);
+    return {
+      certificate: getCertifiedTransaction(response) as CertifiedTransaction,
+      effects: getTransactionEffects(response) as TransactionEffects,
+      timestamp_ms: null,
+      parsed_data: null,
+    };
   }
 
   async executeSerializedMoveCall(

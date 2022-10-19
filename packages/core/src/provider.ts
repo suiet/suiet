@@ -8,14 +8,16 @@ import {
   getTransactionData,
   getExecutionStatusType,
   getMoveObject,
-  getCoinAfterMerge,
-  getCoinAfterSplit,
   MoveCallTransaction,
   Base64DataBuffer,
   getMoveCallTransaction,
   getObjectId,
   OwnedObjectRef,
   LocalTxnDataSerializer,
+  ExecuteTransactionRequestType,
+  Coin as CoinAPI,
+  SUI_TYPE_ARG,
+  LATEST_RPC_API_VERSION,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -92,7 +94,11 @@ export class QueryProvider {
   provider: JsonRpcProvider;
 
   constructor(queryEndpoint: string) {
-    this.provider = new JsonRpcProvider(queryEndpoint, true);
+    this.provider = new JsonRpcProvider(
+      queryEndpoint,
+      true,
+      LATEST_RPC_API_VERSION
+    );
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
@@ -305,7 +311,6 @@ export const DEFAULT_GAS_BUDGET_FOR_MERGE = 1000;
 export const DEFAULT_GAS_BUDGET_FOR_TRANSFER = 100;
 export const DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI = 100;
 export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
-export const GAS_TYPE_ARG = '0x2::sui::SUI';
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
 export const MINT_EXAMPLE_NFT_MOVE_CALL = {
@@ -326,7 +331,11 @@ export class TxProvider {
   serializer: LocalTxnDataSerializer;
 
   constructor(txEndpoint: string) {
-    this.provider = new JsonRpcProvider(txEndpoint, true);
+    this.provider = new JsonRpcProvider(
+      txEndpoint,
+      true,
+      LATEST_RPC_API_VERSION
+    );
     this.serializer = new LocalTxnDataSerializer(this.provider);
   }
 
@@ -341,88 +350,38 @@ export class TxProvider {
     await executeTransaction(this.provider, signedTx);
   }
 
-  async mergeCoinsForBalance(
-    coins: CoinObject[],
-    amount: bigint,
-    vault: Vault
-  ): Promise<CoinObject> {
-    coins.sort((a, b) => (a.balance - b.balance > 0 ? 1 : -1));
-    const coinWithSufficientBalance = coins.find(
-      (coin) => coin.balance >= amount
-    );
-    if (coinWithSufficientBalance) {
-      return coinWithSufficientBalance;
-    }
-    // merge coins with sufficient balance.
-    const primaryCoin = coins[coins.length - 1];
-    let expectedBalance = primaryCoin.balance;
-    const coinsToMerge = [];
-    for (let i = coins.length - 2; i > 0; i--) {
-      expectedBalance += coins[i].balance;
-      coinsToMerge.push(coins[i].objectId);
-      if (expectedBalance >= amount) {
-        break;
-      }
-    }
-    if (expectedBalance < amount) {
-      throw new Error('Insufficient balance');
-    }
-    const address = vault.getAddress();
-    for (const coin of coinsToMerge) {
-      const data = await this.serializer.newMergeCoin(address, {
-        primaryCoin: primaryCoin.objectId,
-        coinToMerge: coin,
-        gasBudget: DEFAULT_GAS_BUDGET_FOR_MERGE,
-      });
-      const signedTx = await vault.signTransaction({ data });
-      const resp = await executeTransaction(this.provider, signedTx);
-      const obj = getCoinAfterMerge(resp) as SuiObject;
-      primaryCoin.objectId = obj.reference.objectId;
-      primaryCoin.balance = Coin.getBalance(
-        getMoveObject(obj) as SuiMoveObject
-      );
-    }
-    if (primaryCoin.balance !== expectedBalance) {
-      throw new Error('Merge coins failed caused by transactions conflicted');
-    }
-    return primaryCoin;
-  }
-
-  async splitCoinForBalance(coin: CoinObject, amount: bigint, vault: Vault) {
-    const address = vault.getAddress();
-    const data = await this.serializer.newSplitCoin(address, {
-      coinObjectId: coin.objectId,
-      splitAmounts: [Number(coin.balance - amount)],
-      gasBudget: DEFAULT_GAS_BUDGET_FOR_SPLIT,
-    });
-    const signedTx = await vault.signTransaction({ data });
-    const resp = await executeTransaction(this.provider, signedTx);
-    const obj = getCoinAfterSplit(resp) as SuiObject;
-    const balance = Coin.getBalance(getMoveObject(obj) as SuiMoveObject);
-    if (balance !== amount) {
-      throw new Error('Split coin failed caused by transactions conflicted');
-    }
-    coin.balance = amount;
-    return coin;
-  }
-
   public async transferCoin(
     coins: CoinObject[],
     amount: number,
     recipient: string,
     vault: Vault
   ) {
-    const mergedCoin = await this.mergeCoinsForBalance(
-      coins,
-      BigInt(amount),
-      vault
-    );
-    const coin = await this.splitCoinForBalance(
-      mergedCoin,
-      BigInt(amount),
-      vault
-    );
-    await this.transferObject(coin.objectId, recipient, vault);
+    const objects = coins.map((coin) => coin.object);
+    const inputCoins =
+      await CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+        objects,
+        BigInt(amount)
+      );
+    if (inputCoins.length === 0) {
+      const totalBalance = CoinAPI.totalBalance(objects);
+      throw new Error(
+        `Coin balance ${totalBalance.toString()} is not sufficient to cover the transfer amount ` +
+          `${amount.toString()}. Try reducing the transfer amount to ${totalBalance}.`
+      );
+    }
+    const inputCoinIDs = inputCoins.map((c) => CoinAPI.getID(c));
+    const gasBudget = Coin.estimatedGasCostForPay(inputCoins.length);
+    const data = await this.serializer.newPay(vault.getAddress(), {
+      inputCoins: inputCoinIDs,
+      recipients: [recipient],
+      amounts: [Number(amount)],
+      gasBudget,
+    });
+
+    // TODO: select gas payment object?
+    const signedTx = await vault.signTransaction({ data });
+    // TODO: handle response
+    await executeTransaction(this.provider, signedTx);
   }
 
   public async transferSui(
@@ -433,22 +392,78 @@ export class TxProvider {
   ) {
     const address = vault.getAddress();
     const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
-    const coin = await this.mergeCoinsForBalance(
-      coins,
-      BigInt(actualAmount),
-      vault
+    const objects = coins.map((coin) => coin.object);
+    const coinsWithSufficientAmount =
+      await CoinAPI.selectCoinsWithBalanceGreaterThanOrEqual(
+        objects,
+        actualAmount
+      );
+    if (coinsWithSufficientAmount.length > 0) {
+      const data = await this.serializer.newTransferSui(address, {
+        suiObjectId: CoinAPI.getID(coinsWithSufficientAmount[0]),
+        gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
+        recipient,
+        amount: Number(amount),
+      });
+      const signedTx = await vault.signTransaction({ data });
+      // TODO: handle response
+      await executeTransaction(this.provider, signedTx);
+      return;
+    }
+    // If there is not a coin with sufficient balance, use the pay API
+    const gasCostForPay = Coin.estimatedGasCostForPay(coins.length);
+    let inputCoins = await Coin.assertAndGetSufficientCoins(
+      objects,
+      BigInt(amount),
+      gasCostForPay
     );
-    console.log(
-      coin.objectId,
-      DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
-      recipient,
-      amount
-    );
-    const data = await this.serializer.newTransferSui(address, {
-      suiObjectId: coin.objectId,
-      gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
-      recipient,
-      amount,
+
+    if (inputCoins.length === coins.length) {
+      // We need to pay for an additional `transferSui` transaction now, assert that we have sufficient balance
+      // to cover the additional cost
+      await Coin.assertAndGetSufficientCoins(
+        objects,
+        BigInt(amount),
+        gasCostForPay + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI
+      );
+
+      // Split the gas budget from the coin with largest balance for simplicity. We can also use any coin
+      // that has amount greater than or equal to `DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI * 2`
+      const coinWithLargestBalance = inputCoins[inputCoins.length - 1];
+
+      if (
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        CoinAPI.getBalance(coinWithLargestBalance)! <
+        gasCostForPay + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI
+      ) {
+        throw new Error(
+          `None of the coins has sufficient balance to cover gas fee`
+        );
+      }
+
+      const data = await this.serializer.newTransferSui(address, {
+        suiObjectId: CoinAPI.getID(coinWithLargestBalance),
+        gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
+        recipient,
+        amount: gasCostForPay,
+      });
+      const signedTx = await vault.signTransaction({ data });
+      // TODO: handle response
+      await executeTransaction(this.provider, signedTx);
+
+      inputCoins =
+        await this.provider.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+          address,
+          BigInt(amount),
+          SUI_TYPE_ARG,
+          []
+        );
+    }
+    const data = await this.serializer.newPay(address, {
+      inputCoins: inputCoins.map((c) => CoinAPI.getID(c)),
+      recipients: [recipient],
+      amounts: [Number(amount)],
+      gasBudget: gasCostForPay,
     });
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
@@ -483,11 +498,16 @@ export class TxProvider {
   }
 }
 
-async function executeTransaction(provider: JsonRpcProvider, txn: SignedTx) {
-  return await provider.executeTransaction(
+async function executeTransaction(
+  provider: JsonRpcProvider,
+  txn: SignedTx,
+  requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
+) {
+  return await provider.executeTransactionWithRequestType(
     txn.data.toString(),
     'ED25519',
     txn.signature.toString('base64'),
-    txn.pubKey.toString('base64')
+    txn.pubKey.toString('base64'),
+    requestType
   );
 }

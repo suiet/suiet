@@ -1,12 +1,14 @@
-import { SuiMoveObject } from '@mysten/sui.js';
+import { SuiMoveObject, Coin as CoinAPI } from '@mysten/sui.js';
 
 const COIN_TYPE = '0x2::coin::Coin';
 const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
+const DEFAULT_GAS_BUDGET_FOR_PAY = 150;
 
 export type CoinObject = {
   objectId: string;
   symbol: string;
   balance: bigint;
+  object: SuiMoveObject;
 };
 
 export class Coin {
@@ -25,6 +27,7 @@ export class Coin {
       objectId: obj.fields.id.id,
       symbol: arg ? Coin.getCoinSymbol(arg) : '',
       balance: BigInt(obj.fields.balance),
+      object: obj,
     };
   }
 
@@ -43,6 +46,35 @@ export class Coin {
 
   static getCoinTypeFromArg(coinTypeArg: string) {
     return `${COIN_TYPE}<${coinTypeArg}>`;
+  }
+
+  static estimatedGasCostForPay(numInputCoins: number): number {
+    return (
+      DEFAULT_GAS_BUDGET_FOR_PAY * Math.max(2, Math.min(100, numInputCoins / 2))
+    );
+  }
+
+  static async assertAndGetSufficientCoins(
+    coins: SuiMoveObject[],
+    amount: bigint,
+    gasBudget?: number
+  ) {
+    const inputCoins =
+      await CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+        coins,
+        amount + BigInt(gasBudget ?? 0)
+      );
+    if (inputCoins.length === 0) {
+      const totalBalance = CoinAPI.totalBalance(coins);
+      const maxTransferAmount = totalBalance - BigInt(gasBudget ?? 0);
+      const gasText = gasBudget ? ` plus gas budget ${gasBudget}` : '';
+      throw new Error(
+        `Coin balance ${totalBalance.toString()} is not sufficient to cover the transfer amount ` +
+          `${amount.toString()}${gasText}. ` +
+          `Try reducing the transfer amount to ${maxTransferAmount.toString()}.`
+      );
+    }
+    return inputCoins;
   }
 }
 
