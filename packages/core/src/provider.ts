@@ -162,9 +162,10 @@ export class QueryProvider {
     if (txs.length === 0 || !txs[0]) {
       return [];
     }
-    const digests = txs
-      .map((tx) => tx[1])
-      .filter((value, index, self) => self.indexOf(value) === index);
+    const digests = txs.filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
+    console.log('digests', digests);
 
     const effects = await this.provider.getTransactionWithEffectsBatch(digests);
     const results = [];
@@ -246,8 +247,10 @@ export class QueryProvider {
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
-              created: await this.getTxObjects(effect.effects.created),
-              mutated: await this.getTxObjects(effect.effects.mutated),
+              created: [],
+              mutated: [],
+              // created: await this.getTxObjects(effect.effects.created),
+              // mutated: await this.getTxObjects(effect.effects.mutated),
             },
           });
         }
