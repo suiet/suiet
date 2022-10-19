@@ -5,12 +5,17 @@ import './styles/react-toastify.scss';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-tabs/style/react-tabs.css';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import message from './components/message';
 import { ToastContainer } from 'react-toastify';
+import {
+  ContextFeatureFlags,
+  useAutoLoadFeatureFlags,
+} from './hooks/useFeatureFlags';
 
 function App() {
   const routes = useRoutes(routesConfig);
+  const featureFlags = useAutoLoadFeatureFlags();
 
   useEffect(() => {
     const handleError = (event: PromiseRejectionEvent) => {
@@ -29,7 +34,9 @@ function App() {
   return (
     <div className="app">
       <ErrorBoundary>
-        {routes}
+        <ContextFeatureFlags.Provider value={featureFlags}>
+          {routes}
+        </ContextFeatureFlags.Provider>
         <ToastContainer />
       </ErrorBoundary>
     </div>
