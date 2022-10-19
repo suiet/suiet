@@ -17,7 +17,6 @@ import {
   ExecuteTransactionRequestType,
   Coin as CoinAPI,
   SUI_TYPE_ARG,
-  LATEST_RPC_API_VERSION,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -26,6 +25,8 @@ import { Vault } from './vault/Vault';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
+
+const RPC_API_VERSION = '0.11.0';
 
 export class Provider {
   query: QueryProvider;
@@ -94,11 +95,7 @@ export class QueryProvider {
   provider: JsonRpcProvider;
 
   constructor(queryEndpoint: string) {
-    this.provider = new JsonRpcProvider(
-      queryEndpoint,
-      true,
-      LATEST_RPC_API_VERSION
-    );
+    this.provider = new JsonRpcProvider(queryEndpoint, true, RPC_API_VERSION);
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
@@ -331,11 +328,7 @@ export class TxProvider {
   serializer: LocalTxnDataSerializer;
 
   constructor(txEndpoint: string) {
-    this.provider = new JsonRpcProvider(
-      txEndpoint,
-      true,
-      LATEST_RPC_API_VERSION
-    );
+    this.provider = new JsonRpcProvider(txEndpoint, true, RPC_API_VERSION);
     this.serializer = new LocalTxnDataSerializer(this.provider);
   }
 
