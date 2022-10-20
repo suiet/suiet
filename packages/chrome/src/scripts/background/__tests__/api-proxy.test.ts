@@ -1,4 +1,4 @@
-import { processPortMessage } from '../utils';
+import { processPortMessage } from '../utils/transmission';
 
 describe('Port message process', function () {
   test('parse params', () => {

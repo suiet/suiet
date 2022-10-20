@@ -9,7 +9,8 @@ import {
 } from '@suiet/core';
 import { fromEventPattern } from 'rxjs';
 import { CallFuncOption, resData } from '../shared';
-import { log, processPortMessage } from './utils';
+import { processPortMessage } from './utils/transmission';
+import { log } from './utils/log';
 import { has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
 import { BizError, ErrorCode, NoAuthError } from './errors';

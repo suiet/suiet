@@ -1,9 +1,8 @@
 import {
   InvalidPortMessageDataError,
   PortMessageNotObjectError,
-} from './errors';
-import { isDev } from '../../utils/env';
-import { CallFuncData, CallFuncOption } from '../shared';
+} from '../errors';
+import { CallFuncData, CallFuncOption } from '../../shared';
 
 export function processPortMessage(input: unknown): CallFuncData {
   if (input === null || typeof input !== 'object') {
@@ -51,9 +50,4 @@ export function processPortMessage(input: unknown): CallFuncData {
 
   checkStructure(inputParams);
   return transformToCallFuncData(inputParams as any);
-}
-
-export function log(message: string, details: any, devOnly = true) {
-  if (devOnly && !isDev) return;
-  console.log('[api proxy]', message, details);
 }
