@@ -28,7 +28,9 @@ export class AuthApi implements IAuthApi {
       throw new Error('Password must be at least 6 characters');
     }
     const meta = await this.storage.loadMeta();
-    if (meta) {
+    const wallets = await this.storage.getWallets();
+    // NOTE: prevent calling when already has wallets
+    if (meta && wallets?.length > 0) {
       throw new Error('Meta already initialized');
     }
     const { cipher } = crypto.newToken(password);
