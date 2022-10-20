@@ -27,6 +27,8 @@ import {
 } from '../errors';
 import { baseDecode, baseEncode } from 'borsh';
 import { SignRequestManager } from '../sign-msg';
+import { FeatureFlagRes } from '../../../api';
+import { fetchFeatureFlags } from '../utils/api';
 
 interface DappMessage<T> {
   params: T;
@@ -67,6 +69,7 @@ export class DappBgApi {
   accountApi: AccountApi;
   networkApi: NetworkApi;
   authApi: AuthApi;
+  featureFlags: FeatureFlagRes | undefined;
 
   constructor(
     storage: Storage,
@@ -84,6 +87,9 @@ export class DappBgApi {
     this.permManager = new PermissionManager();
     this.txManager = new TxRequestManager();
     this.signManager = new SignRequestManager();
+    fetchFeatureFlags().then((data) => {
+      this.featureFlags = data;
+    });
   }
 
   public async connect(
@@ -287,12 +293,7 @@ export class DappBgApi {
     const { transaction } = params;
     const appContext = await this.getAppContext();
     const account = await this.getActiveAccount(appContext.accountId);
-    const network = await this.networkApi.getNetwork(appContext.networkId);
-    if (!network) {
-      throw new NotFoundError(
-        `network metadata is not found, id=${appContext.networkId}`
-      );
-    }
+    const network = await this.getNetwork(appContext.networkId);
 
     const { finalResult } = await this.promptForTxApproval({
       network,
@@ -362,12 +363,7 @@ export class DappBgApi {
 
     const appContext = await this.getAppContext();
     const account = await this.getActiveAccount(appContext.accountId);
-    const network = await this.networkApi.getNetwork(appContext.networkId);
-    if (!network) {
-      throw new NotFoundError(
-        `network metadata is not found, id=${appContext.networkId}`
-      );
-    }
+    const network = await this.getNetwork(appContext.networkId);
     const { txReq, finalResult } = await this.promptForTxApproval({
       network,
       walletId: appContext.walletId,
@@ -563,5 +559,27 @@ export class DappBgApi {
       throw new Error('failed to parse appContext data from local storage');
     }
     return appContext;
+  }
+
+  private async getNetwork(networkId: string) {
+    const defaultData = await this.networkApi.getNetwork(networkId);
+    if (!defaultData) {
+      throw new NotFoundError(`network metadata is not found, id=${networkId}`);
+    }
+    if (
+      !this.featureFlags ||
+      typeof this.featureFlags.networks !== 'object' ||
+      !isNonEmptyArray(Object.keys(this.featureFlags.networks))
+    )
+      return defaultData;
+    const currentNetworkConfig = this.featureFlags.networks[networkId];
+    if (!currentNetworkConfig?.full_node_url) return defaultData;
+
+    const overrideData: Network = {
+      ...defaultData,
+      queryRpcUrl: currentNetworkConfig.full_node_url,
+      txRpcUrl: `${currentNetworkConfig.full_node_url}:443`,
+    };
+    return overrideData;
   }
 }
