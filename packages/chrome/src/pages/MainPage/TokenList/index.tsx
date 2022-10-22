@@ -9,8 +9,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
 import { fullyFormatCurrency } from '../../../utils/format';
-import { useCoins } from '../../../hooks/useCoins';
+import { Coin, useCoins } from '../../../hooks/useCoins';
 import { isNonEmptyArray } from '../../../utils/check';
+import { useMemo } from 'react';
 
 export type TokenListProps = StyleExtendable;
 
@@ -65,16 +66,29 @@ const TokenList = (props: TokenListProps) => {
     account?.address ?? '',
     appContext.networkId
   );
+  const coinsWithSuiOnTop = useMemo(() => {
+    if (!isNonEmptyArray(coins)) return [];
 
-  if (!isNonEmptyArray(coins))
+    const result = coins as Coin[];
+    const suiCoinIndex = result.findIndex((item) => item.symbol === 'SUI');
+    if (suiCoinIndex !== -1) {
+      const suiCoin = result[suiCoinIndex];
+      result.splice(suiCoinIndex, 1);
+      result.unshift(suiCoin);
+    }
+    return result;
+  }, [coins]);
+
+  if (!isNonEmptyArray(coinsWithSuiOnTop)) {
     return (
       <div className={classnames(props.className)} style={props.style}>
         <TokenItem key={'SUI'} symbol={'SUI'} amount={0} />
       </div>
     );
+  }
   return (
     <div className={classnames(props.className)} style={props.style}>
-      {(coins as Array<{ symbol: string; balance: string }>).map((coin) => {
+      {coinsWithSuiOnTop.map((coin) => {
         return (
           <TokenItem
             key={coin.symbol}
