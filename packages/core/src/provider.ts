@@ -186,9 +186,9 @@ export class QueryProvider {
             to: transferSui.recipient,
             object: {
               type: 'coin' as 'coin',
-              balance: transferSui.amount
+              balance: String(transferSui.amount
                 ? BigInt(transferSui.amount)
-                : BigInt(0),
+                : BigInt(0)),
               symbol: 'SUI',
             },
           });
@@ -201,10 +201,11 @@ export class QueryProvider {
           // TODO: for now provider does not support to get histrorical object data,
           // so the record here may not be accurate.
           if (obj && Coin.isCoin(obj)) {
-            const coinObject = Coin.getCoinObject(obj);
+            const coinObj = Coin.getCoinObject(obj);
             txObj = {
               type: 'coin' as 'coin',
-              ...coinObject,
+              symbol: coinObj.symbol,
+              balance: String(coinObj.balance),
             };
           } else if (obj && Nft.isNft(obj)) {
             const nftObject = Nft.getNftObject(obj, undefined);
@@ -271,9 +272,11 @@ export class QueryProvider {
         const obj = getMoveObject(existResp);
         if (obj) {
           if (Coin.isCoin(obj)) {
+            const coinObj = Coin.getCoinObject(obj);
             return {
               type: 'coin' as 'coin',
-              ...Coin.getCoinObject(obj),
+              symbol: coinObj.symbol,
+              balance: String(coinObj.balance),
             };
           } else if (Nft.isNft(obj)) {
             return {
@@ -360,7 +363,7 @@ export class TxProvider {
       const totalBalance = CoinAPI.totalBalance(objects);
       throw new Error(
         `Coin balance ${totalBalance.toString()} is not sufficient to cover the transfer amount ` +
-          `${amount.toString()}. Try reducing the transfer amount to ${totalBalance}.`
+        `${amount.toString()}. Try reducing the transfer amount to ${totalBalance}.`
       );
     }
     const inputCoinIDs = inputCoins.map((c) => CoinAPI.getID(c));

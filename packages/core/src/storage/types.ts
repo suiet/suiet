@@ -46,7 +46,7 @@ export type TxObject = CoinObject | NftObject | SuiObjectId;
 export type CoinObject = {
   type: 'coin';
   symbol: string;
-  balance: bigint;
+  balance: string;
 };
 
 export type NftObject = {
