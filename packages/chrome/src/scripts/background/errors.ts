@@ -4,7 +4,8 @@ export enum ErrorCode {
   NO_AUTH = -4001,
   NO_PERMISSION = -4003,
   NOT_FOUND = -4004,
-  USER_REJECTION = -5000,
+  USER_REJECTION = -4005,
+  RPC_ERROR = -5000,
 }
 
 export class BizError extends Error {
