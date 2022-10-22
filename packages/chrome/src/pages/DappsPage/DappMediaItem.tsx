@@ -14,12 +14,11 @@ export type DappMediaItemProps = Extendable & {
 
 const DappMediaItem = (props: DappMediaItemProps) => {
   return (
-    <div
+    <a
+      href={props.link}
+      target={'_blank'}
       className={classnames(styles['dapp-media-item'], props.className)}
-      onClick={() => {
-        if (!props.link) return;
-        chrome.tabs.create({ url: props.link });
-      }}
+      rel="noreferrer"
     >
       <div className={styles['dapp-media-item__img-wrap']}>
         <img
@@ -36,7 +35,7 @@ const DappMediaItem = (props: DappMediaItemProps) => {
           {props.desc}
         </Typo.Normal>
       </div>
-    </div>
+    </a>
   );
 };
 

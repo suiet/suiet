@@ -30,7 +30,7 @@ const DappsPage = () => {
   return (
     <AppLayout className={styles['container']}>
       <header className={styles['header']}>
-        <Typo.Title className={styles['title']}>DApp Store</Typo.Title>
+        <Typo.Title className={styles['title']}>DApps</Typo.Title>
       </header>
 
       <DappTabs
