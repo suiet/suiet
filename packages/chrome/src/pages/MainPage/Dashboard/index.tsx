@@ -9,13 +9,12 @@ import { mutate } from 'swr';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
-import { useChromeStorage } from '../../../hooks/useChromeStorage';
-import { StorageKeys } from '../../../store/enum';
 import { formatCurrency } from '../../../utils/format';
 import message from '../../../components/message';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { LoadingSpokes } from '../../../components/Loading';
+import Banner from '../Banner';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -76,49 +75,9 @@ function MainPage({ address, networkId }: DashboardProps) {
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
 
-  const { data: showDevnetWarning, setItem: setShowDevnetWarning } =
-    useChromeStorage<boolean>(StorageKeys.TIPS_DEVNET_WARNING, true);
-  useEffect(() => {
-    if (!networkId) return;
-    if (networkId !== 'devnet' && showDevnetWarning === true) {
-      setShowDevnetWarning(false);
-    }
-  }, [networkId, showDevnetWarning]);
-
   return (
     <div className={styles['main-content']}>
-      {showDevnetWarning === true ? (
-        <div
-          className={classnames(
-            'py-3',
-            'w-full',
-            'bg-orange-400',
-            'text-white',
-            'text-center'
-          )}
-        >
-          On devnet, your assets will be wiped periodically
-          <br />
-          <div className="flex m-auto items-center align-middle justify-center gap-2 mt-1">
-            <button
-              className="px-3 py-1 rounded-3xl bg-white text-orange-400"
-              onClick={() => {
-                setShowDevnetWarning(false);
-              }}
-            >
-              Got it
-            </button>{' '}
-            <a
-              href="https://suiet.app/docs/why-my-tokens-wiped-out-on-devnet"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              Why?
-            </a>
-          </div>
-        </div>
-      ) : null}
+      <Banner />
       <div className={styles['balance']}>
         {balanceLoading ? (
           <Skeleton width={'140px'} height={'36px'} />

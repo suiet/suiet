@@ -159,7 +159,7 @@ export class BackgroundApiProxy {
     if (e.message && /DOCTYPE/.test(e.message)) {
       return {
         code: ErrorCode.RPC_ERROR,
-        msg: 'RPC service is not working correctly, please retry later',
+        msg: 'Sui network is under maintenance now, please retry later',
       };
     }
     return {

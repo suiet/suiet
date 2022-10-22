@@ -1,3 +1,5 @@
+@import '../../styles/mixins';
+
 .main-page {
   @apply flex flex-col;
   width: 362px;
@@ -78,4 +80,16 @@
       background-size: cover;
     }
   }
+}
+
+.banner {
+  width: 100%;
+  padding: 8px 8px;
+  color: white;
+  text-align: center;
+}
+
+.banner-content {
+  @include multiline-ellipsis(3);
+  width: 100%;
 }
