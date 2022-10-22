@@ -6,6 +6,7 @@ import { useAccount } from '../../hooks/useAccount';
 import { useNftList } from '../../hooks/useNftList';
 import useTransactionList from '../../hooks/useTransactionList';
 import AppLayout from '../../layouts/AppLayout';
+import { useDappList } from '../../hooks/useDappList';
 
 function MainPage() {
   const { accountId, networkId } = useSelector(
@@ -16,6 +17,7 @@ function MainPage() {
   // prefetch other tabs' data
   useNftList(address, networkId);
   useTransactionList(address, networkId);
+  useDappList();
 
   return (
     <AppLayout>

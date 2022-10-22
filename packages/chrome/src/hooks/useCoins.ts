@@ -10,6 +10,8 @@ export interface Coin {
   balance: string;
 }
 
+export const swrKey = 'fetchCoinsBalanceMap';
+
 export function useCoins(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
@@ -17,7 +19,9 @@ export function useCoins(address: string, networkId: string = 'devnet') {
     data: coins,
     error,
     isValidating,
-  } = useSWR(['fetchCoinsBalanceMap', address, network], fetchCoinsBalanceMap);
+  } = useSWR([swrKey, address, network], fetchCoinsBalanceMap, {
+    refreshInterval: 5000,
+  });
 
   const coinsBalanceMap = useMemo(() => {
     const map: Record<string, string> = {};

@@ -24,6 +24,8 @@ import { TransferCoinParams } from '@suiet/core';
 import { OmitToken } from '../../types';
 import { formatCurrency } from '../../utils/format';
 import AppLayout from '../../layouts/AppLayout';
+import { mutate } from 'swr';
+import { swrKey as useCoinsSwrKey } from '../../hooks/useCoins';
 
 interface SendFormValues {
   address: string;
@@ -84,6 +86,9 @@ const SendPage = () => {
         { withAuth: true }
       );
       message.success('Send transaction succeeded');
+      setTimeout(() => {
+        mutate([useCoinsSwrKey, account?.address, network]);
+      }, 1000);
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);

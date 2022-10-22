@@ -9,7 +9,10 @@ export function useNftList(address: string, networkId: string = 'devnet') {
   const { data: network } = useNetwork(networkId);
   const { data, error, mutate } = useSWR(
     ['getOwnedNfts', network, address],
-    fetchNftList
+    fetchNftList,
+    {
+      refreshInterval: 5000,
+    }
   );
 
   async function fetchNftList(_: string, network: Network, address: string) {
