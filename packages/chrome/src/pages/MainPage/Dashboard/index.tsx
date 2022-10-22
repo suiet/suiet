@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
+import { swrKey as useCoinSwrKey } from '../../../hooks/useCoins';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -143,7 +144,9 @@ function MainPage({ address, networkId }: DashboardProps) {
                     message.error(err.message);
                   })
                   .finally(() => {
-                    mutate(['fetchCoinsBalanceMap', address, network]);
+                    setTimeout(() => {
+                      mutate([useCoinSwrKey, address, network]);
+                    }, 1000);
                     setAirdropTime(d.getTime());
                     setAirdropLoading(false);
                   });

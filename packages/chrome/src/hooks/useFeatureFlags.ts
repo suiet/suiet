@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { FeatureFlagRes, getFeatureFlags } from '../api';
+import useSWR from 'swr';
 
 export const ContextFeatureFlags = React.createContext<
   FeatureFlagRes | undefined
@@ -11,12 +12,11 @@ export function useFeatureFlags() {
 
 // for provider
 export function useAutoLoadFeatureFlags() {
-  const [featureFlags, setFeatureFlags] = useState<FeatureFlagRes>();
-  useEffect(() => {
-    (async function () {
-      const data = await getFeatureFlags();
-      setFeatureFlags(data);
-    })();
-  }, []);
-  return featureFlags;
+  const { data } = useSWR(['fetchFeatureFlags'], fetchFeatureFlags, {
+    refreshInterval: 5 * 60 * 1000,
+  });
+  async function fetchFeatureFlags() {
+    return await getFeatureFlags();
+  }
+  return data;
 }

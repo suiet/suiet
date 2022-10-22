@@ -1,3 +1,3 @@
 export const swrConfig = {
-  refreshInterval: 50000,
+  // refreshInterval: 50000,
 };
