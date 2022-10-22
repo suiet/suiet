@@ -5,6 +5,11 @@ import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
 import { useNetwork } from './useNetwork';
 
+export interface Coin {
+  symbol: string;
+  balance: string;
+}
+
 export function useCoins(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
@@ -15,7 +20,7 @@ export function useCoins(address: string, networkId: string = 'devnet') {
   } = useSWR(['fetchCoinsBalanceMap', address, network], fetchCoinsBalanceMap);
 
   const coinsBalanceMap = useMemo(() => {
-    const map: Record<string, any> = {};
+    const map: Record<string, string> = {};
     if (!coins) return {};
     coins.forEach((item) => {
       map[item.symbol] = item.balance;
@@ -30,13 +35,13 @@ export function useCoins(address: string, networkId: string = 'devnet') {
   ) {
     if (!address || !network) return [];
 
-    const coins = await apiClient.callFunc<
-      GetOwnedObjParams,
-      Array<{ symbol: string; balance: string }>
-    >('txn.getCoinsBalance', {
-      network,
-      address,
-    });
+    const coins = await apiClient.callFunc<GetOwnedObjParams, Coin[]>(
+      'txn.getCoinsBalance',
+      {
+        network,
+        address,
+      }
+    );
     if (!coins) {
       throw new Error(`fetch coinsBalance failed: ${address}, ${networkId}`);
     }
