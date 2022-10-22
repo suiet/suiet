@@ -27,15 +27,13 @@ import { RpcError } from './errors';
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
 
-const RPC_API_VERSION = '0.11.0';
-
 export class Provider {
   query: QueryProvider;
   tx: TxProvider;
 
-  constructor(queryEndpoint: string, txEndpoint: string) {
-    this.query = new QueryProvider(queryEndpoint);
-    this.tx = new TxProvider(txEndpoint);
+  constructor(queryEndpoint: string, txEndpoint: string, rpcVersion: string) {
+    this.query = new QueryProvider(queryEndpoint, rpcVersion);
+    this.tx = new TxProvider(txEndpoint, rpcVersion);
   }
 
   async transferCoin(
@@ -95,8 +93,8 @@ export class Provider {
 export class QueryProvider {
   provider: JsonRpcProvider;
 
-  constructor(queryEndpoint: string) {
-    this.provider = new JsonRpcProvider(queryEndpoint, true, RPC_API_VERSION);
+  constructor(queryEndpoint: string, rpcVersion: string) {
+    this.provider = new JsonRpcProvider(queryEndpoint, true, rpcVersion);
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
@@ -330,8 +328,8 @@ export class TxProvider {
   provider: JsonRpcProvider;
   serializer: LocalTxnDataSerializer;
 
-  constructor(txEndpoint: string) {
-    this.provider = new JsonRpcProvider(txEndpoint, true, RPC_API_VERSION);
+  constructor(txEndpoint: string, rpcVersion: string) {
+    this.provider = new JsonRpcProvider(txEndpoint, true, rpcVersion);
     this.serializer = new LocalTxnDataSerializer(this.provider);
   }
 

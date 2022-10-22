@@ -14,13 +14,12 @@ export type DappCardProps = Extendable & {
 
 const DappCard = (props: DappCardProps) => {
   return (
-    <div
+    <a
+      href={props.link}
+      target={'_blank'}
       className={styles['dapp-card']}
       style={{ backgroundColor: props.bgColor }}
-      onClick={() => {
-        if (!props.link) return;
-        chrome.tabs.create({ url: props.link });
-      }}
+      rel="noreferrer"
     >
       <div>
         <img className={styles['dapp-card-icon']} src={props.icon} />
@@ -29,7 +28,7 @@ const DappCard = (props: DappCardProps) => {
       <Typo.Normal className={styles['dapp-card-desc']}>
         {props.desc}
       </Typo.Normal>
-    </div>
+    </a>
   );
 };
 

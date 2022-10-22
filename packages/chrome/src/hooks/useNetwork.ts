@@ -27,6 +27,7 @@ export function useNetwork(networkId: string) {
       ...defaultData,
       queryRpcUrl: currentNetworkConfig.full_node_url,
       txRpcUrl: `${currentNetworkConfig.full_node_url}:443`,
+      rpcVersion: currentNetworkConfig.rpc_version,
     };
     return overrideData;
   }, [defaultData, featureFlags, networkId]);

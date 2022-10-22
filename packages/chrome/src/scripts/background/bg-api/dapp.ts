@@ -579,6 +579,7 @@ export class DappBgApi {
       ...defaultData,
       queryRpcUrl: currentNetworkConfig.full_node_url,
       txRpcUrl: `${currentNetworkConfig.full_node_url}:443`,
+      rpcVersion: currentNetworkConfig.rpc_version,
     };
     return overrideData;
   }
