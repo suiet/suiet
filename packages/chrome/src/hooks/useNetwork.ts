@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { useApiClient } from './useApiClient';
 import { Network } from '@suiet/core';
 import { useFeatureFlags } from './useFeatureFlags';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { isNonEmptyArray } from '../utils/check';
 
 export function useNetwork(networkId: string) {

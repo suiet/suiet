@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
@@ -12,11 +12,31 @@ import {
   updateWalletId,
 } from '../store/app-context';
 import { useApiClient } from '../hooks/useApiClient';
+import { useFeatureFlags } from '../hooks/useFeatureFlags';
 
 function RequireInit({ children }: any) {
   const appContext = useSelector((state: RootState) => state.appContext);
   const dispatch = useDispatch<AppDispatch>();
   const apiClient = useApiClient();
+  const featureFlags = useFeatureFlags();
+
+  const adjustCurrentNetworkId = useCallback(async () => {
+    const defaultNetwork = featureFlags?.default_network ?? 'devnet';
+
+    if (!appContext.networkId) {
+      await dispatch(updateNetworkId(defaultNetwork));
+      return;
+    }
+
+    // if current network is not in featureFlags.available_networks, switch to default network
+    if (
+      featureFlags &&
+      isNonEmptyArray(featureFlags?.available_networks) &&
+      !featureFlags.available_networks.includes(appContext.networkId)
+    ) {
+      await dispatch(updateNetworkId(defaultNetwork));
+    }
+  }, [featureFlags, appContext]);
 
   async function adjustInitializedStatus() {
     const wallets = await apiClient.callFunc<null, Wallet[]>(
@@ -46,12 +66,6 @@ function RequireInit({ children }: any) {
       await dispatch(updateWalletId(firstWallet.id));
       await dispatch(updateAccountId(firstAccount.id));
       await dispatch(updateNetworkId('devnet'));
-      return;
-    }
-
-    // if initialized, check essential context data
-    if (!appContext.networkId) {
-      await dispatch(updateNetworkId('devnet'));
     }
   }
 
@@ -59,6 +73,10 @@ function RequireInit({ children }: any) {
   useEffect(() => {
     adjustInitializedStatus();
   }, []);
+
+  useEffect(() => {
+    adjustCurrentNetworkId();
+  }, [appContext.networkId, featureFlags]);
 
   return appContext.initialized ? (
     children

@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import styles from './network.module.scss';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
@@ -17,10 +17,10 @@ import { ReactComponent as IconDevnetSelected } from '../../assets/icons/devnet-
 import { ReactComponent as IconDevnetUnselected } from '../../assets/icons/devnet-unselected.svg';
 import { ReactComponent as IconTestnetSelected } from '../../assets/icons/testnet-selected.svg';
 import { ReactComponent as IconTestnetUnselected } from '../../assets/icons/testnet-unselected.svg';
-import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
+// import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
 import { RootState } from '../../store';
-
-const networkType = ['devnet', 'testnet'];
+import { useFeatureFlags } from '../../hooks/useFeatureFlags';
+import { isNonEmptyArray } from '../../utils/check';
 
 const networks: Record<
   string,
@@ -51,8 +51,33 @@ const networks: Record<
 function Network() {
   const { networkId } = useSelector((state: RootState) => state.appContext);
   const [network, setNetwork] = useState(networkId);
+  const featureFlags = useFeatureFlags();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const networkType = useMemo(() => {
+    if (
+      !featureFlags ||
+      !featureFlags.networks ||
+      !isNonEmptyArray(featureFlags.available_networks)
+    ) {
+      return ['devnet'];
+    }
+    const orderMap: Record<string, number> = {
+      devnet: 1,
+      testnet: 2,
+    };
+
+    // reorder network options
+    return featureFlags.available_networks
+      .map((networkName) => {
+        return {
+          order: orderMap[networkName] ?? 999,
+          network: networkName,
+        };
+      })
+      .sort((a, b) => a.order - b.order)
+      .map((item) => item.network);
+  }, [featureFlags]);
 
   async function handleSave() {
     await dispatch(updateNetworkId(network));
@@ -67,6 +92,7 @@ function Network() {
     <SettingTwoLayout
       title={'Network'}
       desc={'Switch between different network.'}
+      className={'min-h-[100vh]'}
     >
       <Nav
         position={'absolute'}
@@ -109,7 +135,7 @@ function Network() {
       {/* <Typo.Normal className={styles['add-custom']}>
         + Add custom network
       </Typo.Normal> */}
-      <Button state="primary" onClick={handleSave} className={'mt-[100px]'}>
+      <Button state="primary" onClick={handleSave} className={'mt-auto'}>
         Save
       </Button>
     </SettingTwoLayout>
