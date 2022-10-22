@@ -115,6 +115,7 @@ function MainPage({ address, networkId }: DashboardProps) {
                 fetch(`https://faucet.${networkId}.sui.io/gas`, options)
                   .then(async (response) => {
                     if (response.ok) {
+                      message.success('Airdrop success');
                       return await response.json();
                     } else {
                       const text = await response.text();
@@ -127,7 +128,6 @@ function MainPage({ address, networkId }: DashboardProps) {
                           'Sui network is not available, please try again in a few hours'
                         );
                       }
-                      console.log(response);
                     }
                   })
                   // .then((response) => {
