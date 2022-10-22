@@ -8,3 +8,10 @@ export const suietHttp = axios.create({
     'x-suiet-client-version': version,
   },
 });
+
+suietHttp.interceptors.response.use((res) => {
+  if (res.data?.message !== 'ok') {
+    throw new Error('response error');
+  }
+  return res.data.data;
+});
