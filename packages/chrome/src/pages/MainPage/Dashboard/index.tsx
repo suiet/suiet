@@ -154,16 +154,33 @@ function MainPage({ address, networkId }: DashboardProps) {
                 };
                 setAirdropLoading(true);
                 fetch(`https://faucet.${networkId}.sui.io/gas`, options)
-                  .then(async (response) => await response.json())
-
-                  .then((response) => {
-                    if (response.error) {
-                      message.error(response.error);
+                  .then(async (response) => {
+                    if (response.ok) {
+                      return await response.json();
                     } else {
-                      message.success('Airdrop succeeded');
+                      const text = await response.text();
+                      if (text.includes('rate limited')) {
+                        message.error(
+                          'You have been rate limited, please try again 6 hours later'
+                        );
+                      } else {
+                        message.error(
+                          'Sui network is not available, please try again in a few hours'
+                        );
+                      }
+                      console.log(response);
                     }
                   })
+                  // .then((response) => {
+                  //   console.log('response:', response);
+                  //   if (response) {
+                  //     message.error(response.error);
+                  //   } else {
+                  //     message.success('Airdrop succeeded');
+                  //   }
+                  // })
                   .catch((err) => {
+                    console.log('error:', err);
                     message.error(err.message);
                   })
                   .finally(() => {
