@@ -22,6 +22,7 @@ import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
+import { RpcError } from './errors';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
@@ -498,11 +499,15 @@ async function executeTransaction(
   txn: SignedTx,
   requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
 ) {
-  return await provider.executeTransactionWithRequestType(
-    txn.data.toString(),
-    'ED25519',
-    txn.signature.toString('base64'),
-    txn.pubKey.toString('base64'),
-    requestType
-  );
+  try {
+    return await provider.executeTransactionWithRequestType(
+      txn.data.toString(),
+      'ED25519',
+      txn.signature.toString('base64'),
+      txn.pubKey.toString('base64'),
+      requestType
+    );
+  } catch (e: any) {
+    throw new RpcError(e.message);
+  }
 }

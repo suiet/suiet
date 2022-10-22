@@ -1,11 +1,11 @@
 import {
-  NetworkApi,
-  TransactionApi,
-  AuthApi,
   AccountApi,
-  WalletApi,
+  AuthApi,
   getStorage,
+  NetworkApi,
   Storage,
+  TransactionApi,
+  WalletApi,
 } from '@suiet/core';
 import { fromEventPattern } from 'rxjs';
 import { CallFuncOption, resData } from '../shared';
@@ -123,17 +123,7 @@ export class BackgroundApiProxy {
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
-        if (e instanceof BizError) {
-          error = {
-            code: e.code,
-            msg: e.message,
-          };
-        } else {
-          error = {
-            code: ErrorCode.UNKNOWN,
-            msg: (e as any).message,
-          };
-        }
+        error = this.detectError(e);
         log(`respond(${reqMeta}) failed`, error);
       }
       try {
@@ -150,6 +140,32 @@ export class BackgroundApiProxy {
       const index = this.ports.findIndex((p) => p === port);
       this.ports.splice(index, 1);
     });
+  }
+
+  private detectError(e: any) {
+    if (e instanceof BizError) {
+      return {
+        code: e.code,
+        msg: e.message,
+      };
+    }
+    if (e?.name === 'RpcError') {
+      return {
+        code: ErrorCode.RPC_ERROR,
+        msg: e.message,
+      };
+    }
+    // 502 Bad gateway, response is html
+    if (e.message && /DOCTYPE/.test(e.message)) {
+      return {
+        code: ErrorCode.RPC_ERROR,
+        msg: 'RPC service is not working correctly, please retry later',
+      };
+    }
+    return {
+      code: ErrorCode.UNKNOWN,
+      msg: e.message,
+    };
   }
 
   // register methods of all the services into the cache
