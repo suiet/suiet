@@ -1,0 +1,42 @@
+@import '../../styles/variables';
+
+.tab-list {
+  display: flex;
+  padding: 0 24px;
+}
+.tab {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  color: $gray-400;
+  cursor: pointer;
+  padding-left: 6px;
+
+  & + & {
+    margin-left: 10px;
+  }
+
+  &--active {
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: $gray-900;
+    font-weight: 700;
+
+    &::before {
+      position: absolute;
+      display: block;
+      content: '';
+      left: -2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 3px;
+      background-color: #0096ff;
+    }
+  }
+}
+
+.tab-panels {
+}

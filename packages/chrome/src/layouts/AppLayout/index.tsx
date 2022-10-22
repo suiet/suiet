@@ -28,7 +28,9 @@ function AppLayout(props: AppLayoutProps) {
       )}
     >
       <Header className={styles['header']} openSwitcher={state?.openSwitcher} />
-      <main className={styles['main']}>{props.children}</main>
+      <main className={classnames(styles['main'], props.className)}>
+        {props.children}
+      </main>
       <Menu className={classnames(styles['menu'], 'mt-auto')} />
     </div>
   );

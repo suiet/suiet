@@ -45,6 +45,7 @@ const DappTxApprovePage = lazy(
 const DappSignMsgPage = lazy(
   async () => await import('../pages/dapp/SignMsgPage')
 );
+const DappsPage = lazy(async () => await import('../pages/DappsPage'));
 
 const routesConfig: RouteObject[] = [
   {
@@ -79,6 +80,15 @@ const routesConfig: RouteObject[] = [
           {
             path: 'send',
             element: withSus(<NFTSendPage />),
+          },
+        ],
+      },
+      {
+        path: 'dapps',
+        children: [
+          {
+            index: true,
+            element: withSus(<DappsPage />),
           },
         ],
       },

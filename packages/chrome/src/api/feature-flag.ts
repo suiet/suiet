@@ -13,12 +13,8 @@ export interface FeatureFlagRes {
 }
 
 export async function getFeatureFlags(): Promise<FeatureFlagRes> {
-  const res = await suietHttp({
+  return await suietHttp({
     url: '/feature-flag',
     method: 'get',
   });
-  if (!res.data.data) {
-    throw new Error('Fetching feature flags failed');
-  }
-  return res.data.data;
 }
