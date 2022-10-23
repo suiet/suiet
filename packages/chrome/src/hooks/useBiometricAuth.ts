@@ -142,7 +142,7 @@ export function useBiometricAuth() {
     );
 
     if (isSetuped !== true) {
-      return;
+      return false;
     }
 
     const data = await apiClient.callFunc<null, any>(
@@ -199,27 +199,20 @@ export function useBiometricAuth() {
             );
 
             if (newAuthKey) {
+              await fetch(`https://api.suiet.app/extension/auth/set-auth-key`, {
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                  client_id: clientId,
+                  auth_key: newAuthKey,
+                  public_key_base64: publicKeyBase64,
+                }),
+              });
+              // if setAuth request failed, won't set context state
               dispatch(updateAuthed(true));
-              // we don't want the error become unhandled
-              try {
-                await fetch(
-                  `https://api.suiet.app/extension/auth/set-auth-key`,
-                  {
-                    method: 'POST',
-                    headers: {
-                      'content-type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      client_id: clientId,
-                      auth_key: newAuthKey,
-                      public_key_base64: publicKeyBase64,
-                    }),
-                  }
-                );
-              } catch (e) {}
-
-              // The only way to get here is that the user has successfully
-              return;
+              return true;
             }
           }
         }
@@ -228,13 +221,14 @@ export function useBiometricAuth() {
 
     // unhandled case will be treated as failed auth
     message.error(
-      'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, and disable & reenable Touch ID.',
+      'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, and disable & re-enable Touch ID.',
       {
         style: { width: '300px' },
         // Longer duration for long error message
         autoClose: 6000,
       }
     );
+    return false;
   };
 
   const reset = async () => {

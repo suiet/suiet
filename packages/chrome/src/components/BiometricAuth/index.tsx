@@ -1,8 +1,15 @@
 import styles from './index.module.scss';
 import { useBiometricAuth } from '../../hooks/useBiometricAuth';
 import { ReactComponent as FingerPrint } from '../../assets/icons/fingerprint.svg';
+import { Extendable } from '../../types';
+import classnames from 'classnames';
 
-function BiometricAuth() {
+export type BiometricAuthProps = Extendable & {
+  onSuccess?: () => void;
+  onFail?: () => void;
+};
+
+function BiometricAuth(props: BiometricAuthProps) {
   const { isSupported, isSetuped, authenticate } = useBiometricAuth();
 
   if (!isSupported) {
@@ -18,20 +25,18 @@ function BiometricAuth() {
   }
 
   return (
-    <div
-      style={{
-        margin: 'auto',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: '16px',
-        alignItems: 'center',
-      }}
-    >
+    <div className={classnames(styles['biometric-auth'], props.className)}>
       <span
         style={{ cursor: 'pointer' }}
         className={styles['biometric-auth__logo']}
-        onClick={authenticate}
+        onClick={async () => {
+          const result = await authenticate();
+          if (!result) {
+            props.onFail?.();
+          } else {
+            props.onSuccess?.();
+          }
+        }}
       >
         <FingerPrint width="24" height="24" />
       </span>

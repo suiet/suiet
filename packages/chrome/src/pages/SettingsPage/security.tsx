@@ -2,23 +2,18 @@ import classnames from 'classnames';
 import styles from './security.module.scss';
 import Button from '../../components/Button';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import Modal from '../../components/Modal';
-import { RevealMnemonicParams, UpdatePasswordParams } from '@suiet/core';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { useState } from 'react';
+import { UpdatePasswordParams } from '@suiet/core';
 import SetPassword from '../onboarding/SetPassword';
-import copy from 'copy-to-clipboard';
 import message from '../../components/message';
 import { useApiClient } from '../../hooks/useApiClient';
 import Nav from '../../components/Nav';
-import { Extendable, OmitToken } from '../../types';
+import { Extendable } from '../../types';
 import SettingTwoLayout from '../../layouts/SettingTwoLayout';
 import Typo from '../../components/Typo';
 import PhraseModal from '../../components/secrets/PhraseModal';
-import SecretModal from '../../components/secrets/SecretModal';
 import ForgetPassword from '../LockPage/ForgetPassword';
 import BiometricSetting from '../../components/BiometricSetting';
+import PrivateKeyModal from '../../components/secrets/PrivateKeyModal';
 
 type SecurityItemProps = Extendable & {
   title: string;
@@ -42,13 +37,6 @@ const SecurityItem = (props: SecurityItemProps) => {
 
 function MainPage() {
   const navigate = useNavigate();
-  const { context } = useSelector((state: RootState) => ({
-    context: state.appContext,
-  }));
-  const [phrase, setPhrase] = useState<string[]>([]);
-  const [privateKey, setPrivate] = useState('');
-  const apiClient = useApiClient();
-
   return (
     <SettingTwoLayout
       title={'Security'}
@@ -87,21 +75,7 @@ function MainPage() {
           }
         >
           <PhraseModal
-            phrases={phrase}
             trigger={<Button state={'danger'}>Show the Phrases</Button>}
-            onOpenChange={async () => {
-              const rawPhrases = await apiClient.callFunc<
-                OmitToken<RevealMnemonicParams>,
-                string
-              >(
-                'wallet.revealMnemonic',
-                {
-                  walletId: context.walletId,
-                },
-                { withAuth: true }
-              );
-              setPhrase(rawPhrases.split(' '));
-            }}
           />
         </SecurityItem>
 
@@ -111,33 +85,13 @@ function MainPage() {
             'The private key grants full access to the current wallet. You can export the wallet by exporting its private key.'
           }
         >
-          <SecretModal
-            title={'Private Key'}
+          <PrivateKeyModal
             trigger={
               <Button className="mb-8" state={'danger'}>
                 Show the Private Key
               </Button>
             }
-            onOpenChange={async () => {
-              const privateKey = await apiClient.callFunc<
-                OmitToken<RevealMnemonicParams>,
-                string
-              >(
-                'wallet.revealPrivate',
-                {
-                  walletId: context.walletId,
-                },
-                { withAuth: true }
-              );
-              setPrivate(privateKey);
-            }}
-            onCopy={() => {
-              copy(privateKey);
-              message.success('Copied');
-            }}
-          >
-            {privateKey}
-          </SecretModal>
+          />
         </SecurityItem>
       </section>
     </SettingTwoLayout>

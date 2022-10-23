@@ -1,0 +1,15 @@
+@import '../../styles/variables';
+
+.alert {
+  padding: 8px 12px;
+  border: 1px solid;
+  border-radius: 16px;
+  color: $gray-700;
+  background-color: $gray-100;
+  border-color: $gray-500;
+
+  &--warning {
+    background-color: $warning-100;
+    border-color: $warning-500;
+  }
+}
