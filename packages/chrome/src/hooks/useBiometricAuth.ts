@@ -54,7 +54,7 @@ export function useBiometricAuth() {
   const isSupported =
     // currently only support mac, because design is not ready for other platforms,
     // and we use "Touch ID" as feature name
-    navigator.credentials && navigator.platform.toUpperCase().includes('CAM');
+    navigator.credentials && navigator.platform.toUpperCase().includes('MAC');
   const isSetuped = useSelector(
     (state: RootState) => state.appContext.biometricSetuped
   );
@@ -100,20 +100,38 @@ export function useBiometricAuth() {
         }
       );
 
-      await fetch(`https://api.suiet.app/extension/auth/set-auth-key`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          auth_key: authKey,
-          public_key_base64: publicKeyBase64,
-        }),
-      });
+      try {
+        const resp = await fetch(
+          `https://api.suiet.app/extension/auth/set-auth-key`,
+          {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+              client_id: clientId,
+              auth_key: authKey,
+              public_key_base64: publicKeyBase64,
+            }),
+          }
+        );
 
-      dispatch(updateBiometricSetuped(true));
-      message.success('Setup Touch ID successfully!');
+        if (resp.ok) {
+          dispatch(updateBiometricSetuped(true));
+          message.success('Setup Touch ID successfully!');
+          return;
+        }
+      } catch (e) {}
+
+      // Encountered a `set-auth-key` api error while setup biometric auth
+      // We must remove the biometric data, otherwise the user will be locked out
+      // of the biometric auth.
+      // This MUST result a unsuccesful setup
+      await apiClient.callFunc<null, null>('auth.resetBiometricData', null);
+      message.error('Failed to setup Touch ID, please try again.', {
+        // Longer duration for long error message
+        autoClose: 3000,
+      });
     }
   };
 
@@ -156,47 +174,67 @@ export function useBiometricAuth() {
       // @ts-expect-error
       const sig = assertion.response.signature;
 
-      const resp = await fetch(
-        `https://api.suiet.app/extension/auth/get-auth-key`,
-        {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            client_id: clientId,
-            message_base64: challengeBase64,
-            signature_base64: bufferEncode(sig),
-          }),
-        }
-      );
-
-      if (resp.status === 200) {
-        const { auth_key: authKey } = await resp.json();
-        const newAuthKey = await apiClient.callFunc<string, string>(
-          'auth.unlockWithAuthKey',
-          authKey
+      try {
+        const resp = await fetch(
+          `https://api.suiet.app/extension/auth/get-auth-key`,
+          {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+              client_id: clientId,
+              message_base64: challengeBase64,
+              signature_base64: bufferEncode(sig),
+            }),
+          }
         );
 
-        if (newAuthKey) {
-          dispatch(updateAuthed(true));
-        }
+        if (resp.ok) {
+          const { auth_key: authKey } = await resp.json();
+          if (authKey) {
+            const newAuthKey = await apiClient.callFunc<string, string>(
+              'auth.unlockWithAuthKey',
+              authKey
+            );
 
-        await fetch(`https://api.suiet.app/extension/auth/set-auth-key`, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            client_id: clientId,
-            auth_key: newAuthKey,
-            public_key_base64: publicKeyBase64,
-          }),
-        });
-      } else {
-        message.error('Touch ID authentication failed! We will look into it.');
-      }
+            if (newAuthKey) {
+              dispatch(updateAuthed(true));
+              // we don't want the error become unhandled
+              try {
+                await fetch(
+                  `https://api.suiet.app/extension/auth/set-auth-key`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      client_id: clientId,
+                      auth_key: newAuthKey,
+                      public_key_base64: publicKeyBase64,
+                    }),
+                  }
+                );
+              } catch (e) {}
+
+              // The only way to get here is that the user has successfully
+              return;
+            }
+          }
+        }
+      } catch (e) {}
     }
+
+    // unhandled case will be treated as failed auth
+    message.error(
+      'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, and disable & reenable Touch ID.',
+      {
+        style: { width: '300px' },
+        // Longer duration for long error message
+        autoClose: 6000,
+      }
+    );
   };
 
   const reset = async () => {
@@ -208,8 +246,8 @@ export function useBiometricAuth() {
 
   return {
     isSupported,
-    isSetuped,
     isDismissed,
+    isSetuped,
     dismiss,
     setup,
     authenticate,
