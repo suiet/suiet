@@ -36,10 +36,10 @@ function BiometricSetup() {
 
       <div className={styles['setup-biometric__content']}>
         <Typo.Normal className={styles['setup-biometric__title']}>
-          Setup TouchID
+          Setup Touch ID
         </Typo.Normal>
         <Typo.Small className={styles['setup-biometric__desc']}>
-          Secure your wallet with TouchID
+          Secure your wallet with Touch ID
         </Typo.Small>
       </div>
 
