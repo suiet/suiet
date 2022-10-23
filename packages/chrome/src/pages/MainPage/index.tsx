@@ -7,6 +7,7 @@ import { useNftList } from '../../hooks/useNftList';
 import useTransactionList from '../../hooks/useTransactionList';
 import AppLayout from '../../layouts/AppLayout';
 import { useDappList } from '../../hooks/useDappList';
+import BiometricSetup from '../../components/BiometricSetup';
 
 function MainPage() {
   const { accountId, networkId } = useSelector(
@@ -22,6 +23,7 @@ function MainPage() {
   return (
     <AppLayout>
       <Dashboard address={address} networkId={networkId} />
+      <BiometricSetup />
       <TokenList />
     </AppLayout>
   );

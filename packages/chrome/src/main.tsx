@@ -1,3 +1,5 @@
+// shim should comes before any other import
+import './utils/setup-buffer-shim';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
@@ -10,10 +12,6 @@ import { SWRConfig } from 'swr';
 import { swrConfig } from './configs/swr';
 import { ApiClientContext } from './hooks/useApiClient';
 import { BackgroundApiClient } from './scripts/shared/ui-api-client';
-import { Buffer } from 'buffer';
-
-// @ts-expect-error
-window.Buffer = Buffer;
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

@@ -1,0 +1,35 @@
+.setup-biometric {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  // width: 100%;
+  align-items: center;
+  background-color: #edfcf2;
+  box-sizing: border-box;
+  border-radius: 16px;
+  margin: 0 12px;
+}
+
+.setup-biometric__logo {
+  flex-shrink: 0;
+  margin-right: 8px;
+  background-color: #d3f8df;
+  padding: 10px;
+  border-radius: 100%;
+  box-sizing: border-box;
+  color: #099250;
+}
+
+.setup-biometric__content {
+  flex-grow: 1;
+}
+
+.setup-biometric__title {
+  color: #099250;
+  user-select: none;
+}
+
+.setup-biometric__desc {
+  color: #98a2b3;
+  user-select: none;
+}

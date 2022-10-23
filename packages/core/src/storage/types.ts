@@ -23,12 +23,20 @@ export type Account = {
 export type GlobalMeta = {
   nextWalletId: number;
   cipher: Cipher;
+  clientId?: string;
+  biometricData?: BiometricData;
   dataVersion: number;
 };
 
 export type Cipher = {
   data: string;
   salt: string;
+};
+
+export type BiometricData = {
+  credentialIdBase64: string;
+  publicKeyBase64: string;
+  encryptedToken: string;
 };
 
 export type TxnHistoryEntry<T = TxObject> = {

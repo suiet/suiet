@@ -2,10 +2,16 @@ import * as crypto from '../crypto';
 import { Storage } from '../storage/Storage';
 import { Buffer } from 'buffer';
 import { DATA_VERSION } from '../storage/constants';
+import { generateClientId } from '../utils/clientId';
 
 export type UpdatePasswordParams = {
   oldPassword: string;
   newPassword: string;
+};
+
+export type SetBiometricDataParams = {
+  credentialIdBase64: string;
+  publicKeyBase64: string;
 };
 
 export interface IAuthApi {
@@ -78,6 +84,7 @@ export class AuthApi implements IAuthApi {
     });
     await this.storage.updateMetaAndWallets(newMeta, wallets);
 
+    await this.resetBiometricData();
     await this.login(newPassword);
   }
 
@@ -123,6 +130,112 @@ export class AuthApi implements IAuthApi {
       throw new Error('Invalid password');
     }
     return token.toString('hex');
+  }
+
+  public async getClientId() {
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password uninitialized');
+    }
+    if (!meta.clientId) {
+      meta.clientId = generateClientId(20, undefined, 'chrome-');
+      await this.storage.saveMeta(meta);
+    }
+    return meta.clientId;
+  }
+
+  public async setBiometricData({
+    credentialIdBase64,
+    publicKeyBase64,
+  }: SetBiometricDataParams) {
+    const token = this.getToken();
+
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password uninitialized');
+    }
+
+    // if (meta.biometricData) {
+    //   throw new Error('Biometric authentication already set');
+    // }
+
+    const authKey = generateClientId(24);
+    const encryptedToken = crypto.encryptString(Buffer.from(authKey), token);
+
+    meta.biometricData = {
+      credentialIdBase64,
+      publicKeyBase64,
+      encryptedToken,
+    };
+
+    await this.storage.saveMeta(meta);
+
+    return authKey;
+  }
+
+  public async hasBiometricData() {
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password uninitialized');
+    }
+
+    if (typeof meta.biometricData === 'object' && meta.biometricData !== null) {
+      return true;
+    }
+    return false;
+  }
+
+  public async getBiometricData() {
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password uninitialized');
+    }
+
+    if (meta.biometricData) {
+      // skip sending encryptedToken outside
+      return {
+        credentialIdBase64: meta.biometricData.credentialIdBase64,
+        publicKeyBase64: meta.biometricData.publicKeyBase64,
+      };
+    }
+  }
+
+  public async resetBiometricData() {
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password uninitialized');
+    }
+
+    if (meta.biometricData) {
+      delete meta.biometricData;
+      await this.storage.clearMeta();
+      await this.storage.saveMeta(meta);
+    }
+  }
+
+  public async unlockWithAuthKey(authKey: string) {
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password uninitialized');
+    }
+
+    if (!meta.biometricData) {
+      throw new Error('Biometric authentication not set');
+    }
+
+    const token = crypto.decryptString(
+      Buffer.from(authKey),
+      meta.biometricData.encryptedToken
+    );
+
+    const newAuthKey = generateClientId(24);
+    const encryptedToken = crypto.encryptString(Buffer.from(newAuthKey), token);
+
+    meta.biometricData.encryptedToken = encryptedToken;
+    await this.storage.saveMeta(meta);
+    this.session.setToken(token);
+
+    return newAuthKey;
   }
 }
 

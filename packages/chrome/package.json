@@ -27,6 +27,7 @@
     "borsh": "^0.7.0",
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.2",
+    "cbor-sync": "1.0.4",
     "dayjs": "^1.11.5",
     "lodash-es": "^4.17.21",
     "mitt": "^3.0.0",
