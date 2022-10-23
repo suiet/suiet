@@ -16,6 +16,7 @@ import Nav from '../../components/Nav';
 import { AppDispatch } from '../../store';
 import { useApiClient } from '../../hooks/useApiClient';
 import BrandLayout from '../../layouts/BrandLayout';
+import BiometricAuth from '../../components/BiometricAuth';
 
 type FormData = {
   password: string;
@@ -85,6 +86,7 @@ const LockPage = () => {
           <Button type={'submit'} state={'primary'} className={'mt-[24px]'}>
             Unlock
           </Button>
+          <BiometricAuth />
         </Form>
       </section>
       <Typo.Normal

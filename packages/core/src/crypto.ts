@@ -112,3 +112,21 @@ export function validateMnemonic(mnemonic: string): boolean {
 
   return false;
 }
+
+export function encryptString(key: Buffer, str: string): string {
+  const aesCtr = new ModeOfOperation.ctr(key);
+
+  const strBytes = new TextEncoder().encode(str);
+  const encryptedBytes = aesCtr.encrypt(strBytes);
+  const encryptedHexStr = Buffer.from(encryptedBytes).toString('hex');
+  return encryptedHexStr;
+}
+
+export function decryptString(key: Buffer, encryptedHexStr: string): string {
+  const aesCtr = new ModeOfOperation.ctr(key);
+
+  const encryptedBytes = Buffer.from(encryptedHexStr, 'hex');
+  const strBytes = aesCtr.decrypt(encryptedBytes);
+  const str = new TextDecoder().decode(strBytes);
+  return str;
+}

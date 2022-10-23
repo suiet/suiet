@@ -18,6 +18,7 @@ import Typo from '../../components/Typo';
 import PhraseModal from '../../components/secrets/PhraseModal';
 import SecretModal from '../../components/secrets/SecretModal';
 import ForgetPassword from '../LockPage/ForgetPassword';
+import BiometricSetting from '../../components/BiometricSetting';
 
 type SecurityItemProps = Extendable & {
   title: string;
@@ -65,6 +66,7 @@ function MainPage() {
           title={'Password'}
           desc={'change your wallet login password'}
         >
+          <BiometricSetting />
           <Button
             onClick={() =>
               navigate('password', {

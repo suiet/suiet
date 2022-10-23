@@ -4,6 +4,8 @@ import storage from './storage';
 export interface AppContextState {
   initialized: boolean;
   authed: boolean;
+  biometricSetuped: boolean | undefined; // undefined for undetermined
+  biometricDismissed: boolean;
   walletId: string;
   accountId: string;
   networkId: string;
@@ -12,6 +14,8 @@ export interface AppContextState {
 const initialState: AppContextState = {
   initialized: false,
   authed: false,
+  biometricSetuped: undefined,
+  biometricDismissed: false,
   walletId: '',
   accountId: '',
   networkId: '',
@@ -41,6 +45,12 @@ export const appContextSlice = createSlice({
     updateAuthed(state, action: PayloadAction<boolean>) {
       state.authed = action.payload;
     },
+    updateBiometricSetuped(state, action: PayloadAction<boolean>) {
+      state.biometricSetuped = action.payload;
+    },
+    updateBiometricDismissed(state, action: PayloadAction<boolean>) {
+      state.biometricDismissed = action.payload;
+    },
     updateWalletId(state, action: PayloadAction<string>) {
       state.walletId = action.payload;
     },
@@ -59,6 +69,8 @@ export const appContextSlice = createSlice({
 export const {
   updateInitialized,
   updateAuthed,
+  updateBiometricSetuped,
+  updateBiometricDismissed,
   updateWalletId,
   updateAccountId,
   updateNetworkId,
