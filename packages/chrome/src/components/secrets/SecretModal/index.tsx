@@ -4,18 +4,20 @@ import Button from '../../Button';
 import styles from './index.module.scss';
 
 export type SecretModalProps = Extendable & {
-  trigger: JSX.Element;
+  trigger?: JSX.Element;
   title?: string;
   onOpenChange?: () => void;
+  defaultOpen?: boolean;
   onCopy?: () => void;
 };
 
 const SecretModal = (props: SecretModalProps) => {
-  const { title = 'Title' } = props;
+  const { title = 'Title', defaultOpen = false } = props;
   return (
     <Modal
       title={title}
       trigger={props.trigger}
+      defaultOpen={defaultOpen}
       onOpenChange={props.onOpenChange}
     >
       <div className={styles['container']}>{props.children}</div>

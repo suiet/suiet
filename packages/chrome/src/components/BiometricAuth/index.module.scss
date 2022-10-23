@@ -1,5 +1,11 @@
 @import '../../styles/variables';
 
+.biometric-auth {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .biometric-auth__logo {
   background-color: $gray-50;
   padding: 10px;

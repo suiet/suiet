@@ -86,7 +86,7 @@ const LockPage = () => {
           <Button type={'submit'} state={'primary'} className={'mt-[24px]'}>
             Unlock
           </Button>
-          <BiometricAuth />
+          <BiometricAuth className={'mt-[16px]'} />
         </Form>
       </section>
       <Typo.Normal

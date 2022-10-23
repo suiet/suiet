@@ -17,34 +17,34 @@ export type PhraseModalProps = Extendable & {
 };
 
 const PhraseModal = (props: PhraseModalProps) => {
-  const { title = 'Recovery Phrases' } = props;
+  const { title = 'Private Key' } = props;
   const apiClient = useApiClient();
   const { walletId } = useSelector((state: RootState) => state.appContext);
-  const [phrases, setPhrases] = useState<string[]>([]);
+  const [privateKey, setPrivate] = useState('');
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   if (!isConfirmed) {
     return (
       <PasswordConfirmModal
-        title={'Show Recovery Phrases'}
+        title={'Show Private Key'}
         trigger={props.trigger}
         actionDesc={
-          '⚠️ You are now confirming to show the recovery phrases of your account. Please enter password to confirm the action.'
+          '⚠️ You are now confirming to show the private key of your account . Please enter password to confirm the action.'
         }
         onConfirm={async () => {
           setIsConfirmed(true);
 
-          const rawPhrases = await apiClient.callFunc<
+          const privateKey = await apiClient.callFunc<
             OmitToken<RevealMnemonicParams>,
             string
           >(
-            'wallet.revealMnemonic',
+            'wallet.revealPrivate',
             {
               walletId: walletId,
             },
             { withAuth: true }
           );
-          setPhrases(rawPhrases.split(' '));
+          setPrivate(privateKey);
         }}
       />
     );
@@ -57,20 +57,11 @@ const PhraseModal = (props: PhraseModalProps) => {
         setIsConfirmed(false); // reset
       }}
       onCopy={() => {
-        copy(phrases.join(' '));
+        copy(privateKey);
         message.success('Copied');
       }}
     >
-      <div className={styles['container']}>
-        {phrases.slice(0, 12).map((text, index) => (
-          <div key={text}>
-            <span className="inline-block text-gray-300 text-right select-none">
-              {index + 1}
-            </span>
-            <span className="ml-2">{text}</span>
-          </div>
-        ))}
-      </div>
+      <div className={styles['container']}>{privateKey}</div>
     </SecretModal>
   );
 };
