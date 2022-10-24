@@ -13,4 +13,9 @@
   box-sizing: border-box;
   color: $primary-500;
   border: 1px solid $gray-200;
+  transition: border 200ms, background-color 200ms;
+  &:hover {
+    background-color: $gray-100;
+    border: 1px solid $gray-300;
+  }
 }

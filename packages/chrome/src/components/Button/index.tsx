@@ -11,6 +11,7 @@ export type ButtonProps = Extendable & {
   state?: ButtonState;
   loading?: boolean;
   disabled?: boolean;
+  solidBackground?: boolean;
   onClick?: () => void;
 };
 
@@ -20,11 +21,11 @@ const Button = (props: ButtonProps) => {
     state = 'normal',
     loading = false,
     disabled = false,
+    solidBackground = false,
     ...restProps
   } = props;
 
   const _disabled = loading || disabled;
-
   return (
     <button
       {...restProps}
@@ -32,6 +33,7 @@ const Button = (props: ButtonProps) => {
       className={classnames(
         styles['button'],
         { [styles[`button--${state}`]]: state !== 'normal' },
+        { [styles[`button--solid`]]: solidBackground },
         { [styles[`button--disabled`]]: _disabled },
         props.className
       )}

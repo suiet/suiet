@@ -75,6 +75,15 @@
   }
 }
 
+.button.button--solid {
+  background-color: $gray-100;
+  border: none;
+  box-shadow: none;
+  &:hover {
+    background-color: $gray-200;
+  }
+}
+
 .button.button--danger {
   color: $error-600;
   background: $error-50;
