@@ -5,6 +5,9 @@ export interface FeatureFlagNetwork {
   rpc_version: string;
   on_maintenance: boolean;
   faucet_api: string;
+  mint_example_nft_gas_budget: number;
+  transfer_object_gas_budget: number;
+  pay_coin_gas_budget: number;
 }
 export interface FeatureFlagRes {
   available_networks: string[];

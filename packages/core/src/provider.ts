@@ -40,7 +40,8 @@ export class Provider {
     symbol: string,
     amount: number,
     recipient: string,
-    vault: Vault
+    vault: Vault,
+    gasBudgetForPay?: number
   ) {
     const coins = (await this.query.getOwnedCoins(vault.getAddress())).filter(
       (coin) => coin.symbol === symbol
@@ -50,26 +51,45 @@ export class Provider {
     }
 
     if (symbol === GAS_SYMBOL) {
-      await this.tx.transferSui(coins, amount, recipient, vault);
+      await this.tx.transferSui(
+        coins,
+        amount,
+        recipient,
+        vault,
+        gasBudgetForPay
+      );
     } else {
-      await this.tx.transferCoin(coins, amount, recipient, vault);
+      await this.tx.transferCoin(
+        coins,
+        amount,
+        recipient,
+        vault,
+        gasBudgetForPay
+      );
     }
   }
 
-  async transferObject(objectId: string, recipient: string, vault: Vault) {
+  async transferObject(
+    objectId: string,
+    recipient: string,
+    vault: Vault,
+    gasBudget?: number
+  ) {
     const object = (await this.query.getOwnedObjects(vault.getAddress())).find(
       (object) => object.reference.objectId === objectId
     );
     if (!object) {
       throw new Error('No object to transfer');
     }
-    await this.tx.transferObject(objectId, recipient, vault);
+    await this.tx.transferObject(objectId, recipient, vault, gasBudget);
   }
 
-  async mintExampleNft(vault: Vault) {
+  async mintExampleNft(vault: Vault, gasBudget?: number) {
+    const moveCall = MINT_EXAMPLE_NFT_MOVE_CALL;
+    moveCall.gasBudget = gasBudget ?? moveCall.gasBudget;
     const gasObject = await this.query.getGasObject(
       vault.getAddress(),
-      MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget
+      moveCall.gasBudget
     );
     await this.tx.mintExampleNft(
       vault,
@@ -336,10 +356,15 @@ export class TxProvider {
     this.serializer = new LocalTxnDataSerializer(this.provider);
   }
 
-  async transferObject(objectId: string, recipient: string, vault: Vault) {
+  async transferObject(
+    objectId: string,
+    recipient: string,
+    vault: Vault,
+    gasBudgest?: number
+  ) {
     const data = await this.serializer.newTransferObject(vault.getAddress(), {
       objectId,
-      gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
+      gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET_FOR_TRANSFER,
       recipient,
     });
     const signedTx = await vault.signTransaction({ data });
@@ -351,7 +376,8 @@ export class TxProvider {
     coins: CoinObject[],
     amount: number,
     recipient: string,
-    vault: Vault
+    vault: Vault,
+    gasBudgetForPay?: number
   ) {
     const objects = coins.map((coin) => coin.object);
     const inputCoins =
@@ -367,7 +393,10 @@ export class TxProvider {
       );
     }
     const inputCoinIDs = inputCoins.map((c) => CoinAPI.getID(c));
-    const gasBudget = Coin.estimatedGasCostForPay(inputCoins.length);
+    const gasBudget = Coin.estimatedGasCostForPay(
+      inputCoins.length,
+      gasBudgetForPay
+    );
     const data = await this.serializer.newPay(vault.getAddress(), {
       inputCoins: inputCoinIDs,
       recipients: [recipient],
@@ -385,7 +414,8 @@ export class TxProvider {
     coins: CoinObject[],
     amount: number,
     recipient: string,
-    vault: Vault
+    vault: Vault,
+    gasBudgetForPay?: number
   ) {
     const address = vault.getAddress();
     const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
@@ -408,7 +438,10 @@ export class TxProvider {
       return;
     }
     // If there is not a coin with sufficient balance, use the pay API
-    const gasCostForPay = Coin.estimatedGasCostForPay(coins.length);
+    const gasCostForPay = Coin.estimatedGasCostForPay(
+      coins.length,
+      gasBudgetForPay
+    );
     let inputCoins = await Coin.assertAndGetSufficientCoins(
       objects,
       BigInt(amount),
