@@ -48,10 +48,12 @@ export class Coin {
     return `${COIN_TYPE}<${coinTypeArg}>`;
   }
 
-  static estimatedGasCostForPay(numInputCoins: number): number {
-    return (
-      DEFAULT_GAS_BUDGET_FOR_PAY * Math.max(2, Math.min(100, numInputCoins / 2))
-    );
+  static estimatedGasCostForPay(
+    numInputCoins: number,
+    gasBudgetForPay?: number
+  ): number {
+    const gasBudgest = gasBudgetForPay ?? DEFAULT_GAS_BUDGET_FOR_PAY;
+    return gasBudgest * Math.max(2, Math.min(100, numInputCoins / 2));
   }
 
   static async assertAndGetSufficientCoins(

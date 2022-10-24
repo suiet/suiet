@@ -4,6 +4,9 @@ export type Network = {
   queryRpcUrl: string;
   txRpcUrl: string;
   rpcVersion: string;
+  mintExampleNftGasBudget?: number;
+  transferObjectGasBudget?: number;
+  payCoinGasBudget?: number;
 };
 
 export interface INetworkApi {

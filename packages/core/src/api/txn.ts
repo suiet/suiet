@@ -166,7 +166,8 @@ export class TransactionApi implements ITransactionApi {
       params.symbol,
       params.amount,
       params.recipient,
-      vault
+      vault,
+      params.network.payCoinGasBudget
     );
   }
 
@@ -182,7 +183,12 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    await provider.transferObject(params.objectId, params.recipient, vault);
+    await provider.transferObject(
+      params.objectId,
+      params.recipient,
+      vault,
+      params.network.transferObjectGasBudget
+    );
   }
 
   async getTransactionHistory(
@@ -283,7 +289,10 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    await provider.mintExampleNft(vault);
+    await provider.mintExampleNft(
+      vault,
+      params.network.mintExampleNftGasBudget
+    );
   }
 
   async executeMoveCall(
