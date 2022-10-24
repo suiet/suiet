@@ -79,6 +79,11 @@ export function useBiometricAuth() {
   };
 
   const setup = async () => {
+    if (!isSupported) {
+      // throw new Error('Biometric auth is not supported');
+      return false;
+    }
+
     const clientId = await apiClient.callFunc<null, string>(
       'auth.getClientId',
       null
@@ -137,7 +142,17 @@ export function useBiometricAuth() {
     }
   };
 
-  const authenticate = async () => {
+  const authenticate = async (signal?: AbortSignal) => {
+    if (!isSupported) {
+      // throw new Error('Biometric auth is not supported');
+      return false;
+    }
+
+    if (!isSetuped) {
+      // throw new Error('Biometric auth is not setuped');
+      return false;
+    }
+
     const clientId = await apiClient.callFunc<null, string>(
       'auth.getClientId',
       null
@@ -171,6 +186,7 @@ export function useBiometricAuth() {
           userVerification: 'required',
           timeout: 2e4,
         },
+        signal,
       })
       .catch((e) => {
         console.error(e);
@@ -242,17 +258,18 @@ export function useBiometricAuth() {
           }
         }
       } catch (e) {}
+
+      // unhandled case will be treated as failed auth
+      message.error(
+        'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, then disable & reenable Touch ID.',
+        {
+          style: { width: '300px' },
+          // Longer duration for long error message
+          autoClose: 6000,
+        }
+      );
     }
 
-    // unhandled case will be treated as failed auth
-    message.error(
-      'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, then disable & reenable Touch ID.',
-      {
-        style: { width: '300px' },
-        // Longer duration for long error message
-        autoClose: 6000,
-      }
-    );
     return false;
   };
 
