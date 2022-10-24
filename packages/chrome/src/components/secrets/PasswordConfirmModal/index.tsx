@@ -77,7 +77,7 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
             <Button type={'submit'} state={'primary'}>
               Confirm
             </Button>
-            <BiometricAuth className={'ml-[8px]'} onSuccess={props.onConfirm} />
+            {/* <BiometricAuth className={'ml-[8px]'} onSuccess={props.onConfirm} /> */}
           </div>
         </Form>
       </div>
