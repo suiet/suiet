@@ -1,35 +1,52 @@
+@import '../../styles/variables';
+
 .setup-biometric {
   display: flex;
   justify-content: center;
   padding: 12px;
   // width: 100%;
   align-items: center;
-  background-color: #edfcf2;
+  background-color: $green-50;
   box-sizing: border-box;
   border-radius: 16px;
   margin: 0 12px;
+  transition: background-color 200ms;
+  &:hover {
+    background-color: $green-100;
+
+    .setup-biometric__logo {
+      color: $green-700;
+      background-color: $green-200;
+    }
+  }
 }
 
 .setup-biometric__logo {
   flex-shrink: 0;
   margin-right: 8px;
-  background-color: #d3f8df;
+  background-color: $green-100;
   padding: 10px;
   border-radius: 100%;
   box-sizing: border-box;
-  color: #099250;
+  color: $green-600;
 }
 
 .setup-biometric__content {
   flex-grow: 1;
+  font-family: Inter;
+  display: flex;
+  // user-select: cursor;
+  flex-direction: column;
 }
 
 .setup-biometric__title {
-  color: #099250;
+  color: $green-600;
   user-select: none;
+  line-height: unset;
 }
 
 .setup-biometric__desc {
   color: #98a2b3;
   user-select: none;
+  line-height: unset;
 }
