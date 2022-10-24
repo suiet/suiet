@@ -84,9 +84,11 @@ export function useBiometricAuth() {
       null
     );
 
-    const credential = await navigator.credentials.create(
-      CREDENTIAL_CREATION_OPTIONS
-    );
+    const credential = await navigator.credentials
+      .create(CREDENTIAL_CREATION_OPTIONS)
+      .catch((e) => {
+        console.error(e);
+      });
 
     if (credential) {
       const { credentialIdBase64, publicKeyBase64 } =
@@ -156,19 +158,23 @@ export function useBiometricAuth() {
       nonce: ~~(Math.random() * 2 ** 30),
     });
     const challengeBase64 = btoa(challenge);
-    const assertion = await navigator.credentials.get({
-      publicKey: {
-        challenge: Uint8Array.from(challenge, (c) => c.charCodeAt(0)),
-        allowCredentials: [
-          {
-            type: 'public-key',
-            id: bufferDecode(credentialIdBase64),
-          },
-        ],
-        userVerification: 'required',
-        timeout: 2e4,
-      },
-    });
+    const assertion = await navigator.credentials
+      .get({
+        publicKey: {
+          challenge: Uint8Array.from(challenge, (c) => c.charCodeAt(0)),
+          allowCredentials: [
+            {
+              type: 'public-key',
+              id: bufferDecode(credentialIdBase64),
+            },
+          ],
+          userVerification: 'required',
+          timeout: 2e4,
+        },
+      })
+      .catch((e) => {
+        console.error(e);
+      });
 
     if (assertion) {
       // @ts-expect-error
@@ -199,19 +205,38 @@ export function useBiometricAuth() {
             );
 
             if (newAuthKey) {
-              await fetch(`https://api.suiet.app/extension/auth/set-auth-key`, {
-                method: 'POST',
-                headers: {
-                  'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                  client_id: clientId,
-                  auth_key: newAuthKey,
-                  public_key_base64: publicKeyBase64,
-                }),
-              });
-              // if setAuth request failed, won't set context state
               dispatch(updateAuthed(true));
+              try {
+                await fetch(
+                  `https://api.suiet.app/extension/auth/set-auth-key`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      client_id: clientId,
+                      auth_key: newAuthKey,
+                      public_key_base64: publicKeyBase64,
+                    }),
+                  }
+                );
+              } catch (e) {
+                message.error(
+                  'Something went wrong with Touch ID, we have disable it for you.',
+                  {
+                    style: { width: '300px' },
+                    // Longer duration for long error message
+                    autoClose: 5000,
+                  }
+                );
+                // no need to await
+                reset(false);
+              }
+
+              // even if the `set-auth-key` api failed, we still consider the
+              // authentication successful, because the user has already got
+              // the auth key.
               return true;
             }
           }
@@ -221,7 +246,7 @@ export function useBiometricAuth() {
 
     // unhandled case will be treated as failed auth
     message.error(
-      'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, and disable & re-enable Touch ID.',
+      'Touch ID authentication failed! Please UNLOCK WITH PASSWORD, then disable & reenable Touch ID.',
       {
         style: { width: '300px' },
         // Longer duration for long error message
@@ -231,11 +256,13 @@ export function useBiometricAuth() {
     return false;
   };
 
-  const reset = async () => {
+  const reset = async (showToast: boolean = true) => {
     await apiClient.callFunc<null, null>('auth.resetBiometricData', null);
     dispatch(updateBiometricSetuped(false));
     dispatch(updateBiometricDismissed(false));
-    message.success('Disable Touch ID successfully!');
+    if (showToast) {
+      message.success('Disable Touch ID successfully!');
+    }
   };
 
   return {
