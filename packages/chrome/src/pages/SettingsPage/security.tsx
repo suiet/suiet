@@ -64,6 +64,7 @@ function MainPage() {
               })
             }
             className="mb-8"
+            solidBackground={true}
           >
             Update Password
           </Button>

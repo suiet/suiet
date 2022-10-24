@@ -186,9 +186,9 @@ export class QueryProvider {
             to: transferSui.recipient,
             object: {
               type: 'coin' as 'coin',
-              balance: String(transferSui.amount
-                ? BigInt(transferSui.amount)
-                : BigInt(0)),
+              balance: String(
+                transferSui.amount ? BigInt(transferSui.amount) : BigInt(0)
+              ),
               symbol: 'SUI',
             },
           });
@@ -363,7 +363,7 @@ export class TxProvider {
       const totalBalance = CoinAPI.totalBalance(objects);
       throw new Error(
         `Coin balance ${totalBalance.toString()} is not sufficient to cover the transfer amount ` +
-        `${amount.toString()}. Try reducing the transfer amount to ${totalBalance}.`
+          `${amount.toString()}. Try reducing the transfer amount to ${totalBalance}.`
       );
     }
     const inputCoinIDs = inputCoins.map((c) => CoinAPI.getID(c));
