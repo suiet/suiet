@@ -429,16 +429,18 @@ export class IndexedDBStorage implements Storage {
       oldVersion = meta.dataVersion;
     }
     if (oldVersion === newVersion) return;
-    const versionMigrationKey = `${oldVersion}->${newVersion}`;
-    if (!indexeddbMigrations.has(versionMigrationKey)) return;
-    const migration = indexeddbMigrations.get(
-      versionMigrationKey
-    ) as MigrationMethod;
-    try {
-      await migration(db, oldVersion, newVersion);
-    } catch (e) {
-      console.error(`[db] migration failed: ${versionMigrationKey}`, e);
-      throw e;
+    for (let currVer = oldVersion; currVer < newVersion - 1; currVer++) {
+      const versionMigrationKey = `${currVer}->${currVer + 1}`;
+      if (!indexeddbMigrations.has(versionMigrationKey)) return;
+      const migration = indexeddbMigrations.get(
+        versionMigrationKey
+      ) as MigrationMethod;
+      try {
+        await migration(db, oldVersion, newVersion);
+      } catch (e) {
+        console.error(`[db] migration failed: ${versionMigrationKey}`, e);
+        throw e;
+      }
     }
   }
 }
