@@ -17,6 +17,7 @@ import {
   ExecuteTransactionRequestType,
   Coin as CoinAPI,
   SUI_TYPE_ARG,
+  getPayTransaction,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -193,6 +194,7 @@ export class QueryProvider {
         const transferSui = getTransferSuiTransaction(tx);
         const transferObject = getTransferObjectTransaction(tx);
         const moveCall = getMoveCallTransaction(tx);
+        const pay = getPayTransaction(tx);
         if (transferSui) {
           results.push({
             timestamp_ms: effect.timestamp_ms,
@@ -272,6 +274,35 @@ export class QueryProvider {
               // mutated: await this.getTxObjects(effect.effects.mutated),
             },
           });
+        } else if (pay) {
+          // TODO: replace it to tryGetOldObject
+          const resp = await this.provider.getObject(pay.coins[0].objectId);
+          const obj = getMoveObject(resp);
+          if (!obj) {
+            continue;
+          }
+          const coinObj = Coin.getCoinObject(obj);
+          const gasFee =
+            effect.effects.gasUsed.computationCost +
+            effect.effects.gasUsed.storageCost -
+            effect.effects.gasUsed.storageRebate;
+          for (let i = 0; i < pay.recipients.length; i++) {
+            results.push({
+              timestamp_ms: effect.timestamp_ms,
+              txStatus: getExecutionStatusType(effect),
+              transactionDigest: effect.certificate.transactionDigest,
+              gasFee: gasFee / pay.recipients.length,
+              from: data.sender,
+              to: pay.recipients[i],
+              object: {
+                type: 'coin' as 'coin',
+                balance: String(
+                  pay.amounts[i] ? BigInt(pay.amounts[i]) : BigInt(0)
+                ),
+                symbol: coinObj.symbol,
+              },
+            });
+          }
         }
       }
     }
