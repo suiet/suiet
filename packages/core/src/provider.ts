@@ -86,7 +86,7 @@ export class Provider {
   }
 
   async mintExampleNft(vault: Vault, gasBudget?: number) {
-    const moveCall = MINT_EXAMPLE_NFT_MOVE_CALL;
+    const moveCall = MINT_EXAMPLE_NFT_MOVE_CALL();
     moveCall.gasBudget = gasBudget ?? moveCall.gasBudget;
     const gasObject = await this.query.getGasObject(
       vault.getAddress(),
@@ -101,7 +101,7 @@ export class Provider {
   async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
     const gasObject = await this.query.getGasObject(
       vault.getAddress(),
-      MINT_EXAMPLE_NFT_MOVE_CALL.gasBudget
+      MINT_EXAMPLE_NFT_MOVE_CALL().gasBudget
     );
     return await this.tx.executeMoveCall(
       tx,
@@ -365,7 +365,8 @@ export const DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI = 100;
 export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
 export const GAS_SYMBOL = 'SUI';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
-export const MINT_EXAMPLE_NFT_MOVE_CALL = {
+// use getter to avoid variable be modified somewhere
+export const MINT_EXAMPLE_NFT_MOVE_CALL = () => ({
   packageObjectId: '0x2',
   module: 'devnet_nft',
   function: 'mint',
@@ -376,7 +377,7 @@ export const MINT_EXAMPLE_NFT_MOVE_CALL = {
     'https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4',
   ],
   gasBudget: 10000,
-};
+});
 
 export class TxProvider {
   provider: JsonRpcProvider;
@@ -537,10 +538,11 @@ export class TxProvider {
     gasObjectId: string | undefined
   ) {
     const address = vault.getAddress();
-    if (!tx.gasPayment) {
-      tx.gasPayment = gasObjectId;
+    const _tx = { ...tx };
+    if (!_tx.gasPayment) {
+      _tx.gasPayment = gasObjectId;
     }
-    const data = await this.serializer.newMoveCall(address, tx);
+    const data = await this.serializer.newMoveCall(address, _tx);
     const signedTx = await vault.signTransaction({ data });
     // TODO: handle response
     return await executeTransaction(this.provider, signedTx);
@@ -555,7 +557,11 @@ export class TxProvider {
   }
 
   public async mintExampleNft(vault: Vault, gasObjectId: string | undefined) {
-    await this.executeMoveCall(MINT_EXAMPLE_NFT_MOVE_CALL, vault, gasObjectId);
+    await this.executeMoveCall(
+      MINT_EXAMPLE_NFT_MOVE_CALL(),
+      vault,
+      gasObjectId
+    );
   }
 }
 
