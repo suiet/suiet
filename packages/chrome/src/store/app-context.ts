@@ -7,6 +7,7 @@ export interface AppContextState {
   walletId: string;
   accountId: string;
   networkId: string;
+  biometricDismissed: boolean;
 }
 
 const initialState: AppContextState = {
@@ -15,6 +16,7 @@ const initialState: AppContextState = {
   walletId: '',
   accountId: '',
   networkId: '',
+  biometricDismissed: false,
 };
 
 // thunks
@@ -50,6 +52,9 @@ export const appContextSlice = createSlice({
     updateNetworkId(state, action: PayloadAction<string>) {
       state.networkId = action.payload;
     },
+    updateBiometricDismissed(state, action: PayloadAction<boolean>) {
+      state.biometricDismissed = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(resetAppContext.fulfilled, () => {});
@@ -62,6 +67,7 @@ export const {
   updateWalletId,
   updateAccountId,
   updateNetworkId,
+  updateBiometricDismissed,
 } = appContextSlice.actions;
 
 export default appContextSlice.reducer;

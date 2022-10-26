@@ -2,11 +2,8 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { bufferDecode, bufferEncode } from '../utils/biometricAuth/buffer';
 import { useApiClient } from './useApiClient';
-import { updateAuthed } from '../store/app-context';
-import {
-  updateBiometricDismissed,
-  updateBiometricSetuped,
-} from '../store/biometric-context';
+import { updateAuthed, updateBiometricDismissed } from '../store/app-context';
+import { updateBiometricSetuped } from '../store/biometric-context';
 import { extractInfoFromCredential } from '../utils/biometricAuth';
 import type { AppDispatch, RootState } from '../store';
 import message from '../components/message';
@@ -59,7 +56,7 @@ export function useBiometricAuth() {
     (state: RootState) => state.biometricContext.biometricSetuped
   );
   const isDismissed = useSelector(
-    (state: RootState) => state.biometricContext.biometricDismissed
+    (state: RootState) => state.appContext.biometricDismissed
   );
 
   useEffect(() => {
