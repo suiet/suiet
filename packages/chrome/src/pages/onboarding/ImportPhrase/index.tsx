@@ -1,5 +1,4 @@
 import Typo from '../../../components/Typo';
-import Textarea from '../../../components/Textarea';
 import Button from '../../../components/Button';
 import Form from '../../../components/form/Form';
 import FormControl from '../../../components/form/FormControl';
@@ -7,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { getInputStateByFormState } from '../../../utils/form';
 import { useApiClient } from '../../../hooks/useApiClient';
 import SettingOneLayout from '../../../layouts/SettingOneLayout';
+import Input from '../../../components/Input';
 
 type FormData = {
   secret: string;
@@ -51,13 +51,11 @@ const ImportPhrase = (props: ImportPhraseProps) => {
               required: 'Phrase should not be empty',
             }}
           >
-            <Textarea
+            <Input
+              type={'password'}
               state={getInputStateByFormState(form.formState, 'secret')}
               className={'mt-[6px]'}
-              elStyle={{
-                height: '154px',
-              }}
-              placeholder={'paste recovery phrase or private key...'}
+              placeholder={'paste recovery phrase...'}
             />
           </FormControl>
           <Typo.Hints className={'mt-[6px]'}>
