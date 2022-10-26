@@ -11,7 +11,7 @@ const Session = (props: Extendable) => {
   const authed = useSelector((state: RootState) => state.appContext.authed);
   const dispatch = useDispatch();
   const apiClient = useApiClient();
-  const { authenticate } = useBiometricAuth();
+  const { isSetuped, authenticate } = useBiometricAuth();
 
   async function verifyAuthStatus(ac: AbortController) {
     try {
@@ -19,9 +19,18 @@ const Session = (props: Extendable) => {
       dispatch(updateAuthed(true));
     } catch (e) {
       dispatch(updateAuthed(false));
-      await authenticate(ac.signal);
     }
   }
+
+  useEffect(() => {
+    if (!authed) {
+      const ac = new AbortController();
+      authenticate(ac.signal).catch(() => {});
+      return () => {
+        ac.abort();
+      };
+    }
+  }, [isSetuped]);
 
   useEffect(() => {
     const controller = new AbortController();
