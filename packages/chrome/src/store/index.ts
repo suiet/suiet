@@ -1,5 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import appContextReducer from './app-context';
+import biometricContextReducer from './biometric-context';
 import { ChromeStorage } from './storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import {
@@ -19,6 +20,7 @@ const persistConfig = {
 
 const allReducers = combineReducers({
   appContext: appContextReducer,
+  biometricContext: biometricContextReducer,
 });
 
 function createStore() {
