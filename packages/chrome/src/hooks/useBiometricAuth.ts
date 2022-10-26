@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { bufferDecode, bufferEncode } from '../utils/biometricAuth/buffer';
 import { useApiClient } from './useApiClient';
+import { updateAuthed } from '../store/app-context';
 import {
-  updateAuthed,
   updateBiometricDismissed,
   updateBiometricSetuped,
-} from '../store/app-context';
+} from '../store/biometric-context';
 import { extractInfoFromCredential } from '../utils/biometricAuth';
 import type { AppDispatch, RootState } from '../store';
 import message from '../components/message';
@@ -56,10 +56,10 @@ export function useBiometricAuth() {
     // and we use "Touch ID" as feature name
     navigator.credentials && navigator.platform.toUpperCase().includes('MAC');
   const isSetuped = useSelector(
-    (state: RootState) => state.appContext.biometricSetuped
+    (state: RootState) => state.biometricContext.biometricSetuped
   );
   const isDismissed = useSelector(
-    (state: RootState) => state.appContext.biometricDismissed
+    (state: RootState) => state.biometricContext.biometricDismissed
   );
 
   useEffect(() => {
