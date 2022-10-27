@@ -3,10 +3,10 @@ export type Network = {
   name: string;
   queryRpcUrl: string;
   txRpcUrl: string;
-  rpcVersion: string;
   mintExampleNftGasBudget?: number;
   transferObjectGasBudget?: number;
   payCoinGasBudget?: number;
+  versionCacheTimoutInSeconds: number;
 };
 
 export interface INetworkApi {
@@ -23,7 +23,7 @@ const DEFAULT_NETWORKS = new Map([
       name: 'devnet',
       queryRpcUrl: 'https://fullnode.devnet.sui.io/',
       txRpcUrl: 'https://fullnode.devnet.sui.io:443',
-      rpcVersion: '0.12.2',
+      versionCacheTimoutInSeconds: 0,
     },
   ],
   [
@@ -33,7 +33,7 @@ const DEFAULT_NETWORKS = new Map([
       name: 'testnet',
       queryRpcUrl: 'https://fullnode.testnet.sui.io/',
       txRpcUrl: 'https://fullnode.testnet.sui.io:443',
-      rpcVersion: '0.12.2',
+      versionCacheTimoutInSeconds: 0,
     },
   ],
   [
@@ -43,7 +43,7 @@ const DEFAULT_NETWORKS = new Map([
       name: 'local',
       queryRpcUrl: 'http://localhost:5001',
       txRpcUrl: 'http://localhost:5001',
-      rpcVersion: '0.12.2',
+      versionCacheTimoutInSeconds: 0,
     },
   ],
 ]);

@@ -15,7 +15,7 @@
   "dependencies": {
     "@crxjs/vite-plugin": "^1.0.13",
     "@hookform/error-message": "^2.0.0",
-    "@mysten/sui.js": "0.13.0",
+    "@mysten/sui.js": "0.14.0",
     "@mysten/wallet-standard": "^0.1.0",
     "@radix-ui/react-dialog": "^1.0.0",
     "@reduxjs/toolkit": "^1.8.5",

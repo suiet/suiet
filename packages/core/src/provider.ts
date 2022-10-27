@@ -32,9 +32,13 @@ export class Provider {
   query: QueryProvider;
   tx: TxProvider;
 
-  constructor(queryEndpoint: string, txEndpoint: string, rpcVersion: string) {
-    this.query = new QueryProvider(queryEndpoint, rpcVersion);
-    this.tx = new TxProvider(txEndpoint, rpcVersion);
+  constructor(
+    queryEndpoint: string,
+    txEndpoint: string,
+    versionCacheTimoutInSeconds: number
+  ) {
+    this.query = new QueryProvider(queryEndpoint, versionCacheTimoutInSeconds);
+    this.tx = new TxProvider(txEndpoint, versionCacheTimoutInSeconds);
   }
 
   async transferCoin(
@@ -114,8 +118,13 @@ export class Provider {
 export class QueryProvider {
   provider: JsonRpcProvider;
 
-  constructor(queryEndpoint: string, rpcVersion: string) {
-    this.provider = new JsonRpcProvider(queryEndpoint, true, rpcVersion);
+  constructor(queryEndpoint: string, versionCacheTimoutInSeconds: number) {
+    this.provider = new JsonRpcProvider(queryEndpoint, {
+      skipDataValidation: true,
+      // TODO: add socket options
+      // socketOptions?: WebsocketClientOptions.
+      versionCacheTimoutInSeconds,
+    });
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
@@ -383,8 +392,13 @@ export class TxProvider {
   provider: JsonRpcProvider;
   serializer: LocalTxnDataSerializer;
 
-  constructor(txEndpoint: string, rpcVersion: string) {
-    this.provider = new JsonRpcProvider(txEndpoint, true, rpcVersion);
+  constructor(txEndpoint: string, versionCacheTimoutInSeconds: number) {
+    this.provider = new JsonRpcProvider(txEndpoint, {
+      skipDataValidation: true,
+      // TODO: add socket options
+      // socketOptions?: WebsocketClientOptions.
+      versionCacheTimoutInSeconds,
+    });
     this.serializer = new LocalTxnDataSerializer(this.provider);
   }
 
