@@ -155,7 +155,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
       params.walletId,
@@ -176,7 +176,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
       params.walletId,
@@ -198,7 +198,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       network.queryRpcUrl,
       network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     let result: any = await provider.query.getTransactionsForAddress(address);
 
@@ -223,7 +223,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       network.queryRpcUrl,
       network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const objects = await provider.query.getOwnedCoins(address);
     const result = new Map();
@@ -243,7 +243,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       network.queryRpcUrl,
       network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const coins = await provider.query.getOwnedCoins(address);
     return coins.map((coin) => {
@@ -261,7 +261,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       network.queryRpcUrl,
       network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const nfts = await provider.query.getOwnedNfts(address);
     return nfts.map((nft) => ({
@@ -282,7 +282,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
       params.walletId,
@@ -302,7 +302,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
       params.walletId,
@@ -325,7 +325,7 @@ export class TransactionApi implements ITransactionApi {
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
-      params.network.rpcVersion
+      params.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
       params.walletId,
@@ -356,7 +356,7 @@ export class TransactionApi implements ITransactionApi {
     const { network, objectId, moduleName, functionName } = params;
     const queryProvider = new QueryProvider(
       network.queryRpcUrl,
-      network.rpcVersion
+      network.versionCacheTimoutInSeconds
     );
     return await queryProvider.getNormalizedMoveFunction(
       objectId,

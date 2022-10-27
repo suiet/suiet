@@ -27,7 +27,8 @@ export function useNetwork(networkId: string) {
       ...defaultData,
       queryRpcUrl: currentNetworkConfig.full_node_url,
       txRpcUrl: `${currentNetworkConfig.full_node_url}:443`,
-      rpcVersion: currentNetworkConfig.rpc_version,
+      versionCacheTimoutInSeconds:
+        currentNetworkConfig.version_cache_timout_in_seconds,
       mintExampleNftGasBudget: currentNetworkConfig.mint_example_nft_gas_budget,
       transferObjectGasBudget: currentNetworkConfig.transfer_object_gas_budget,
       payCoinGasBudget: currentNetworkConfig.pay_coin_gas_budget,

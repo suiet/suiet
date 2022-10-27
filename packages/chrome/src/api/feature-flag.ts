@@ -7,6 +7,7 @@ export interface FeatureFlagNetwork {
   faucet_api: string;
   mint_example_nft_gas_budget: number;
   transfer_object_gas_budget: number;
+  version_cache_timout_in_seconds: number;
   pay_coin_gas_budget: number;
 }
 export interface FeatureFlagRes {
