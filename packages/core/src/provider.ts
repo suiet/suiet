@@ -24,6 +24,7 @@ import { TxnHistoryEntry, TxObject } from './storage/types';
 import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 import { RpcError } from './errors';
+import { isNonEmptyArray } from './utils';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
@@ -283,14 +284,21 @@ export class QueryProvider {
               // mutated: await this.getTxObjects(effect.effects.mutated),
             },
           });
-        } else if (pay) {
+        } else if (pay && isNonEmptyArray(pay.coins)) {
           // TODO: replace it to tryGetOldObject
-          const resp = await this.provider.getObject(pay.coins[0].objectId);
-          const obj = getMoveObject(resp);
-          if (!obj) {
+          let coin: CoinObject | null = null;
+          for (const _coin of pay.coins) {
+            const resp = await this.provider.getObject(_coin.objectId);
+            const obj = getMoveObject(resp);
+            if (!obj) {
+              continue;
+            }
+            coin = Coin.getCoinObject(obj);
+          }
+          if (coin === null) {
             continue;
           }
-          const coinObj = Coin.getCoinObject(obj);
+
           const gasFee =
             effect.effects.gasUsed.computationCost +
             effect.effects.gasUsed.storageCost -
@@ -308,7 +316,7 @@ export class QueryProvider {
                 balance: String(
                   pay.amounts[i] ? BigInt(pay.amounts[i]) : BigInt(0)
                 ),
-                symbol: coinObj.symbol,
+                symbol: coin.symbol,
               },
             });
           }
