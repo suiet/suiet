@@ -12,6 +12,7 @@ import { TxnItem } from './transactionDetail';
 import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
 import AppLayout from '../../layouts/AppLayout';
+import { useEffect } from 'react';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
@@ -20,7 +21,7 @@ type TxnHistroyEntry = Awaited<
 function normalizeHistory(history: TxnHistroyEntry[], address: string) {
   const res: Record<string, TxnItem[]> = {};
   const days = [];
-  for (let i = history.length - 1; i >= 0; i--) {
+  for (let i = 0; i < history.length; i++) {
     const item = history[i];
     const finalItem: TxnItem = {
       ...item,
@@ -155,30 +156,6 @@ function TransactionPage() {
     account?.address ?? '',
     context.networkId
   );
-
-  // useEffect(() => {
-  //   if (!account.address) {
-  //     return;
-  //   }
-  //   async function getHistory() {
-  //     const network = await coreApi.network.getNetwork('devnet');
-  //     if (!network) {
-  //       setHistory([]);
-  //       return;
-  //     }
-  //     try {
-  //       const hs = await coreApi.txn.getTransactionHistory(
-  //         network,
-  //         account.address
-  //       );
-  //       setHistory(hs || []);
-  //     } catch (err) {
-  //       console.error(err);
-  //       setHistory([]);
-  //     }
-  //   }
-  //   getHistory();
-  // }, [account.address, network]);
 
   function renderContent() {
     if (history === null || loading)
