@@ -69,6 +69,7 @@ export class AuthApi implements IAuthApi {
     }
     const { token: newToken, cipher: newCipher } = crypto.newToken(newPassword);
     const newMeta = {
+      ...meta,
       cipher: newCipher,
       nextWalletId: meta.nextWalletId,
       dataVersion: DATA_VERSION,
@@ -85,7 +86,6 @@ export class AuthApi implements IAuthApi {
     });
     await this.storage.updateMetaAndWallets(newMeta, wallets);
 
-    await this.biometricAuthTokenChanged(newToken.toString('hex'));
     await this.login(newPassword);
   }
 
