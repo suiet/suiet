@@ -429,7 +429,7 @@ export class IndexedDBStorage implements Storage {
       oldVersion = meta.dataVersion;
     }
     if (oldVersion === newVersion) return;
-    for (let currVer = oldVersion; currVer < newVersion - 1; currVer++) {
+    for (let currVer = oldVersion; currVer < newVersion; currVer++) {
       const versionMigrationKey = `${currVer}->${currVer + 1}`;
       if (!indexeddbMigrations.has(versionMigrationKey)) return;
       const migration = indexeddbMigrations.get(

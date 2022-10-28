@@ -3,6 +3,7 @@ import { Storage } from '../storage/Storage';
 import { Buffer } from 'buffer';
 import { DATA_VERSION } from '../storage/constants';
 import { generateClientId } from '../utils/clientId';
+import { Vault } from '../vault/Vault';
 
 export type UpdatePasswordParams = {
   oldPassword: string;
@@ -112,6 +113,7 @@ export class AuthApi implements IAuthApi {
 
   public async login(password: string) {
     const token = await this.loadTokenWithPassword(password);
+    await maybeFixDataConsistency(this.storage, token);
     this.session.setToken(token);
   }
 
@@ -236,6 +238,63 @@ export class AuthApi implements IAuthApi {
     this.session.setToken(token);
 
     return newAuthKey;
+  }
+}
+
+async function maybeFixDataConsistency(storage: Storage, token: string) {
+  const walletListThatNeedsUpgrade = [];
+  const accountListThatNeedsUpgrade = [];
+  const wallets = await storage.getWallets();
+  for (const wallet of wallets) {
+    let isWalletNeedToUpdate = false;
+    for (let i = 0, len = wallet.accounts.length; i < len; i++) {
+      const account = wallet.accounts[i];
+      // account is just accountId string, need to change to {id: string, address: string}
+      const accountData = await storage.getAccount(account.id);
+      if (!accountData) {
+        continue;
+      }
+      const res = accountData.hdPath.match(/^m\/44'\/784'\/(\d+)'$/);
+      console.log(res, accountData);
+      if (res) {
+        const path = crypto.derivationHdPath(+res[1]);
+        console.debug(
+          `update account hd path from ${accountData.hdPath} to ${path}`
+        );
+        accountData.hdPath = path;
+      }
+      const vault = await Vault.create(
+        accountData.hdPath,
+        Buffer.from(token, 'hex'),
+        wallet.encryptedMnemonic
+      );
+      if (accountData.address !== vault.getAddress()) {
+        console.debug(
+          `update account address from ${
+            accountData.address
+          } to ${vault.getAddress()}`
+        );
+        accountData.address = vault.getAddress();
+        wallet.accounts[i] = {
+          id: accountData.id,
+          address: accountData.address,
+        };
+        accountListThatNeedsUpgrade.push({
+          walletId: wallet.id,
+          account: accountData,
+        });
+        isWalletNeedToUpdate = true;
+      }
+    }
+    if (isWalletNeedToUpdate) {
+      walletListThatNeedsUpgrade.push(wallet);
+    }
+  }
+  for (const wallet of walletListThatNeedsUpgrade) {
+    await storage.updateWallet(wallet.id, wallet);
+  }
+  for (const item of accountListThatNeedsUpgrade) {
+    await storage.updateAccount(item.walletId, item.account.id, item.account);
   }
 }
 
