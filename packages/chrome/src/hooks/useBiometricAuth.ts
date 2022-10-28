@@ -112,6 +112,10 @@ export function useBiometricAuth() {
           dispatch(updateBiometricSetuped(true));
           message.success('Setup Touch ID successfully!');
           return true;
+        } else {
+          message.error('Setup Touch ID failed! Please try again.', {
+            style: { width: '240px' },
+          });
         }
       } catch (e) {}
       return false;
