@@ -47,8 +47,5 @@
   "lint-staged": {
     "*": "prettier --write --ignore-unknown",
     "*.{jsx?,tsx?}": "eslint --fix"
-  },
-  "dependencies": {
-    "@mysten/sui.js": "^0.13.0"
   }
 }
