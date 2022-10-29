@@ -3,6 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { DialogContentProps, DialogProps } from '@radix-ui/react-dialog';
 import styles from './index.module.scss';
 import { ReactComponent as IconClose } from '../../assets/icons/close.svg';
+import classnames from 'classnames';
 
 export type ModalProps = DialogProps & {
   title: string | ReactNode;
@@ -18,7 +19,10 @@ const Modal = (props: ModalProps) => {
       <Dialog.Trigger asChild={true}>{trigger}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className={styles['overlay']}>
-          <Dialog.Content className={styles['content']} {...contentProps}>
+          <Dialog.Content
+            {...contentProps}
+            className={classnames(styles['content'], contentProps?.className)}
+          >
             <div className={'flex justify-between items-center'}>
               <Dialog.Title className={styles['title']}>{title}</Dialog.Title>
               <Dialog.Close className={styles['close']}>

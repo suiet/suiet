@@ -29,7 +29,7 @@ const PhraseModal = (props: PhraseModalProps) => {
         title={'Show Private Key'}
         trigger={props.trigger}
         actionDesc={
-          '⚠️ You are now confirming to show the private key of your account . Please enter password to confirm the action.'
+          'You are now confirming to show the private key of your account . Please enter password to confirm the action.'
         }
         onConfirm={async () => {
           setIsConfirmed(true);
