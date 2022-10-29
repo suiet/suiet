@@ -46,6 +46,9 @@ const DappSignMsgPage = lazy(
   async () => await import('../pages/dapp/SignMsgPage')
 );
 const DappsPage = lazy(async () => await import('../pages/DappsPage'));
+const PasswordConfirmPage = lazy(
+  async () => await import('../pages/PasswordConfirmPage')
+);
 
 const routesConfig: RouteObject[] = [
   {
@@ -125,6 +128,7 @@ const routesConfig: RouteObject[] = [
           },
         ],
       },
+      { path: 'password-confirm', element: withSus(<PasswordConfirmPage />) },
     ],
   },
   {

@@ -7,11 +7,12 @@ import {
   getPasswordValidation,
 } from '../../../utils/form';
 import Input from '../../Input';
-import BiometricAuth from '../../BiometricAuth';
 import Form from '../../form/Form';
 import { useForm } from 'react-hook-form';
 import Alert from '../../Alert';
 import { useApiClient } from '../../../hooks/useApiClient';
+import styles from './index.module.scss';
+import SettingTwoLayout from '../../../layouts/SettingTwoLayout';
 
 export type PasswordConfirmModalProps = Extendable & {
   trigger: JSX.Element;
@@ -52,13 +53,29 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
 
   return (
     <Modal
-      title={title}
+      title={''}
       trigger={props.trigger}
+      contentProps={{
+        className: styles['modal'],
+      }}
       onOpenChange={props.onOpenChange}
     >
-      <Alert type={'warning'} className={'mt-[8px]'}>
-        {props.actionDesc}
-      </Alert>
+      <SettingTwoLayout title={'Password Confirm'} className={'!p-0'}>
+        <Alert type={'warning'} className={'mt-[32px]'}>
+          {props.actionDesc}
+        </Alert>
+        <div className={'mt-[16px]'}>
+          <Form form={form} onSubmit={handleSubmit}>
+            <FormControl
+              name={'password'}
+              registerOptions={getPasswordValidation()}
+            >
+              <Input
+                state={getInputStateByFormState(form.formState, 'password')}
+                type={'password'}
+                placeholder={'Please enter password'}
+              />
+            </FormControl>
 
       <div className={'mt-[16px]'}>
         <Form form={form} onSubmit={handleSubmit}>

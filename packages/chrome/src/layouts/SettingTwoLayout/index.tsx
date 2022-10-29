@@ -5,7 +5,7 @@ import { Extendable } from '../../types';
 
 export type SettingTwoLayoutProps = Extendable & {
   title: string;
-  desc: string;
+  desc?: string;
 };
 
 const SettingTwoLayout = (props: SettingTwoLayoutProps) => {
@@ -15,7 +15,9 @@ const SettingTwoLayout = (props: SettingTwoLayoutProps) => {
       style={props.style}
     >
       <Typo.Title className={styles['title']}>{props.title}</Typo.Title>
-      <Typo.Normal className={styles['desc']}>{props.desc}</Typo.Normal>
+      {props.desc && (
+        <Typo.Normal className={styles['desc']}>{props.desc}</Typo.Normal>
+      )}
       {props.children}
     </div>
   );

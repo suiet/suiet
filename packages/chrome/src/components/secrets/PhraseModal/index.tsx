@@ -29,7 +29,7 @@ const PhraseModal = (props: PhraseModalProps) => {
         title={'Show Recovery Phrases'}
         trigger={props.trigger}
         actionDesc={
-          '⚠️ You are now confirming to show the recovery phrases of your account. Please enter password to confirm the action.'
+          'You are now confirming to show the recovery phrases of your account. Please enter password to confirm the action.'
         }
         onConfirm={async () => {
           setIsConfirmed(true);
