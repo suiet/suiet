@@ -118,9 +118,12 @@ export class SuietWallet implements Wallet {
     if (this.#connectStatus === ConnectStatus.DISCONNECTED) {
       this.#connectStatus = ConnectStatus.CONNECTING;
       try {
-        await this.#request('dapp.connect', {
+        const isSuccess = await this.#request('dapp.connect', {
           permissions: [Permission.SUGGEST_TX, Permission.VIEW_ACCOUNT],
         });
+        if (!isSuccess) {
+          throw new Error('User rejects approval');
+        }
         this.#connectStatus = ConnectStatus.CONNECTED;
       } catch (e) {
         this.#connectStatus = ConnectStatus.DISCONNECTED;
