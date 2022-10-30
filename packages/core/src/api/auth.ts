@@ -4,6 +4,7 @@ import { Buffer } from 'buffer';
 import { DATA_VERSION } from '../storage/constants';
 import { generateClientId } from '../utils/clientId';
 import { Vault } from '../vault/Vault';
+import { MetadataMissingError } from '../errors';
 
 export type UpdatePasswordParams = {
   oldPassword: string;
@@ -125,7 +126,7 @@ export class AuthApi implements IAuthApi {
   public async loadTokenWithPassword(password: string): Promise<string> {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
     const salt = Buffer.from(meta.cipher.salt, 'hex');
     const token = crypto.password2Token(password, salt);
@@ -138,7 +139,7 @@ export class AuthApi implements IAuthApi {
   public async getClientId() {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
     if (!meta.clientId) {
       meta.clientId = generateClientId(20, undefined, 'chrome-');
@@ -150,7 +151,7 @@ export class AuthApi implements IAuthApi {
   private async biometricAuthTokenChanged(token: string) {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
 
     if (typeof meta.biometricData === 'object' && meta.biometricData !== null) {
@@ -196,7 +197,7 @@ export class AuthApi implements IAuthApi {
   ) {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
 
     if (!meta.biometricData) {
@@ -227,7 +228,7 @@ export class AuthApi implements IAuthApi {
   }: any) {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
 
     if (!meta.biometricData) {
@@ -292,7 +293,7 @@ export class AuthApi implements IAuthApi {
   public async biometricAuthGetData() {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
 
     if (meta.biometricData) {
@@ -310,7 +311,7 @@ export class AuthApi implements IAuthApi {
   }: SetBiometricDataParams) {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
 
     const token = this.getToken();
@@ -350,7 +351,7 @@ export class AuthApi implements IAuthApi {
   public async biometricAuthDisable() {
     const meta = await this.storage.loadMeta();
     if (!meta) {
-      throw new Error('Password uninitialized');
+      throw new MetadataMissingError();
     }
 
     if (meta.biometricData) {
