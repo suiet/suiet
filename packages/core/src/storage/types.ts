@@ -49,7 +49,7 @@ export type TxnHistoryEntry<T = TxObject> = {
   timestamp_ms: number | null;
 };
 
-export type TxObject = CoinObject | NftObject | SuiObjectId;
+export type TxObject = CoinObject | NftObject | ObjectId;
 
 export type CoinObject = {
   type: 'coin';
@@ -74,7 +74,7 @@ export type MoveCallInfo<T = TxObject> = {
   mutated: T[];
 };
 
-export type SuiObjectId = {
+export type ObjectId = {
   type: 'object_id';
   id: string;
 };
