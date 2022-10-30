@@ -13,7 +13,9 @@ import Alert from '../../Alert';
 import { useApiClient } from '../../../hooks/useApiClient';
 import styles from './index.module.scss';
 import SettingTwoLayout from '../../../layouts/SettingTwoLayout';
-
+import { ReactComponent as IconError } from '../../../assets/icons/error.svg';
+import Icon from '../../Icon';
+import Typo from '../../../components/Typo';
 export type PasswordConfirmModalProps = Extendable & {
   trigger: JSX.Element;
   actionDesc: string;
@@ -22,12 +24,30 @@ export type PasswordConfirmModalProps = Extendable & {
   onConfirm: () => void;
 };
 
+export type WarningDescriptionProps = Extendable & {
+  icon: JSX.Element;
+  title: string;
+  description: string;
+};
+
 type FormData = {
   password: string;
 };
 
+const WarningDescription = (props: WarningDescriptionProps) => {
+  return (
+    <div className={styles['warning-description']}>
+      <div className={styles['warning-description__icon']}>{props.icon}</div>
+      <div className={styles['warning-description__title']}>{props.title}</div>
+      <div className={styles['warning-description__desc']}>
+        {props.description}
+      </div>
+    </div>
+  );
+};
+
 const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
-  const { title = 'Password Confirm' } = props;
+  const { title = 'Warning' } = props;
   const apiClient = useApiClient();
 
   const form = useForm({
@@ -60,10 +80,30 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
       }}
       onOpenChange={props.onOpenChange}
     >
-      <SettingTwoLayout title={'Password Confirm'} className={'!p-0'}>
-        <Alert type={'warning'} className={'mt-[32px]'}>
+      <SettingTwoLayout className={'!p-0'}>
+        <div className="flex flex-col items-center gap-[8px]">
+          <Icon elClassName={styles['icon']} icon={<IconError />} />
+          <Typo.Title className={styles['title']}>Warning</Typo.Title>
+        </div>
+
+        {/* <Alert type={'warning'} className={'mt-[32px]'}>
           {props.actionDesc}
-        </Alert>
+        </Alert> */}
+        {/* <div className={'mt-[16px]'}>
+          <Form form={form} onSubmit={handleSubmit}>
+            <FormControl
+              name={'password'}
+              registerOptions={getPasswordValidation()}
+            >
+              <Input
+                state={getInputStateByFormState(form.formState, 'password')}
+                type={'password'}
+                placeholder={'Please enter password'}
+              />
+            </FormControl>
+          </Form>
+        </div> */}
+
         <div className={'mt-[16px]'}>
           <Form form={form} onSubmit={handleSubmit}>
             <FormControl
@@ -77,27 +117,14 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
               />
             </FormControl>
 
-      <div className={'mt-[16px]'}>
-        <Form form={form} onSubmit={handleSubmit}>
-          <FormControl
-            name={'password'}
-            registerOptions={getPasswordValidation()}
-          >
-            <Input
-              state={getInputStateByFormState(form.formState, 'password')}
-              type={'password'}
-              placeholder={'Please enter password'}
-            />
-          </FormControl>
-
-          <div className={'flex items-center mt-[16px]'}>
-            <Button type={'submit'} state={'primary'}>
-              Confirm
-            </Button>
-            {/* <BiometricAuth className={'ml-[8px]'} onSuccess={props.onConfirm} /> */}
-          </div>
-        </Form>
-      </div>
+            <div className={'flex items-center mt-[16px]'}>
+              <Button type={'submit'} state={'primary'}>
+                Confirm
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </SettingTwoLayout>
     </Modal>
   );
 };

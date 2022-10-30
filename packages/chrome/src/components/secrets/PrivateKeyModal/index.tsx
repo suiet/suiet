@@ -26,7 +26,6 @@ const PhraseModal = (props: PhraseModalProps) => {
   if (!isConfirmed) {
     return (
       <PasswordConfirmModal
-        title={'Show Private Key'}
         trigger={props.trigger}
         actionDesc={
           'You are now confirming to show the private key of your account . Please enter password to confirm the action.'
@@ -40,7 +39,7 @@ const PhraseModal = (props: PhraseModalProps) => {
           >(
             'wallet.revealPrivate',
             {
-              walletId: walletId,
+              walletId,
             },
             { withAuth: true }
           );
