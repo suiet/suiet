@@ -18,6 +18,10 @@ import {
   Coin as CoinAPI,
   SUI_TYPE_ARG,
   getPayTransaction,
+  SuiObjectRef,
+  isSuiObject,
+  isSuiObjectRef,
+  ObjectId,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -25,6 +29,7 @@ import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
 import { RpcError } from './errors';
 import { isNonEmptyArray } from './utils';
+import { JsonRpcClient } from './client';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
@@ -118,6 +123,7 @@ export class Provider {
 
 export class QueryProvider {
   provider: JsonRpcProvider;
+  client: JsonRpcClient;
 
   constructor(queryEndpoint: string, versionCacheTimoutInSeconds: number) {
     this.provider = new JsonRpcProvider(queryEndpoint, {
@@ -126,6 +132,7 @@ export class QueryProvider {
       // socketOptions?: WebsocketClientOptions.
       versionCacheTimoutInSeconds,
     });
+    this.client = new JsonRpcClient(queryEndpoint);
   }
 
   public async getActiveValidators(): Promise<SuiMoveObject[]> {
@@ -278,10 +285,8 @@ export class QueryProvider {
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
-              created: [],
-              mutated: [],
-              // created: await this.getTxObjects(effect.effects.created),
-              // mutated: await this.getTxObjects(effect.effects.mutated),
+              created: await this.getTxObjects(effect.effects.created),
+              mutated: await this.getTxObjects(effect.effects.mutated),
             },
           });
         } else if (pay && isNonEmptyArray(pay.coins)) {
@@ -332,33 +337,38 @@ export class QueryProvider {
     if (!objectRefs) {
       return [];
     }
-    const objectIds = objectRefs.map((obj) => obj.reference.objectId);
-    const resps = await this.provider.getObjectBatch(objectIds);
-    const objects = resps.map((resp) => {
-      const existResp = getObjectExistsResponse(resp);
-      if (existResp) {
-        const obj = getMoveObject(existResp);
+    let objects = [];
+    for (const objRef of objectRefs) {
+      const resp = await this.tryGetPastObject(
+        objRef.reference.objectId,
+        objRef.reference.version
+      );
+      const versionFoundResp = getVersionFoundResponse(resp);
+      if (versionFoundResp) {
+        const obj = getMoveObject(versionFoundResp);
         if (obj) {
           if (Coin.isCoin(obj)) {
             const coinObj = Coin.getCoinObject(obj);
-            return {
+            objects.push({
               type: 'coin' as 'coin',
               symbol: coinObj.symbol,
               balance: String(coinObj.balance),
-            };
+            });
+            continue;
           } else if (Nft.isNft(obj)) {
-            return {
+            objects.push({
               type: 'nft' as 'nft',
               ...Nft.getNftObject(obj),
-            };
+            });
+            continue;
           }
         }
+        objects.push({
+          type: 'object_id' as 'object_id',
+          id: objRef.reference.objectId,
+        });
       }
-      return {
-        type: 'object_id' as 'object_id',
-        id: getObjectId(resp),
-      };
-    });
+    }
     return objects;
   }
 
@@ -373,6 +383,130 @@ export class QueryProvider {
       functionName
     );
   }
+
+  async tryGetPastObject(
+    objectId: string,
+    version: number
+  ): Promise<GetPastObjectDataResponse> {
+    try {
+      return await this.client.requestWithType(
+        'sui_tryGetPastObject',
+        [objectId, version],
+        isGetPastObjectDataResponse,
+        true
+      );
+    } catch (err) {
+      throw new Error(
+        `Error fetching past object with object ID: ${objectId}, version: ${version}, error: ${err}`
+      );
+    }
+  }
+}
+
+type PastObjectStatus =
+  | 'VersionFound'
+  | 'ObjectNotExists'
+  | 'ObjectDeleted'
+  | 'VersionNotFound'
+  | 'VersionTooHigh';
+
+type GetPastObjectDataResponse = {
+  status: PastObjectStatus;
+  details:
+    | SuiObject
+    | ObjectId
+    | SuiObjectRef
+    | [string, number]
+    | SuiPastVersionTooHigh;
+};
+
+export function getVersionFoundResponse(
+  resp: GetPastObjectDataResponse
+): SuiObject | undefined {
+  return resp.status === 'VersionFound'
+    ? (resp.details as SuiObject)
+    : undefined;
+}
+
+export function getObjectNotExistsResponse(
+  resp: GetPastObjectDataResponse
+): ObjectId | undefined {
+  return resp.status === 'ObjectNotExists'
+    ? (resp.details as ObjectId)
+    : undefined;
+}
+
+export function getObjectDeletedResponse(
+  resp: GetPastObjectDataResponse
+): SuiObjectRef | undefined {
+  return resp.status === 'ObjectDeleted'
+    ? (resp.details as SuiObjectRef)
+    : undefined;
+}
+
+export function getVersionNotFoundResponse(
+  resp: GetPastObjectDataResponse
+): [string, number] | undefined {
+  return resp.status === 'VersionNotFound'
+    ? (resp.details as [string, number])
+    : undefined;
+}
+
+export function getVersionTooHighResponse(
+  resp: GetPastObjectDataResponse
+): SuiPastVersionTooHigh | undefined {
+  return resp.status === 'VersionTooHigh'
+    ? (resp.details as SuiPastVersionTooHigh)
+    : undefined;
+}
+
+type SuiPastVersionTooHigh = {
+  object_id: string;
+  asked_version: number;
+  latest_version: number;
+};
+
+export function isGetPastObjectDataResponse(
+  obj: any,
+  _argumentName?: string
+): obj is GetPastObjectDataResponse {
+  return (
+    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
+    (isPastObjectStatus(obj.status) as boolean) &&
+    (isSuiObject(obj.details) ||
+      typeof obj.details === 'string' ||
+      isSuiObjectRef(obj.details) ||
+      isSuiPastVersionTooHigh(obj.details) ||
+      (Array.isArray(obj.details) &&
+        obj.details.length === 2 &&
+        typeof obj.details[0] === 'string' &&
+        typeof obj.details[1] === 'number'))
+  );
+}
+
+export function isPastObjectStatus(
+  obj: any,
+  _argumentName?: string
+): obj is PastObjectStatus {
+  return (
+    obj === 'VersionFound' ||
+    obj === 'ObjectNotExists' ||
+    obj === 'ObjectDeleted' ||
+    obj === 'VersionNotFound' ||
+    obj === 'VersionTooHigh'
+  );
+}
+
+export function isSuiPastVersionTooHigh(
+  obj: any,
+  _argumentName?: string
+): obj is SuiPastVersionTooHigh {
+  return (
+    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
+    typeof obj.object_id === 'string' &&
+    typeof obj.asked_version === 'number' &&
+    typeof obj.latest_version === 'number'
+  );
 }
 
 export const DEFAULT_GAS_BUDGET_FOR_SPLIT = 2000;
