@@ -60,13 +60,17 @@ export function useBiometricAuth() {
   );
 
   const checkEnabled = async () => {
-    const biometricData = await apiClient.callFunc<null, any>(
-      'auth.biometricAuthGetData',
-      null
-    );
-    if (typeof biometricData === 'object' && biometricData !== null) {
-      return true;
-    } else {
+    try {
+      const biometricData = await apiClient.callFunc<null, any>(
+        'auth.biometricAuthGetData',
+        null
+      );
+      if (typeof biometricData === 'object' && biometricData !== null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch {
       return false;
     }
   };
@@ -133,10 +137,21 @@ export function useBiometricAuth() {
       return false;
     }
 
-    const data = await apiClient.callFunc<null, any>(
-      'auth.biometricAuthGetData',
-      null
-    );
+    let data: any;
+    try {
+      data = await apiClient.callFunc<null, any>(
+        'auth.biometricAuthGetData',
+        null
+      );
+    } catch (e) {
+      if (/metadata/.test((e as any).message)) {
+        console.error(e);
+        throw new Error(
+          'Database seems broken, please re-enter or re-install the extension'
+        );
+      }
+      throw e;
+    }
     const { credentialIdBase64 } = data;
     const challenge = JSON.stringify({
       message: 'Suiet Wallet',
