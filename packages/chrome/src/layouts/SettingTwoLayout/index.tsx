@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { Extendable } from '../../types';
 
 export type SettingTwoLayoutProps = Extendable & {
-  title: string;
+  title?: string;
   desc?: string;
 };
 
@@ -14,7 +14,9 @@ const SettingTwoLayout = (props: SettingTwoLayoutProps) => {
       className={classnames(styles['container'], props.className)}
       style={props.style}
     >
-      <Typo.Title className={styles['title']}>{props.title}</Typo.Title>
+      {props.title && (
+        <Typo.Title className={styles['title']}>{props.title}</Typo.Title>
+      )}
       {props.desc && (
         <Typo.Normal className={styles['desc']}>{props.desc}</Typo.Normal>
       )}
