@@ -1,9 +1,13 @@
 import RectButton from './RectButton';
 import { useNavigate } from 'react-router-dom';
 import BrandLayout from '../../../layouts/BrandLayout';
+import { useEffectAdjustInitializedStatus } from '../../../hooks/useEffectAdjustInitializedStatus';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 
 const Welcome = () => {
   const navigate = useNavigate();
+  const appContext = useSelector((state: RootState) => state.appContext);
 
   function handleCreateNewWallet() {
     navigate('/onboard/create-new-wallet');
@@ -13,6 +17,14 @@ const Welcome = () => {
     navigate('/onboard/import-wallet');
   }
 
+  useEffectAdjustInitializedStatus(appContext);
+
+  if (appContext.initialized) {
+    setTimeout(() => {
+      navigate('/');
+    }, 0);
+    return null;
+  }
   return (
     <BrandLayout
       grayTitle={'Welcome to'}
