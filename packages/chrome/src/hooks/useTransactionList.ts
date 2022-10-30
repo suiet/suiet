@@ -2,13 +2,15 @@ import { GetTxHistoryParams, Network, TxnHistoryEntry } from '@suiet/core';
 import useSWR from 'swr';
 import { useApiClient } from './useApiClient';
 import { swrLoading } from '../utils/others';
-import { useNetwork } from './useNetwork';
+import { swrKeyWithNetwork, useNetwork } from './useNetwork';
+
+export const swrKey = 'getTransactionHistory';
 
 function useTransactionList(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
   const { data: history, error } = useSWR(
-    ['getTransactionHistory', address, network],
+    [swrKeyWithNetwork(swrKey, network), address, network],
     getTransactionHistory
   );
   async function getTransactionHistory(

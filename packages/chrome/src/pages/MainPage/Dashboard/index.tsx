@@ -5,17 +5,17 @@ import WaterDropIcon from '../../../components/WaterDropIcon';
 import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
-import { mutate } from 'swr';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
 import { formatCurrency } from '../../../utils/format';
 import message from '../../../components/message';
 import { useState } from 'react';
-import { useNetwork } from '../../../hooks/useNetwork';
+import { swrKeyWithNetwork, useNetwork } from '../../../hooks/useNetwork';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
-import { swrKey as useCoinSwrKey } from '../../../hooks/useCoins';
+import { swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
+import { mutate } from 'swr';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -145,7 +145,7 @@ function MainPage({ address, networkId }: DashboardProps) {
                   })
                   .finally(() => {
                     setTimeout(() => {
-                      mutate([useCoinSwrKey, address, network]);
+                      mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
                     }, 1000);
                     setAirdropTime(d.getTime());
                     setAirdropLoading(false);

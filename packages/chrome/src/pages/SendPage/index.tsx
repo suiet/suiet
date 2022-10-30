@@ -16,7 +16,7 @@ import { getInputStateByFormState } from '../../utils/form';
 import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { useNetwork } from '../../hooks/useNetwork';
+import { swrKeyWithNetwork, useNetwork } from '../../hooks/useNetwork';
 import { useAccount } from '../../hooks/useAccount';
 import { useCallback, useState } from 'react';
 import { useApiClient } from '../../hooks/useApiClient';
@@ -25,7 +25,7 @@ import { OmitToken } from '../../types';
 import { formatCurrency } from '../../utils/format';
 import AppLayout from '../../layouts/AppLayout';
 import { mutate } from 'swr';
-import { swrKey as useCoinsSwrKey } from '../../hooks/useCoins';
+import { swrKey as swrKeyForUseCoins } from '../../hooks/useCoins';
 
 interface SendFormValues {
   address: string;
@@ -87,7 +87,7 @@ const SendPage = () => {
       );
       message.success('Send transaction succeeded');
       setTimeout(() => {
-        mutate([useCoinsSwrKey, account?.address, network]);
+        mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
       }, 1000);
       navigate('/transaction/flow');
     } catch (e: any) {

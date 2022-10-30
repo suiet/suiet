@@ -5,6 +5,13 @@ import { useFeatureFlags } from './useFeatureFlags';
 import { useMemo } from 'react';
 import { isNonEmptyArray } from '../utils/check';
 
+export function swrKeyWithNetwork(key: string, network: Network | undefined) {
+  if (network?.queryRpcUrl) {
+    return key + `?queryRpcUrl=${network.queryRpcUrl}`;
+  }
+  return key;
+}
+
 export function useNetwork(networkId: string) {
   const featureFlags = useFeatureFlags();
   const apiClient = useApiClient();
@@ -12,7 +19,7 @@ export function useNetwork(networkId: string) {
     ['fetchNetwork', networkId],
     fetchNetwork
   );
-  const data = useMemo(() => {
+  const data: Network | undefined = useMemo(() => {
     if (
       !defaultData ||
       !featureFlags ||
@@ -36,7 +43,10 @@ export function useNetwork(networkId: string) {
     return overrideData;
   }, [defaultData, featureFlags, networkId]);
 
-  async function fetchNetwork(_: string, networkId: string) {
+  async function fetchNetwork(
+    _: string,
+    networkId: string
+  ): Promise<Network | undefined> {
     if (!networkId) return;
     return await apiClient.callFunc<string, Network>(
       'network.getNetwork',

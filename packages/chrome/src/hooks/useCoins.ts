@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
-import { useNetwork } from './useNetwork';
+import { swrKeyWithNetwork, useNetwork } from './useNetwork';
 
 export interface Coin {
   symbol: string;
@@ -18,10 +18,15 @@ export function useCoins(address: string, networkId: string = 'devnet') {
   const {
     data: coins,
     error,
+    mutate,
     isValidating,
-  } = useSWR([swrKey, address, network], fetchCoinsBalanceMap, {
-    refreshInterval: 5000,
-  });
+  } = useSWR(
+    [swrKeyWithNetwork(swrKey, network), address, network],
+    fetchCoinsBalanceMap,
+    {
+      refreshInterval: 5000,
+    }
+  );
 
   const coinsBalanceMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -62,6 +67,7 @@ export function useCoins(address: string, networkId: string = 'devnet') {
 
   return {
     data: coins,
+    mutate,
     error,
     isValidating,
     loading: swrLoading(coins, error),
