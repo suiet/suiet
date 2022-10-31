@@ -21,8 +21,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'devnet',
       name: 'devnet',
-      queryRpcUrl: 'https://fullnode.devnet.sui.io/',
-      txRpcUrl: 'https://fullnode.devnet.sui.io:443',
+      queryRpcUrl: 'https://fullnode.devnet.sui.io',
+      txRpcUrl: 'https://fullnode.devnet.sui.io',
       versionCacheTimoutInSeconds: 0,
     },
   ],
@@ -31,8 +31,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'testnet',
       name: 'testnet',
-      queryRpcUrl: 'https://fullnode.testnet.sui.io/',
-      txRpcUrl: 'https://fullnode.testnet.sui.io:443',
+      queryRpcUrl: 'https://fullnode.testnet.sui.io',
+      txRpcUrl: 'https://fullnode.testnet.sui.io',
       versionCacheTimoutInSeconds: 0,
     },
   ],
