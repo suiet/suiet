@@ -129,6 +129,7 @@ function Header(props: HeaderProps) {
         <img className="ml-[6px]" src={IconArrowRight} alt="arrow right" />
       </div>
       <Address
+        suins={true}
         value={account?.address ?? ''}
         hideCopy={true}
         className={classnames(styles['address'], 'ml-[18px]')}

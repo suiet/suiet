@@ -16,8 +16,19 @@ export const suietHttp = axios.create({
 });
 
 suietHttp.interceptors.response.use((res) => {
-  if (res.data?.message !== 'ok') {
-    throw new Error('response error');
+  if (res.status >= 500) {
+    console.error(res);
+    throw new Error('server error');
   }
   return res.data.data;
 });
+
+export function envUrl(url: string, networkId: string = 'devnet') {
+  let _url = url;
+  if (_url.startsWith('/')) {
+    _url = _url.slice(1);
+  }
+  if (networkId === 'mainnet') return `/${_url}`;
+  if (networkId === 'testnet') return `/testnet/${_url}`;
+  else return `/devnet/${_url}`;
+}

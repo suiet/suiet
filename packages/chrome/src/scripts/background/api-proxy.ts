@@ -10,7 +10,7 @@ import {
 import { fromEventPattern } from 'rxjs';
 import { CallFuncOption, resData } from '../shared';
 import { processPortMessage } from './utils/transmission';
-import { log } from './utils/log';
+import { log, logError } from './utils/log';
 import { has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
 import { BizError, ErrorCode, NoAuthError } from './errors';
@@ -123,6 +123,7 @@ export class BackgroundApiProxy {
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
+        logError(e);
         error = this.detectError(e);
         log(`respond(${reqMeta}) failed`, error);
       }
