@@ -33,7 +33,7 @@ export function useNetwork(networkId: string) {
     const overrideData: Network = {
       ...defaultData,
       queryRpcUrl: currentNetworkConfig.full_node_url,
-      txRpcUrl: `${currentNetworkConfig.full_node_url}:443`,
+      txRpcUrl: currentNetworkConfig.full_node_url,
       versionCacheTimoutInSeconds:
         currentNetworkConfig.version_cache_timout_in_seconds,
       mintExampleNftGasBudget: currentNetworkConfig.mint_example_nft_gas_budget,
