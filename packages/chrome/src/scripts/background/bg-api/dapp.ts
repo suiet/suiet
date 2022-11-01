@@ -491,6 +491,7 @@ export class DappBgApi {
 
     const appContext = await this.getAppContext();
     const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
+    console.log('getPublicKey from dapp api', publicKey);
     return publicKey;
   }
 
