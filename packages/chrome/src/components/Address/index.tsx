@@ -26,7 +26,7 @@ const Address = (props: AddressProps) => {
     ellipsis = true,
     hideCopy = false,
     disableCopy = false,
-    suins = false,
+    suins = true,
   } = props;
 
   function addr(value: string, ellipsis: boolean) {
