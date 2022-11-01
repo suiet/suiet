@@ -139,9 +139,12 @@ export class SuietWallet implements Wallet {
     ) {
       return { accounts: this.accounts };
     }
+
+    // remove prefix '00' of publicKey which is required by sui
+    const pkWithoutPrefix = account.publicKey.slice(2);
     this.#activeAccount = new ReadonlyWalletAccount({
       address: account.address,
-      publicKey: Buffer.from(account.publicKey, 'base64'),
+      publicKey: Buffer.from(pkWithoutPrefix, 'hex'),
       chains: SUI_CHAINS,
       features: [
         Feature.STANDARD__CONNECT,
