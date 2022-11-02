@@ -285,8 +285,11 @@ export class QueryProvider {
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
-              created: await this.getTxObjects(effect.effects.created),
-              mutated: await this.getTxObjects(effect.effects.mutated),
+              created: await this.getCreatedTxObjects(effect.effects.created),
+              changedOrDeleted: await this.getMutatedTxObjects(
+                effect.effects.mutated
+              ),
+              // TODO: change to before and after
             },
           });
         } else if (pay && isNonEmptyArray(pay.coins)) {
@@ -331,7 +334,7 @@ export class QueryProvider {
     return results;
   }
 
-  public async getTxObjects(
+  public async getCreatedTxObjects(
     objectRefs: OwnedObjectRef[] | undefined
   ): Promise<TxObject[]> {
     if (!objectRefs) {
@@ -339,37 +342,102 @@ export class QueryProvider {
     }
     let objects = [];
     for (const objRef of objectRefs) {
-      const resp = await this.tryGetPastObject(
+      const pastObj = await this.getPastTxObject(
         objRef.reference.objectId,
         objRef.reference.version
       );
-      const versionFoundResp = getVersionFoundResponse(resp);
-      if (versionFoundResp) {
-        const obj = getMoveObject(versionFoundResp);
-        if (obj) {
-          if (Coin.isCoin(obj)) {
-            const coinObj = Coin.getCoinObject(obj);
+      if (pastObj) {
+        objects.push(pastObj);
+      }
+      // TODO: What do we need to do if the object is not found?
+    }
+    console.log('created', objects);
+    return objects;
+  }
+
+  public async getMutatedTxObjects(
+    objectRefs: OwnedObjectRef[] | undefined
+  ): Promise<TxObject[]> {
+    if (!objectRefs) {
+      return [];
+    }
+    let objects = [];
+    for (const objRef of objectRefs) {
+      const obj = await this.getPastTxObject(
+        objRef.reference.objectId,
+        objRef.reference.version
+      );
+      if (obj) {
+        // Currently we only care about the coin object.
+        if (obj.type === 'coin') {
+          const previousObj = await this.getPastTxObject(
+            objRef.reference.objectId,
+            objRef.reference.version - 1
+          );
+          if (previousObj && previousObj.type === 'coin') {
             objects.push({
-              type: 'coin' as 'coin',
-              symbol: coinObj.symbol,
-              balance: String(coinObj.balance),
+              ...obj,
+              balance: String(
+                BigInt(obj.balance) - BigInt(previousObj.balance)
+              ),
             });
-            continue;
-          } else if (Nft.isNft(obj)) {
-            objects.push({
-              type: 'nft' as 'nft',
-              ...Nft.getNftObject(obj),
-            });
-            continue;
+          }
+        } else if (obj.type === 'nft') {
+          objects.push(obj);
+        } else if (obj.type === 'object_id') {
+          // Return Type is object_id means the object is deleted.
+          const previousObj = await this.getPastTxObject(
+            objRef.reference.objectId,
+            objRef.reference.version - 1
+          );
+          if (previousObj) {
+            if (previousObj.type === 'coin') {
+              objects.push({
+                ...previousObj,
+                balance: String(BigInt(previousObj.balance) * BigInt(-1)),
+              });
+            } else if (previousObj.type === 'nft') {
+              objects.push(previousObj);
+            }
           }
         }
-        objects.push({
-          type: 'object_id' as 'object_id',
-          id: objRef.reference.objectId,
-        });
       }
     }
+    console.log('mutated', objects);
     return objects;
+  }
+
+  public async getPastTxObject(
+    objectId: string,
+    version: number
+  ): Promise<TxObject | undefined> {
+    const resp = await this.tryGetPastObject(objectId, version);
+    const versionFoundResp = getVersionFoundResponse(resp);
+    const objectDeleted = getObjectDeletedResponse(resp);
+    if (versionFoundResp) {
+      const obj = getMoveObject(versionFoundResp);
+      if (obj) {
+        if (Coin.isCoin(obj)) {
+          const coinObj = Coin.getCoinObject(obj);
+          return {
+            type: 'coin' as 'coin',
+            symbol: coinObj.symbol,
+            balance: String(coinObj.balance),
+          };
+        } else if (Nft.isNft(obj)) {
+          return {
+            type: 'nft' as 'nft',
+            ...Nft.getNftObject(obj),
+          };
+        }
+      } else if (objectDeleted) {
+        return {
+          type: 'object_id' as 'object_id',
+          id: objectId,
+        };
+      }
+    }
+    return undefined;
   }
 
   public async getNormalizedMoveFunction(
