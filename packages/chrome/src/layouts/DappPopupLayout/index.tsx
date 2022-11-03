@@ -49,7 +49,9 @@ const DappPopupLayout = (props: DappPopupLayoutProps) => {
           )}
         </header>
         <WalletSelector className={'mx-[32px] mt-[10px]'} />
-        <main className={styles['main']}>{props.children}</main>
+        <main className={classnames(styles['main'], 'no-scrollbar')}>
+          {props.children}
+        </main>
       </div>
 
       <footer className={styles['footer']}>

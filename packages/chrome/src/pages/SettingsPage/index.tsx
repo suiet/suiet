@@ -18,9 +18,15 @@ import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow
 import { ReactComponent as IconWallet } from '../../assets/icons/wallet.svg';
 import { ReactComponent as IconNetwork } from '../../assets/icons/net.svg';
 import { ReactComponent as IconLock } from '../../assets/icons/lock.svg';
+import { ReactComponent as IconDiscord } from '../../assets/icons/discord.svg';
+import { ReactComponent as IconTwitter } from '../../assets/icons/twitter.svg';
 type SettingItemProps = Extendable & {
   icon: JSX.Element;
   hideArrow?: boolean;
+  onClick?: () => void;
+};
+
+type SettingGroupProps = Extendable & {
   onClick?: () => void;
 };
 
@@ -37,6 +43,10 @@ const SettingItem = (props: SettingItemProps) => {
       )}
     </div>
   );
+};
+
+const SettingsGroup = (props: SettingGroupProps) => {
+  return <div className={styles['settings-group']}>{props.children}</div>;
 };
 
 const SettingPage = () => {
@@ -63,48 +73,74 @@ const SettingPage = () => {
         </div>
 
         <section className={styles['settings-container']}>
-          <SettingItem
-            icon={<IconWallet />}
-            onClick={() => {
-              navigate('/settings/wallet');
-            }}
-          >
-            Wallet
-          </SettingItem>
-          <SettingItem
-            icon={<IconNetwork />}
-            onClick={() => {
-              navigate('/settings/network');
-            }}
-          >
-            Network
-          </SettingItem>
-          <SettingItem
-            icon={<IconSecurity />}
-            onClick={() => {
-              navigate('security');
-            }}
-          >
-            Security
-          </SettingItem>
-          <SettingItem
-            icon={<IconLock />}
-            onClick={() => {
-              logout();
-            }}
-            hideArrow={true}
-          >
-            Lock
-          </SettingItem>
-          <SettingItem
-            icon={<IconReset />}
-            onClick={() => {
-              navigate('security/reset');
-            }}
-            hideArrow={true}
-          >
-            Reset All
-          </SettingItem>
+          <SettingsGroup>
+            <SettingItem
+              icon={<IconWallet />}
+              onClick={() => {
+                navigate('/settings/wallet');
+              }}
+            >
+              Wallet
+            </SettingItem>
+            <SettingItem
+              icon={<IconNetwork />}
+              onClick={() => {
+                navigate('/settings/network');
+              }}
+            >
+              Network
+            </SettingItem>
+            <SettingItem
+              icon={<IconSecurity />}
+              onClick={() => {
+                navigate('security');
+              }}
+            >
+              Security
+            </SettingItem>
+          </SettingsGroup>
+
+          <SettingsGroup>
+            <SettingItem
+              icon={<IconLock />}
+              onClick={() => {
+                logout();
+              }}
+              hideArrow={true}
+            >
+              Lock
+            </SettingItem>
+            <SettingItem
+              icon={<IconReset />}
+              onClick={() => {
+                navigate('security/reset');
+              }}
+              hideArrow={true}
+            >
+              Reset All
+            </SettingItem>
+          </SettingsGroup>
+
+          <SettingsGroup>
+            <SettingItem
+              icon={<IconTwitter />}
+              onClick={() => {
+                window.open('https://twitter.com/suiet_wallet', '_blank');
+              }}
+              hideArrow={true}
+            >
+              Twitter
+            </SettingItem>
+            <SettingItem
+              icon={<IconDiscord />}
+              onClick={() => {
+                window.open('https://discord.gg/XQspMzXNXu', '_blank');
+              }}
+              hideArrow={true}
+            >
+              Discord
+            </SettingItem>
+          </SettingsGroup>
         </section>
 
         <div className={classnames(styles['app-version'], 'mt-[16px]')}>
