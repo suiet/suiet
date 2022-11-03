@@ -47,6 +47,15 @@
   }
 }
 
+.settings-group {
+  border-radius: 16px;
+  overflow: hidden;
+
+  & + & {
+    margin-top: 12px;
+  }
+}
+
 .settings-item {
   display: flex;
   padding: 24px;
@@ -55,13 +64,9 @@
   line-height: 24px;
   color: #000000;
   background-color: $gray-50;
-  border-radius: 16px;
+
   cursor: pointer;
   position: relative;
-
-  & + & {
-    margin-top: 12px;
-  }
 
   &:hover {
     /* Gray/50 */
