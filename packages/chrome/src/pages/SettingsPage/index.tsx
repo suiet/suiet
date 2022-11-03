@@ -15,6 +15,8 @@ import Icon from '../../components/Icon';
 import { ReactComponent as IconReset } from '../../assets/icons/reset.svg';
 import { ReactComponent as IconSecurity } from '../../assets/icons/security.svg';
 import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow.svg';
+import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
+import { ReactComponent as IconCodeBrowser } from '../../assets/icons/code-browser.svg';
 import { ReactComponent as IconWallet } from '../../assets/icons/wallet.svg';
 import { ReactComponent as IconNetwork } from '../../assets/icons/net.svg';
 import { ReactComponent as IconLock } from '../../assets/icons/lock.svg';
@@ -23,6 +25,7 @@ import { ReactComponent as IconTwitter } from '../../assets/icons/twitter.svg';
 type SettingItemProps = Extendable & {
   icon: JSX.Element;
   hideArrow?: boolean;
+  externalLink?: boolean;
   onClick?: () => void;
 };
 
@@ -39,6 +42,12 @@ const SettingItem = (props: SettingItemProps) => {
         <Icon
           icon={<IconRightArrow />}
           className={styles['icon-right-arrow']}
+        />
+      )}
+      {props.externalLink && (
+        <Icon
+          icon={<IconExternal />}
+          className={styles['icon-right-external']}
         />
       )}
     </div>
@@ -123,11 +132,22 @@ const SettingPage = () => {
 
           <SettingsGroup>
             <SettingItem
+              icon={<IconCodeBrowser />}
+              onClick={() => {
+                window.open('https://suiet.app/developer', '_blank');
+              }}
+              hideArrow={true}
+              externalLink={true}
+            >
+              Developer
+            </SettingItem>
+            <SettingItem
               icon={<IconTwitter />}
               onClick={() => {
                 window.open('https://twitter.com/suiet_wallet', '_blank');
               }}
               hideArrow={true}
+              externalLink={true}
             >
               Twitter
             </SettingItem>
@@ -137,6 +157,7 @@ const SettingPage = () => {
                 window.open('https://discord.gg/XQspMzXNXu', '_blank');
               }}
               hideArrow={true}
+              externalLink={true}
             >
               Discord
             </SettingItem>

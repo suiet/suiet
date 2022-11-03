@@ -29,16 +29,23 @@
   .icon-network,
   .icon-security,
   .icon-right-arrow,
+  .icon-right-external,
   .icon-reset {
     width: 24px;
     height: 24px;
     background: no-repeat center;
     background-size: cover;
+    stroke: #b9c0d4;
     display: inline-block;
     margin-right: 16px;
   }
+  .icon-right-external {
+    width: 18px;
+    height: 18px;
+  }
 
-  .icon-right-arrow {
+  .icon-right-arrow,
+  .icon-right-external {
     position: absolute;
     right: 24px;
     margin: auto;

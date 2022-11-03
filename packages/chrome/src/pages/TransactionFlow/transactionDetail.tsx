@@ -139,7 +139,8 @@ function TransactionDetail() {
             className="m-auto"
             rel="noreferrer"
           >
-            View in explorer <IconExternal className="inline"></IconExternal>
+            View in explorer{' '}
+            <IconExternal className="inline w-[12px] h-[12px] stroke-gray-400"></IconExternal>
           </a>
         </div>
       </div>
