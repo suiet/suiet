@@ -95,8 +95,6 @@ function MainPage({ address, networkId }: DashboardProps) {
           })}
           onClick={() => {
             const d = new Date();
-            console.log(d.getTime(), airdropTime, d.getTime() - airdropTime);
-
             if (!airdropLoading) {
               if (d.getTime() - airdropTime <= 5000) {
                 message.error('Please wait 5 seconds');

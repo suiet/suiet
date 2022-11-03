@@ -9,9 +9,13 @@ import {
   getExecutionStatusType,
   getMoveObject,
   MoveCallTransaction,
+  SuiTransactionKind,
   Base64DataBuffer,
   getMoveCallTransaction,
-  getObjectId,
+  getTransactionKindName,
+  getPublishTransaction,
+  PaySui,
+  PayAllSui,
   OwnedObjectRef,
   LocalTxnDataSerializer,
   ExecuteTransactionRequestType,
@@ -212,7 +216,13 @@ export class QueryProvider {
         const transferObject = getTransferObjectTransaction(tx);
         const moveCall = getMoveCallTransaction(tx);
         const pay = getPayTransaction(tx);
-        if (transferSui) {
+        const paySui = getPaySuiTransaction(tx);
+        const payAllSui = getPayAllSuiTransaction(tx);
+        const publish = getPublishTransaction(tx);
+        const kind = getTransactionKindName(tx);
+        // todo: add PayAllSui, PaySui
+        console.log(transferSui, transferObject, moveCall, pay, kind, tx);
+        if (kind === 'TransferSui' && transferSui) {
           results.push({
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
@@ -231,7 +241,9 @@ export class QueryProvider {
               symbol: 'SUI',
             },
           });
-        } else if (transferObject) {
+        }
+
+        if (kind === 'TransferObject' && transferObject) {
           const resp = await this.provider.getObject(
             transferObject.objectRef.objectId
           );
@@ -268,7 +280,8 @@ export class QueryProvider {
               object: txObj,
             });
           }
-        } else if (moveCall) {
+        }
+        if (kind === 'Call' && moveCall) {
           results.push({
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
@@ -292,7 +305,9 @@ export class QueryProvider {
               // TODO: change to before and after
             },
           });
-        } else if (pay && isNonEmptyArray(pay.coins)) {
+        }
+
+        if (kind === 'Pay' && pay && isNonEmptyArray(pay.coins)) {
           // TODO: replace it to tryGetOldObject
           let coin: CoinObject | null = null;
           for (const _coin of pay.coins) {
@@ -329,6 +344,65 @@ export class QueryProvider {
             });
           }
         }
+
+        // TODO: add PayAllSui, PaySui, ChangeEpoch, Publish, TransferObject
+
+        if (kind === 'PaySui' && paySui) {
+          const gasFee =
+            effect.effects.gasUsed.computationCost +
+            effect.effects.gasUsed.storageCost -
+            effect.effects.gasUsed.storageRebate;
+          for (let i = 0; i < paySui.recipients.length; i++) {
+            results.push({
+              timestamp_ms: effect.timestamp_ms,
+              txStatus: getExecutionStatusType(effect),
+              transactionDigest: effect.certificate.transactionDigest,
+
+              gasFee: gasFee / paySui.recipients.length,
+              from: data.sender,
+              to: paySui.recipients[i],
+              object: {
+                type: 'coin' as 'coin',
+                balance: String(
+                  paySui.amounts[i] ? BigInt(paySui.amounts[i]) : BigInt(0)
+                ),
+                symbol: 'SUI',
+              },
+            });
+          }
+        }
+
+        if (kind === 'PayAllSui' && payAllSui) {
+          let coin: CoinObject | null = null;
+          const gasFee =
+            effect.effects.gasUsed.computationCost +
+            effect.effects.gasUsed.storageCost -
+            effect.effects.gasUsed.storageRebate;
+          for (const _coin of payAllSui.coins) {
+            const resp = await this.provider.getObject(_coin.objectId);
+            const obj = getMoveObject(resp);
+            if (!obj) {
+              continue;
+            }
+
+            coin = Coin.getCoinObject(obj);
+
+            results.push({
+              timestamp_ms: effect.timestamp_ms,
+              txStatus: getExecutionStatusType(effect),
+              transactionDigest: effect.certificate.transactionDigest,
+
+              gasFee,
+              from: data.sender,
+              to: payAllSui.recipient,
+              object: {
+                type: 'coin' as 'coin',
+                balance: String(coin.balance),
+                symbol: coin.symbol,
+              },
+            });
+          }
+        }
       }
     }
     return results;
@@ -340,7 +414,7 @@ export class QueryProvider {
     if (!objectRefs) {
       return [];
     }
-    let objects = [];
+    const objects = [];
     for (const objRef of objectRefs) {
       const pastObj = await this.getPastTxObject(
         objRef.reference.objectId,
@@ -361,7 +435,7 @@ export class QueryProvider {
     if (!objectRefs) {
       return [];
     }
-    let objects = [];
+    const objects = [];
     for (const objRef of objectRefs) {
       const obj = await this.getPastTxObject(
         objRef.reference.objectId,
@@ -471,6 +545,18 @@ export class QueryProvider {
   }
 }
 
+export function getPaySuiTransaction(
+  data: SuiTransactionKind
+): PaySui | undefined {
+  return 'PaySui' in data ? data.PaySui : undefined;
+}
+
+export function getPayAllSuiTransaction(
+  data: SuiTransactionKind
+): PayAllSui | undefined {
+  return 'PayAllSui' in data ? data.PayAllSui : undefined;
+}
+
 type PastObjectStatus =
   | 'VersionFound'
   | 'ObjectNotExists'
@@ -540,7 +626,7 @@ export function isGetPastObjectDataResponse(
 ): obj is GetPastObjectDataResponse {
   return (
     ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
-    (isPastObjectStatus(obj.status) as boolean) &&
+    isPastObjectStatus(obj.status) &&
     (isSuiObject(obj.details) ||
       typeof obj.details === 'string' ||
       isSuiObjectRef(obj.details) ||
@@ -682,11 +768,11 @@ export class TxProvider {
         actualAmount
       );
     if (coinsWithSufficientAmount.length > 0) {
-      const data = await this.serializer.newTransferSui(address, {
-        suiObjectId: CoinAPI.getID(coinsWithSufficientAmount[0]),
+      const data = await this.serializer.newPaySui(address, {
+        inputCoins: [CoinAPI.getID(coinsWithSufficientAmount[0])],
         gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
-        recipient,
-        amount: Number(amount),
+        recipients: [recipient],
+        amounts: [Number(amount)],
       });
       const signedTx = await vault.signTransaction({ data });
       // TODO: handle response
