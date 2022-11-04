@@ -114,7 +114,7 @@ function MainPage({ address, networkId }: DashboardProps) {
                 fetch(`https://faucet.${networkId}.sui.io/gas`, options)
                   .then(async (response) => {
                     if (response.ok) {
-                      message.success('Airdrop success');
+                      message.success('Airdrop succeeded');
                       return await response.json();
                     } else {
                       const text = await response.text();
