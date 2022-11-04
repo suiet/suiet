@@ -186,15 +186,16 @@ export class DappBgApi {
     }));
   }
 
-  public async signMessage(payload: DappMessage<{ message: string }>): Promise<{
-    signature: string;
-    signedMessage: string;
+  public async signMessage(
+    payload: DappMessage<{ message: Uint8Array }>
+  ): Promise<{
+    signature: Uint8Array;
+    signedMessage: Uint8Array;
   }> {
     const { params, context } = payload;
     if (!params?.message) {
       throw new InvalidParamError(`params 'message' required`);
     }
-    const decodeMsg = baseDecode(params.message);
     const checkRes = await this.checkPermissions(context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
@@ -260,12 +261,12 @@ export class DappBgApi {
     const token = this.authApi.getToken();
     const result = await this.txApi.signMessage({
       token,
-      message: decodeMsg,
+      message: params.message,
       walletId: appContext.walletId,
       accountId: appContext.accountId,
     });
     return {
-      signature: baseEncode(result.signature),
+      signature: result.signature,
       signedMessage: params.message,
     };
   }
