@@ -25,10 +25,14 @@ import {
   NotFoundError,
   UserRejectionError,
 } from '../errors';
-import { baseDecode, baseEncode } from 'borsh';
 import { SignRequestManager } from '../sign-msg';
 import { FeatureFlagRes } from '../../../api';
 import { fetchFeatureFlags } from '../utils/api';
+import {
+  arrayToUint8array,
+  uint8arrayToArray,
+} from '../../shared/msg-passing/uint8array-passing';
+import { Buffer } from 'buffer';
 
 interface DappMessage<T> {
   params: T;
@@ -187,10 +191,10 @@ export class DappBgApi {
   }
 
   public async signMessage(
-    payload: DappMessage<{ message: Uint8Array }>
+    payload: DappMessage<{ message: number[] }>
   ): Promise<{
-    signature: Uint8Array;
-    signedMessage: Uint8Array;
+    signature: number[];
+    signedMessage: number[];
   }> {
     const { params, context } = payload;
     if (!params?.message) {
@@ -261,12 +265,12 @@ export class DappBgApi {
     const token = this.authApi.getToken();
     const result = await this.txApi.signMessage({
       token,
-      message: params.message,
+      message: arrayToUint8array(params.message),
       walletId: appContext.walletId,
       accountId: appContext.accountId,
     });
     return {
-      signature: result.signature,
+      signature: uint8arrayToArray(result.signature),
       signedMessage: params.message,
     };
   }
@@ -418,7 +422,7 @@ export class DappBgApi {
       moduleName: params.txData.module,
       objectId: params.txData.packageObjectId,
     });
-    console.log('metadata', metadata);
+    // console.log('metadata', metadata);
 
     const txReq = await this.txManager.createTxRequest({
       walletId: params.walletId,
@@ -479,7 +483,7 @@ export class DappBgApi {
     });
   }
 
-  public async getPublicKey(payload: DappMessage<{}>): Promise<string> {
+  public async getPublicKey(payload: DappMessage<{}>): Promise<number[]> {
     const { context } = payload;
     const checkRes = await this.checkPermissions(context.origin, [
       Permission.VIEW_ACCOUNT,
@@ -492,8 +496,7 @@ export class DappBgApi {
 
     const appContext = await this.getAppContext();
     const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
-    console.log('getPublicKey from dapp api', publicKey);
-    return publicKey;
+    return uint8arrayToArray(Buffer.from(publicKey.slice(2), 'hex'));
   }
 
   private async _getAccounts(payload: DappMessage<{}>) {
