@@ -74,21 +74,21 @@ export class DAppInterface implements IWindowSuietApi {
   }
 
   async signMessage(input: { message: Uint8Array }) {
-    const encodedInput = { message: baseEncode(input.message) };
+    const encodedInput = { message: input.message };
     const result = await this.windowMsgStream.post(
       reqData('dapp.signMessage', encodedInput)
     );
     if (result.error) return result;
 
     const data = result.data as {
-      signature: string;
-      signedMessage: string;
+      signature: Uint8Array;
+      signedMessage: Uint8Array;
     };
     return {
       ...result,
       data: {
-        signature: baseDecode(data.signature),
-        signedMessage: baseDecode(data.signedMessage),
+        signature: data.signature,
+        signedMessage: data.signedMessage,
       },
     };
   }

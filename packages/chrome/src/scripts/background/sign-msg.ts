@@ -5,7 +5,7 @@ import { has } from 'lodash-es';
 import { DappBaseRequest } from './permission';
 
 export interface SignRequest extends DappBaseRequest {
-  data: string;
+  data: Uint8Array;
   approved: boolean | null;
   createdAt: string;
   updatedAt: string | null;
@@ -64,7 +64,7 @@ export class SignRequestManager {
     favicon: string;
     walletId: string;
     address: string;
-    data: string;
+    data: Uint8Array;
   }): Promise<SignRequest> {
     const data = {
       ...params,
