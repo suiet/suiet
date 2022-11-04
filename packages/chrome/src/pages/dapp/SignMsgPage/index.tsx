@@ -15,7 +15,7 @@ import {
   SignRequest,
   SignRequestStorage,
 } from '../../../scripts/background/sign-msg';
-import { baseDecode } from 'borsh';
+import { arrayToUint8array } from '../../../scripts/shared/msg-passing/uint8array-passing';
 
 const SignMsgPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -27,7 +27,7 @@ const SignMsgPage = () => {
     id: '',
     walletId: '',
     address: '',
-    data: '',
+    data: [],
     origin: '',
     name: '',
     favicon: '',
@@ -66,6 +66,18 @@ const SignMsgPage = () => {
     })();
   }, [reqId]);
 
+  function tryParseUint8Array(value: Uint8Array) {
+    if (!(value instanceof Uint8Array)) {
+      return 'Unsupported message type';
+    }
+    try {
+      return new TextDecoder().decode(value);
+    } catch (e) {
+      console.error(e);
+      return 'Unsupported message type';
+    }
+  }
+
   return (
     <DappPopupLayout
       originTitle={reqData.name}
@@ -87,7 +99,7 @@ const SignMsgPage = () => {
           Message to be signed
         </Typo.Title>
         <Typo.Normal className={styles['desc']}>
-          {baseDecode(reqData.data).toString('utf-8')}
+          {tryParseUint8Array(arrayToUint8array(reqData.data as any))}
         </Typo.Normal>
       </div>
     </DappPopupLayout>

@@ -42,6 +42,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
 
   // port msg from background - content script proxy -> window msg to dapp
   port.onMessage.addListener((msg) => {
+    // console.log('[content] before port sends data to window', msg);
     window.postMessage({
       target: WindowMsgTarget.DAPP,
       payload: msg,
@@ -51,7 +52,10 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   // window msg from dapp - content script proxy -> port msg to ext background
   const passMessageToPort = (event: MessageEvent) => {
     if (isMsgFromSuietContext(event) && !isIgnoreMsg(event)) {
-      // console.log('[content] received event.data', event.data);
+      // console.log(
+      //   '[content] received data from window postMessage',
+      //   event.data
+      // );
       const { payload: trueData } = event.data;
       const message = {
         id: trueData.id,
@@ -65,6 +69,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
           },
         },
       };
+      // console.log('[content]  before port postMessage', message);
       port.postMessage(message);
     }
   };

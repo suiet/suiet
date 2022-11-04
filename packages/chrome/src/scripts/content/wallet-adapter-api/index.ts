@@ -6,9 +6,12 @@ import {
   SuiTransactionResponse,
 } from '@mysten/sui.js';
 import { TxRequestType } from '../../background/transaction';
-import { baseDecode, baseEncode } from 'borsh';
 import { IWindowSuietApi } from '@suiet/wallet-adapter';
 import { Permission } from '../../background/permission';
+import {
+  arrayToUint8array,
+  uint8arrayToArray,
+} from '../../shared/msg-passing/uint8array-passing';
 
 /**
  * Script to be injected in each Dapp page
@@ -74,26 +77,31 @@ export class DAppInterface implements IWindowSuietApi {
   }
 
   async signMessage(input: { message: Uint8Array }) {
-    const encodedInput = { message: input.message };
+    const encapInput = {
+      message: uint8arrayToArray(input.message),
+    };
     const result = await this.windowMsgStream.post(
-      reqData('dapp.signMessage', encodedInput)
+      reqData('dapp.signMessage', encapInput)
     );
     if (result.error) return result;
-
-    const data = result.data as {
-      signature: Uint8Array;
-      signedMessage: Uint8Array;
+    const data = {
+      signature: arrayToUint8array(result.data.signature),
+      signedMessage: arrayToUint8array(result.data.signedMessage),
     };
     return {
       ...result,
-      data: {
-        signature: data.signature,
-        signedMessage: data.signedMessage,
-      },
+      data,
     };
   }
 
   async getPublicKey() {
-    return await this.windowMsgStream.post(reqData('dapp.getPublicKey', null));
+    const result = await this.windowMsgStream.post(
+      reqData('dapp.getPublicKey', null)
+    );
+    if (result.error) return result;
+    return {
+      ...result,
+      data: arrayToUint8array(result.data),
+    };
   }
 }
