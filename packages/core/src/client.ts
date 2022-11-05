@@ -13,7 +13,7 @@ export type HttpHeaders = { [header: string]: string };
  */
 export type RpcParams = {
   method: string;
-  args: Array<any>;
+  args: any[];
 };
 
 const TYPE_MISMATCH_ERROR =
@@ -22,7 +22,7 @@ const TYPE_MISMATCH_ERROR =
   `compatible with the RPC server. Please update your SDK version to the latest. `;
 
 export class JsonRpcClient {
-  private rpcClient: RpcClient;
+  private readonly rpcClient: RpcClient;
 
   constructor(url: string, httpHeaders?: HttpHeaders) {
     this.rpcClient = this.createRpcClient(url, httpHeaders);
@@ -41,12 +41,12 @@ export class JsonRpcClient {
             {
               'Content-Type': 'application/json',
             },
-            httpHeaders || {}
+            httpHeaders ?? {}
           ),
         };
 
         try {
-          let res: Response = await fetch(url, options);
+          const res: Response = await fetch(url, options);
           const text = await res.text();
           let result;
           // wrapping this with try/catch because LosslessJSON
@@ -94,7 +94,7 @@ export class JsonRpcClient {
 
   async requestWithType<T>(
     method: string,
-    args: Array<any>,
+    args: any[],
     isT: (val: any) => val is T,
     skipDataValidation: boolean = false
   ): Promise<T> {
@@ -118,8 +118,8 @@ export class JsonRpcClient {
     throw new Error(`Unexpected RPC Response: ${response}`);
   }
 
-  async request(method: string, args: Array<any>): Promise<any> {
-    return new Promise((resolve, reject) => {
+  async request(method: string, args: any[]): Promise<any> {
+    return await new Promise((resolve, reject) => {
       this.rpcClient.request(method, args, (err: any, response: any) => {
         if (err) {
           reject(err);
@@ -176,7 +176,7 @@ export class JsonRpcClient {
   }
 
   async batchRequest(requests: RpcParams[]): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       // Do nothing if requests is empty
       if (requests.length === 0) resolve([]);
 
