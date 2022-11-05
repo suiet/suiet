@@ -151,6 +151,9 @@ export class QueryProvider {
   public async getOwnedObjects(address: string): Promise<SuiObject[]> {
     const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
     const objectIds = objectInfos.map((obj) => obj.objectId);
+    if (objectIds.length === 0) {
+      return [];
+    }
     const resps = await this.provider.getObjectBatch(objectIds);
     return resps
       .filter((resp) => resp.status === 'Exists')

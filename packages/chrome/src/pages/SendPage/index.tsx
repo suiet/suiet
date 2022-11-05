@@ -162,7 +162,7 @@ const SendPage = () => {
             <div className={'flex items-center'}>
               <WaterDropIcon size={'small'} />
               <Typo.Normal className={'ml-[6px]'}>
-                {formatCurrency(GAS_BUDGET)} SUI
+                {formatCurrency(GAS_BUDGET)} SUI ({GAS_BUDGET}MIST)
               </Typo.Normal>
             </div>
 
