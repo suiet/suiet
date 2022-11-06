@@ -301,10 +301,13 @@ export class QueryProvider {
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
-              created: await this.getCreatedTxObjects(effect.effects.created),
-              changedOrDeleted: await this.getMutatedTxObjects(
-                effect.effects.mutated
-              ),
+
+              // fixme: put in details page
+              // created: await this.getCreatedTxObjects(effect.effects.created),
+              // changedOrDeleted: await this.getMutatedTxObjects(
+              //   effect.effects.mutated
+              // ),
+
               // TODO: change to before and after
             },
           });
