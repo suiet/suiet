@@ -70,9 +70,9 @@ export type MoveCallInfo<T = TxObject> = {
   module: string;
   function: string;
   arguments?: string[];
-  created: T[];
+  created?: T[];
   // If object type is nft, it represents the nft was deleted. If object type is coin, it represents the coin balance was changed.
-  changedOrDeleted: T[];
+  changedOrDeleted?: T[];
 };
 
 export type ObjectId = {
