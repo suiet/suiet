@@ -13,8 +13,7 @@ function MainPage() {
   const { accountId, networkId } = useSelector(
     (state: RootState) => state.appContext
   );
-  const { data: account } = useAccount(accountId);
-  const address = account?.address ?? '';
+  const { address } = useAccount(accountId);
   // prefetch other tabs' data
   useNftList(address, networkId);
   useTransactionList(address, networkId);

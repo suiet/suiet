@@ -3,7 +3,7 @@ import IconArrowRight from '../../../assets/icons/arrow-right.svg';
 import classnames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store';
-import { useAccount } from '../../../hooks/useAccount';
+import { getAddress, useAccount } from '../../../hooks/useAccount';
 import { useEffect, useMemo, useState } from 'react';
 import WalletSwitcher, { WalletData } from '../../../components/WalletSwitcher';
 import { useWallets } from '../../../hooks/useWallets';
@@ -16,8 +16,10 @@ import Address from '../../../components/Address';
 import Avatar from '../../../components/Avatar';
 import { useWallet } from '../../../hooks/useWallet';
 import { AccountInWallet, Wallet } from '@suiet/core';
+import { useApiClient } from '../../../hooks/useApiClient';
 
 function useWalletAccountMap(wallets: Wallet[]) {
+  const apiClient = useApiClient();
   const [walletAccountMap, setWalletAccountMap] = useState<
     Map<string, AccountInWallet>
   >(new Map());
@@ -30,15 +32,24 @@ function useWalletAccountMap(wallets: Wallet[]) {
 
   // generate defaultAccount map
   useEffect(() => {
+    if (!isNonEmptyArray(wallets)) return;
+
     (async function () {
       const map = new Map<string, AccountInWallet>();
       const accounts = wallets.map((wallet) => searchDefaultAccount(wallet));
+      // NOTE: use calculated addresses for safety concern
+      const addresses = await getAddress(apiClient, {
+        batchAccountIds: accounts.map((ac) => ac.id),
+      });
       wallets.forEach((wallet, index) => {
-        map.set(wallet.id, accounts[index]);
+        map.set(wallet.id, {
+          id: accounts[index].id,
+          address: addresses[index],
+        });
       });
       setWalletAccountMap(map);
     })();
-  }, [wallets]);
+  }, [apiClient, wallets]);
 
   return walletAccountMap;
 }
@@ -91,7 +102,7 @@ function Header(props: HeaderProps) {
   }));
   const [doSwitch, setDoSwitch] = useState<boolean>(openSwitcher);
   const navigate = useNavigate();
-  const { data: account } = useAccount(context.accountId);
+  const { address } = useAccount(context.accountId);
   const dispatch = useDispatch<AppDispatch>();
   const { data: wallet } = useWallet(context.walletId);
 
@@ -130,7 +141,7 @@ function Header(props: HeaderProps) {
       </div>
       <Address
         suins={true}
-        value={account?.address ?? ''}
+        value={address}
         hideCopy={true}
         className={classnames(styles['address'], 'ml-[18px]')}
       />

@@ -64,7 +64,7 @@ const SettingPage = () => {
     context: state.appContext,
   }));
   const { data: wallet } = useWallet(context.walletId);
-  const { data: account } = useAccount(context.accountId);
+  const { address } = useAccount(context.accountId);
   const { logout } = useAuth();
 
   return (
@@ -75,10 +75,7 @@ const SettingPage = () => {
           <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
             {wallet?.name}
           </div>
-          <Address
-            value={account?.address ?? ''}
-            className={styles['address']}
-          />
+          <Address value={address} className={styles['address']} />
         </div>
 
         <section className={styles['settings-container']}>

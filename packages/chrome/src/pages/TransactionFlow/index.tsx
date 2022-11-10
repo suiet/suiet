@@ -12,7 +12,6 @@ import { TxnItem } from './transactionDetail';
 import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
 import AppLayout from '../../layouts/AppLayout';
-import { useEffect } from 'react';
 
 type TxnHistroyEntry = Awaited<
   ReturnType<ITransactionApi['getTransactionHistory']>
@@ -150,12 +149,9 @@ function TransactionFlow({
 
 function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
-  const { data: account } = useAccount(context.accountId);
+  const { address } = useAccount(context.accountId);
   // const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
-  const { history, loading } = useTransactionList(
-    account?.address ?? '',
-    context.networkId
-  );
+  const { history, loading } = useTransactionList(address, context.networkId);
 
   function renderContent() {
     if (history === null || loading)
@@ -168,7 +164,7 @@ function TransactionPage() {
       <Empty />
     ) : (
       <div className="bg-gray-50 w-full p-4 min-h-full">
-        <TransactionFlow history={history} address={account?.address ?? ''} />
+        <TransactionFlow history={history} address={address ?? ''} />
       </div>
     );
   }
