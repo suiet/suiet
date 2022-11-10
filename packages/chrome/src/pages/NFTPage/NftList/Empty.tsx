@@ -20,11 +20,11 @@ export default function Empty(props: EmptyProps) {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const [sendLoading, setSendLoading] = useState(false);
-  const { data: account } = useAccount(appContext.accountId);
+  const { address } = useAccount(appContext.accountId);
 
   const { balance, loading: balanceLoading } = useCoinBalance(
     CoinSymbol.SUI,
-    account?.address ?? '',
+    address,
     appContext.networkId
   );
 

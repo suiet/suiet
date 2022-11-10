@@ -39,12 +39,12 @@ const SendPage = () => {
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
-  const { data: account } = useAccount(appContext.accountId);
+  const { address } = useAccount(appContext.accountId);
   const [sendLoading, setSendLoading] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
   const { balance } = useCoinBalance(
     CoinSymbol.SUI,
-    account?.address ?? '',
+    address,
     appContext.networkId
   );
   const form = useForm<SendFormValues>({

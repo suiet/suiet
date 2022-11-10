@@ -21,12 +21,12 @@ import { ReactComponent as GiftIcon } from '../../assets/icons/gift.svg';
 
 function MainPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
-  const { data: account } = useAccount(appContext.accountId);
+  const { address } = useAccount(appContext.accountId);
   const {
     data: nftList,
     loading,
     mutate: refreshNftList,
-  } = useNftList(account?.address ?? '', appContext.networkId);
+  } = useNftList(address, appContext.networkId);
 
   const apiClient = useApiClient();
   const { data: network } = useNetwork(appContext.networkId);
@@ -34,7 +34,7 @@ function MainPage() {
 
   const { balance, loading: balanceLoading } = useCoinBalance(
     CoinSymbol.SUI,
-    account?.address ?? '',
+    address,
     appContext.networkId
   );
 

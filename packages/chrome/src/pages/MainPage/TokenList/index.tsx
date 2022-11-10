@@ -61,11 +61,8 @@ const TokenItem = (props: TokenItemProps) => {
 
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
-  const { data: account } = useAccount(appContext.accountId);
-  const { data: coins } = useCoins(
-    account?.address ?? '',
-    appContext.networkId
-  );
+  const { address } = useAccount(appContext.accountId);
+  const { data: coins } = useCoins(address, appContext.networkId);
   const coinsWithSuiOnTop = useMemo(() => {
     if (!isNonEmptyArray(coins)) return [];
 

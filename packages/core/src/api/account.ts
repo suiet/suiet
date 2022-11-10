@@ -2,6 +2,7 @@ import { validateToken } from '../utils/token';
 import * as crypto from '../crypto';
 import { Vault } from '../vault/Vault';
 import { Storage } from '../storage/Storage';
+import { isNonEmptyArray } from '../utils';
 
 export interface Account {
   id: string;
@@ -26,10 +27,18 @@ export interface IAccountApi {
     accountId: string,
     token: string
   ) => Promise<void>;
+  getAddress: (params: GetAddressParams) => Promise<string | string[]>;
+}
+
+export interface GetAddressParams {
+  accountId?: string;
+  batchAccountIds?: string[];
+  token: string;
 }
 
 export class AccountApi implements IAccountApi {
   storage: Storage;
+
   constructor(storage: Storage) {
     this.storage = storage;
   }
@@ -110,10 +119,59 @@ export class AccountApi implements IAccountApi {
     await validateToken(this.storage, token);
     return await this.storage.deleteAccount(walletId, accountId);
   }
+
+  // better use calculated address for safety concern
+  async getAddress(params: GetAddressParams) {
+    const getOneAddress = async (accountId: string, token: string) => {
+      const walletId = getWalletIdFromAccountId(accountId);
+      const wallet = await this.storage.getWallet(walletId);
+      if (!wallet) {
+        throw new Error('Wallet not exist');
+      }
+      const accountIdNumber = getAccountIdNumberFromString(accountId);
+      const hdPath = crypto.derivationHdPath(accountIdNumber);
+      const vault = await Vault.create(
+        hdPath,
+        Buffer.from(token, 'hex'),
+        wallet.encryptedMnemonic
+      );
+      return vault.getAddress();
+    };
+
+    if (isNonEmptyArray(params.batchAccountIds)) {
+      const batchAccountIds = params.batchAccountIds as string[];
+      // batch mode
+      const tasks = batchAccountIds.map((id) =>
+        getOneAddress(id, params.token)
+      );
+      return await Promise.all(tasks); // return address string[] following input order
+    }
+    // single mode
+    if (!params.accountId) {
+      throw new Error('params batchAccountIds or accountId required');
+    }
+    return await getOneAddress(params.accountId, params.token);
+  }
 }
 
 export function toAccountIdString(walletId: string, id: number): string {
   return `${walletId}--${id}`;
+}
+
+function getWalletIdFromAccountId(accountId: string): string {
+  const result = /^(.*)?--/.exec(accountId);
+  if (!result) {
+    throw new Error('invalid accountId format: ' + accountId);
+  }
+  return result[1];
+}
+
+function getAccountIdNumberFromString(accountId: string): number {
+  const result = /^.*?--(\d+)/.exec(accountId);
+  if (!result) {
+    throw new Error('invalid accountId format: ' + accountId);
+  }
+  return Number(result[1]);
 }
 
 export function toAccountNameString(walletName: string, id: number): string {
