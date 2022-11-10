@@ -202,7 +202,8 @@ export class QueryProvider {
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistoryEntry[]> {
-    const txs = await this.provider.getTransactionsForAddress(address);
+    // @ts-expect-error
+    const txs = await this.provider.getTransactionsForAddress(address, true); // true for descending order, fix type issue of official sdk v0.15.0
     if (txs.length === 0 || !txs[0]) {
       return [];
     }
