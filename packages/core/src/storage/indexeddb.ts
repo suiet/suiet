@@ -445,4 +445,4 @@ export class IndexedDBStorage implements Storage {
   }
 }
 
-export default new IndexedDBStorage();
+// export default new IndexedDBStorage();

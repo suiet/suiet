@@ -20,10 +20,12 @@ module.exports = {
   },
   watchFolders: [workspaceRoot],
   resolver: {
-    nodeModulesPaths: [
-      path.resolve(projectRoot, 'node_modules'),
-      path.resolve(workspaceRoot, 'node_modules'),
-    ],
+    nodeModulesPaths: [path.resolve(projectRoot, './node_modules'), path.resolve(workspaceRoot, './node_modules')],
+    extraNodeModules: {
+      events: require.resolve('events/'),
+      stream: require.resolve('readable-stream/'),
+      crypto: require.resolve('react-native-crypto/'),
+    },
     disableHierarchicalLookup: true,
   },
 };

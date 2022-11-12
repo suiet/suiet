@@ -1,37 +1,27 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-import React, {type PropsWithChildren} from 'react';
+import './shims';
+import React, { useEffect, useState, type PropsWithChildren } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
   View,
+  TouchableOpacity,
+  ScrollView,
 } from 'react-native';
+import { Colors, Header } from 'react-native/Libraries/NewAppScreen';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { AuthApi, WalletApi } from '@suiet/core';
+import ReactNativeStorage from './src/storage';
+
+const storage = new ReactNativeStorage();
 
 const Section: React.FC<
   PropsWithChildren<{
     title: string;
   }>
-> = ({children, title}) => {
+> = ({ children, title }) => {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -41,7 +31,8 @@ const Section: React.FC<
           {
             color: isDarkMode ? Colors.white : Colors.black,
           },
-        ]}>
+        ]}
+      >
         {title}
       </Text>
       <Text
@@ -50,7 +41,8 @@ const Section: React.FC<
           {
             color: isDarkMode ? Colors.light : Colors.dark,
           },
-        ]}>
+        ]}
+      >
         {children}
       </Text>
     </View>
@@ -59,9 +51,39 @@ const Section: React.FC<
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [password] = useState<string>('P@ssw0rd');
+  const [token, setToken] = useState<string>();
+  const [mnemonic, setMnemonic] = useState<string>();
+
+  useEffect(() => {
+    const execute = async () => {
+      const authApi = new AuthApi(storage);
+      const walletApi = new WalletApi(storage);
+
+      const t = Date.now();
+
+      await authApi.updatePassword({ oldPassword: password, newPassword: password });
+      console.error('time to updatePassword', Date.now() - t);
+      const token = await authApi.loadTokenWithPassword(password);
+      console.error('time to loadTokenWithPassword', Date.now() - t);
+      const wallet = await walletApi.createWallet({ token });
+      console.error('time to createWallet', Date.now() - t);
+      const mnemonic = await walletApi.revealMnemonic({ walletId: wallet.id, token });
+
+      console.error('time to create a wallet: ', Date.now() - t);
+
+      setToken(token);
+      setMnemonic(mnemonic);
+    };
+
+    setInterval(() => {
+      execute();
+    }, 5000);
+  }, []);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    // flex: 1,
   };
 
   return (
@@ -70,28 +92,43 @@ const App = () => {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
         <Header />
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
+          }}
+        >
+          {/* <Section title="Password">
+            <Text style={{ fontFamily: 'Menlo' }}>{password}</Text>
+          </Section> */}
+          <Section title="Token">
+            <Text style={{ fontFamily: 'Menlo' }}>{token}</Text>
           </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          <Section title="Mnemonic">Your mnemonic is shown below</Section>
+
+          <View
+            style={[
+              styles.phrase,
+              {
+                marginHorizontal: 24,
+                marginTop: 16,
+                // borderRadius: 4,
+                // borderWidth: 1,
+                // borderColor: 'red',
+                // borderStyle: 'solid',
+              },
+            ]}
+          >
+            <View style={styles.phraseWrap}>
+              {mnemonic?.split(' ').map((word, index) => (
+                <View key={index} style={styles.phraseItem}>
+                  <Text style={styles.phraseOrder}>{index + 1}</Text>
+                  <Text style={styles.phraseWord}>{word}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -114,6 +151,44 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+
+  phrase: {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    borderRadius: 8,
+    backgroundColor: '#f9f9fb',
+  },
+
+  phraseWrap: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+
+  phraseItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 78,
+    height: 36,
+  },
+
+  phraseOrder: {
+    userSelect: 'none',
+    textAlign: 'right',
+    color: 'rgb(209,213,219)',
+  },
+
+  phraseWord: {
+    fontFamily: 'Menlo',
+    marginLeft: 8,
+    color: '#344054',
   },
 });
 
