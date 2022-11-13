@@ -3,7 +3,7 @@
 
 import { Buffer } from 'buffer';
 import { DAppInterface } from './wallet-adapter-api';
-import type { WalletsWindow } from '@mysten/wallet-standard';
+import { registerWallet } from '@mysten/wallet-standard';
 import { SuietWallet } from './wallet-standard';
 
 function injectPolyfill(window: Window) {
@@ -11,17 +11,10 @@ function injectPolyfill(window: Window) {
   window.Buffer = Buffer;
 }
 
-declare const window: WalletsWindow;
-
-function registerToStandardWallets(window: WalletsWindow) {
-  window.navigator.wallets = window.navigator.wallets ?? [];
-  window.navigator.wallets.push(({ register }) => {
-    register(new SuietWallet());
-  });
-}
-
 injectPolyfill(window);
 
+// new standard for wallet adapters
+registerWallet(new SuietWallet());
 // @deprecated use registerToStandardWallets instead
 // mount __suiet__ object on DApp's window environment
 Object.defineProperty(window, '__suiet__', {
@@ -29,5 +22,3 @@ Object.defineProperty(window, '__suiet__', {
   configurable: false,
   value: new DAppInterface(),
 });
-// new standard for wallet adapters
-registerToStandardWallets(window);

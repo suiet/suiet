@@ -33,6 +33,7 @@ import {
   uint8arrayToArray,
 } from '../../shared/msg-passing/uint8array-passing';
 import { Buffer } from 'buffer';
+import type { WalletAccount } from '@mysten/wallet-standard';
 
 interface DappMessage<T> {
   params: T;
@@ -190,8 +191,9 @@ export class DappBgApi {
     }));
   }
 
+  // TODO: verify permission for wanted account
   public async signMessage(
-    payload: DappMessage<{ message: number[] }>
+    payload: DappMessage<{ message: number[]; account: WalletAccount }>
   ): Promise<{
     signature: number[];
     signedMessage: number[];
@@ -213,6 +215,7 @@ export class DappBgApi {
 
     const appContext = await this.getAppContext();
     const account = await this.getActiveAccount(appContext.accountId);
+
     const signReq = await this.signManager.createSignRequest({
       walletId: appContext.walletId,
       address: account.address,
