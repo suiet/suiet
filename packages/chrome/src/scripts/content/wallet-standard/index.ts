@@ -14,7 +14,14 @@ import {
   DisconnectFeature,
   DisconnectMethod,
   ReadonlyWalletAccount,
+  WalletAccount,
 } from '@mysten/wallet-standard';
+import type {
+  ExpSignMessageFeature,
+  ExpSignMessageInput,
+  ExpSignMessageOutput,
+  ExpSignMessageMethod,
+} from '@suiet/wallet-kit';
 import { LOGO_BASE64 } from '../constants/logo';
 import { WindowMsgStream } from '../../shared/msg-passing/window-msg-stream';
 import { reqData, ResData, suietSay, WindowMsgTarget } from '../../shared';
@@ -23,6 +30,10 @@ import { AccountInfo } from '../../background/bg-api/dapp';
 import { Buffer } from 'buffer';
 import { ConnectMethod } from '@wallet-standard/features';
 import mitt, { Emitter } from 'mitt';
+import {
+  arrayToUint8array,
+  uint8arrayToArray,
+} from '../../shared/msg-passing/uint8array-passing';
 
 type WalletEventsMap = {
   [E in keyof EventsListeners]: Parameters<EventsListeners[E]>[0];
@@ -31,13 +42,15 @@ type WalletEventsMap = {
 type Features = ConnectFeature &
   DisconnectFeature &
   EventsFeature &
-  SuiSignAndExecuteTransactionFeature;
+  SuiSignAndExecuteTransactionFeature &
+  ExpSignMessageFeature;
 
 enum Feature {
   STANDARD__CONNECT = 'standard:connect',
   STANDARD__DISCONNECT = 'standard:disconnect',
   STANDARD__EVENTS = 'standard:events',
   SUI__SIGN_AND_EXECUTE_TRANSACTION = 'sui:signAndExecuteTransaction',
+  EXP__SIGN_MESSAGE = 'exp:signMessage',
 }
 
 enum ConnectStatus {
@@ -100,6 +113,10 @@ export class SuietWallet implements Wallet {
       [Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION]: {
         version: '1.0.0',
         signAndExecuteTransaction: this.#signAndExecuteTransaction,
+      },
+      [Feature.EXP__SIGN_MESSAGE]: {
+        version: '1.0.0',
+        signMessage: this.#signMessage,
       },
     };
   }
@@ -171,6 +188,28 @@ export class SuietWallet implements Wallet {
     >(funcName, {
       transaction: input.transaction,
     });
+  };
+
+  #signMessage: ExpSignMessageMethod = async (input: ExpSignMessageInput) => {
+    const funcName = 'dapp.signMessage';
+    const encapInput = {
+      ...input,
+      message: uint8arrayToArray(input.message),
+    };
+    const res = await this.#request<
+      {
+        message: number[];
+        account: WalletAccount;
+      },
+      Promise<{
+        signature: number[];
+        signedMessage: number[];
+      }>
+    >(funcName, encapInput);
+    return {
+      signature: arrayToUint8array(res.signature),
+      signedMessage: arrayToUint8array(res.signedMessage),
+    };
   };
 
   async #getAccounts() {
