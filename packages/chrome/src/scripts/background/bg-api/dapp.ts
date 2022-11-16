@@ -110,6 +110,8 @@ export class DappBgApi {
     }
     const globalMeta = await this.storage.loadMeta();
     if (!globalMeta) {
+      const createWalletWindow = this.createPopupWindow('/onboard/welcome');
+      await createWalletWindow.show();
       throw new Error('Wallet not initialized');
     }
     const appContext = await this.getAppContext();
@@ -526,7 +528,7 @@ export class DappBgApi {
     return result;
   }
 
-  private createPopupWindow(url: string, params: Record<string, any>) {
+  private createPopupWindow(url: string, params?: Record<string, any>) {
     const queryStr = new URLSearchParams(params).toString();
     return new PopupWindow(
       chrome.runtime.getURL('index.html#' + url) +

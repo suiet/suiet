@@ -1,6 +1,7 @@
 import {
   SUI_CHAINS,
   SUI_DEVNET_CHAIN,
+  SUI_TESTNET_CHAIN,
   type EventsFeature,
   type ConnectFeature,
   type IdentifierArray,
@@ -19,7 +20,6 @@ import {
 import type {
   ExpSignMessageFeature,
   ExpSignMessageInput,
-  ExpSignMessageOutput,
   ExpSignMessageMethod,
 } from '@suiet/wallet-kit';
 import { LOGO_BASE64 } from '../constants/logo';
@@ -89,7 +89,7 @@ export class SuietWallet implements Wallet {
 
   // Return the Sui chains that your wallet supports.
   get chains() {
-    return [SUI_DEVNET_CHAIN] as IdentifierArray;
+    return [SUI_DEVNET_CHAIN, SUI_TESTNET_CHAIN] as IdentifierArray;
   }
 
   get accounts() {

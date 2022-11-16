@@ -10,6 +10,7 @@ function injectDappInterface() {
   script.setAttribute('type', 'module');
   const container = document.head || document.documentElement;
   container.insertBefore(script, container.firstElementChild);
+  container.removeChild(script);
 }
 
 function isMsgFromSuietContext(event: MessageEvent<any>) {
@@ -120,13 +121,11 @@ function keepServiceWorkerAlive() {
   connect();
 }
 
+injectDappInterface();
+keepServiceWorkerAlive();
+
 (async function main() {
-  injectDappInterface();
-
-  keepServiceWorkerAlive();
-
   const siteMetadata = await getSiteMetadata();
   setupMessageProxy(siteMetadata);
-
   legacyHandShakeAndWaveListener();
 })();
