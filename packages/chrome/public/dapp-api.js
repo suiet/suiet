@@ -2300,7 +2300,6 @@ class En {
       });
     });
     F(this, Tt, async (n) => {
-      console.log("#signMessage", n);
       const o = "dapp.signMessage", c = {
         ...n,
         message: Cr(n.message)
@@ -2379,9 +2378,9 @@ function xn(e) {
   e.Buffer = Vt.Buffer;
 }
 xn(window);
+hn(new En());
 Object.defineProperty(window, "__suiet__", {
   enumerable: !1,
   configurable: !1,
   value: new an()
 });
-hn(new En());
