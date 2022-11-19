@@ -11,7 +11,11 @@ export type SettingTwoLayoutProps = Extendable & {
 const SettingTwoLayout = (props: SettingTwoLayoutProps) => {
   return (
     <div
-      className={classnames(styles['container'], props.className)}
+      className={classnames(
+        styles['container'],
+        'no-scrollbar',
+        props.className
+      )}
       style={props.style}
     >
       {props.title && (
