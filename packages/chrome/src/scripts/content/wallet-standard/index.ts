@@ -24,7 +24,13 @@ import type {
 } from '@suiet/wallet-kit';
 import { LOGO_BASE64 } from '../constants/logo';
 import { WindowMsgStream } from '../../shared/msg-passing/window-msg-stream';
-import { reqData, ResData, suietSay, WindowMsgTarget } from '../../shared';
+import {
+  BackendEventId,
+  reqData,
+  ResData,
+  suietSay,
+  WindowMsgTarget,
+} from '../../shared';
 import { Permission } from '../../background/permission';
 import { AccountInfo } from '../../background/bg-api/dapp';
 import { Buffer } from 'buffer';
@@ -73,6 +79,7 @@ export class SuietWallet implements Wallet {
       WindowMsgTarget.DAPP,
       WindowMsgTarget.SUIET_CONTENT
     );
+    this.#subscribeEventFromBackend(this.#winMsgStream);
   }
 
   get version() {
@@ -232,6 +239,24 @@ export class SuietWallet implements Wallet {
       this.#checkDataIsNull(result, funcName);
     }
     return result.data as Res;
+  }
+
+  #subscribeEventFromBackend(winMsgStream: WindowMsgStream) {
+    const availableEventIds = [BackendEventId.NETWORK_SWITCH];
+    return winMsgStream.subscribe((windMsg) => {
+      if (!availableEventIds.includes(windMsg?.payload?.id)) return;
+      if (windMsg.payload.id === BackendEventId.NETWORK_SWITCH) {
+        return this.#handleNetworkSwitch(windMsg.payload);
+      }
+    });
+  }
+
+  #handleNetworkSwitch(payload: { id: string; networkId: string }) {
+    const { networkId } = payload;
+    if (!networkId) return;
+    this.#events.emit('change', {
+      chains: [`sui:${networkId}`],
+    });
   }
 
   #checkError(resData: ResData, func: string) {

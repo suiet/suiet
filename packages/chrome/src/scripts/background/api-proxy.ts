@@ -21,6 +21,11 @@ interface RootApi {
   validateToken: (token: string) => Promise<void>;
 }
 
+export interface BackgroundApiContext {
+  storage: Storage;
+  broadcast: (msg: any) => void;
+}
+
 /**
  * Proxy the port message function call to the actual method
  */
@@ -45,6 +50,19 @@ export class BackgroundApiProxy {
     log('set up listener for port', port);
     this.ports.push(port);
     this.setUpFuncCallProxy(port);
+  }
+
+  private context(): BackgroundApiContext {
+    return {
+      storage: this.storage,
+      broadcast: (msg: any) => {
+        console.log('broadcast', this.ports, msg);
+        if (!msg) return;
+        this.ports.forEach((port) => {
+          port.postMessage(msg);
+        });
+      },
+    };
   }
 
   private initServices() {
@@ -72,7 +90,13 @@ export class BackgroundApiProxy {
       'network'
     );
     this.dapp = this.registerProxyService<DappBgApi>(
-      new DappBgApi(storage, this.txn, this.network, this.auth, this.account),
+      new DappBgApi(
+        this.context(),
+        this.txn,
+        this.network,
+        this.auth,
+        this.account
+      ),
       'dapp'
     );
     this.root = this.registerProxyService<RootApi>(

@@ -8,7 +8,6 @@ import {
   AuthApi,
   Network,
   NetworkApi,
-  Storage,
   TransactionApi,
 } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
@@ -34,6 +33,8 @@ import {
 } from '../../shared/msg-passing/uint8array-passing';
 import { Buffer } from 'buffer';
 import type { WalletAccount } from '@mysten/wallet-standard';
+import { BackgroundApiContext } from '../api-proxy';
+import { BackendEventId } from '../../shared';
 
 interface DappMessage<T> {
   params: T;
@@ -65,7 +66,7 @@ export interface AccountInfo {
 }
 
 export class DappBgApi {
-  storage: Storage;
+  private readonly ctx: BackgroundApiContext;
   chromeStorage: ChromeStorage;
   permManager: PermissionManager;
   txManager: TxRequestManager;
@@ -77,13 +78,13 @@ export class DappBgApi {
   featureFlags: FeatureFlagRes | undefined;
 
   constructor(
-    storage: Storage,
+    context: BackgroundApiContext,
     txApi: TransactionApi,
     networkApi: NetworkApi,
     authApi: AuthApi,
     accountApi: AccountApi
   ) {
-    this.storage = storage;
+    this.ctx = context;
     this.txApi = txApi;
     this.networkApi = networkApi;
     this.authApi = authApi;
@@ -108,7 +109,7 @@ export class DappBgApi {
         'permissions are required for params when connecting'
       );
     }
-    const globalMeta = await this.storage.loadMeta();
+    const globalMeta = await this.ctx.storage.loadMeta();
     if (!globalMeta) {
       const createWalletWindow = this.createPopupWindow('/onboard/welcome');
       await createWalletWindow.show();
@@ -410,6 +411,17 @@ export class DappBgApi {
     }
   }
 
+  // called from ui
+  public async notifyNetworkSwitch(payload: { networkId: string }) {
+    const { networkId } = payload;
+    if (!networkId) return;
+
+    this.ctx.broadcast({
+      id: BackendEventId.NETWORK_SWITCH,
+      networkId,
+    });
+  }
+
   private async promptForTxApproval(params: {
     network: Network;
     walletId: string;
@@ -516,7 +528,7 @@ export class DappBgApi {
     }
     const appContext = await this.getAppContext();
     // get accounts under the active wallet
-    const result = await this.storage.getAccounts(appContext.walletId);
+    const result = await this.ctx.storage.getAccounts(appContext.walletId);
     if (!result) {
       throw new NotFoundError(
         `Accounts not found in wallet (${appContext.walletId})`,
@@ -547,7 +559,7 @@ export class DappBgApi {
   }
 
   private async getActiveAccount(accountId: string): Promise<Account> {
-    const account = await this.storage.getAccount(accountId);
+    const account = await this.ctx.storage.getAccount(accountId);
     if (!account) {
       throw new Error(`cannot find account, id=${accountId}`);
     }

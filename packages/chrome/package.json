@@ -20,6 +20,7 @@
     "@radix-ui/react-dialog": "^1.0.0",
     "@reduxjs/toolkit": "^1.8.5",
     "@suiet/core": "^1.0.0",
+    "@suiet/wallet-kit": "^0.1.3",
     "@wallet-standard/features": "0.1.0-alpha.4",
     "@wallet-standard/standard": "0.1.0-alpha.5",
     "@wallet-standard/util": "0.1.0-alpha.6",
