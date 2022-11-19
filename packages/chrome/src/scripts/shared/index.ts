@@ -53,6 +53,10 @@ export enum WindowMsgTarget {
   SUIET_CONTENT = 'SUIET_CONTENT',
 }
 
+export enum BackendEventId {
+  NETWORK_SWITCH = 'SUIET_NETWORK_SWITCH',
+}
+
 export function reqData<T = any>(
   funcName: string,
   payload: T,

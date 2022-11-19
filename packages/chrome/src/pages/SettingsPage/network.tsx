@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import styles from './network.module.scss';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,7 @@ import { ReactComponent as IconTestnetUnselected } from '../../assets/icons/test
 import { RootState } from '../../store';
 import { useFeatureFlags } from '../../hooks/useFeatureFlags';
 import { isNonEmptyArray } from '../../utils/check';
+import { useApiClient } from '../../hooks/useApiClient';
 
 const networks: Record<
   string,
@@ -50,10 +51,11 @@ const networks: Record<
 
 function Network() {
   const { networkId } = useSelector((state: RootState) => state.appContext);
-  const [network, setNetwork] = useState(networkId);
+  const [network, setNetwork] = useState<string>(networkId);
   const featureFlags = useFeatureFlags();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const apiClient = useApiClient();
   const networkType = useMemo(() => {
     if (
       !featureFlags ||
@@ -79,14 +81,25 @@ function Network() {
       .map((item) => item.network);
   }, [featureFlags]);
 
-  async function handleSave() {
+  const handleSave = useCallback(async () => {
+    if (networkId === network) {
+      setTimeout(() => {
+        message.info(`You are in ${network}`);
+      }, 0);
+      navigate(-1);
+      return;
+    }
+
     await dispatch(updateNetworkId(network));
+    await apiClient.callFunc('dapp.notifyNetworkSwitch', {
+      networkId: network,
+    });
     // avoid toast flashing after navigation
     setTimeout(() => {
       message.success(`Switched to ${network}`);
     }, 0);
     navigate(-1);
-  }
+  }, [network, networkId]);
 
   return (
     <SettingTwoLayout

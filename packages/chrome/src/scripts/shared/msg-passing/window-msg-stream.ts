@@ -54,6 +54,6 @@ export class WindowMsgStream {
   }
 
   public subscribe(func: (data: WindowMsg) => void) {
-    this.msgObservable.subscribe(func);
+    return this.msgObservable.subscribe(func);
   }
 }
