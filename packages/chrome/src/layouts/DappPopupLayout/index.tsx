@@ -29,7 +29,7 @@ const DappPopupLayout = (props: DappPopupLayoutProps) => {
   } = props;
   return (
     <div className={styles['container']}>
-      <div className={styles['content']}>
+      <div className={classnames(styles['content'], 'no-scrollbar')}>
         <header className={styles['header']}>
           {withFavicon(<Avatar model={props.avatarMode} />, {
             src: props.favicon ?? '',

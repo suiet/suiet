@@ -6,7 +6,13 @@ export type SlideWindowProps = Extendable & {};
 
 const SlideWindow = (props: SlideWindowProps) => {
   return (
-    <div className={classnames(styles['slide-window'], props.className)}>
+    <div
+      className={classnames(
+        styles['slide-window'],
+        'scrollbar',
+        props.className
+      )}
+    >
       {props.children}
     </div>
   );

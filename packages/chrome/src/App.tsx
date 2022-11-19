@@ -1,5 +1,5 @@
 import { useRoutes } from 'react-router-dom';
-import './App.css';
+import './App.scss';
 import routesConfig from './routes';
 import './styles/react-toastify.scss';
 import 'react-loading-skeleton/dist/skeleton.css';
