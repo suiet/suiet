@@ -71,7 +71,7 @@ export class TxRequestManager {
     walletId: string;
     address: string;
     data: any;
-    metadata: SuiMoveNormalizedFunction;
+    metadata: SuiMoveNormalizedFunction | null;
   }): Promise<TxRequest> {
     const data = {
       ...params,

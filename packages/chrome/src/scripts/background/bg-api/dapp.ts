@@ -432,15 +432,6 @@ export class DappBgApi {
     name: string;
     favicon: string;
   }) {
-    // load moveCall metadata
-    const metadata = await this.txApi.getNormalizedMoveFunction({
-      network: params.network,
-      functionName: params.txData.function,
-      moduleName: params.txData.module,
-      objectId: params.txData.packageObjectId,
-    });
-    // console.log('metadata', metadata);
-
     const txReq = await this.txManager.createTxRequest({
       walletId: params.walletId,
       address: params.address,
@@ -449,7 +440,7 @@ export class DappBgApi {
       favicon: params.favicon,
       type: params.txType,
       data: params.txData,
-      metadata,
+      metadata: null, // TODO: need to analysis
     });
     const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
