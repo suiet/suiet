@@ -202,7 +202,6 @@ export class QueryProvider {
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistoryEntry[]> {
-    // @ts-expect-error
     const txs = await this.provider.getTransactionsForAddress(address, true); // true for descending order, fix type issue of official sdk v0.15.0
     if (txs.length === 0 || !txs[0]) {
       return [];
@@ -888,7 +887,7 @@ async function executeTransaction(
   requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
 ) {
   try {
-    return await provider.executeTransactionWithRequestType(
+    return provider.executeTransaction(
       txn.data.toString(),
       'ED25519',
       txn.signature.toString('base64'),
