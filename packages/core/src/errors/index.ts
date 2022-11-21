@@ -1,5 +1,6 @@
 export enum ErrorCode {
   UNKNOWN = -1,
+  NO_AUTH = -4001,
   RPC_ERROR = -5000,
   DB_ERROR = -6000,
   META_MISSING_ERROR = -6001,
@@ -48,5 +49,14 @@ export class MetadataMissingError extends DbError {
     details: Record<string, any> = {}
   ) {
     super(message, details, ErrorCode.META_MISSING_ERROR);
+  }
+}
+
+export class NoAuthError extends BizError {
+  constructor(
+    message = 'Authentication failed',
+    details?: Record<string, any>
+  ) {
+    super(message, details, NoAuthError.name, ErrorCode.NO_AUTH);
   }
 }

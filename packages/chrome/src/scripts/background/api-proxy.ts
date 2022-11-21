@@ -49,7 +49,13 @@ export class BackgroundApiProxy {
   public listen(port: chrome.runtime.Port) {
     log('set up listener for port', port);
     this.ports.push(port);
-    this.setUpFuncCallProxy(port);
+    const subscription = this.setUpFuncCallProxy(port);
+    port.onDisconnect.addListener(() => {
+      log('unsubscribe port', port.name);
+      subscription.unsubscribe();
+      const index = this.ports.findIndex((p) => p === port);
+      this.ports.splice(index, 1);
+    });
   }
 
   private context(): BackgroundApiContext {
@@ -133,9 +139,8 @@ export class BackgroundApiProxy {
     );
 
     // set up server-like listening model
-    const subscription = portObservable.subscribe(async (callFuncData) => {
+    return portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
-
       const { id, service, func, payload, options } = callFuncData;
       let error: null | { code: number; msg: string } = null;
       let data: null | any = null;
@@ -147,28 +152,37 @@ export class BackgroundApiProxy {
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
-        logError(e);
-        error = this.detectError(e);
+        error = this.detectError(e); // generate error response
         log(`respond(${reqMeta}) failed`, error);
+
+        if (
+          e instanceof NoAuthError ||
+          (e as BizError)?.code === ErrorCode.NO_AUTH // compatible with core's error
+        ) {
+          // ignore this log
+        } else {
+          logError(e);
+        }
       }
+
       try {
         port.postMessage(resData(id, error, data));
       } catch (e) {
-        console.error(e);
         log(`postMessage(${reqMeta}) failed`, { e, data });
-      }
-    });
 
-    port.onDisconnect.addListener(() => {
-      log('unsubscribe port', port.name);
-      subscription.unsubscribe();
-      const index = this.ports.findIndex((p) => p === port);
-      this.ports.splice(index, 1);
+        if (e instanceof Error) {
+          if (/disconnected/i.test(e.message)) {
+            log(`port (${port.name}) is closed`, { e });
+            return;
+          }
+        }
+        logError(e);
+      }
     });
   }
 
   private detectError(e: any) {
-    if (e instanceof BizError) {
+    if (e instanceof BizError || has(e, 'code')) {
       return {
         code: e.code,
         msg: e.message,
