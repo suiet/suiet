@@ -224,7 +224,7 @@ export class QueryProvider {
         const publish = getPublishTransaction(tx);
         const kind = getTransactionKindName(tx);
         // todo: add PayAllSui, PaySui
-        console.log(transferSui, transferObject, moveCall, pay, kind, tx);
+        // console.log(transferSui, transferObject, moveCall, pay, kind, tx);
         if (kind === 'TransferSui' && transferSui) {
           results.push({
             timestamp_ms: effect.timestamp_ms,
@@ -431,7 +431,7 @@ export class QueryProvider {
       }
       // TODO: What do we need to do if the object is not found?
     }
-    console.log('created', objects);
+    // console.log('created', objects);
     return objects;
   }
 
@@ -483,7 +483,7 @@ export class QueryProvider {
         }
       }
     }
-    console.log('mutated', objects);
+    // console.log('mutated', objects);
     return objects;
   }
 

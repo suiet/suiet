@@ -4,7 +4,7 @@ import { Buffer } from 'buffer';
 import { DATA_VERSION } from '../storage/constants';
 import { generateClientId } from '../utils/clientId';
 import { Vault } from '../vault/Vault';
-import { MetadataMissingError } from '../errors';
+import { MetadataMissingError, NoAuthError } from '../errors';
 
 export type UpdatePasswordParams = {
   oldPassword: string;
@@ -103,7 +103,7 @@ export class AuthApi implements IAuthApi {
   public getToken() {
     const token = this.session.getToken();
     if (!token) {
-      throw new Error('No authentication');
+      throw new NoAuthError();
     }
     return token;
   }
@@ -385,7 +385,7 @@ async function maybeFixDataConsistency(storage: Storage, token: string) {
         continue;
       }
       const res = accountData.hdPath.match(/^m\/44'\/784'\/(\d+)'$/);
-      console.log(res, accountData);
+      // console.log(res, accountData);
       if (res) {
         const path = crypto.derivationHdPath(+res[1]);
         console.debug(

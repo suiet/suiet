@@ -56,7 +56,6 @@ function keepAlive() {
 
   keepAlive();
 
-  // TODO: how can we set up event bridge between ui and content script?
   const bgApiProxy = new BackgroundApiProxy();
   const uiBgBridgeConnection = new ApiBridgeConnection(
     bgApiProxy,
