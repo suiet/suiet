@@ -1,7 +1,7 @@
 {
   "name": "@suiet/chrome-ext",
   "private": true,
-  "version": "0.1.27",
+  "version": "0.1.28",
   "type": "module",
   "scripts": {
     "dev": "run-s build:dapp-api dev:ext",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@crxjs/vite-plugin": "^1.0.13",
     "@hookform/error-message": "^2.0.0",
-    "@mysten/sui.js": "^0.16.0",
+    "@mysten/sui.js": "^0.17.1",
     "@mysten/wallet-standard": "^0.2.1",
     "@radix-ui/react-dialog": "^1.0.0",
     "@reduxjs/toolkit": "^1.8.5",
