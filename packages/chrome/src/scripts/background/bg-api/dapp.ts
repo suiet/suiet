@@ -111,18 +111,20 @@ export class DappBgApi {
     }
     const globalMeta = await this.ctx.storage.loadMeta();
     if (!globalMeta) {
-      const createWalletWindow = this.createPopupWindow('/onboard/welcome');
+      const createWalletWindow = this._createPopupWindow('/onboard/welcome');
       await createWalletWindow.show();
       throw new Error('Wallet not initialized');
     }
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
 
-    const checkRes = await this.checkPermissions(
-      payload.context.origin,
-      payload.params.permissions
-    );
-    if (checkRes.result) return true;
+    try {
+      await this._permissionGuard(
+        payload.context.origin,
+        payload.params.permissions
+      );
+      return true;
+    } catch {}
 
     const permRequest = await this.permManager.createPermRequest({
       permissions: params.permissions,
@@ -134,7 +136,7 @@ export class DappBgApi {
       walletId: appContext.walletId,
       accountId: appContext.accountId,
     });
-    const reqPermWindow = this.createPopupWindow('/dapp/connect', {
+    const reqPermWindow = this._createPopupWindow('/dapp/connect', {
       permReqId: permRequest.id,
     });
     const onWindowCloseObservable = await reqPermWindow.show();
@@ -187,11 +189,22 @@ export class DappBgApi {
   public async getAccountsInfo(
     payload: DappMessage<{}>
   ): Promise<AccountInfo[]> {
+    await this._permissionGuard(payload.context.origin, [
+      Permission.VIEW_ACCOUNT,
+    ]);
     const result = await this._getAccounts(payload);
     return result.map((ac: Account) => ({
       address: ac.address,
       publicKey: ac.pubkey,
     }));
+  }
+
+  public async getActiveNetwork(payload: DappMessage<{}>): Promise<string> {
+    await this._permissionGuard(payload.context.origin, [
+      Permission.VIEW_ACCOUNT,
+    ]);
+    const { networkId } = await this._getAppContext();
+    return networkId;
   }
 
   // TODO: verify permission for wanted account
@@ -205,19 +218,13 @@ export class DappBgApi {
     if (!params?.message) {
       throw new InvalidParamError(`params 'message' required`);
     }
-    const checkRes = await this.checkPermissions(context.origin, [
+    await this._permissionGuard(context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
     ]);
-    if (!checkRes.result) {
-      // TODO: launch request permission window
-      throw new NoPermissionError('No permissions to signMessage', {
-        missingPerms: checkRes.missingPerms,
-      });
-    }
 
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
 
     const signReq = await this.signManager.createSignRequest({
       walletId: appContext.walletId,
@@ -227,7 +234,7 @@ export class DappBgApi {
       favicon: context.favicon,
       data: params.message,
     });
-    const signReqWindow = this.createPopupWindow('/dapp/sign-msg', {
+    const signReqWindow = this._createPopupWindow('/dapp/sign-msg', {
       reqId: signReq.id,
     });
     const onWindowCloseObservable = await signReqWindow.show();
@@ -288,23 +295,15 @@ export class DappBgApi {
     if (!params?.transaction) {
       throw new InvalidParamError('params transaction is required');
     }
-    const checkRes = await this.checkPermissions(context.origin, [
+    await this._permissionGuard(context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
     ]);
-    if (!checkRes.result) {
-      throw new NoPermissionError(
-        'No permission to signAndExecuteTransaction',
-        {
-          missingPerms: checkRes.missingPerms,
-        }
-      );
-    }
 
     const { transaction } = params;
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
-    const network = await this.getNetwork(appContext.networkId);
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
+    const network = await this._getNetwork(appContext.networkId);
 
     const { finalResult } = await this.promptForTxApproval({
       network,
@@ -361,20 +360,14 @@ export class DappBgApi {
     if (!params?.data) {
       throw new InvalidParamError('Transaction params required');
     }
-    const checkRes = await this.checkPermissions(context.origin, [
+    await this._permissionGuard(context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
     ]);
-    if (!checkRes.result) {
-      // TODO: launch request permission window
-      throw new NoPermissionError('No permissions to requestTransaction', {
-        missingPerms: checkRes.missingPerms,
-      });
-    }
 
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
-    const network = await this.getNetwork(appContext.networkId);
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
+    const network = await this._getNetwork(appContext.networkId);
     const { txReq, finalResult } = await this.promptForTxApproval({
       network,
       walletId: appContext.walletId,
@@ -442,7 +435,7 @@ export class DappBgApi {
       data: params.txData,
       metadata: null, // TODO: need to analysis
     });
-    const txReqWindow = this.createPopupWindow('/dapp/tx-approval', {
+    const txReqWindow = this._createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
     });
     const onWindowCloseObservable = await txReqWindow.show();
@@ -482,8 +475,8 @@ export class DappBgApi {
 
   public async hasPermissions(payload: DappMessage<{}>) {
     const { context } = payload;
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
     return await this.permManager.getAllPermissions({
       address: account.address,
       networkId: appContext.networkId,
@@ -492,32 +485,19 @@ export class DappBgApi {
   }
 
   public async getPublicKey(payload: DappMessage<{}>): Promise<number[]> {
-    const { context } = payload;
-    const checkRes = await this.checkPermissions(context.origin, [
+    await this._permissionGuard(payload.context.origin, [
       Permission.VIEW_ACCOUNT,
     ]);
-    if (!checkRes.result) {
-      throw new NoPermissionError('No permission to getAccounts info', {
-        missingPerms: checkRes.missingPerms,
-      });
-    }
 
-    const appContext = await this.getAppContext();
+    const appContext = await this._getAppContext();
     const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
     return uint8arrayToArray(Buffer.from(publicKey.slice(2), 'hex'));
   }
 
   private async _getAccounts(payload: DappMessage<{}>) {
     const { context } = payload;
-    const checkRes = await this.checkPermissions(context.origin, [
-      Permission.VIEW_ACCOUNT,
-    ]);
-    if (!checkRes.result) {
-      throw new NoPermissionError('No permission to getAccounts info', {
-        missingPerms: checkRes.missingPerms,
-      });
-    }
-    const appContext = await this.getAppContext();
+    await this._permissionGuard(context.origin, [Permission.VIEW_ACCOUNT]);
+    const appContext = await this._getAppContext();
     // get accounts under the active wallet
     const result = await this.ctx.storage.getAccounts(appContext.walletId);
     if (!result) {
@@ -531,7 +511,7 @@ export class DappBgApi {
     return result;
   }
 
-  private createPopupWindow(url: string, params?: Record<string, any>) {
+  private _createPopupWindow(url: string, params?: Record<string, any>) {
     const queryStr = new URLSearchParams(params).toString();
     return new PopupWindow(
       chrome.runtime.getURL('index.html#' + url) +
@@ -539,17 +519,22 @@ export class DappBgApi {
     );
   }
 
-  private async checkPermissions(origin: string, perms: string[]) {
-    const appContext = await this.getAppContext();
-    const account = await this.getActiveAccount(appContext.accountId);
-    return await this.permManager.checkPermissions(perms, {
+  private async _permissionGuard(origin: string, perms: string[]) {
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
+    const res = await this.permManager.checkPermissions(perms, {
       address: account.address,
       networkId: appContext.networkId,
       origin,
     });
+    if (!res.result) {
+      throw new NoPermissionError('No permission for the action', {
+        missingPerms: res.missingPerms,
+      });
+    }
   }
 
-  private async getActiveAccount(accountId: string): Promise<Account> {
+  private async _getActiveAccount(accountId: string): Promise<Account> {
     const account = await this.ctx.storage.getAccount(accountId);
     if (!account) {
       throw new Error(`cannot find account, id=${accountId}`);
@@ -557,7 +542,7 @@ export class DappBgApi {
     return account;
   }
 
-  private async getAppContext() {
+  private async _getAppContext() {
     const storageKey = 'persist:root';
     const result = await this.chromeStorage.getItem(storageKey);
     if (!result) {
@@ -574,7 +559,7 @@ export class DappBgApi {
     return appContext;
   }
 
-  private async getNetwork(networkId: string) {
+  private async _getNetwork(networkId: string) {
     const defaultData = await this.networkApi.getNetwork(networkId);
     if (!defaultData) {
       throw new NotFoundError(`network metadata is not found, id=${networkId}`);
