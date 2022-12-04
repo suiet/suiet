@@ -26,6 +26,8 @@ import {
   isSuiObject,
   isSuiObjectRef,
   ObjectId,
+  PaySuiTransaction,
+  PayAllSuiTransaction,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -879,6 +881,18 @@ export class TxProvider {
       gasObjectId
     );
   }
+
+  public async paySui(tx: PaySuiTransaction, vault: Vault) {
+    const data = await this.serializer.newPaySui(vault.getAddress(), tx);
+    const signedTx = await vault.signTransaction({ data });
+    return await executeTransaction(this.provider, signedTx);
+  }
+
+  public async payAllSui(tx: PayAllSuiTransaction, vault: Vault) {
+    const data = await this.serializer.newPayAllSui(vault.getAddress(), tx);
+    const signedTx = await vault.signTransaction({ data });
+    return await executeTransaction(this.provider, signedTx);
+  }
 }
 
 async function executeTransaction(
@@ -887,7 +901,7 @@ async function executeTransaction(
   requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
 ) {
   try {
-    return provider.executeTransaction(
+    return await provider.executeTransaction(
       txn.data.toString(),
       'ED25519',
       txn.signature.toString('base64'),

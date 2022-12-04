@@ -1,6 +1,6 @@
 import { TxnHistoryEntry } from '../storage/types';
 import { Network } from './network';
-import { Provider, QueryProvider } from '../provider';
+import { Provider, QueryProvider, TxProvider } from '../provider';
 import { validateToken } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
@@ -10,6 +10,9 @@ import {
   getCertifiedTransaction,
   getTransactionEffects,
   MoveCallTransaction,
+  PayAllSuiTransaction,
+  PaySuiTransaction,
+  SuiExecuteTransactionResponse,
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
   TransactionEffects,
@@ -78,6 +81,7 @@ export type GetOwnedObjParams = { network: Network; address: string };
 export type GetTxHistoryParams = { network: Network; address: string };
 
 export type CoinObjectDto = {
+  id: string;
   type: 'coin';
   symbol: string;
   balance: string;
@@ -137,7 +141,25 @@ export interface ITransactionApi {
   ) => Promise<SuiMoveNormalizedFunction>;
 
   signMessage: (params: SignMessageParams) => Promise<SignedMessage>;
+
+  paySui: (params: PaySuiParams) => Promise<SuiExecuteTransactionResponse>;
+  payAllSui: (
+    params: PayAllSuiParams
+  ) => Promise<SuiExecuteTransactionResponse>;
 }
+
+export interface TxEssentials {
+  network: Network;
+  walletId: string;
+  accountId: string;
+  token: string;
+}
+export type SendAndExecuteTxParams<T> = {
+  transaction: T;
+  context: TxEssentials;
+};
+export type PaySuiParams = SendAndExecuteTxParams<PaySuiTransaction>;
+export type PayAllSuiParams = SendAndExecuteTxParams<PayAllSuiTransaction>;
 
 export class TransactionApi implements ITransactionApi {
   storage: Storage;
@@ -335,7 +357,28 @@ export class TransactionApi implements ITransactionApi {
     await provider.tx.executeSerializedMoveCall(params.txBytes, vault);
   }
 
-  async prepareVault(walletId: string, accountId: string, token: string) {
+  async signMessage(params: SignMessageParams) {
+    const { walletId, accountId, message, token } = params;
+    const vault = await this.prepareVault(walletId, accountId, token);
+    const signedMsg = await vault.signMessage(message);
+    return signedMsg;
+  }
+
+  async paySui(params: PaySuiParams) {
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    return await provider.paySui(params.transaction, vault);
+  }
+
+  async payAllSui(params: PayAllSuiParams) {
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    return await provider.payAllSui(params.transaction, vault);
+  }
+
+  private async prepareVault(
+    walletId: string,
+    accountId: string,
+    token: string
+  ) {
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet not found');
@@ -352,6 +395,23 @@ export class TransactionApi implements ITransactionApi {
     return vault;
   }
 
+  private async prepareTxEssentials(context: TxEssentials) {
+    await validateToken(this.storage, context.token);
+    const provider = new TxProvider(
+      context.network.queryRpcUrl,
+      context.network.versionCacheTimoutInSeconds
+    );
+    const vault = await this.prepareVault(
+      context.walletId,
+      context.accountId,
+      context.token
+    );
+    return {
+      provider,
+      vault,
+    };
+  }
+
   async getNormalizedMoveFunction(params: GetNormalizedMoveFunctionParams) {
     const { network, objectId, moduleName, functionName } = params;
     const queryProvider = new QueryProvider(
@@ -363,12 +423,5 @@ export class TransactionApi implements ITransactionApi {
       moduleName,
       functionName
     );
-  }
-
-  async signMessage(params: SignMessageParams) {
-    const { walletId, accountId, message, token } = params;
-    const vault = await this.prepareVault(walletId, accountId, token);
-    const signedMsg = await vault.signMessage(message);
-    return signedMsg;
   }
 }

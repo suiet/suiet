@@ -23,18 +23,7 @@ const SignMsgPage = () => {
   const search = useLocationSearch();
   const reqId = search.get('reqId');
   const navigate = useNavigate();
-  const [reqData, setReqData] = useState<SignRequest>({
-    id: '',
-    walletId: '',
-    address: '',
-    data: [],
-    origin: '',
-    name: '',
-    favicon: '',
-    approved: null,
-    createdAt: '',
-    updatedAt: null,
-  });
+  const [reqData, setReqData] = useState<SignRequest>();
   const apiClient = useApiClient();
 
   async function emitApproval(approved: boolean) {
@@ -78,11 +67,12 @@ const SignMsgPage = () => {
     }
   }
 
+  if (!reqData) return null;
   return (
     <DappPopupLayout
-      originTitle={reqData.name}
-      originUrl={reqData.origin}
-      favicon={reqData.favicon}
+      originTitle={reqData.source.name}
+      originUrl={reqData.source.origin}
+      favicon={reqData.source.favicon}
       desc={'asks to sign a message'}
       avatarMode={wallet?.avatar}
       okText={'Sign'}

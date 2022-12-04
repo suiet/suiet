@@ -15,19 +15,15 @@ import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import { useApiClient } from '../../../hooks/useApiClient';
-import { MoveCallTransaction } from '@mysten/sui.js';
-import { unwrapTypeReference } from '../../../utils/sui';
+import { MoveCallTransaction, PayAllSuiTransaction } from '@mysten/sui.js';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import Address from '../../../components/Address';
 import DappPopupLayout from '../../../layouts/DappPopupLayout';
-
-interface MetadataGroup {
-  name: string;
-  children: Array<{ id: string; module: string }>;
-}
-const TX_CONTEXT_TYPE = '0x2::tx_context::TxContext';
-
-// function useTxReqMetadata(metadata: SuiMoveNormalizedFunction) {}
+import { PaySuiTransaction } from '@mysten/sui.js/src/signers/txn-data-serializers/txn-data-serializer';
+import { isNonEmptyArray } from '../../../utils/check';
+import classnames from 'classnames';
+import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
+import { formatCurrency } from '../../../utils/format';
 
 const TxApprovePage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -38,62 +34,10 @@ const TxApprovePage = () => {
   const [txReqData, setTxReqData] = useState<TxRequest>();
   const apiClient = useApiClient();
   const [loading, setLoading] = useState<boolean>(false);
-
-  const metadata = useMemo(() => {
-    if (
-      !txReqData ||
-      txReqData.type !== TxRequestType.MOVE_CALL ||
-      !txReqData.metadata
-    ) {
-      return null;
-    }
-
-    const transfer: MetadataGroup = { name: 'Transfer', children: [] };
-    const modify: MetadataGroup = { name: 'Modify', children: [] };
-    const read: MetadataGroup = { name: 'Read', children: [] };
-    txReqData.metadata.parameters.forEach((param, index) => {
-      if (typeof param !== 'object') return;
-      const id = (txReqData.data as MoveCallTransaction).arguments[
-        index
-      ] as string;
-
-      const unwrappedType = unwrapTypeReference(param);
-      if (!unwrappedType) return;
-
-      const groupedParam = {
-        id,
-        module: `${unwrappedType.address}::${unwrappedType.module}::${unwrappedType.name}`,
-      };
-
-      if ('Struct' in param) {
-        transfer.children.push(groupedParam);
-      } else if ('MutableReference' in param) {
-        // Skip TxContext:
-        if (groupedParam.module === TX_CONTEXT_TYPE) return;
-        modify.children.push(groupedParam);
-      } else if ('Reference' in param) {
-        read.children.push(groupedParam);
-      }
-    });
-
-    if (
-      !transfer.children.length &&
-      !modify.children.length &&
-      !read.children.length
-    ) {
-      return null;
-    }
-
-    return {
-      transfer,
-      modify,
-      read,
-    };
-  }, [txReqData]);
-
-  useEffect(() => {
-    console.log('metadata', metadata);
-  }, [metadata]);
+  const { balance } = useCoinBalance(
+    CoinSymbol.SUI,
+    txReqData?.target.address ?? ''
+  );
 
   async function emitApproval(approved: boolean) {
     if (!txReqData) return;
@@ -111,6 +55,95 @@ const TxApprovePage = () => {
     }
   }
 
+  function renderMetadataForMoveCall(reqData: TxRequest) {
+    return (
+      <div className={styles['detail-item']}>
+        <Typo.Normal className={styles['detail-item__key']}>
+          Function
+        </Typo.Normal>
+        <Typo.Normal className={styles['detail-item__value']}>
+          {(reqData.data as MoveCallTransaction)?.function}
+        </Typo.Normal>
+      </div>
+    );
+  }
+
+  function renderMetadataForPaySui(
+    recipients: string[],
+    amounts: number[],
+    gasBudget: number
+  ) {
+    const totalAmount = amounts.reduce((pre, cur) => pre + cur, 0);
+
+    if (!isNonEmptyArray(recipients)) return null;
+    return (
+      <div
+        className={classnames(
+          styles['detail-item'],
+          styles['detail-item--col']
+        )}
+      >
+        <Typo.Normal className={styles['detail-item__key']}>
+          Transaction Preview
+        </Typo.Normal>
+        <div className={'mt-1'}>
+          <Typo.Normal className={classnames(styles['detail-item__value'])}>
+            Total Payment: {formatCurrency(totalAmount)} SUI
+          </Typo.Normal>
+          <Typo.Normal className={classnames(styles['detail-item__value'])}>
+            Gas Budget: {formatCurrency(gasBudget)} SUI
+          </Typo.Normal>
+          <Typo.Normal
+            className={classnames(
+              styles['detail-item__value'],
+              'flex item-center'
+            )}
+          >
+            Balance: {formatCurrency(balance)} -{'> '}
+            {formatCurrency(Number(balance) - totalAmount - gasBudget)} SUI
+          </Typo.Normal>
+          <div className={classnames(styles['detail-item__value'])}>
+            -----------------------------------
+          </div>
+        </div>
+        {recipients.map((_, i) => {
+          return (
+            <Typo.Normal
+              key={_}
+              className={classnames(
+                styles['detail-item__value'],
+                'flex item-center'
+              )}
+            >
+              <div className={'mr-2'}>To: </div>
+              {formatCurrency(amounts[i])}
+              <div className={'mx-2'}>SUI -{'> '}</div>
+              <Address value={recipients[i]} hideCopy={true} />
+            </Typo.Normal>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function renderMetadata() {
+    if (!txReqData) return null;
+    if (txReqData.type === 'moveCall') {
+      return renderMetadataForMoveCall(txReqData);
+    }
+    if (txReqData.type === 'paySui') {
+      const { recipients, amounts, gasBudget } =
+        txReqData.data as PaySuiTransaction;
+      return renderMetadataForPaySui(recipients, amounts, gasBudget);
+    }
+    if (txReqData.type === 'payAllSui') {
+      const { recipient, gasBudget } = txReqData.data as PayAllSuiTransaction;
+      const payAllSuiAmount = txReqData.metadata?.payAllSuiAmount ?? 0;
+      return renderMetadataForPaySui([recipient], [payAllSuiAmount], gasBudget);
+    }
+    return null;
+  }
+
   useEffect(() => {
     (async function () {
       if (!txReqId) {
@@ -120,22 +153,25 @@ const TxApprovePage = () => {
       }
       const txReqStorage = new TxRequestStorage();
       const reqData = await txReqStorage.get(txReqId);
+      console.log('reqData', reqData);
       if (!reqData) {
         message.error('cannot find txReq data!');
         sleep(3000).then(() => navigate('/'));
         return;
       }
+      console.log('txReqData', reqData);
       setTxReqData(reqData);
     })();
   }, [txReqId]);
 
+  if (!txReqData) return null;
   return (
     <DappPopupLayout
-      originTitle={txReqData?.name ?? ''}
       desc={'wants to make a transaction from'}
-      originUrl={txReqData?.origin ?? ''}
+      originTitle={txReqData.source.name}
+      originUrl={txReqData.source.origin}
+      favicon={txReqData.source.favicon}
       avatarMode={wallet?.avatar}
-      favicon={txReqData?.favicon ?? ''}
       okText={'Approve'}
       onOk={() => {
         emitApproval(true);
@@ -144,6 +180,7 @@ const TxApprovePage = () => {
       onCancel={() => {
         emitApproval(false);
       }}
+      loading={loading}
     >
       <Tabs className={styles['tabs']}>
         <TabList>
@@ -152,33 +189,34 @@ const TxApprovePage = () => {
           </Tab>
         </TabList>
 
-        <TabPanel className={'mt-[24px]'}>
+        <TabPanel className={'mt-[8px]'}>
           <div className={styles['detail-item']}>
             <Typo.Normal className={styles['detail-item__key']}>
-              Wallet
+              Account
             </Typo.Normal>
             <Address
-              value={txReqData?.address ?? ''}
+              value={txReqData.target.address}
               className={styles['detail-item__value']}
               hideCopy={true}
             />
           </div>
           <div className={styles['detail-item']}>
             <Typo.Normal className={styles['detail-item__key']}>
-              Transaction Type
+              Network
             </Typo.Normal>
             <Typo.Normal className={styles['detail-item__value']}>
-              {txReqData?.type}
+              {txReqData.networkId}
             </Typo.Normal>
           </div>
           <div className={styles['detail-item']}>
             <Typo.Normal className={styles['detail-item__key']}>
-              Function
+              Transaction Type
             </Typo.Normal>
             <Typo.Normal className={styles['detail-item__value']}>
-              {(txReqData?.data as MoveCallTransaction)?.function}
+              {txReqData.type}
             </Typo.Normal>
           </div>
+          {renderMetadata()}
         </TabPanel>
       </Tabs>
     </DappPopupLayout>
