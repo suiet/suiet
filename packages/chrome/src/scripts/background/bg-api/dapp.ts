@@ -35,35 +35,24 @@ import { Buffer } from 'buffer';
 import type { WalletAccount } from '@mysten/wallet-standard';
 import { BackgroundApiContext } from '../api-proxy';
 import { BackendEventId } from '../../shared';
+import {
+  AccountInfo,
+  Approval,
+  DappConnectionContext,
+  DappMessage,
+  DappSourceContext,
+} from '../types';
 
-interface DappMessage<T> {
-  params: T;
-  context: {
-    origin: string;
-    name: string;
-    favicon: string;
-  };
+export enum CoinSymbol {
+  SUI = 'SUI',
 }
-
 export enum ApprovalType {
   PERMISSION = 'PERMISSION',
   TRANSACTION = 'TRANSACTION',
   SIGN_MSG = 'SIGN_MSG',
 }
 
-export interface Approval {
-  id: string;
-  type: ApprovalType;
-  approved: boolean;
-  updatedAt: string;
-}
-
 const approvalSubject: Subject<Approval> = new Subject<Approval>();
-
-export interface AccountInfo {
-  address: string;
-  publicKey: string;
-}
 
 export class DappBgApi {
   private readonly ctx: BackgroundApiContext;
@@ -103,8 +92,7 @@ export class DappBgApi {
       permissions: string[];
     }>
   ): Promise<boolean> {
-    const { params, context } = payload;
-    if (!isNonEmptyArray(params?.permissions)) {
+    if (!isNonEmptyArray(payload.params?.permissions)) {
       throw new InvalidParamError(
         'permissions are required for params when connecting'
       );
@@ -115,9 +103,6 @@ export class DappBgApi {
       await createWalletWindow.show();
       throw new Error('Wallet not initialized');
     }
-    const appContext = await this._getAppContext();
-    const account = await this._getActiveAccount(appContext.accountId);
-
     try {
       await this._permissionGuard(
         payload.context.origin,
@@ -126,16 +111,15 @@ export class DappBgApi {
       return true;
     } catch {}
 
-    const permRequest = await this.permManager.createPermRequest({
-      permissions: params.permissions,
-      name: context.name,
-      origin: context.origin,
-      favicon: context.favicon,
-      address: account.address,
-      networkId: appContext.networkId,
-      walletId: appContext.walletId,
-      accountId: appContext.accountId,
-    });
+    const connectionContext = await this._prepareConnectionContext(
+      payload.context
+    );
+    const permRequest = await this.permManager.createPermRequest(
+      {
+        permissions: payload.params.permissions,
+      },
+      connectionContext
+    );
     const reqPermWindow = this._createPopupWindow('/dapp/connect', {
       permReqId: permRequest.id,
     });
@@ -214,26 +198,23 @@ export class DappBgApi {
     signature: number[];
     signedMessage: number[];
   }> {
-    const { params, context } = payload;
-    if (!params?.message) {
+    if (!payload.params?.message) {
       throw new InvalidParamError(`params 'message' required`);
     }
-    await this._permissionGuard(context.origin, [
+    await this._permissionGuard(payload.context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
     ]);
 
-    const appContext = await this._getAppContext();
-    const account = await this._getActiveAccount(appContext.accountId);
-
-    const signReq = await this.signManager.createSignRequest({
-      walletId: appContext.walletId,
-      address: account.address,
-      origin: context.origin,
-      name: context.name,
-      favicon: context.favicon,
-      data: params.message,
-    });
+    const connectionContext = await this._prepareConnectionContext(
+      payload.context
+    );
+    const signReq = await this.signManager.createSignRequest(
+      {
+        data: payload.params.message,
+      },
+      connectionContext
+    );
     const signReqWindow = this._createPopupWindow('/dapp/sign-msg', {
       reqId: signReq.id,
     });
@@ -278,57 +259,74 @@ export class DappBgApi {
     const token = this.authApi.getToken();
     const result = await this.txApi.signMessage({
       token,
-      message: arrayToUint8array(params.message),
-      walletId: appContext.walletId,
-      accountId: appContext.accountId,
+      message: arrayToUint8array(payload.params.message),
+      walletId: connectionContext.target.walletId,
+      accountId: connectionContext.target.accountId,
     });
     return {
       signature: uint8arrayToArray(result.signature),
-      signedMessage: params.message,
+      signedMessage: payload.params.message,
     };
   }
 
   public async signAndExecuteTransaction(
     payload: DappMessage<{ transaction: SignableTransaction }>
   ) {
-    const { params, context } = payload;
-    if (!params?.transaction) {
+    if (!payload.params?.transaction) {
       throw new InvalidParamError('params transaction is required');
     }
-    await this._permissionGuard(context.origin, [
+    await this._permissionGuard(payload.context.origin, [
       Permission.VIEW_ACCOUNT,
       Permission.SUGGEST_TX,
     ]);
 
-    const { transaction } = params;
-    const appContext = await this._getAppContext();
-    const account = await this._getActiveAccount(appContext.accountId);
-    const network = await this._getNetwork(appContext.networkId);
+    const connectionCtx = await this._prepareConnectionContext(payload.context);
+    await this._transactionGuard(payload.params.transaction, connectionCtx);
 
-    const { finalResult } = await this.promptForTxApproval({
-      network,
-      walletId: appContext.walletId,
-      address: account.address,
-      txType: transaction.kind,
-      txData: transaction.data,
-      favicon: context.favicon,
-      name: context.name,
-      origin: context.origin,
-    });
+    const { transaction } = payload.params;
+    const network = await this._getNetwork(connectionCtx.networkId);
+    const txMetadata = await this._transactionMetadata(
+      transaction,
+      connectionCtx
+    );
+    const { finalResult } = await this.promptForTxApproval(
+      {
+        txType: transaction.kind,
+        txData: transaction.data,
+        metadata: txMetadata,
+      },
+      connectionCtx
+    );
     if (!finalResult.approved) {
       throw new UserRejectionError();
     }
 
     const token = this.authApi.getToken();
+    const txContext = {
+      token,
+      network,
+      walletId: connectionCtx.target.walletId,
+      accountId: connectionCtx.target.accountId,
+    };
     // TODO: support other transaction type
     switch (transaction.kind) {
       case 'moveCall':
         return await this.txApi.executeMoveCall({
           token,
           network,
-          walletId: appContext.walletId,
-          accountId: appContext.accountId,
+          walletId: connectionCtx.target.walletId,
+          accountId: connectionCtx.target.accountId,
           tx: transaction.data,
+        });
+      case 'paySui':
+        return await this.txApi.paySui({
+          transaction: transaction.data,
+          context: txContext,
+        });
+      case 'payAllSui':
+        return await this.txApi.payAllSui({
+          transaction: transaction.data,
+          context: txContext,
         });
       default:
         throw new Error(
@@ -365,19 +363,15 @@ export class DappBgApi {
       Permission.SUGGEST_TX,
     ]);
 
-    const appContext = await this._getAppContext();
-    const account = await this._getActiveAccount(appContext.accountId);
-    const network = await this._getNetwork(appContext.networkId);
-    const { txReq, finalResult } = await this.promptForTxApproval({
-      network,
-      walletId: appContext.walletId,
-      address: account.address,
-      txType: params.type,
-      txData: params.data,
-      favicon: context.favicon,
-      name: context.name,
-      origin: context.origin,
-    });
+    const connectionCtx = await this._prepareConnectionContext(payload.context);
+    const network = await this._getNetwork(connectionCtx.networkId);
+    const { txReq, finalResult } = await this.promptForTxApproval(
+      {
+        txType: params.type,
+        txData: params.data,
+      },
+      connectionCtx
+    );
     if (!finalResult.approved) {
       throw new UserRejectionError();
     }
@@ -386,8 +380,8 @@ export class DappBgApi {
       const response = await this.txApi.executeMoveCall({
         network,
         token,
-        walletId: appContext.walletId,
-        accountId: appContext.accountId,
+        walletId: connectionCtx.target.walletId,
+        accountId: connectionCtx.target.accountId,
         tx: params.data,
       });
       await this.txManager.storeTxRequest({
@@ -415,26 +409,22 @@ export class DappBgApi {
     });
   }
 
-  private async promptForTxApproval(params: {
-    network: Network;
-    walletId: string;
-    address: string;
-    txType: string;
-    txData: any;
-    origin: string;
-    name: string;
-    favicon: string;
-  }) {
-    const txReq = await this.txManager.createTxRequest({
-      walletId: params.walletId,
-      address: params.address,
-      origin: params.origin,
-      name: params.name,
-      favicon: params.favicon,
-      type: params.txType,
-      data: params.txData,
-      metadata: null, // TODO: need to analysis
-    });
+  private async promptForTxApproval(
+    params: {
+      txType: string;
+      txData: any;
+      metadata?: any;
+    },
+    connectionContext: DappConnectionContext
+  ) {
+    const txReq = await this.txManager.createTxRequest(
+      {
+        type: params.txType,
+        data: params.txData,
+        metadata: params.metadata ?? null, // TODO: need to analysis
+      },
+      connectionContext
+    );
     const txReqWindow = this._createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
     });
@@ -534,6 +524,61 @@ export class DappBgApi {
     }
   }
 
+  private async _transactionGuard(
+    tx: SignableTransaction,
+    context: DappConnectionContext
+  ) {
+    const network = await this._getNetwork(context.networkId);
+    const coinBalanceList = await this.txApi.getCoinsBalance({
+      network,
+      address: context.target.address,
+    });
+    const sui = coinBalanceList.find((item) => item.symbol === CoinSymbol.SUI);
+    if (!sui) {
+      throw new Error('SUI balance is insufficient to pay for gasBudget');
+    }
+    if (tx.kind !== 'bytes') {
+      if (+sui.balance < tx.data.gasBudget) {
+        throw new Error('SUI balance is insufficient to pay for gasBudget');
+      }
+    }
+    // if (tx.kind === 'paySui') {
+    //   if (
+    //     +sui.balance <
+    //     tx.data.gasBudget + tx.data.amounts.reduce((c, r) => c + r, 0)
+    //   ) {
+    //     throw new Error(
+    //       'SUI balance is insufficient to pay for amount + gasBudget'
+    //     );
+    //   }
+    // }
+  }
+
+  private async _transactionMetadata(
+    tx: SignableTransaction,
+    context: DappConnectionContext
+  ) {
+    if (tx.kind === 'payAllSui') {
+      const network = await this._getNetwork(context.networkId);
+      const coinObjList = await this.txApi.getOwnedCoins({
+        network,
+        address: context.target.address,
+      });
+      const suiToPayList = coinObjList.filter(
+        (obj) =>
+          obj.symbol === CoinSymbol.SUI && tx.data.inputCoins.includes(obj.id)
+      );
+      const payAllSuiAmount = suiToPayList.reduce(
+        (p, c) => p + Number(c.balance),
+        0
+      );
+      return {
+        payAllSuiAmount,
+      };
+    }
+    return null;
+  }
+
   private async _getActiveAccount(accountId: string): Promise<Account> {
     const account = await this.ctx.storage.getAccount(accountId);
     if (!account) {
@@ -581,5 +626,21 @@ export class DappBgApi {
         currentNetworkConfig.version_cache_timout_in_seconds,
     };
     return overrideData;
+  }
+
+  private async _prepareConnectionContext(
+    sourceCtx: DappSourceContext
+  ): Promise<DappConnectionContext> {
+    const appContext = await this._getAppContext();
+    const account = await this._getActiveAccount(appContext.accountId);
+    return {
+      source: sourceCtx,
+      target: {
+        address: account.address,
+        walletId: appContext.walletId,
+        accountId: appContext.accountId,
+      },
+      networkId: appContext.networkId,
+    };
   }
 }

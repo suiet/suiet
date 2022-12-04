@@ -64,13 +64,14 @@ const ConnectPage = () => {
     })();
   }, [permReqId]);
 
+  if (!permReqData) return null;
   return (
     <DappPopupLayout
-      originTitle={permReqData?.name ?? ''}
+      originTitle={permReqData.source.name}
       desc={'wants to connect to'}
-      originUrl={permReqData?.origin ?? ''}
+      originUrl={permReqData.source.origin}
       avatarMode={wallet?.avatar}
-      favicon={permReqData?.favicon ?? ''}
+      favicon={permReqData.source.favicon}
       okText={'Connect'}
       onOk={() => {
         emitApproval(true);
@@ -86,7 +87,7 @@ const ConnectPage = () => {
             This app will be available to:
           </Typo.Normal>
           {isNonEmptyArray(permReqData?.permissions)
-            ? (permReqData as PermRequest).permissions.map((item) => (
+            ? permReqData.permissions.map((item) => (
                 <div key={item} className={styles['perm-item']}>
                   <Icon
                     className={styles['perm-item-icon']}

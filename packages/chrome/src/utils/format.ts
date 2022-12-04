@@ -49,7 +49,7 @@ export function fullyFormatCurrency(amount: number | string) {
 function formatSmallCurrency(amount: number | string) {
   const _amount = Number(amount) / 1e9;
 
-  if (_amount === 0) {
+  if (_amount <= 0) {
     return '0';
   }
 

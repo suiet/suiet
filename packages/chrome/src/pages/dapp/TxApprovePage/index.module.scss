@@ -55,8 +55,13 @@
   justify-content: space-between;
   align-items: center;
 
+  &--col {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   & + & {
-    margin-top: 16px;
+    margin-top: 8px;
   }
 
   &__key {

@@ -13,6 +13,7 @@ describe('addressEllipsis', function () {
 
 describe('currency display', function () {
   test('less than 7 digits, show original', () => {
+    expect(formatCurrency('-1')).toEqual('0');
     expect(formatCurrency('0')).toEqual('0');
     expect(formatCurrency('9000000000')).toEqual('9');
     expect(formatCurrency('99000000000')).toEqual('99');
@@ -39,6 +40,7 @@ describe('currency display', function () {
 
 describe('fullyFormatCurrency', function () {
   test('less than 7 digits, show original', () => {
+    expect(fullyFormatCurrency('-1')).toEqual('0');
     expect(fullyFormatCurrency('0')).toEqual('0');
     expect(fullyFormatCurrency('9000000000')).toEqual('9');
     expect(fullyFormatCurrency('99000000000')).toEqual('99');

@@ -2,13 +2,10 @@ import { ChromeStorage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
 import { has } from 'lodash-es';
-import { DappBaseRequest } from './permission';
+import { DappBaseRequest, DappConnectionContext } from './types';
 
 export interface SignRequest extends DappBaseRequest {
   data: number[];
-  approved: boolean | null;
-  createdAt: string;
-  updatedAt: string | null;
 }
 
 export class SignRequestStorage {
@@ -58,15 +55,14 @@ export class SignRequestManager {
     this.storage = new SignRequestStorage();
   }
 
-  async createSignRequest(params: {
-    origin: string;
-    name: string;
-    favicon: string;
-    walletId: string;
-    address: string;
-    data: number[];
-  }): Promise<SignRequest> {
+  async createSignRequest(
+    params: {
+      data: number[];
+    },
+    connectionContext: DappConnectionContext
+  ): Promise<SignRequest> {
     const data = {
+      ...connectionContext,
       ...params,
       id: uuidv4(),
       createdAt: new Date().toISOString(),

@@ -1,24 +1,14 @@
 import { ChromeStorage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
+import { DappBaseRequest, DappConnectionContext } from './types';
 
 export enum Permission {
   VIEW_ACCOUNT = 'viewAccount',
   SUGGEST_TX = 'suggestTransactions',
 }
 
-export interface DappBaseRequest {
-  id: string;
-  name: string;
-  origin: string;
-  favicon: string;
-  address: string;
-  walletId: string;
-}
-
 export interface PermRequest extends DappBaseRequest {
-  networkId: string;
-  accountId: string;
   permissions: string[];
   approved: boolean | null;
   createdAt: string;
@@ -104,17 +94,14 @@ export class PermissionManager {
     return resData;
   }
 
-  async createPermRequest(params: {
-    origin: string;
-    name: string;
-    favicon: string;
-    address: string;
-    networkId: string;
-    walletId: string;
-    accountId: string;
-    permissions: string[];
-  }): Promise<PermRequest> {
+  async createPermRequest(
+    params: {
+      permissions: string[];
+    },
+    context: DappConnectionContext
+  ): Promise<PermRequest> {
     const permRequest = {
+      ...context,
       ...params,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
@@ -140,8 +127,11 @@ export class PermissionManager {
     return Object.values(storeMap).filter((permData) => {
       return (
         permData.approved === true &&
-        permData.origin === authInfo.origin &&
-        permData.address === authInfo.address &&
+        // contain legacy compatible logics
+        (permData.source?.origin || (permData as any).origin) ===
+          authInfo.origin &&
+        (permData.target?.address || (permData as any).address) ===
+          authInfo.address &&
         permData.networkId === authInfo.networkId
       );
     });
