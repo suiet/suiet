@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import storage from './storage';
+import { clearAddressMemoryCache } from '../hooks/useAccount';
 
 export interface AppContextState {
   initialized: boolean;
@@ -30,6 +31,7 @@ export const resetAppContext = createAsyncThunk(
     await thunkApi.dispatch(updateWalletId(''));
     await thunkApi.dispatch(updateNetworkId(''));
     await storage.clear();
+    clearAddressMemoryCache();
   }
 );
 

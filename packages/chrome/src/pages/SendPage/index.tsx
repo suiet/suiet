@@ -26,6 +26,7 @@ import { formatCurrency } from '../../utils/format';
 import AppLayout from '../../layouts/AppLayout';
 import { mutate } from 'swr';
 import { swrKey as swrKeyForUseCoins } from '../../hooks/useCoins';
+import { SUI_TYPE_ARG } from '@mysten/sui.js';
 
 interface SendFormValues {
   address: string;
@@ -77,7 +78,7 @@ const SendPage = () => {
         'txn.transferCoin',
         {
           network,
-          symbol: CoinSymbol.SUI,
+          coinType: SUI_TYPE_ARG,
           amount: Math.ceil(data.amount * 1e9),
           recipient: data.address,
           walletId: appContext.walletId,

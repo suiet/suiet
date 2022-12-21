@@ -10,6 +10,10 @@ import { isNonEmptyArray } from '../utils/check';
 // memory cache variable, mapping accountId -> address
 const _addressMemoryCache_ = new Map<string, string>();
 
+export function clearAddressMemoryCache() {
+  _addressMemoryCache_.clear();
+}
+
 export async function getAddress(
   apiClient: BackgroundApiClient,
   params: OmitToken<GetAddressParams>
@@ -17,11 +21,12 @@ export async function getAddress(
   // console.log('getAddress params', params);
   if (isNonEmptyArray(params.batchAccountIds)) {
     // batch mode
+    const batchAccountIds = params.batchAccountIds as string[];
     const cachedResult: any[] = [];
     const needFetchIdMap: Map<string, { index: number; id: string }> =
       new Map();
-    for (let i = 0; i < params.batchAccountIds.length; i++) {
-      const accountId = params.batchAccountIds[i];
+    for (let i = 0; i < batchAccountIds.length; i++) {
+      const accountId = batchAccountIds[i];
       const result = _addressMemoryCache_.get(accountId);
       cachedResult.push(result); // could be string or undefined
       // check how many uncached address for accountId
@@ -67,13 +72,14 @@ export async function getAddress(
     return cachedResult;
   }
 
+  const accountId = params.accountId as string;
   // single mode
-  if (_addressMemoryCache_.has(params.accountId)) {
+  if (_addressMemoryCache_.has(accountId)) {
     // console.log(
     //   'getAddress all from cache',
     //   _addressMemoryCache_.get(params.accountId)
     // );
-    return _addressMemoryCache_.get(params.accountId) as string;
+    return _addressMemoryCache_.get(accountId) as string;
   }
   const address = await apiClient.callFunc<OmitToken<GetAddressParams>, string>(
     'account.getAddress',
@@ -86,7 +92,7 @@ export async function getAddress(
   );
   // console.log('getAddress from api', address);
   // add in cache
-  _addressMemoryCache_.set(params.accountId, address);
+  _addressMemoryCache_.set(accountId, address);
   return address;
 }
 
