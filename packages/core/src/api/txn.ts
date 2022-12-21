@@ -18,6 +18,7 @@ import {
   TransactionEffects,
 } from '@mysten/sui.js';
 import { SignedMessage } from '../vault/types';
+import { RpcError } from '../errors';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -35,7 +36,7 @@ export type CoinPackageIdPair = {
 };
 
 export type TransferCoinParams = {
-  symbol: string;
+  coinType: string;
   amount: number;
   recipient: string;
   network: Network;
@@ -117,7 +118,9 @@ export type SignMessageParams = {
 
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
-  transferCoin: (params: TransferCoinParams) => Promise<void>;
+  transferCoin: (
+    params: TransferCoinParams
+  ) => Promise<SuiExecuteTransactionResponse>;
   transferObject: (params: TransferObjectParams) => Promise<void>;
   getTransactionHistory: (
     params: GetTxHistoryParams
@@ -172,7 +175,9 @@ export class TransactionApi implements ITransactionApi {
     return Array.from(DEFAULT_SUPPORTED_COINS.values());
   }
 
-  async transferCoin(params: TransferCoinParams): Promise<void> {
+  async transferCoin(
+    params: TransferCoinParams
+  ): Promise<SuiExecuteTransactionResponse> {
     await validateToken(this.storage, params.token);
     const provider = new Provider(
       params.network.queryRpcUrl,
@@ -184,13 +189,24 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    await provider.transferCoin(
-      params.symbol,
-      params.amount,
+    const res = await provider.transferCoin(
+      params.coinType,
+      BigInt(params.amount),
       params.recipient,
       vault,
       params.network.payCoinGasBudget
     );
+    if (!res) {
+      throw new RpcError('no response');
+    }
+    const statusResult = (res as any)?.EffectsCert?.effects?.effects?.status;
+    if (!statusResult) {
+      throw new RpcError('invalid transaction status response');
+    }
+    if (statusResult.status === 'failure') {
+      throw new RpcError(statusResult.error || 'Unknown transaction error');
+    }
+    return res;
   }
 
   async transferObject(params: TransferObjectParams): Promise<void> {

@@ -10,7 +10,6 @@ import {
   getMoveObject,
   MoveCallTransaction,
   SuiTransactionKind,
-  Base64DataBuffer,
   getMoveCallTransaction,
   getTransactionKindName,
   getPublishTransaction,
@@ -18,9 +17,7 @@ import {
   PayAllSui,
   OwnedObjectRef,
   LocalTxnDataSerializer,
-  ExecuteTransactionRequestType,
   Coin as CoinAPI,
-  SUI_TYPE_ARG,
   getPayTransaction,
   SuiObjectRef,
   isSuiObject,
@@ -28,14 +25,16 @@ import {
   ObjectId,
   PaySuiTransaction,
   PayAllSuiTransaction,
+  RawSigner,
+  SignableTransaction,
+  SuiExecuteTransactionResponse,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
-import { SignedTx } from './vault/types';
 import { Vault } from './vault/Vault';
-import { RpcError } from './errors';
 import { isNonEmptyArray } from './utils';
 import { JsonRpcClient } from './client';
+import { createKeypair } from './utils/vault';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
@@ -54,36 +53,26 @@ export class Provider {
   }
 
   async transferCoin(
-    symbol: string,
-    amount: number,
+    coinType: string,
+    amount: bigint,
     recipient: string,
     vault: Vault,
     gasBudgetForPay?: number
   ) {
     const coins = (await this.query.getOwnedCoins(vault.getAddress())).filter(
-      (coin) => coin.symbol === symbol
+      (coin) => CoinAPI.getCoinTypeArg(coin.object) === coinType
     );
     if (coins.length === 0) {
       throw new Error('No coin to transfer');
     }
-
-    if (symbol === GAS_SYMBOL) {
-      await this.tx.transferSui(
-        coins,
-        amount,
-        recipient,
-        vault,
-        gasBudgetForPay
-      );
-    } else {
-      await this.tx.transferCoin(
-        coins,
-        amount,
-        recipient,
-        vault,
-        gasBudgetForPay
-      );
-    }
+    return await this.tx.transferCoin(
+      coins,
+      coinType,
+      amount,
+      recipient,
+      vault,
+      gasBudgetForPay
+    );
   }
 
   async transferObject(
@@ -712,142 +701,43 @@ export class TxProvider {
     vault: Vault,
     gasBudgest?: number
   ) {
-    const data = await this.serializer.newTransferObject(vault.getAddress(), {
-      objectId,
-      gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET_FOR_TRANSFER,
-      recipient,
-    });
-    const signedTx = await vault.signTransaction({ data });
-    // TODO: handle response
-    await executeTransaction(this.provider, signedTx);
+    return await this.signAndExecuteTransaction(
+      {
+        kind: 'transferObject',
+        data: {
+          objectId,
+          gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET_FOR_TRANSFER,
+          recipient,
+        },
+      },
+      vault
+    );
   }
 
   public async transferCoin(
     coins: CoinObject[],
-    amount: number,
+    coinType: string, // such as 0x2::sui::SUI
+    amount: bigint,
     recipient: string,
     vault: Vault,
     gasBudgetForPay?: number
   ) {
-    const objects = coins.map((coin) => coin.object);
-    const inputCoins =
-      await CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-        objects,
-        BigInt(amount)
-      );
-    if (inputCoins.length === 0) {
-      const totalBalance = CoinAPI.totalBalance(objects);
-      throw new Error(
-        `Coin balance ${totalBalance.toString()} is not sufficient to cover the transfer amount ` +
-          `${amount.toString()}. Try reducing the transfer amount to ${totalBalance}.`
-      );
-    }
-    const inputCoinIDs = inputCoins.map((c) => CoinAPI.getID(c));
-    const gasBudget = Coin.estimatedGasCostForPay(
-      inputCoins.length,
-      gasBudgetForPay
+    const allCoins = coins.map((c) => c.object);
+    const allCoinsOfTransferType = allCoins.filter(
+      (c) => CoinAPI.getCoinTypeArg(c) === coinType
     );
-    const data = await this.serializer.newPay(vault.getAddress(), {
-      inputCoins: inputCoinIDs,
-      recipients: [recipient],
-      amounts: [Number(amount)],
-      gasBudget,
-    });
+    const gasBudget =
+      gasBudgetForPay ??
+      Coin.computeGasBudgetForPay(allCoinsOfTransferType, amount);
 
-    // TODO: select gas payment object?
-    const signedTx = await vault.signTransaction({ data });
-    // TODO: handle response
-    await executeTransaction(this.provider, signedTx);
-  }
-
-  public async transferSui(
-    coins: CoinObject[],
-    amount: number,
-    recipient: string,
-    vault: Vault,
-    gasBudgetForPay?: number
-  ) {
-    const address = vault.getAddress();
-    const actualAmount = BigInt(amount + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI);
-    const objects = coins.map((coin) => coin.object);
-    const coinsWithSufficientAmount =
-      await CoinAPI.selectCoinsWithBalanceGreaterThanOrEqual(
-        objects,
-        actualAmount
-      );
-    if (coinsWithSufficientAmount.length > 0) {
-      const data = await this.serializer.newPaySui(address, {
-        inputCoins: [CoinAPI.getID(coinsWithSufficientAmount[0])],
-        gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
-        recipients: [recipient],
-        amounts: [Number(amount)],
-      });
-      const signedTx = await vault.signTransaction({ data });
-      // TODO: handle response
-      await executeTransaction(this.provider, signedTx);
-      return;
-    }
-    // If there is not a coin with sufficient balance, use the pay API
-    const gasCostForPay = Coin.estimatedGasCostForPay(
-      coins.length,
-      gasBudgetForPay
+    const payTx = await Coin.newPayTransaction(
+      allCoins,
+      coinType,
+      amount,
+      recipient,
+      gasBudget
     );
-    let inputCoins = await Coin.assertAndGetSufficientCoins(
-      objects,
-      BigInt(amount),
-      gasCostForPay
-    );
-
-    if (inputCoins.length === coins.length) {
-      // We need to pay for an additional `transferSui` transaction now, assert that we have sufficient balance
-      // to cover the additional cost
-      await Coin.assertAndGetSufficientCoins(
-        objects,
-        BigInt(amount),
-        gasCostForPay + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI
-      );
-
-      // Split the gas budget from the coin with largest balance for simplicity. We can also use any coin
-      // that has amount greater than or equal to `DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI * 2`
-      const coinWithLargestBalance = inputCoins[inputCoins.length - 1];
-
-      if (
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        CoinAPI.getBalance(coinWithLargestBalance)! <
-        gasCostForPay + DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI
-      ) {
-        throw new Error(
-          `None of the coins has sufficient balance to cover gas fee`
-        );
-      }
-
-      const data = await this.serializer.newTransferSui(address, {
-        suiObjectId: CoinAPI.getID(coinWithLargestBalance),
-        gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI,
-        recipient,
-        amount: gasCostForPay,
-      });
-      const signedTx = await vault.signTransaction({ data });
-      // TODO: handle response
-      await executeTransaction(this.provider, signedTx);
-
-      inputCoins =
-        await this.provider.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-          address,
-          BigInt(amount),
-          SUI_TYPE_ARG,
-          []
-        );
-    }
-    const data = await this.serializer.newPay(address, {
-      inputCoins: inputCoins.map((c) => CoinAPI.getID(c)),
-      recipients: [recipient],
-      amounts: [Number(amount)],
-      gasBudget: gasCostForPay,
-    });
-    const signedTx = await vault.signTransaction({ data });
-    // TODO: handle response
-    await executeTransaction(this.provider, signedTx);
+    return await this.signAndExecuteTransaction(payTx, vault);
   }
 
   public async executeMoveCall(
@@ -855,23 +745,28 @@ export class TxProvider {
     vault: Vault,
     gasObjectId: string | undefined
   ) {
-    const address = vault.getAddress();
     const _tx = { ...tx };
     if (!_tx.gasPayment) {
       _tx.gasPayment = gasObjectId;
     }
-    const data = await this.serializer.newMoveCall(address, _tx);
-    const signedTx = await vault.signTransaction({ data });
-    // TODO: handle response
-    return await executeTransaction(this.provider, signedTx);
+
+    return await this.signAndExecuteTransaction(
+      {
+        kind: 'moveCall',
+        data: tx,
+      },
+      vault
+    );
   }
 
   public async executeSerializedMoveCall(txBytes: Uint8Array, vault: Vault) {
-    const signedTx = await vault.signTransaction({
-      data: new Base64DataBuffer(txBytes),
-    });
-    // TODO: handle response
-    await executeTransaction(this.provider, signedTx);
+    return await this.signAndExecuteTransaction(
+      {
+        kind: 'bytes',
+        data: txBytes,
+      },
+      vault
+    );
   }
 
   public async mintExampleNft(vault: Vault, gasObjectId: string | undefined) {
@@ -883,32 +778,31 @@ export class TxProvider {
   }
 
   public async paySui(tx: PaySuiTransaction, vault: Vault) {
-    const data = await this.serializer.newPaySui(vault.getAddress(), tx);
-    const signedTx = await vault.signTransaction({ data });
-    return await executeTransaction(this.provider, signedTx);
+    return await this.signAndExecuteTransaction(
+      {
+        kind: 'paySui',
+        data: tx,
+      },
+      vault
+    );
   }
 
   public async payAllSui(tx: PayAllSuiTransaction, vault: Vault) {
-    const data = await this.serializer.newPayAllSui(vault.getAddress(), tx);
-    const signedTx = await vault.signTransaction({ data });
-    return await executeTransaction(this.provider, signedTx);
-  }
-}
-
-async function executeTransaction(
-  provider: JsonRpcProvider,
-  txn: SignedTx,
-  requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
-) {
-  try {
-    return await provider.executeTransaction(
-      txn.data.toString(),
-      'ED25519',
-      txn.signature.toString('base64'),
-      txn.pubKey.toString('base64'),
-      requestType
+    return await this.signAndExecuteTransaction(
+      {
+        kind: 'payAllSui',
+        data: tx,
+      },
+      vault
     );
-  } catch (e: any) {
-    throw new RpcError(e.message);
+  }
+
+  private async signAndExecuteTransaction(
+    tx: SignableTransaction,
+    vault: Vault
+  ): Promise<SuiExecuteTransactionResponse> {
+    const keypair = createKeypair(vault);
+    const signer = new RawSigner(keypair, this.provider, this.serializer);
+    return await signer.signAndExecuteTransaction(tx);
   }
 }
