@@ -524,6 +524,7 @@ export class DappBgApi {
         throw new Error('SUI balance is insufficient to pay for gasBudget');
       }
     }
+    // TODO: set balance guard for pay & paySui & payAllSui
     // if (tx.kind === 'paySui') {
     //   if (
     //     +sui.balance <
