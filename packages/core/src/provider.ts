@@ -38,6 +38,140 @@ import { createKeypair } from './utils/vault';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
+export function getPaySuiTransaction(
+  data: SuiTransactionKind
+): PaySui | undefined {
+  return 'PaySui' in data ? data.PaySui : undefined;
+}
+
+export function getPayAllSuiTransaction(
+  data: SuiTransactionKind
+): PayAllSui | undefined {
+  return 'PayAllSui' in data ? data.PayAllSui : undefined;
+}
+
+type PastObjectStatus =
+  | 'VersionFound'
+  | 'ObjectNotExists'
+  | 'ObjectDeleted'
+  | 'VersionNotFound'
+  | 'VersionTooHigh';
+
+type GetPastObjectDataResponse = {
+  status: PastObjectStatus;
+  details:
+    | SuiObject
+    | ObjectId
+    | SuiObjectRef
+    | [string, number]
+    | SuiPastVersionTooHigh;
+};
+
+export function getVersionFoundResponse(
+  resp: GetPastObjectDataResponse
+): SuiObject | undefined {
+  return resp.status === 'VersionFound'
+    ? (resp.details as SuiObject)
+    : undefined;
+}
+
+export function getObjectNotExistsResponse(
+  resp: GetPastObjectDataResponse
+): ObjectId | undefined {
+  return resp.status === 'ObjectNotExists'
+    ? (resp.details as ObjectId)
+    : undefined;
+}
+
+export function getObjectDeletedResponse(
+  resp: GetPastObjectDataResponse
+): SuiObjectRef | undefined {
+  return resp.status === 'ObjectDeleted'
+    ? (resp.details as SuiObjectRef)
+    : undefined;
+}
+
+export function getVersionNotFoundResponse(
+  resp: GetPastObjectDataResponse
+): [string, number] | undefined {
+  return resp.status === 'VersionNotFound'
+    ? (resp.details as [string, number])
+    : undefined;
+}
+
+export function getVersionTooHighResponse(
+  resp: GetPastObjectDataResponse
+): SuiPastVersionTooHigh | undefined {
+  return resp.status === 'VersionTooHigh'
+    ? (resp.details as SuiPastVersionTooHigh)
+    : undefined;
+}
+
+type SuiPastVersionTooHigh = {
+  object_id: string;
+  asked_version: number;
+  latest_version: number;
+};
+
+export function isGetPastObjectDataResponse(
+  obj: any,
+  _argumentName?: string
+): obj is GetPastObjectDataResponse {
+  return (
+    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
+    isPastObjectStatus(obj.status) &&
+    (isSuiObject(obj.details) ||
+      typeof obj.details === 'string' ||
+      isSuiObjectRef(obj.details) ||
+      isSuiPastVersionTooHigh(obj.details) ||
+      (Array.isArray(obj.details) &&
+        obj.details.length === 2 &&
+        typeof obj.details[0] === 'string' &&
+        typeof obj.details[1] === 'number'))
+  );
+}
+
+export function isPastObjectStatus(
+  obj: any,
+  _argumentName?: string
+): obj is PastObjectStatus {
+  return (
+    obj === 'VersionFound' ||
+    obj === 'ObjectNotExists' ||
+    obj === 'ObjectDeleted' ||
+    obj === 'VersionNotFound' ||
+    obj === 'VersionTooHigh'
+  );
+}
+
+export function isSuiPastVersionTooHigh(
+  obj: any,
+  _argumentName?: string
+): obj is SuiPastVersionTooHigh {
+  return (
+    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
+    typeof obj.object_id === 'string' &&
+    typeof obj.asked_version === 'number' &&
+    typeof obj.latest_version === 'number'
+  );
+}
+
+export const DEFAULT_GAS_BUDGET = 2000;
+
+export interface ExampleNftMetadata {
+  name: string;
+  desc: string;
+  imageUrl: string;
+}
+// use getter to avoid variable be modified somewhere
+export const createMintExampleNftMoveCall = (metadata: ExampleNftMetadata) => ({
+  packageObjectId: '0x2',
+  module: 'devnet_nft',
+  function: 'mint',
+  typeArguments: [],
+  arguments: [metadata?.name, metadata?.desc, metadata?.imageUrl],
+  gasBudget: DEFAULT_GAS_BUDGET,
+});
 
 export class Provider {
   query: QueryProvider;
@@ -90,29 +224,20 @@ export class Provider {
     await this.tx.transferObject(objectId, recipient, vault, gasBudget);
   }
 
-  async mintExampleNft(vault: Vault, gasBudget?: number) {
-    const moveCall = MINT_EXAMPLE_NFT_MOVE_CALL();
-    moveCall.gasBudget = gasBudget ?? moveCall.gasBudget;
-    const gasObject = await this.query.getGasObject(
-      vault.getAddress(),
-      moveCall.gasBudget
-    );
-    await this.tx.mintExampleNft(
-      vault,
-      gasObject ? gasObject.objectId : undefined
-    );
-  }
-
   async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
     const gasObject = await this.query.getGasObject(
       vault.getAddress(),
-      MINT_EXAMPLE_NFT_MOVE_CALL().gasBudget
+      DEFAULT_GAS_BUDGET // FIXME: hard coded
     );
     return await this.tx.executeMoveCall(
       tx,
       vault,
       gasObject ? gasObject.objectId : undefined
     );
+  }
+
+  async mintExampleNft(metadata: ExampleNftMetadata, vault: Vault) {
+    await this.executeMoveCall(createMintExampleNftMoveCall(metadata), vault);
   }
 }
 
@@ -169,9 +294,12 @@ export class QueryProvider {
   ): Promise<CoinObject | undefined> {
     // TODO: Try to merge coins in this case if gas object is undefined.
     const coins = await this.getOwnedCoins(address);
-    return coins
-      .filter((coin) => coin.symbol === GAS_SYMBOL)
-      .find((coin) => coin.balance >= gasBudget);
+
+    const coin = CoinAPI.selectCoinWithBalanceGreaterThanOrEqual(
+      coins.map((c) => c.object),
+      BigInt(gasBudget)
+    );
+    return Coin.getCoinObject(coin as SuiMoveObject);
   }
 
   public async getOwnedNfts(address: string): Promise<NftObject[]> {
@@ -542,145 +670,6 @@ export class QueryProvider {
   }
 }
 
-export function getPaySuiTransaction(
-  data: SuiTransactionKind
-): PaySui | undefined {
-  return 'PaySui' in data ? data.PaySui : undefined;
-}
-
-export function getPayAllSuiTransaction(
-  data: SuiTransactionKind
-): PayAllSui | undefined {
-  return 'PayAllSui' in data ? data.PayAllSui : undefined;
-}
-
-type PastObjectStatus =
-  | 'VersionFound'
-  | 'ObjectNotExists'
-  | 'ObjectDeleted'
-  | 'VersionNotFound'
-  | 'VersionTooHigh';
-
-type GetPastObjectDataResponse = {
-  status: PastObjectStatus;
-  details:
-    | SuiObject
-    | ObjectId
-    | SuiObjectRef
-    | [string, number]
-    | SuiPastVersionTooHigh;
-};
-
-export function getVersionFoundResponse(
-  resp: GetPastObjectDataResponse
-): SuiObject | undefined {
-  return resp.status === 'VersionFound'
-    ? (resp.details as SuiObject)
-    : undefined;
-}
-
-export function getObjectNotExistsResponse(
-  resp: GetPastObjectDataResponse
-): ObjectId | undefined {
-  return resp.status === 'ObjectNotExists'
-    ? (resp.details as ObjectId)
-    : undefined;
-}
-
-export function getObjectDeletedResponse(
-  resp: GetPastObjectDataResponse
-): SuiObjectRef | undefined {
-  return resp.status === 'ObjectDeleted'
-    ? (resp.details as SuiObjectRef)
-    : undefined;
-}
-
-export function getVersionNotFoundResponse(
-  resp: GetPastObjectDataResponse
-): [string, number] | undefined {
-  return resp.status === 'VersionNotFound'
-    ? (resp.details as [string, number])
-    : undefined;
-}
-
-export function getVersionTooHighResponse(
-  resp: GetPastObjectDataResponse
-): SuiPastVersionTooHigh | undefined {
-  return resp.status === 'VersionTooHigh'
-    ? (resp.details as SuiPastVersionTooHigh)
-    : undefined;
-}
-
-type SuiPastVersionTooHigh = {
-  object_id: string;
-  asked_version: number;
-  latest_version: number;
-};
-
-export function isGetPastObjectDataResponse(
-  obj: any,
-  _argumentName?: string
-): obj is GetPastObjectDataResponse {
-  return (
-    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
-    isPastObjectStatus(obj.status) &&
-    (isSuiObject(obj.details) ||
-      typeof obj.details === 'string' ||
-      isSuiObjectRef(obj.details) ||
-      isSuiPastVersionTooHigh(obj.details) ||
-      (Array.isArray(obj.details) &&
-        obj.details.length === 2 &&
-        typeof obj.details[0] === 'string' &&
-        typeof obj.details[1] === 'number'))
-  );
-}
-
-export function isPastObjectStatus(
-  obj: any,
-  _argumentName?: string
-): obj is PastObjectStatus {
-  return (
-    obj === 'VersionFound' ||
-    obj === 'ObjectNotExists' ||
-    obj === 'ObjectDeleted' ||
-    obj === 'VersionNotFound' ||
-    obj === 'VersionTooHigh'
-  );
-}
-
-export function isSuiPastVersionTooHigh(
-  obj: any,
-  _argumentName?: string
-): obj is SuiPastVersionTooHigh {
-  return (
-    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
-    typeof obj.object_id === 'string' &&
-    typeof obj.asked_version === 'number' &&
-    typeof obj.latest_version === 'number'
-  );
-}
-
-export const DEFAULT_GAS_BUDGET_FOR_SPLIT = 2000;
-export const DEFAULT_GAS_BUDGET_FOR_MERGE = 1000;
-export const DEFAULT_GAS_BUDGET_FOR_TRANSFER = 100;
-export const DEFAULT_GAS_BUDGET_FOR_TRANSFER_SUI = 100;
-export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
-export const GAS_SYMBOL = 'SUI';
-export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
-// use getter to avoid variable be modified somewhere
-export const MINT_EXAMPLE_NFT_MOVE_CALL = () => ({
-  packageObjectId: '0x2',
-  module: 'devnet_nft',
-  function: 'mint',
-  typeArguments: [],
-  arguments: [
-    'Suiet NFT',
-    'An NFT created by Suiet',
-    'https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4',
-  ],
-  gasBudget: 10000,
-});
-
 export class TxProvider {
   provider: JsonRpcProvider;
   serializer: LocalTxnDataSerializer;
@@ -706,7 +695,7 @@ export class TxProvider {
         kind: 'transferObject',
         data: {
           objectId,
-          gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET_FOR_TRANSFER,
+          gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET,
           recipient,
         },
       },
@@ -766,14 +755,6 @@ export class TxProvider {
         data: txBytes,
       },
       vault
-    );
-  }
-
-  public async mintExampleNft(vault: Vault, gasObjectId: string | undefined) {
-    await this.executeMoveCall(
-      MINT_EXAMPLE_NFT_MOVE_CALL(),
-      vault,
-      gasObjectId
     );
   }
 

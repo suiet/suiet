@@ -14,6 +14,7 @@ export interface FeatureFlagRes {
   networks: Record<string, FeatureFlagNetwork>;
   require_update: boolean;
   default_network: string;
+  campaign: Record<string, any>;
 }
 
 // const mockData: FeatureFlagRes = {

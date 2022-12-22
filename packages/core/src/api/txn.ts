@@ -1,6 +1,11 @@
 import { TxnHistoryEntry } from '../storage/types';
 import { Network } from './network';
-import { Provider, QueryProvider, TxProvider } from '../provider';
+import {
+  ExampleNftMetadata,
+  Provider,
+  QueryProvider,
+  TxProvider,
+} from '../provider';
 import { validateToken } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
@@ -61,6 +66,7 @@ export type MintNftParams = {
   walletId: string;
   accountId: string;
   token: string;
+  metadata: ExampleNftMetadata;
 };
 
 export type SerializedMoveCallParams = {
@@ -319,10 +325,7 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    await provider.mintExampleNft(
-      vault,
-      params.network.mintExampleNftGasBudget
-    );
+    await provider.mintExampleNft(params.metadata, vault);
   }
 
   async executeMoveCall(

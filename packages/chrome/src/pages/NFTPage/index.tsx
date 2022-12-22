@@ -18,6 +18,7 @@ import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useState } from 'react';
 import { ReactComponent as GiftIcon } from '../../assets/icons/gift.svg';
+import { useMintNftCampaign } from './hooks/useMintNftCampaign';
 
 function MainPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -37,6 +38,7 @@ function MainPage() {
     address,
     appContext.networkId
   );
+  const mintNftCampaign = useMintNftCampaign();
 
   async function mintSampleNFT() {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
@@ -51,6 +53,7 @@ function MainPage() {
       await apiClient.callFunc<OmitToken<MintNftParams>, undefined>(
         'txn.mintExampleNft',
         {
+          metadata: mintNftCampaign,
           network,
           walletId: appContext.walletId,
           accountId: appContext.accountId,
