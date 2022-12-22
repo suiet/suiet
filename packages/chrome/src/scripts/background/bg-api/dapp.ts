@@ -308,31 +308,10 @@ export class DappBgApi {
       walletId: connectionCtx.target.walletId,
       accountId: connectionCtx.target.accountId,
     };
-    // TODO: support other transaction type
-    switch (transaction.kind) {
-      case 'moveCall':
-        return await this.txApi.executeMoveCall({
-          token,
-          network,
-          walletId: connectionCtx.target.walletId,
-          accountId: connectionCtx.target.accountId,
-          tx: transaction.data,
-        });
-      case 'paySui':
-        return await this.txApi.paySui({
-          transaction: transaction.data,
-          context: txContext,
-        });
-      case 'payAllSui':
-        return await this.txApi.payAllSui({
-          transaction: transaction.data,
-          context: txContext,
-        });
-      default:
-        throw new Error(
-          `transaction type is not supported, kind=${transaction.kind}`
-        );
-    }
+    return await this.txApi.signAndExecuteTransaction({
+      transaction,
+      context: txContext,
+    });
   }
 
   /**
@@ -376,13 +355,16 @@ export class DappBgApi {
       throw new UserRejectionError();
     }
     const token = this.authApi.getToken();
+    const txContext = {
+      token,
+      network,
+      walletId: connectionCtx.target.walletId,
+      accountId: connectionCtx.target.accountId,
+    };
     try {
       const response = await this.txApi.executeMoveCall({
-        network,
-        token,
-        walletId: connectionCtx.target.walletId,
-        accountId: connectionCtx.target.accountId,
-        tx: params.data,
+        transaction: params.data,
+        context: txContext,
       });
       await this.txManager.storeTxRequest({
         ...txReq,

@@ -12,6 +12,8 @@ import {
   MoveCallTransaction,
   PayAllSuiTransaction,
   PaySuiTransaction,
+  PayTransaction,
+  SignableTransaction,
   SuiExecuteTransactionResponse,
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
@@ -61,14 +63,6 @@ export type MintNftParams = {
   token: string;
 };
 
-export type MoveCallParams = {
-  network: Network;
-  walletId: string;
-  accountId: string;
-  token: string;
-  tx: MoveCallTransaction;
-};
-
 export type SerializedMoveCallParams = {
   network: Network;
   walletId: string;
@@ -116,6 +110,18 @@ export type SignMessageParams = {
   token: string;
 };
 
+export interface TxEssentials {
+  network: Network;
+  walletId: string;
+  accountId: string;
+  token: string;
+}
+export type SendAndExecuteTxParams<T> = {
+  transaction: T;
+  context: TxEssentials;
+};
+export type MoveCallParams = SendAndExecuteTxParams<MoveCallTransaction>;
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -145,24 +151,10 @@ export interface ITransactionApi {
 
   signMessage: (params: SignMessageParams) => Promise<SignedMessage>;
 
-  paySui: (params: PaySuiParams) => Promise<SuiExecuteTransactionResponse>;
-  payAllSui: (
-    params: PayAllSuiParams
+  signAndExecuteTransaction: (
+    params: SendAndExecuteTxParams<SignableTransaction>
   ) => Promise<SuiExecuteTransactionResponse>;
 }
-
-export interface TxEssentials {
-  network: Network;
-  walletId: string;
-  accountId: string;
-  token: string;
-}
-export type SendAndExecuteTxParams<T> = {
-  transaction: T;
-  context: TxEssentials;
-};
-export type PaySuiParams = SendAndExecuteTxParams<PaySuiTransaction>;
-export type PayAllSuiParams = SendAndExecuteTxParams<PayAllSuiTransaction>;
 
 export class TransactionApi implements ITransactionApi {
   storage: Storage;
@@ -336,18 +328,14 @@ export class TransactionApi implements ITransactionApi {
   async executeMoveCall(
     params: MoveCallParams
   ): Promise<SuiTransactionResponse> {
-    await validateToken(this.storage, params.token);
-    const provider = new Provider(
-      params.network.queryRpcUrl,
-      params.network.txRpcUrl,
-      params.network.versionCacheTimoutInSeconds
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    const response = await provider.signAndExecuteTransaction(
+      {
+        kind: 'moveCall',
+        data: params.transaction,
+      },
+      vault
     );
-    const vault = await this.prepareVault(
-      params.walletId,
-      params.accountId,
-      params.token
-    );
-    const response = await provider.executeMoveCall(params.tx, vault);
     return {
       certificate: getCertifiedTransaction(response) as CertifiedTransaction,
       effects: getTransactionEffects(response) as TransactionEffects,
@@ -380,14 +368,11 @@ export class TransactionApi implements ITransactionApi {
     return signedMsg;
   }
 
-  async paySui(params: PaySuiParams) {
+  async signAndExecuteTransaction(
+    params: SendAndExecuteTxParams<SignableTransaction>
+  ) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
-    return await provider.paySui(params.transaction, vault);
-  }
-
-  async payAllSui(params: PayAllSuiParams) {
-    const { provider, vault } = await this.prepareTxEssentials(params.context);
-    return await provider.payAllSui(params.transaction, vault);
+    return await provider.signAndExecuteTransaction(params.transaction, vault);
   }
 
   private async prepareVault(
