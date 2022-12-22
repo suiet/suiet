@@ -777,27 +777,7 @@ export class TxProvider {
     );
   }
 
-  public async paySui(tx: PaySuiTransaction, vault: Vault) {
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'paySui',
-        data: tx,
-      },
-      vault
-    );
-  }
-
-  public async payAllSui(tx: PayAllSuiTransaction, vault: Vault) {
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'payAllSui',
-        data: tx,
-      },
-      vault
-    );
-  }
-
-  private async signAndExecuteTransaction(
+  public async signAndExecuteTransaction(
     tx: SignableTransaction,
     vault: Vault
   ): Promise<SuiExecuteTransactionResponse> {
