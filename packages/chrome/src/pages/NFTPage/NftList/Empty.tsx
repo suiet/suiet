@@ -10,6 +10,10 @@ import styles from './empty.module.scss';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { OmitToken } from '../../../types';
+import {
+  defaultNftMetadata,
+  useMintNftCampaign,
+} from '../hooks/useMintNftCampaign';
 
 export type EmptyProps = {
   onMintSuccess: () => void;
@@ -41,6 +45,7 @@ export default function Empty(props: EmptyProps) {
       await apiClient.callFunc<OmitToken<MintNftParams>, undefined>(
         'txn.mintExampleNft',
         {
+          metadata: defaultNftMetadata,
           network,
           walletId: appContext.walletId,
           accountId: appContext.accountId,
