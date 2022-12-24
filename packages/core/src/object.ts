@@ -189,7 +189,7 @@ export type NftObject = {
 
 export class Nft {
   public static isNft(obj: SuiMoveObject) {
-    if (obj.fields.name && obj.fields.url) {
+    if (obj.fields.url) {
       return true;
     } else if (obj.fields.metadata) {
       return true;
@@ -203,8 +203,8 @@ export class Nft {
   ): NftObject {
     return {
       objectId: obj.fields.id.id,
-      name: obj.fields.name,
-      description: obj.fields?.description,
+      name: obj.fields?.name ?? 'No Title',
+      description: obj.fields?.description ?? 'No Description',
       url: obj.fields.url,
       previousTransaction,
       objectType: obj.type,
