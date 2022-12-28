@@ -38,11 +38,12 @@ export interface AccountInfo {
   publicKey: string;
 }
 
+export interface DappMessageContext {
+  origin: string;
+  name: string;
+  favicon: string;
+}
 export interface DappMessage<T> {
   params: T;
-  context: {
-    origin: string;
-    name: string;
-    favicon: string;
-  };
+  context: DappMessageContext;
 }

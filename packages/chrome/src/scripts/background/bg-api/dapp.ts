@@ -11,7 +11,7 @@ import {
   TransactionApi,
 } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
-import { Permission, PermissionManager } from '../permission';
+import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
 import {
   MoveCallTransaction,
   SignableTransaction,
@@ -20,6 +20,7 @@ import {
 import { TxRequestManager, TxRequestType } from '../transaction';
 import {
   InvalidParamError,
+  InvalidPermissionTypeError,
   NoPermissionError,
   NotFoundError,
   UserRejectionError,
@@ -40,6 +41,7 @@ import {
   Approval,
   DappConnectionContext,
   DappMessage,
+  DappMessageContext,
   DappSourceContext,
 } from '../types';
 
@@ -103,63 +105,10 @@ export class DappBgApi {
       await createWalletWindow.show();
       throw new Error('Wallet not initialized');
     }
-    try {
-      await this._permissionGuard(
-        payload.context.origin,
-        payload.params.permissions
-      );
-      return true;
-    } catch {}
-
-    const connectionContext = await this._prepareConnectionContext(
+    return await this._launchPermissionApprovalFlow(
+      payload.params.permissions,
       payload.context
     );
-    const permRequest = await this.permManager.createPermRequest(
-      {
-        permissions: payload.params.permissions,
-      },
-      connectionContext
-    );
-    const reqPermWindow = this._createPopupWindow('/dapp/connect', {
-      permReqId: permRequest.id,
-    });
-    const onWindowCloseObservable = await reqPermWindow.show();
-    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
-      map(async () => {
-        return {
-          ...permRequest,
-          approved: false,
-          updatedAt: new Date().toISOString(),
-        };
-      })
-    );
-    const onApprovalObservable = approvalSubject.asObservable().pipe(
-      filter((result) => {
-        return (
-          result.type === ApprovalType.PERMISSION &&
-          result.id === permRequest.id
-        );
-      }),
-      map((result) => {
-        return {
-          ...permRequest,
-          approved: result.approved,
-          updatedAt: result.updatedAt,
-        };
-      })
-    );
-
-    // monitor the window close event & user action
-    const finalResult = await firstValueFrom(
-      race(onFallbackDenyObservable, onApprovalObservable).pipe(
-        take(1),
-        tap(async () => {
-          await reqPermWindow.close();
-        })
-      )
-    );
-    await this.permManager.setPermission(finalResult);
-    return finalResult.approved;
   }
 
   // get callback from ui extension
@@ -309,7 +258,13 @@ export class DappBgApi {
       accountId: connectionCtx.target.accountId,
     };
     return await this.txApi.signAndExecuteTransaction({
-      transaction,
+      transaction:
+        transaction.kind === 'bytes'
+          ? {
+              kind: 'bytes',
+              data: arrayToUint8array(transaction.data as any), // hack logic for chrome messaging type conversion
+            }
+          : transaction,
       context: txContext,
     });
   }
@@ -445,15 +400,31 @@ export class DappBgApi {
     return { txReq, finalResult };
   }
 
-  public async hasPermissions(payload: DappMessage<{}>) {
-    const { context } = payload;
-    const appContext = await this._getAppContext();
-    const account = await this._getActiveAccount(appContext.accountId);
-    return await this.permManager.getAllPermissions({
-      address: account.address,
-      networkId: appContext.networkId,
-      origin: context.origin,
-    });
+  public async hasPermissions(
+    payload: DappMessage<{
+      permissions: string[];
+    }>
+  ): Promise<boolean> {
+    try {
+      await this._permissionGuard(
+        payload.context.origin,
+        payload.params.permissions
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public async requestPermissions(
+    payload: DappMessage<{
+      permissions: string[];
+    }>
+  ): Promise<boolean> {
+    return await this._launchPermissionApprovalFlow(
+      payload.params.permissions,
+      payload.context
+    );
   }
 
   public async getPublicKey(payload: DappMessage<{}>): Promise<number[]> {
@@ -464,6 +435,69 @@ export class DappBgApi {
     const appContext = await this._getAppContext();
     const publicKey = await this.accountApi.getPublicKey(appContext.accountId);
     return uint8arrayToArray(Buffer.from(publicKey.slice(2), 'hex'));
+  }
+
+  private async _launchPermissionApprovalFlow(
+    permissions: string[],
+    context: DappMessageContext
+  ) {
+    try {
+      await this._permissionGuard(context.origin, permissions);
+      return true;
+    } catch (e) {
+      if (e instanceof InvalidPermissionTypeError) {
+        throw e;
+      }
+      // else goes on
+    }
+
+    const connectionContext = await this._prepareConnectionContext(context);
+    const permRequest = await this.permManager.createPermRequest(
+      {
+        permissions: permissions,
+      },
+      connectionContext
+    );
+    const reqPermWindow = this._createPopupWindow('/dapp/connect', {
+      permReqId: permRequest.id,
+    });
+    const onWindowCloseObservable = await reqPermWindow.show();
+    const onFallbackDenyObservable = onWindowCloseObservable.pipe(
+      map(async () => {
+        return {
+          ...permRequest,
+          approved: false,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+    const onApprovalObservable = approvalSubject.asObservable().pipe(
+      filter((result) => {
+        return (
+          result.type === ApprovalType.PERMISSION &&
+          result.id === permRequest.id
+        );
+      }),
+      map((result) => {
+        return {
+          ...permRequest,
+          approved: result.approved,
+          updatedAt: result.updatedAt,
+        };
+      })
+    );
+
+    // monitor the window close event & user action
+    const finalResult = await firstValueFrom(
+      race(onFallbackDenyObservable, onApprovalObservable).pipe(
+        take(1),
+        tap(async () => {
+          await reqPermWindow.close();
+        })
+      )
+    );
+    await this.permManager.setPermission(finalResult);
+    return finalResult.approved;
   }
 
   private async _getAccounts(payload: DappMessage<{}>) {
@@ -492,6 +526,18 @@ export class DappBgApi {
   }
 
   private async _permissionGuard(origin: string, perms: string[]) {
+    const invalidPerms = perms.filter(
+      (p) => !ALL_PERMISSIONS.includes(p as Permission)
+    );
+    if (isNonEmptyArray(invalidPerms)) {
+      throw new InvalidPermissionTypeError(
+        'Params include invalid permission type',
+        {
+          invalidPerms,
+        }
+      );
+    }
+
     const appContext = await this._getAppContext();
     const account = await this._getActiveAccount(appContext.accountId);
     const res = await this.permManager.checkPermissions(perms, {

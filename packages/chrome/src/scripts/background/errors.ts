@@ -5,6 +5,7 @@ export enum ErrorCode {
   NO_PERMISSION = -4003,
   NOT_FOUND = -4004,
   USER_REJECTION = -4005,
+  INVALID_PERMISSION_TYPE = -4006,
   RPC_ERROR = -5000,
 }
 
@@ -49,6 +50,15 @@ export class InvalidPortMessageDataError extends InvalidParamError {
 
 export class NoPermissionError extends BizError {
   constructor(message = 'No permission', details?: Record<string, any>) {
+    super(message, details, NoPermissionError.name, ErrorCode.NO_PERMISSION);
+  }
+}
+
+export class InvalidPermissionTypeError extends BizError {
+  constructor(
+    message = 'Invalid permission type',
+    details?: Record<string, any>
+  ) {
     super(message, details, NoPermissionError.name, ErrorCode.NO_PERMISSION);
   }
 }

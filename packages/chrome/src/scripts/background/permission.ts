@@ -8,6 +8,8 @@ export enum Permission {
   SUGGEST_TX = 'suggestTransactions',
 }
 
+export const ALL_PERMISSIONS = Object.values(Permission);
+
 export interface PermRequest extends DappBaseRequest {
   permissions: string[];
   approved: boolean | null;
