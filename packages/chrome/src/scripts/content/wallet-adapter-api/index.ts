@@ -1,10 +1,6 @@
 import { WindowMsgStream } from '../../shared/msg-passing/window-msg-stream';
 import { reqData, WindowMsgTarget } from '../../shared';
-import {
-  MoveCallTransaction,
-  SuiAddress,
-  SuiTransactionResponse,
-} from '@mysten/sui.js';
+import { MoveCallTransaction, SuiAddress } from '@mysten/sui.js';
 import { TxRequestType } from '../../background/transaction';
 import { IWindowSuietApi } from '@suiet/wallet-adapter';
 import { Permission } from '../../background/permission';
@@ -44,30 +40,43 @@ export class DAppInterface implements IWindowSuietApi {
     return await this.windowMsgStream.post(reqData('handwave', null));
   }
 
-  // @ts-expect-error
   async hasPermissions(permissions: readonly string[]) {
-    throw new Error('function not implemented yet');
-  }
-
-  // @ts-expect-error
-  async requestPermissions() {
-    throw new Error('function not implemented yet');
-  }
-
-  async executeMoveCall(transaction: MoveCallTransaction) {
     return await this.windowMsgStream.post(
-      reqData('dapp.requestTransaction', {
-        type: TxRequestType.MOVE_CALL,
-        data: transaction,
+      reqData('dapp.hasPermissions', {
+        permissions,
       })
     );
   }
 
-  // @ts-expect-error
-  async executeSerializedMoveCall(
-    transactionBytes: Uint8Array
-  ): Promise<SuiTransactionResponse> {
-    throw new Error('function not implemented yet');
+  async requestPermissions(permissions: readonly string[]) {
+    return await this.windowMsgStream.post(
+      reqData('dapp.requestPermissions', {
+        permissions,
+      })
+    );
+  }
+
+  async executeMoveCall(transaction: MoveCallTransaction) {
+    return await this.windowMsgStream.post(
+      reqData('dapp.signAndExecuteTransaction', {
+        transaction: {
+          kind: TxRequestType.MOVE_CALL,
+          data: transaction,
+        },
+      })
+    );
+  }
+
+  async executeSerializedMoveCall(transactionBytes: Uint8Array) {
+    const txBytesArray = uint8arrayToArray(transactionBytes);
+    return await this.windowMsgStream.post(
+      reqData('dapp.signAndExecuteTransaction', {
+        transaction: {
+          kind: TxRequestType.SERIALIZED_MOVE_CALL,
+          data: txBytesArray,
+        },
+      })
+    );
   }
 
   async getAccounts() {

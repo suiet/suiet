@@ -9,7 +9,7 @@ import { DappBaseRequest, DappConnectionContext } from './types';
 
 export enum TxRequestType {
   MOVE_CALL = 'moveCall',
-  SERIALIZED_MOVE_CALL = 'SERIALIZED_MOVE_CALL',
+  SERIALIZED_MOVE_CALL = 'bytes',
 }
 
 export interface TxRequest extends DappBaseRequest {

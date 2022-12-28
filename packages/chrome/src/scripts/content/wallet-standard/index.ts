@@ -1,5 +1,4 @@
 import {
-  SUI_CHAINS,
   SUI_DEVNET_CHAIN,
   SUI_TESTNET_CHAIN,
   type EventsFeature,
@@ -32,7 +31,6 @@ import {
   WindowMsgTarget,
 } from '../../shared';
 import { Permission } from '../../background/permission';
-import { AccountInfo } from '../../background/bg-api/dapp';
 import { Buffer } from 'buffer';
 import { ConnectMethod } from '@wallet-standard/features';
 import mitt, { Emitter } from 'mitt';
@@ -40,6 +38,7 @@ import {
   arrayToUint8array,
   uint8arrayToArray,
 } from '../../shared/msg-passing/uint8array-passing';
+import { AccountInfo } from '../../background/types';
 
 type WalletEventsMap = {
   [E in keyof EventsListeners]: Parameters<EventsListeners[E]>[0];
