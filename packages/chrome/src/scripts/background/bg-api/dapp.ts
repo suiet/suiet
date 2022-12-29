@@ -13,9 +13,13 @@ import {
 import { isNonEmptyArray } from '../../../utils/check';
 import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
 import {
+  CertifiedTransaction,
+  getCertifiedTransaction,
+  getTransactionEffects,
   MoveCallTransaction,
   SignableTransaction,
   SuiTransactionResponse,
+  TransactionEffects,
 } from '@mysten/sui.js';
 import { TxRequestManager, TxRequestType } from '../transaction';
 import {
@@ -33,7 +37,10 @@ import {
   uint8arrayToArray,
 } from '../../shared/msg-passing/uint8array-passing';
 import { Buffer } from 'buffer';
-import type { WalletAccount } from '@mysten/wallet-standard';
+import type {
+  SuiSignAndExecuteTransactionOutput,
+  WalletAccount,
+} from '@mysten/wallet-standard';
 import { BackgroundApiContext } from '../api-proxy';
 import { BackendEventId } from '../../shared';
 import {
@@ -220,7 +227,7 @@ export class DappBgApi {
 
   public async signAndExecuteTransaction(
     payload: DappMessage<{ transaction: SignableTransaction }>
-  ) {
+  ): Promise<SuiSignAndExecuteTransactionOutput> {
     if (!payload.params?.transaction) {
       throw new InvalidParamError('params transaction is required');
     }
@@ -257,7 +264,7 @@ export class DappBgApi {
       walletId: connectionCtx.target.walletId,
       accountId: connectionCtx.target.accountId,
     };
-    return await this.txApi.signAndExecuteTransaction({
+    const response = await this.txApi.signAndExecuteTransaction({
       transaction:
         transaction.kind === 'bytes'
           ? {
@@ -267,6 +274,12 @@ export class DappBgApi {
           : transaction,
       context: txContext,
     });
+    return {
+      certificate: getCertifiedTransaction(response) as CertifiedTransaction,
+      effects: getTransactionEffects(response) as TransactionEffects,
+      timestamp_ms: null,
+      parsed_data: null,
+    };
   }
 
   /**
