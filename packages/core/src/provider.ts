@@ -20,14 +20,11 @@ import {
   Coin as CoinAPI,
   getPayTransaction,
   SuiObjectRef,
-  isSuiObject,
-  isSuiObjectRef,
   ObjectId,
-  PaySuiTransaction,
-  PayAllSuiTransaction,
   RawSigner,
   SignableTransaction,
   SuiExecuteTransactionResponse,
+  is,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -120,9 +117,9 @@ export function isGetPastObjectDataResponse(
   return (
     ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
     isPastObjectStatus(obj.status) &&
-    (isSuiObject(obj.details) ||
+    (is(obj.details, SuiObject) ||
       typeof obj.details === 'string' ||
-      isSuiObjectRef(obj.details) ||
+      is(obj.details, SuiObjectRef) ||
       isSuiPastVersionTooHigh(obj.details) ||
       (Array.isArray(obj.details) &&
         obj.details.length === 2 &&
@@ -764,6 +761,6 @@ export class TxProvider {
   ): Promise<SuiExecuteTransactionResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
-    return await signer.signAndExecuteTransaction(tx);
+    return signer.signAndExecuteTransaction(tx);
   }
 }
