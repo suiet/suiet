@@ -7,9 +7,11 @@ import { getInputStateByFormState } from '../../../utils/form';
 import { useApiClient } from '../../../hooks/useApiClient';
 import SettingOneLayout from '../../../layouts/SettingOneLayout';
 import Input from '../../../components/Input';
+import { useState } from 'react';
+import classNames from 'classnames';
 
 type FormData = {
-  secret: string;
+  [propName: string]: string;
 };
 
 export type ImportPhraseProps = {
@@ -25,11 +27,15 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       secret: props.phrases,
     },
   });
+  const [focus, setFocus] = useState([...Array(12).keys()].map(() => false));
 
   async function handleSubmit(data: FormData) {
+    const secret = [...Array(12).keys()]
+      .map((i) => data['secret-' + i.toString()])
+      .join(' ');
     const result = await apiClient.callFunc<string, boolean>(
       'wallet.validateMnemonic',
-      data.secret
+      secret
     );
     if (!result) {
       form.setError('secret', new Error('Phrase is not valid'));
@@ -45,7 +51,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
     >
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormControl
+          {/* <FormControl
             name={'secret'}
             registerOptions={{
               required: 'Phrase should not be empty',
@@ -57,7 +63,30 @@ const ImportPhrase = (props: ImportPhraseProps) => {
               className={'mt-[6px]'}
               placeholder={'paste recovery phrase...'}
             />
-          </FormControl>
+          </FormControl> */}
+
+          {[...Array(12).keys()].map((i) => (
+            <FormControl
+              key={i}
+              name={'secret-' + String(i)}
+              registerOptions={{
+                required: 'Phrase should not be empty',
+              }}
+            >
+              <Input
+                type={focus[i] ? 'text' : 'password'}
+                state={getInputStateByFormState(
+                  form.formState,
+                  'secret-' + String(i)
+                )}
+                onFocus={() => {
+                  setFocus(focus.map((_, idx) => idx === i));
+                }}
+                className={classNames('mt-[6px]')}
+                placeholder={(i + 1).toString() + '.'}
+              />
+            </FormControl>
+          ))}
           <Typo.Hints className={'mt-[6px]'}>
             Displayed when you first created your wallet.
           </Typo.Hints>
