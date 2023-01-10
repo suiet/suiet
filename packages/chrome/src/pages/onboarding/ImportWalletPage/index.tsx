@@ -50,10 +50,10 @@ const ImportWallet = () => {
     await dispatch(updateAccountId(defaultAccount.id));
   }
 
-  async function handleImport(_secret: string) {
+  async function handleImport(_secret: [string]) {
     // TODO: check duplicated wallet
     if (pageEntry === PageEntry.SWITCHER) {
-      await createWalletAndAccount(_secret);
+      await createWalletAndAccount(_secret.join(' '));
       message.success('Wallet Created!');
 
       await sleep(300); // wait for wallet created
@@ -64,7 +64,7 @@ const ImportWallet = () => {
     }
 
     // first time to import
-    setSecret(_secret);
+    setSecret(_secret.join(' '));
     setStep(2);
   }
 
