@@ -11,11 +11,11 @@ import { useState } from 'react';
 import classNames from 'classnames';
 
 type FormData = {
-  [propName: string]: string;
+  secrets: [string];
 };
 
 export type ImportPhraseProps = {
-  onImported: (secret: string) => void;
+  onImported: (secrets: [string]) => void;
   phrases?: string;
 };
 
@@ -24,24 +24,22 @@ const ImportPhrase = (props: ImportPhraseProps) => {
   const form = useForm({
     mode: 'onSubmit',
     defaultValues: {
-      secret: props.phrases,
+      secrets: props.phrases?.split(' '),
     },
   });
   const [focus, setFocus] = useState([...Array(12).keys()].map(() => false));
 
   async function handleSubmit(data: FormData) {
-    const secret = [...Array(12).keys()]
-      .map((i) => data['secret-' + i.toString()])
-      .join(' ');
+    const secret = data['secrets'].join(' ');
     const result = await apiClient.callFunc<string, boolean>(
       'wallet.validateMnemonic',
       secret
     );
     if (!result) {
-      form.setError('secret', new Error('Phrase is not valid'));
+      // form.setError('secret', new Error('Phrase is not valid'));
       return;
     }
-    if (props.onImported) props.onImported(data.secret);
+    if (props.onImported) props.onImported(data.secrets);
   }
 
   return (
@@ -49,6 +47,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       titles={['Input', 'Recovery', 'Phrase']}
       desc={'From an existing wallet.'}
     >
+      {JSON.stringify(form.watch())}
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
           {/* <FormControl
@@ -68,7 +67,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
           {[...Array(12).keys()].map((i) => (
             <FormControl
               key={i}
-              name={'secret-' + String(i)}
+              name={'secrets[' + String(i) + ']'}
               registerOptions={{
                 required: 'Phrase should not be empty',
               }}
@@ -77,8 +76,56 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                 type={focus[i] ? 'text' : 'password'}
                 state={getInputStateByFormState(
                   form.formState,
-                  'secret-' + String(i)
+                  'secrets[' + String(i) + ']'
                 )}
+                // support detect paste with space
+                onKeyUp={(e) => {
+                  const inputValues = form.getValues('secrets');
+
+                  console.log(inputValues);
+                  if (inputValues) {
+                    const currentInput = inputValues[i].trim();
+                    if (currentInput.includes(' ')) {
+                      const followingInputs = currentInput.split(' ');
+                      if (followingInputs.length + i > 12) {
+                        return;
+                      }
+
+                      form.setValue(
+                        'secrets',
+                        inputValues
+                          .slice(0, i)
+                          .concat(followingInputs)
+                          .concat(
+                            inputValues.slice(i + followingInputs.length, 12)
+                          )
+                      );
+
+                      // inputValues[]
+                      // inputValues.forEach((value, index) => {
+                      //   form.setValue(`secrets[${index}]`, value);
+                      // });
+                    }
+                  }
+                  // if (inputValues && ' ' in inputValues[i]) {
+                  //   inputValues.forEach((value, index) => {
+                  //     form.setValue('secret', value);
+                  //   });
+                  // }
+                }}
+                // onChange={(input) => {
+                //   console.log(input);
+                //   if (' ' in input) {
+                //     const inputValues = String(input).split(' ');
+
+                //     inputValues.forEach((value, index) => {
+                //       form.setValue(
+                //         'secrets[' + (index + i).toString() + ']',
+                //         value
+                //       );
+                //     });
+                //   }
+                // }}
                 onFocus={() => {
                   setFocus(focus.map((_, idx) => idx === i));
                 }}
