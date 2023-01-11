@@ -47,93 +47,75 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       titles={['Input', 'Recovery', 'Phrase']}
       desc={'From an existing wallet.'}
     >
-      {JSON.stringify(form.watch())}
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
-          {/* <FormControl
-            name={'secret'}
-            registerOptions={{
-              required: 'Phrase should not be empty',
-            }}
+          <div
+            className={classNames(
+              'grid',
+              'grid-cols-2',
+              'gap-2',
+              'gap-x-4',
+              '-mx-2'
+            )}
           >
-            <Input
-              type={'password'}
-              state={getInputStateByFormState(form.formState, 'secret')}
-              className={'mt-[6px]'}
-              placeholder={'paste recovery phrase...'}
-            />
-          </FormControl> */}
+            {[...Array(12).keys()].map((i) => (
+              <FormControl
+                key={i}
+                name={'secrets[' + String(i) + ']'}
+                registerOptions={{
+                  required: 'Phrase should not be empty',
+                }}
+              >
+                <div className={classNames('flex', 'items-center')}>
+                  <Typo.Normal className={'w-[18px] mr-1 text-right'}>
+                    {`${i + 1}.  `}
+                  </Typo.Normal>
+                  <Input
+                    className="flex-1"
+                    type={focus[i] ? 'text' : 'password'}
+                    state={getInputStateByFormState(
+                      form.formState,
+                      'secrets[' + String(i) + ']'
+                    )}
+                    // support detect paste with space
+                    onPaste={(e) => {
+                      /// ashdiahsidh asdiahsidh asd
+                      const inputValues = form.getValues('secrets');
+                      console.log(e.clipboardData.getData('text'));
 
-          {[...Array(12).keys()].map((i) => (
-            <FormControl
-              key={i}
-              name={'secrets[' + String(i) + ']'}
-              registerOptions={{
-                required: 'Phrase should not be empty',
-              }}
-            >
-              <Input
-                type={focus[i] ? 'text' : 'password'}
-                state={getInputStateByFormState(
-                  form.formState,
-                  'secrets[' + String(i) + ']'
-                )}
-                // support detect paste with space
-                onKeyUp={(e) => {
-                  const inputValues = form.getValues('secrets');
+                      if (inputValues) {
+                        const currentInput = e.clipboardData
+                          .getData('text')
+                          .trim();
+                        if (currentInput.includes(' ')) {
+                          let followingInputs = currentInput.split(' ');
+                          if (followingInputs.length + i > 12) {
+                            followingInputs = followingInputs.slice(0, 12);
+                          }
 
-                  console.log(inputValues);
-                  if (inputValues) {
-                    const currentInput = inputValues[i].trim();
-                    if (currentInput.includes(' ')) {
-                      const followingInputs = currentInput.split(' ');
-                      if (followingInputs.length + i > 12) {
-                        return;
+                          const newSecrets = inputValues
+                            .slice(0, i)
+                            .concat(followingInputs)
+                            .concat(
+                              inputValues.slice(i + followingInputs.length, 12)
+                            );
+
+                          setTimeout(() => {
+                            form.reset();
+                            form.setValue('secrets', newSecrets);
+                          }, 0);
+                        }
                       }
-
-                      form.setValue(
-                        'secrets',
-                        inputValues
-                          .slice(0, i)
-                          .concat(followingInputs)
-                          .concat(
-                            inputValues.slice(i + followingInputs.length, 12)
-                          )
-                      );
-
-                      // inputValues[]
-                      // inputValues.forEach((value, index) => {
-                      //   form.setValue(`secrets[${index}]`, value);
-                      // });
-                    }
-                  }
-                  // if (inputValues && ' ' in inputValues[i]) {
-                  //   inputValues.forEach((value, index) => {
-                  //     form.setValue('secret', value);
-                  //   });
-                  // }
-                }}
-                // onChange={(input) => {
-                //   console.log(input);
-                //   if (' ' in input) {
-                //     const inputValues = String(input).split(' ');
-
-                //     inputValues.forEach((value, index) => {
-                //       form.setValue(
-                //         'secrets[' + (index + i).toString() + ']',
-                //         value
-                //       );
-                //     });
-                //   }
-                // }}
-                onFocus={() => {
-                  setFocus(focus.map((_, idx) => idx === i));
-                }}
-                className={classNames('mt-[6px]')}
-                placeholder={(i + 1).toString() + '.'}
-              />
-            </FormControl>
-          ))}
+                    }}
+                    onFocus={() => {
+                      setFocus(focus.map((_, idx) => idx === i));
+                    }}
+                    placeholder={`phrase${i + 1}`}
+                  />
+                </div>
+              </FormControl>
+            ))}
+          </div>
           <Typo.Hints className={'mt-[6px]'}>
             Displayed when you first created your wallet.
           </Typo.Hints>
