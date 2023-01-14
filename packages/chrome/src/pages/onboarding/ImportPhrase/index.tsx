@@ -10,6 +10,7 @@ import Input from '../../../components/Input';
 import { useState } from 'react';
 import classNames from 'classnames';
 import { validateWord, BIP32_EN_WORDLIST } from '@suiet/core';
+import message from '../../../components/message';
 type FormData = {
   secrets: [string];
 };
@@ -38,6 +39,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
     );
     if (!result) {
       console.log(errors.secrets);
+      message.error('Phrase is not valid');
       // form.setError('secret', new Error('Phrase is not valid'));
       return;
     }
