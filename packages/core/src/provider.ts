@@ -315,6 +315,28 @@ export class QueryProvider {
     return res;
   }
 
+  /* 
+  curl 'https://fullnode.devnet.sui.io/' \
+  --data-raw '{"method":"sui_getObject","jsonrpc":"2.0","params":["0x0000000000000000000000000000000000000005"],"id":"8cf40dd2-4cca-407c-b75c-f4466766d112"}' \
+--compressed
+  */
+  public async getValidatorsMeta(): Promise<ValidatorMeta[]> {
+    // hard coded objectID
+    const validatorMetaObject = await this.provider.getObject(
+      '0x0000000000000000000000000000000000000005'
+    );
+    const validatorMetaMoveObject = getMoveObject(validatorMetaObject);
+    validatorMetaMoveObject?.fields.validators;
+    // const validatorAddresses = validators.map((v) => v.fields.address);
+    // const validatorMetas = await this.provider.getValidatorMetaBatch(
+    //   validatorAddresses
+    // );
+    // return validatorMetas.map((meta, index) => ({
+    //   address: validatorAddresses[index],
+    //   meta,
+    // }));
+  }
+
   public async getTransactionsForAddress(
     address: string
   ): Promise<TxnHistoryEntry[]> {
@@ -761,6 +783,6 @@ export class TxProvider {
   ): Promise<SuiExecuteTransactionResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
-    return signer.signAndExecuteTransaction(tx);
+    return await signer.signAndExecuteTransaction(tx);
   }
 }
