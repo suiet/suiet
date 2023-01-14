@@ -9,7 +9,7 @@ import SettingOneLayout from '../../../layouts/SettingOneLayout';
 import Input from '../../../components/Input';
 import { useState } from 'react';
 import classNames from 'classnames';
-
+import { validateWord, BIP32_EN_WORDLIST } from '@suiet/core';
 type FormData = {
   secrets: [string];
 };
@@ -27,6 +27,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       secrets: props.phrases?.split(' '),
     },
   });
+  const { errors } = form.formState;
   const [focus, setFocus] = useState([...Array(12).keys()].map(() => false));
 
   async function handleSubmit(data: FormData) {
@@ -36,6 +37,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       secret
     );
     if (!result) {
+      console.log(errors.secrets);
       // form.setError('secret', new Error('Phrase is not valid'));
       return;
     }
@@ -47,6 +49,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       titles={['Input', 'Recovery', 'Phrase']}
       desc={'From an existing wallet.'}
     >
+      {/* {JSON.stringify(errors.secrets)} */}
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
           <div
@@ -59,18 +62,22 @@ const ImportPhrase = (props: ImportPhraseProps) => {
             )}
           >
             {[...Array(12).keys()].map((i) => (
-              <FormControl
-                key={i}
-                name={'secrets[' + String(i) + ']'}
-                registerOptions={{
-                  required: 'Phrase should not be empty',
-                }}
-              >
-                <div className={classNames('flex', 'items-center')}>
-                  <Typo.Normal className={'w-[18px] mr-1 text-right'}>
-                    {`${i + 1}.  `}
-                  </Typo.Normal>
+              <div key={i} className={classNames('flex', 'items-center')}>
+                <Typo.Normal className={'w-[18px] mr-1 text-right'}>
+                  {`${i + 1}.  `}
+                </Typo.Normal>
+                <div className="flex flex-col">
                   <Input
+                    {...form.register(`secrets.${i}`, {
+                      required: 'phrase is required',
+                      validate: {
+                        wordCheck: (value) =>
+                          validateWord(value) || 'invalid phrase',
+                      },
+                    })}
+                    aria-invalid={
+                      errors?.secrets && errors?.secrets[i] ? 'true' : 'false'
+                    }
                     className="flex-1"
                     type={focus[i] ? 'text' : 'password'}
                     state={getInputStateByFormState(
@@ -111,9 +118,21 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                       setFocus(focus.map((_, idx) => idx === i));
                     }}
                     placeholder={`phrase${i + 1}`}
+                    list="wordlist"
                   />
+
+                  <datalist id="wordlist">
+                    {BIP32_EN_WORDLIST.map((word) => (
+                      <option key={word}>{word}</option>
+                    ))}
+                  </datalist>
+                  {errors?.secrets && (
+                    <Typo.Hints className="text-red-500">
+                      {errors.secrets[i]?.message}
+                    </Typo.Hints>
+                  )}
                 </div>
-              </FormControl>
+              </div>
             ))}
           </div>
           <Typo.Hints className={'mt-[6px]'}>

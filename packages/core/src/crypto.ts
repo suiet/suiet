@@ -91,7 +91,7 @@ export function derivationHdPath(id: number) {
   return `m/44'/${COIN_TYPE_SUI}'/0'/0'/${id}'`;
 }
 
-const BIP32_ALL_WORDLISTS = [
+export const BIP32_ALL_WORDLISTS = [
   czWordlist,
   enWordlist,
   frWordlist,
@@ -102,6 +102,18 @@ const BIP32_ALL_WORDLISTS = [
   spWordlist,
   tzhWordlist,
 ];
+
+export const BIP32_EN_WORDLIST = enWordlist;
+
+export function validateWord(word: string): boolean {
+  for (const wl of BIP32_ALL_WORDLISTS) {
+    if (wl.includes(word)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export function validateMnemonic(mnemonic: string): boolean {
   for (const wl of BIP32_ALL_WORDLISTS) {
