@@ -42,7 +42,7 @@ const config = defineConfig({
 });
 
 if (process.env.NODE_ENV === 'production') {
-  config.plugins.push(terser()); // minify output files
+  config?.plugins?.push(terser()); // minify output files
 }
 
 export default config;
