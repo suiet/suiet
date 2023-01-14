@@ -52,6 +52,11 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       {/* {JSON.stringify(errors.secrets)} */}
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
+          <datalist id="wordlist">
+            {BIP32_EN_WORDLIST.map((word) => (
+              <option key={word}>{word}</option>
+            ))}
+          </datalist>
           <div
             className={classNames(
               'grid',
@@ -121,11 +126,6 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                     list="wordlist"
                   />
 
-                  <datalist id="wordlist">
-                    {BIP32_EN_WORDLIST.map((word) => (
-                      <option key={word}>{word}</option>
-                    ))}
-                  </datalist>
                   {errors?.secrets && (
                     <Typo.Hints className="text-red-500">
                       {errors.secrets[i]?.message}
