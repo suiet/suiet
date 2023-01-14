@@ -122,6 +122,7 @@ export interface TxEssentials {
   accountId: string;
   token: string;
 }
+
 export type SendAndExecuteTxParams<T> = {
   transaction: T;
   context: TxEssentials;
@@ -191,8 +192,8 @@ export class TransactionApi implements ITransactionApi {
       params.coinType,
       BigInt(params.amount),
       params.recipient,
-      vault,
-      params.network.payCoinGasBudget
+      vault
+      // params.network.payCoinGasBudget  // NOTE: let sdk auto-compute gas
     );
     if (!res) {
       throw new RpcError('no response');
