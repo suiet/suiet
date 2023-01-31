@@ -45,3 +45,17 @@ $icon-size: 40px;
   line-height: 20px;
   color: $gray-700;
 }
+
+.click-button {
+  padding: 4px 12px;
+  background: $primary-100;
+  border-radius: 12px;
+  color: $primary-600;
+  font-weight: 500;
+  transition: 200ms;
+  &:hover {
+    /* Gray/50 */
+    color: $primary-600;
+    background: $primary-200;
+  }
+}
