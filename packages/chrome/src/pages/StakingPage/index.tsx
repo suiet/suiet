@@ -1,20 +1,11 @@
-import Input from '../../components/Input';
 import AppLayout from '../../layouts/AppLayout';
 import Button from '../../components/Button';
+import ValidatorSelector from '../../components/ValidatorSelector';
 export default function StackingPage() {
   return (
     <AppLayout>
       <div className="px-2">
-        <div className="rounded-2xl validator-info p-4 flex items-center justify-between m-2 bg-sky-50 ">
-          <div className="flex items-center gap-2">
-            <img className="w-[24px] h-[24px] rounded-full "></img>
-            <div className="text-sky-800 text-md font-medium">
-              Ankr Validator
-            </div>
-          </div>
-
-          <div className="text-zinc-400 font-medium">Validator</div>
-        </div>
+        <ValidatorSelector></ValidatorSelector>
       </div>
 
       <div className="px-6 py-24 text-3xl flex items-center gap-2 w-full max-w-[362px]">

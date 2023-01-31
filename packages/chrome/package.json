@@ -18,6 +18,7 @@
     "@mysten/sui.js": "^0.25.0",
     "@mysten/wallet-standard": "^0.2.11",
     "@radix-ui/react-dialog": "^1.0.0",
+    "@radix-ui/react-select": "^1.2.0",
     "@reduxjs/toolkit": "^1.8.5",
     "@suiet/core": "^1.0.0",
     "@suiet/wallet-adapter": "^0.0.19",
