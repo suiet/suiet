@@ -7,7 +7,7 @@ import Divider from '../../components/Divider';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import WaterDropIcon from '../../components/WaterDropIcon';
-import { isValidSuiAddress } from '@mysten/sui.js';
+import { isValidSuiAddress, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { useForm } from 'react-hook-form';
 import message from '../../components/message';
 import Form from '../../components/form/Form';
@@ -26,7 +26,6 @@ import { formatCurrency } from '../../utils/format';
 import AppLayout from '../../layouts/AppLayout';
 import { mutate } from 'swr';
 import { swrKey as swrKeyForUseCoins } from '../../hooks/useCoins';
-import { SUI_TYPE_ARG } from '@mysten/sui.js';
 
 interface SendFormValues {
   address: string;

@@ -24,6 +24,7 @@ const SettingSecurityPage = lazy(
   async () => await import('../pages/SettingsPage/security')
 );
 const SendPage = lazy(async () => await import('../pages/SendPage'));
+const StakingPage = lazy(async () => await import('../pages/StakingPage'));
 const TransactionFlowPage = lazy(
   async () => await import('../pages/TransactionFlow')
 );
@@ -98,6 +99,10 @@ const routesConfig: RouteObject[] = [
       {
         path: 'send',
         element: withSus(<SendPage />),
+      },
+      {
+        path: 'staking',
+        element: withSus(<StakingPage />),
       },
       {
         path: 'transaction/flow',

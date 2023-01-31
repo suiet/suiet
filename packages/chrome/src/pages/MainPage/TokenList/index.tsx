@@ -12,7 +12,7 @@ import { fullyFormatCurrency } from '../../../utils/format';
 import { Coin, useCoins } from '../../../hooks/useCoins';
 import { isNonEmptyArray } from '../../../utils/check';
 import { useMemo } from 'react';
-
+import { Link } from 'react-router-dom';
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
@@ -30,30 +30,39 @@ const TokenItem = (props: TokenItemProps) => {
         props.symbol === 'SUI' ? styles['token-item-sui'] : null
       )}
     >
-      <div className="flex items-center">
-        <TokenIcon
-          icon={props.symbol === 'SUI' ? IconWaterDrop : IconToken}
-          alt="water-drop"
-          className={props.symbol === 'SUI' ? '' : styles['icon-wrap-default']}
-        />
-        <div className={'flex flex-col ml-[32px]'}>
-          <Typo.Normal
-            className={classnames(
-              styles['token-name'],
-              props.symbol === 'SUI' ? styles['token-name-sui'] : null
-            )}
-          >
-            {props.symbol}
-          </Typo.Normal>
-          <Typo.Small
-            className={classnames(
-              styles['token-amount'],
-              props.symbol === 'SUI' ? styles['token-amount-sui'] : null
-            )}
-          >
-            {fullyFormatCurrency(amount)}
-          </Typo.Small>
+      <div className="flex w-full flex-row items-center justify-between">
+        <div className="flex">
+          <TokenIcon
+            icon={props.symbol === 'SUI' ? IconWaterDrop : IconToken}
+            alt="water-drop"
+            className={
+              props.symbol === 'SUI' ? '' : styles['icon-wrap-default']
+            }
+          />
+          <div className={'flex flex-col ml-[32px]'}>
+            <Typo.Normal
+              className={classnames(
+                styles['token-name'],
+                props.symbol === 'SUI' ? styles['token-name-sui'] : null
+              )}
+            >
+              {props.symbol}
+            </Typo.Normal>
+            <Typo.Small
+              className={classnames(
+                styles['token-amount'],
+                props.symbol === 'SUI' ? styles['token-amount-sui'] : null
+              )}
+            >
+              {fullyFormatCurrency(amount)}
+            </Typo.Small>
+          </div>
         </div>
+        {props.symbol === 'SUI' && (
+          <Link className={styles['click-button']} to={'/staking'}>
+            Stake
+          </Link>
+        )}
       </div>
     </div>
   );
