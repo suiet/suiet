@@ -133,8 +133,9 @@ function TransactionDetail() {
           <a
             target="_blank"
             href={
-              `https://explorer.${networkId}.sui.io/transactions/` +
-              encodeURIComponent(transactionDigest)
+              `https://explorer.sui.io/transactions/` +
+              encodeURIComponent(transactionDigest) +
+              `?network=${networkId}`
             }
             className="m-auto"
             rel="noreferrer"
