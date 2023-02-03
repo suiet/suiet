@@ -16,7 +16,7 @@ import {
   PaySui,
   PayAllSui,
   OwnedObjectRef,
-  LocalTxnDataSerializer,
+  RpcTxnDataSerializer,
   Coin as CoinAPI,
   getPayTransaction,
   SuiObjectRef,
@@ -24,7 +24,6 @@ import {
   RawSigner,
   SignableTransaction,
   SuiExecuteTransactionResponse,
-  is,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -669,7 +668,7 @@ export class QueryProvider {
 
 export class TxProvider {
   provider: JsonRpcProvider;
-  serializer: LocalTxnDataSerializer;
+  serializer: RpcTxnDataSerializer;
 
   constructor(txEndpoint: string, versionCacheTimoutInSeconds: number) {
     this.provider = new JsonRpcProvider(txEndpoint, {
@@ -678,7 +677,7 @@ export class TxProvider {
       // socketOptions?: WebsocketClientOptions.
       versionCacheTimoutInSeconds,
     });
-    this.serializer = new LocalTxnDataSerializer(this.provider);
+    this.serializer = new RpcTxnDataSerializer(txEndpoint, this.provider);
   }
 
   async transferObject(
