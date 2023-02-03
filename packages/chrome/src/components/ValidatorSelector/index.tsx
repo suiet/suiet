@@ -1,28 +1,13 @@
 /* eslint-disable react/prop-types */
 import * as Select from '@radix-ui/react-select';
 import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow.svg';
-
-// import React from 'react';
-// import classnames from 'classnames';
-
-// const SelectItem = React.forwardRef(
-//   ({ children, className, ...props }, forwardedRef) => {
-//     return (
-//       <Select.Item
-//         className={classnames('SelectItem', className)}
-//         {...props}
-//         ref={forwardedRef}
-//       >
-//         <Select.ItemText>{children}</Select.ItemText>
-//         <Select.ItemIndicator className="SelectItemIndicator">
-//           {/* <CheckIcon /> */}
-//         </Select.ItemIndicator>
-//       </Select.Item>
-//     );
-//   }
-// );
-
+import { useQuery } from '@apollo/client';
+import { GET_VALIDATORS } from '../../utils/graphql/query';
+import classNames from 'classnames';
+import Address from '../Address';
 export default function ValidatorSelector() {
+  const { loading, error, data } = useQuery(GET_VALIDATORS);
+  const validators = data?.validators || [];
   return (
     <Select.Root>
       <Select.Trigger
@@ -49,36 +34,16 @@ export default function ValidatorSelector() {
           </h1>
           <div className="max-h-[60vh] overflow-auto">
             <Select.Viewport className="">
-              <ValidatorItem
-                name="validator1"
-                address="0x03a3....9306"
-                apy="11523.9673"
-                identifier={'assdasd'}
-              />
-              <ValidatorItem
-                name="validator2"
-                address="0x03a3....9306"
-                apy="11523.9673"
-                identifier={'asdasd'}
-              />
-              <ValidatorItem
-                name="validator3"
-                address="0x03a3....9306"
-                apy="11523.9673"
-                identifier={'asdaasd'}
-              />
-              <ValidatorItem
-                name="validator4"
-                address="0x03a3....9306"
-                apy="11523.9673"
-                identifier={'asdasasd'}
-              />
-              <ValidatorItem
-                name="validator5"
-                address="0x03a3....9306"
-                apy="11523.9673"
-                identifier={'asdadsd'}
-              />
+              {validators.map((validator) => (
+                <ValidatorItem
+                  key={validator?.suiAddress}
+                  name={validator?.name}
+                  address={validator?.suiAddress}
+                  imageURL={validator?.imageURL}
+                  apy={validator?.apy}
+                  identifier={validator?.suiAddress}
+                />
+              ))}
             </Select.Viewport>
           </div>
         </Select.Content>
@@ -89,6 +54,7 @@ export default function ValidatorSelector() {
 
 export function ValidatorItem({
   name = 'validator',
+  imageURL,
   identifier,
   address,
   apy,
@@ -96,16 +62,35 @@ export function ValidatorItem({
   return (
     <Select.Item
       value={identifier}
-      className="selected-item outline-none rounded-2xl border border-zinc-200 mb-2"
+      className={classNames(
+        'selected-item',
+        'outline-none',
+        'rounded-2xl',
+        'border',
+        'border-zinc-200',
+        'transition',
+        'cursor-pointer',
+        'duration-300',
+        'mb-2',
+        ['hover:bg-sky-100', 'hover:border-sky-200'],
+        ['active:bg-sky-200', 'hover:border-sky-300']
+      )}
     >
       <div className="w-full flex items-center justify-between pl-2 pr-4 py-3">
         <div className="flex items-center">
           <div className="">
-            <IconRightArrow />
+            <img
+              src={imageURL}
+              className={classNames('w-8', 'h-8', 'rounded-xl', 'm-2')}
+            ></img>
           </div>
           <div className="flex flex-col">
             <Select.ItemText className="font-bold">{name}</Select.ItemText>
-            <div className="text-zinc-400">{address}</div>
+            <Address
+              hideCopy={true}
+              className="text-zinc-400"
+              value={address}
+            ></Address>
           </div>
         </div>
 
@@ -116,4 +101,33 @@ export function ValidatorItem({
       </div>
     </Select.Item>
   );
+}
+
+const APY_DECIMALS = 4;
+
+export function calculateAPY(
+  sui_balance,
+  starting_epoch,
+  delegation_token_supply,
+  epoch: number
+) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const numEpochsParticipated = +epoch - +starting_epoch;
+  const apy =
+    Math.pow(
+      1 +
+        (+sui_balance - +delegation_token_supply.fields.value) /
+          +delegation_token_supply.fields.value,
+      365 / numEpochsParticipated
+    ) - 1;
+
+  // guard against NaN
+  const apyReturn = apy ? roundFloat(apy, APY_DECIMALS) : 0;
+
+  // guard against very large numbers (e.g. 1e+100)
+  return apyReturn > 100_000 ? 0 : apyReturn;
+}
+
+function roundFloat(number: number, decimals: number) {
+  return parseFloat(number.toFixed(decimals));
 }

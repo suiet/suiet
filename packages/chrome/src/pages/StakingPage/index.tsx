@@ -1,7 +1,45 @@
 import AppLayout from '../../layouts/AppLayout';
 import Button from '../../components/Button';
 import ValidatorSelector from '../../components/ValidatorSelector';
+import { useApiClient } from '../../hooks/useApiClient';
+// import { get } from '@suiet/core';
 export default function StackingPage() {
+  const apiClient = useApiClient();
+  async function StakeCoins() {
+    try {
+      // await apiClient.callFunc<OmitToken<TransferCoinParams>, undefined>(
+      //   'txn.transferCoin',
+      //   {
+      //     network,
+      //     coinType: SUI_TYPE_ARG,
+      //     amount: Math.ceil(data.amount * 1e9),
+      //     recipient: data.address,
+      //     walletId: appContext.walletId,
+      //     accountId: appContext.accountId,
+      //   },
+      //   { withAuth: true }
+      // );
+      // message.success('Send transaction succeeded');
+      // setTimeout(() => {
+      //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
+      // }, 1000);
+      // navigate('/transaction/flow');
+    } catch (e: any) {
+      // console.error(e);
+      // message.error(`Send transaction failed: ${e?.message}`);
+    } finally {
+      // setSendLoading(false);
+    }
+    // const coinObjList = await this.txApi.getOwnedCoins({
+    //   network,
+    //   address: context.target.address,
+    // });
+    // const suiToPayList = coinObjList.filter(
+    //   (obj) =>
+    //     obj.symbol === CoinSymbol.SUI && tx.data.inputCoins.includes(obj.id)
+    // );
+    // console.log('stake');
+  }
   return (
     <AppLayout>
       <div className="px-2">
