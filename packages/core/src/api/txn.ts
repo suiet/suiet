@@ -18,6 +18,7 @@ import {
   PayAllSuiTransaction,
   PaySuiTransaction,
   PayTransaction,
+  SuiMoveObject,
   SignableTransaction,
   SuiExecuteTransactionResponse,
   SuiMoveNormalizedFunction,
@@ -129,6 +130,23 @@ export type SendAndExecuteTxParams<T> = {
 };
 export type MoveCallParams = SendAndExecuteTxParams<MoveCallTransaction>;
 
+export type StakeCoinParams = {
+  network: Network;
+  coins: SuiMoveObject[],
+  gasCoins: SuiMoveObject[],
+  amount: bigint,
+  validator: string, // address
+  vault: Vault,
+  gasBudgetForStake: number
+};
+
+export type UnStakeCoinParams = {
+  network: Network;
+  delegation: string,
+  stakedSuiId: string,
+  vault: Vault,
+  gasBudgetForStake: number
+};
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -160,6 +178,14 @@ export interface ITransactionApi {
 
   signAndExecuteTransaction: (
     params: SendAndExecuteTxParams<SignableTransaction>
+  ) => Promise<SuiExecuteTransactionResponse>;
+
+  stakeCoin: (
+    params: StakeCoinParams
+  ) => Promise<SuiExecuteTransactionResponse>;
+
+  unStakeCoin: (
+    params: UnStakeCoinParams
   ) => Promise<SuiExecuteTransactionResponse>;
 }
 
@@ -428,5 +454,27 @@ export class TransactionApi implements ITransactionApi {
       moduleName,
       functionName
     );
+  }
+
+  async stakeCoin(params: StakeCoinParams) {
+    // coins: SuiMoveObject[],
+    // gasCoins: SuiMoveObject[],
+    // amount: bigint,
+    // validator: string, // address
+    // vault: Vault,
+    // gasBudgetForStake: number
+    const { network, coins, gasCoins, amount, validator, vault, gasBudgetForStake } =
+      params;
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    return await provider.stakeCoin(coins: SuiMoveObject[],
+      gasCoins: SuiMoveObject[],
+      amount: bigint,
+      validator: string, // address
+      vault: Vault,
+      gasBudgetForStake: number);
   }
 }

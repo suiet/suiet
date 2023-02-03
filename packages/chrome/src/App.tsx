@@ -12,11 +12,14 @@ import {
   ContextFeatureFlags,
   useAutoLoadFeatureFlags,
 } from './hooks/useFeatureFlags';
-
+import { useSelector } from 'react-redux';
+import { RootState } from './store';
+import { ApolloProvider, ApolloClient } from '@apollo/client';
+import { InMemoryCache } from '@apollo/client/cache';
 function App() {
   const routes = useRoutes(routesConfig);
   const featureFlags = useAutoLoadFeatureFlags();
-
+  const appContext = useSelector((state: RootState) => state.appContext);
   useEffect(() => {
     const handleError = (event: PromiseRejectionEvent) => {
       console.error('catch unhandledrejection:', event);
@@ -31,11 +34,15 @@ function App() {
     };
   }, []);
 
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    uri: `https://${appContext.networkId}.suiet.app/query`,
+  });
   return (
     <div className="app">
       <ErrorBoundary>
         <ContextFeatureFlags.Provider value={featureFlags}>
-          {routes}
+          <ApolloProvider client={client}>{routes}</ApolloProvider>
         </ContextFeatureFlags.Provider>
         <ToastContainer />
       </ErrorBoundary>
