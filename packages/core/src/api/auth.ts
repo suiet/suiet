@@ -116,7 +116,9 @@ export class AuthApi implements IAuthApi {
     const token = await this.loadTokenWithPassword(password);
     await maybeFixDataConsistency(this.storage, token);
     this.session.setToken(token);
-    await this.biometricAuthTokenChanged(token);
+    // no need to await as we don't care about the result
+    // and we don't want to block the login process
+    this.biometricAuthTokenChanged(token);
   }
 
   public async logout() {
