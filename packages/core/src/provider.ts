@@ -31,6 +31,15 @@ import { Vault } from './vault/Vault';
 import { isNonEmptyArray } from './utils';
 import { JsonRpcClient } from './client';
 import { createKeypair } from './utils/vault';
+import {
+  literal,
+  object,
+  union,
+  string,
+  number,
+  tuple,
+  Infer,
+} from 'superstruct';
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
@@ -45,23 +54,6 @@ export function getPayAllSuiTransaction(
 ): PayAllSui | undefined {
   return 'PayAllSui' in data ? data.PayAllSui : undefined;
 }
-
-type PastObjectStatus =
-  | 'VersionFound'
-  | 'ObjectNotExists'
-  | 'ObjectDeleted'
-  | 'VersionNotFound'
-  | 'VersionTooHigh';
-
-type GetPastObjectDataResponse = {
-  status: PastObjectStatus;
-  details:
-    | SuiObject
-    | ObjectId
-    | SuiObjectRef
-    | [string, number]
-    | SuiPastVersionTooHigh;
-};
 
 export function getVersionFoundResponse(
   resp: GetPastObjectDataResponse
@@ -109,37 +101,6 @@ type SuiPastVersionTooHigh = {
   latest_version: number;
 };
 
-export function isGetPastObjectDataResponse(
-  obj: any,
-  _argumentName?: string
-): obj is GetPastObjectDataResponse {
-  return (
-    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
-    isPastObjectStatus(obj.status) &&
-    (is(obj.details, SuiObject) ||
-      typeof obj.details === 'string' ||
-      is(obj.details, SuiObjectRef) ||
-      isSuiPastVersionTooHigh(obj.details) ||
-      (Array.isArray(obj.details) &&
-        obj.details.length === 2 &&
-        typeof obj.details[0] === 'string' &&
-        typeof obj.details[1] === 'number'))
-  );
-}
-
-export function isPastObjectStatus(
-  obj: any,
-  _argumentName?: string
-): obj is PastObjectStatus {
-  return (
-    obj === 'VersionFound' ||
-    obj === 'ObjectNotExists' ||
-    obj === 'ObjectDeleted' ||
-    obj === 'VersionNotFound' ||
-    obj === 'VersionTooHigh'
-  );
-}
-
 export function isSuiPastVersionTooHigh(
   obj: any,
   _argumentName?: string
@@ -151,6 +112,35 @@ export function isSuiPastVersionTooHigh(
     typeof obj.latest_version === 'number'
   );
 }
+
+const PastObjectStatus = union([
+  literal('VersionFound'),
+  literal('ObjectNotExists'),
+  literal('ObjectDeleted'),
+  literal('VersionNotFound'),
+  literal('VersionTooHigh'),
+]);
+
+type PastObjectStatus = Infer<typeof PastObjectStatus>;
+
+const SuiPastVersionTooHigh = object({
+  object_id: string(),
+  asked_version: number(),
+  latest_version: number(),
+});
+
+const GetPastObjectDataResponse = object({
+  status: PastObjectStatus,
+  details: union([
+    SuiObject,
+    string(),
+    SuiObjectRef,
+    tuple([string(), number()]),
+    SuiPastVersionTooHigh,
+  ]),
+});
+
+type GetPastObjectDataResponse = Infer<typeof GetPastObjectDataResponse>;
 
 export const DEFAULT_GAS_BUDGET = 2000;
 
@@ -655,7 +645,7 @@ export class QueryProvider {
       return await this.client.requestWithType(
         'sui_tryGetPastObject',
         [objectId, version],
-        isGetPastObjectDataResponse,
+        GetPastObjectDataResponse,
         true
       );
     } catch (err) {
@@ -677,7 +667,7 @@ export class TxProvider {
       // socketOptions?: WebsocketClientOptions.
       versionCacheTimoutInSeconds,
     });
-    this.serializer = new RpcTxnDataSerializer(txEndpoint, this.provider);
+    this.serializer = new RpcTxnDataSerializer(txEndpoint);
   }
 
   async transferObject(

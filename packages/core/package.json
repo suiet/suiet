@@ -29,6 +29,7 @@
     "lossless-json": "^1.0.5",
     "randombytes": "^2.1.0",
     "sha3": "^2.1.4",
+    "superstruct": "^1.0.3",
     "xhr-shim": "^0.1.2"
   },
   "devDependencies": {
