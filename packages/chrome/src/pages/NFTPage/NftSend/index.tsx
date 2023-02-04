@@ -58,7 +58,6 @@ export default function SendNft() {
 
     setSendLoading(true);
     try {
-      message.success('Send succeeded');
       await apiClient.callFunc<OmitToken<TransferObjectParams>, undefined>(
         'txn.transferObject',
         {
