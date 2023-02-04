@@ -131,6 +131,9 @@ export type SendAndExecuteTxParams<T> = {
 export type MoveCallParams = SendAndExecuteTxParams<MoveCallTransaction>;
 
 export type StakeCoinParams = {
+  walletId: string;
+  accountId: string;
+  token: string;
   network: Network;
   coins: SuiMoveObject[];
   gasCoins: SuiMoveObject[];
@@ -141,6 +144,9 @@ export type StakeCoinParams = {
 };
 
 export type UnStakeCoinParams = {
+  walletId: string;
+  accountId: string;
+  token: string;
   network: Network;
   delegation: string;
   stakedSuiId: string;
@@ -463,15 +469,13 @@ export class TransactionApi implements ITransactionApi {
     // validator: string, // address
     // vault: Vault,
     // gasBudgetForStake: number
-    const {
-      network,
-      coins,
-      gasCoins,
-      amount,
-      validator,
-      vault,
-      gasBudgetForStake,
-    } = params;
+    const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
+      params;
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
     const provider = new TxProvider(
       network.queryRpcUrl,
       network.versionCacheTimoutInSeconds
@@ -481,6 +485,36 @@ export class TransactionApi implements ITransactionApi {
       gasCoins,
       amount,
       validator,
+      vault,
+      gasBudgetForStake
+    );
+  }
+
+  async unStakeCoin(params: UnStakeCoinParams) {
+    const {
+      network,
+      gasBudgetForStake,
+      walletId,
+      accountId,
+      token,
+      delegation,
+      stakedSuiId,
+    } = params;
+
+    //   const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
+    //   params;
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
+    const provider = new TxProvider(
+      network.queryRpcUrl,
+      network.versionCacheTimoutInSeconds
+    );
+    return await provider.unStakeCoin(
+      delegation,
+      stakedSuiId,
       vault,
       gasBudgetForStake
     );
