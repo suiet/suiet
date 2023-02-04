@@ -2,11 +2,38 @@ import AppLayout from '../../layouts/AppLayout';
 import Button from '../../components/Button';
 import ValidatorSelector from '../../components/ValidatorSelector';
 import { useApiClient } from '../../hooks/useApiClient';
+import { StakeCoinParams } from '@suiet/core';
+import { useNetwork } from '../../hooks/useNetwork';
+import { useState } from 'react';
+import { RootState } from '../../store';
+import { useSelector } from 'react-redux';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
+  const appContext = useSelector((state: RootState) => state.appContext);
+  const { data: network } = useNetwork(appContext.networkId);
+  const { walletId } = useSelector((state: RootState) => state.appContext);
   async function StakeCoins() {
     try {
+      // TODO:
+      // 1. get coins object
+      // 2. assign gasCoins?
+      // 3. caculate amoubt
+      async function fetchAccount(_: string, accountId: string) {
+        if (!accountId) return;
+        return await apiClient.callFunc<StakeCoinParams, undefined>(
+          'txn.stakeCoin',
+          {
+            network,
+            walletId,
+            coins: [],
+            gasCoins: [],
+            validator: '',
+            gasBudgetForStake: 0,
+          }
+        );
+      }
+
       // await apiClient.callFunc<OmitToken<TransferCoinParams>, undefined>(
       //   'txn.transferCoin',
       //   {
