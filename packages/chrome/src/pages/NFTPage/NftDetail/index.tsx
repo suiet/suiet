@@ -33,7 +33,9 @@ const NftDetail = () => {
 
   function getExplorerUrl(id: string, networkId: string) {
     return (
-      `https://explorer.${networkId}.sui.io/objects/` + encodeURIComponent(id)
+      `https://explorer.sui.io/objects/` +
+      encodeURIComponent(id) +
+      `?network=${networkId}`
     );
   }
 
