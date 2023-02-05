@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Note: this script assumes that pwd is packages/expo
+
+set -e
+
+pushd ../../
+HUSKY=0 npm i
+popd
+
+pushd ../../packages/core
+npm run build
+popd
