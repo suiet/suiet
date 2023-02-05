@@ -47,6 +47,7 @@ export function decryptMnemonic(
   token: Buffer,
   encryptedMnemonic: string
 ): string {
+  const t = Date.now();
   const aesCtr = new ModeOfOperation.ctr(token);
   const encryptedBytes = Buffer.from(encryptedMnemonic, 'hex');
   const mnemonicBytes = aesCtr.decrypt(encryptedBytes);
@@ -54,6 +55,7 @@ export function decryptMnemonic(
   if (!validateMnemonic(mnemonic)) {
     throw new Error('Invalid password');
   }
+  console.log('decryptMnemonic', Date.now() - t);
   return mnemonic;
 }
 

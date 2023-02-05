@@ -120,7 +120,9 @@ export class WalletApi implements IWalletApi {
       avatar: params.avatar ? params.avatar : whichAvatar(walletId),
     };
     const hdPath = crypto.derivationHdPath(0);
+    const t = Date.now();
     const vault = await Vault.create(hdPath, token, wallet.encryptedMnemonic);
+    console.log('vault create time', Date.now() - t);
     // TODO: cache vaults
     const account = {
       id: accountIdStr,

@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Suiet",
+    "slug": "Suiet Wallet",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/ic_launcher-playstore.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.suiet.wallet"
+    },
+    "android": {
+      "package": "app.suiet.wallet",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ic_launcher-playstore.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "jsEngine": "hermes"
+  }
+}
