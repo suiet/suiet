@@ -12,6 +12,7 @@ import {
   SuiTransactionKind,
   getMoveCallTransaction,
   getTransactionKindName,
+  SUI_TYPE_ARG,
   getPublishTransaction,
   PaySui,
   PayAllSui,
@@ -754,17 +755,25 @@ export class TxProvider {
   }
 
   public async stakeCoin(
-    coins: SuiMoveObject[],
-    gasCoins: SuiMoveObject[],
+    coins: CoinObject[],
     amount: bigint,
     validator: string,
     vault: Vault,
     gasBudgetForStake: number
   ): Promise<SuiExecuteTransactionResponse> {
+    // todo select inside core
+    // coins: SuiMoveObject[],
+    // gasCoins: SuiMoveObject[],
+
+    // fixme: auto splite coin if coin appears in both coins and gas coins
+
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
+
     // sort to get the smallest one for gas
-    const sortedGasCoins = CoinAPI.sortByBalance(gasCoins);
+    const sortedGasCoins = CoinAPI.sortByBalance(
+      coins.filter((coin) => coin.symbol === 'SUI').map((coin) => coin.object)
+    );
 
     const gasCoin = CoinAPI.selectCoinWithBalanceGreaterThanOrEqual(
       sortedGasCoins,
@@ -778,10 +787,10 @@ export class TxProvider {
     if (!coins.length) {
       throw new Error('Insufficient funds, no coins found.');
     }
-    const isSui = CoinAPI.getCoinTypeArg(coins[0]) === SUI_TYPE_ARG;
+    const isSui = CoinAPI.getCoinTypeArg(coins[0].object) === SUI_TYPE_ARG;
     const stakeCoins =
       CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-        coins,
+        coins.map((coin) => coin.object),
         amount,
         isSui ? [CoinAPI.getID(gasCoin)] : undefined
       ).map(CoinAPI.getID);
