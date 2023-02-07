@@ -463,26 +463,23 @@ export class TransactionApi implements ITransactionApi {
   }
 
   async stakeCoin(params: StakeCoinParams) {
-    // coins: SuiMoveObject[],
-    // gasCoins: SuiMoveObject[],
-    // amount: bigint,
-    // validator: string, // address
-    // vault: Vault,
-    // gasBudgetForStake: number
-    const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
-      params;
+    const { network, amount, validator, gasBudgetForStake } = params;
     const vault = await this.prepareVault(
       params.walletId,
       params.accountId,
       params.token
     );
-    const provider = new TxProvider(
+
+    const provider = new Provider(
       network.queryRpcUrl,
+      network.txRpcUrl,
       network.versionCacheTimoutInSeconds
     );
-    return await provider.stakeCoin(
+
+    const coins = provider.query.getOwnedCoins(vault.getAddress());
+
+    return await provider.tx.stakeCoin(
       coins,
-      gasCoins,
       amount,
       validator,
       vault,
@@ -503,11 +500,7 @@ export class TransactionApi implements ITransactionApi {
 
     //   const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
     //   params;
-    const vault = await this.prepareVault(
-      params.walletId,
-      params.accountId,
-      params.token
-    );
+    const vault = await this.prepareVault(walletId, accountId, token);
     const provider = new TxProvider(
       network.queryRpcUrl,
       network.versionCacheTimoutInSeconds
