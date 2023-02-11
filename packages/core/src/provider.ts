@@ -24,6 +24,7 @@ import {
   RawSigner,
   SignableTransaction,
   SuiExecuteTransactionResponse,
+  ExecuteTransactionRequestType,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -746,10 +747,11 @@ export class TxProvider {
 
   public async signAndExecuteTransaction(
     tx: SignableTransaction,
-    vault: Vault
+    vault: Vault,
+    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
   ): Promise<SuiExecuteTransactionResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
-    return signer.signAndExecuteTransaction(tx);
+    return await signer.signAndExecuteTransaction(tx, requestType);
   }
 }
