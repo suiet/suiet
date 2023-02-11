@@ -144,7 +144,7 @@ export interface ITransactionApi {
   getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObjectDto[]>;
   getCoinsBalance: (
     params: GetOwnedObjParams
-  ) => Promise<Array<{ symbol: string; balance: string }>>;
+  ) => Promise<Array<{ symbol: string; type: string; balance: string }>>;
 
   mintExampleNft: (params: MintNftParams) => Promise<void>;
 
@@ -257,7 +257,7 @@ export class TransactionApi implements ITransactionApi {
 
   async getCoinsBalance(
     params: GetOwnedObjParams
-  ): Promise<Array<{ symbol: string; balance: string }>> {
+  ): Promise<Array<{ symbol: string; type: string; balance: string }>> {
     const { network, address } = params;
     const provider = new Provider(
       network.queryRpcUrl,
@@ -266,13 +266,17 @@ export class TransactionApi implements ITransactionApi {
     );
     const objects = await provider.query.getOwnedCoins(address);
     const result = new Map();
+
+    // using type to agg
     for (const object of objects) {
-      result.has(object.symbol)
-        ? result.set(object.symbol, result.get(object.symbol) + object.balance)
-        : result.set(object.symbol, object.balance);
+      result.has(object.type)
+        ? result.set(object.type, result.get(object.type) + object.balance)
+        : result.set(object.type, object.balance);
     }
+
     return Array.from(result.entries()).map((item) => ({
-      symbol: item[0] as string,
+      symbol: item[0].substring(item[0].lastIndexOf(':') + 1),
+      type: item[0],
       balance: String(item[1]),
     }));
   }
