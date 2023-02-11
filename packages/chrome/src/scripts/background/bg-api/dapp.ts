@@ -14,6 +14,7 @@ import { isNonEmptyArray } from '../../../utils/check';
 import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
 import {
   CertifiedTransaction,
+  ExecuteTransactionRequestType,
   getCertifiedTransaction,
   getTransactionEffects,
   MoveCallTransaction,
@@ -226,7 +227,10 @@ export class DappBgApi {
   }
 
   public async signAndExecuteTransaction(
-    payload: DappMessage<{ transaction: SignableTransaction }>
+    payload: DappMessage<{
+      transaction: SignableTransaction;
+      requestType?: ExecuteTransactionRequestType;
+    }>
   ): Promise<SuiSignAndExecuteTransactionOutput> {
     if (!payload.params?.transaction) {
       throw new InvalidParamError('params transaction is required');
@@ -239,7 +243,7 @@ export class DappBgApi {
     const connectionCtx = await this._prepareConnectionContext(payload.context);
     await this._transactionGuard(payload.params.transaction, connectionCtx);
 
-    const { transaction } = payload.params;
+    const { transaction, requestType } = payload.params;
     const network = await this._getNetwork(connectionCtx.networkId);
     const txMetadata = await this._transactionMetadata(
       transaction,
@@ -273,6 +277,7 @@ export class DappBgApi {
             }
           : transaction,
       context: txContext,
+      requestType,
     });
     return {
       certificate: getCertifiedTransaction(response) as CertifiedTransaction,

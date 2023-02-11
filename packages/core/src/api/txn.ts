@@ -12,6 +12,7 @@ import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
   CertifiedTransaction,
+  ExecuteTransactionRequestType,
   getCertifiedTransaction,
   getTransactionEffects,
   MoveCallTransaction,
@@ -126,6 +127,7 @@ export interface TxEssentials {
 export type SendAndExecuteTxParams<T> = {
   transaction: T;
   context: TxEssentials;
+  requestType?: ExecuteTransactionRequestType;
 };
 export type MoveCallParams = SendAndExecuteTxParams<MoveCallTransaction>;
 
@@ -198,7 +200,7 @@ export class TransactionApi implements ITransactionApi {
     if (!res) {
       throw new RpcError('no response');
     }
-    const statusResult = (res as any)?.EffectsCert?.effects?.effects?.status;
+    const statusResult = (res as any)?.effects?.effects?.status;
     if (!statusResult) {
       throw new RpcError('invalid transaction status response');
     }
@@ -376,7 +378,11 @@ export class TransactionApi implements ITransactionApi {
     params: SendAndExecuteTxParams<SignableTransaction>
   ) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
-    return await provider.signAndExecuteTransaction(params.transaction, vault);
+    return await provider.signAndExecuteTransaction(
+      params.transaction,
+      vault,
+      params.requestType
+    );
   }
 
   private async prepareVault(

@@ -117,7 +117,7 @@ export class SuietWallet implements Wallet {
         on: this.#on,
       },
       [Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION]: {
-        version: '1.0.0',
+        version: '1.1.0',
         signAndExecuteTransaction: this.#signAndExecuteTransaction,
       },
       [Feature.EXP__SIGN_MESSAGE]: {
@@ -197,6 +197,7 @@ export class SuietWallet implements Wallet {
       SuiSignAndExecuteTransactionOutput
     >(funcName, {
       transaction: input.transaction,
+      options: input.options,
     });
   };
 
