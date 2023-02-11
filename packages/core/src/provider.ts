@@ -400,10 +400,10 @@ export class QueryProvider {
               effect.effects.gasUsed.storageCost -
               effect.effects.gasUsed.storageRebate,
             from: data.sender,
-            to: moveCall.package.objectId,
+            to: moveCall.package,
             object: {
               type: 'move_call' as 'move_call',
-              packageObjectId: moveCall.package.objectId,
+              packageObjectId: moveCall.package,
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
