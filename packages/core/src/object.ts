@@ -32,7 +32,7 @@ export class Coin {
     const arg = Coin.getCoinTypeArg(obj);
     return {
       objectId: obj.fields.id.id,
-      type: arg ? Coin.getCoinTypeFromArg(arg) : '',
+      type: Coin.getCoinTypeArg(obj) as string,
       symbol: arg ? Coin.getCoinSymbol(arg) : '',
       balance: BigInt(obj.fields.balance),
       object: obj,

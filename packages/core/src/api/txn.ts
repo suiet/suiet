@@ -273,7 +273,6 @@ export class TransactionApi implements ITransactionApi {
         ? result.set(object.type, result.get(object.type) + object.balance)
         : result.set(object.type, object.balance);
     }
-
     return Array.from(result.entries()).map((item) => ({
       symbol: item[0].substring(item[0].lastIndexOf(':') + 1),
       type: item[0],
