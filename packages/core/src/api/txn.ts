@@ -28,6 +28,7 @@ import {
 } from '@mysten/sui.js';
 import { SignedMessage } from '../vault/types';
 import { RpcError } from '../errors';
+import { type } from 'superstruct';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -272,6 +273,12 @@ export class TransactionApi implements ITransactionApi {
       params.network.versionCacheTimoutInSeconds
     );
     let result: any = await provider.query.getTransactionsForAddress(address);
+
+    console.log(
+      result.filter(
+        (tx) => typeof tx?.from !== 'string' || typeof tx?.to !== 'string'
+      )
+    );
 
     // transform the balance of coin obj from bigint to string
     result = result.map((item: TxnHistoryEntry) => {

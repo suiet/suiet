@@ -5,26 +5,39 @@ import { useQuery } from '@apollo/client';
 import { GET_VALIDATORS } from '../../utils/graphql/query';
 import classNames from 'classnames';
 import Address from '../Address';
+import Skeleton from 'react-loading-skeleton';
+import { useEffect, useState } from 'react';
 export default function ValidatorSelector() {
   const { loading, error, data } = useQuery(GET_VALIDATORS);
+  const [defaultValue, setDefaultValue] = useState('');
   const validators = data?.validators || [];
-  return (
-    <Select.Root>
+  useEffect(() => {
+    setDefaultValue(validators[0]?.suiAddress);
+  }, [validators]);
+  return loading && data?.validators ? (
+    <div className="rounded-2xl validator-info p-4 flex items-center justify-between m-2 bg-sky-50 ">
+      <Skeleton className={classNames('w-full', 'h-full')}>
+        {defaultValue}
+      </Skeleton>
+    </div>
+  ) : (
+    <Select.Root defaultValue={defaultValue}>
       <Select.Trigger
         className="SelectTrigger w-full outline-none"
         aria-label="Food"
       >
         <div className="rounded-2xl validator-info p-4 flex items-center justify-between m-2 bg-sky-50 ">
-          <div className="flex items-center gap-2">
-            <img className="w-[24px] h-[24px] rounded-full"></img>
-            <div className="text-sky-800 text-md font-medium">
-              <Select.Value placeholder="Select a validator" />
+          <>
+            <div className="flex items-center gap-2">
+              <img className="w-[24px] h-[24px] rounded-full"></img>
+              <div className="text-sky-800 text-md font-medium">
+                <Select.Value placeholder="Select a validator" />
+              </div>
             </div>
-          </div>
-
-          <Select.Icon className="SelectIcon">
-            <IconRightArrow />
-          </Select.Icon>
+            <Select.Icon className="SelectIcon">
+              <IconRightArrow />
+            </Select.Icon>
+          </>
         </div>
       </Select.Trigger>
       <Select.Portal className="fixed bottom-0 left-0 right-0 bg-white w-full p-4 pb=0">
