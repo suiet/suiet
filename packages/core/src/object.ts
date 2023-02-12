@@ -7,10 +7,11 @@ import {
 } from '@mysten/sui.js';
 
 const COIN_TYPE = '0x2::coin::Coin';
-const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
+export const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 const DEFAULT_GAS_BUDGET_FOR_PAY = 150;
 
 export type CoinObject = {
+  type: string;
   objectId: string;
   symbol: string;
   balance: bigint;
@@ -31,6 +32,7 @@ export class Coin {
     const arg = Coin.getCoinTypeArg(obj);
     return {
       objectId: obj.fields.id.id,
+      type: Coin.getCoinTypeArg(obj) as string,
       symbol: arg ? Coin.getCoinSymbol(arg) : '',
       balance: BigInt(obj.fields.balance),
       object: obj,

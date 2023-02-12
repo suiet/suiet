@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Suiet",
+    "slug": "suiet-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/ic_launcher-playstore.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ac.oasis.Suiet"
+    },
+    "android": {
+      "package": "ac.oasis.Suiet",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ic_launcher-playstore.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "jsEngine": "hermes",
+
+    "extra": {
+      "eas": {
+        "projectId": "b3e4434c-02b6-4090-95a6-0103915d9b54"
+      }
+    }
+  }
+}
