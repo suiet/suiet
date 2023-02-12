@@ -50,7 +50,6 @@ function normalizeHistory(history: TxnHistroyEntry[], address: string) {
         res[dt] = [finalItem];
         days.push(dt);
       } else {
-        console.log(res[dt]);
         res[dt].push(finalItem);
       }
     }
