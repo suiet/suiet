@@ -6,7 +6,6 @@ const serviceWorkerScope: any = self;
 if (isExtBackgroundServiceWork()) {
   // shim XHR for service worker env
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  // const { default: XhrShim } = require('xhr-shim');
   serviceWorkerScope.XMLHttpRequest = XhrShim;
   serviceWorkerScope.Buffer = Buffer;
 }

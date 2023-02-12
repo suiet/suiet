@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "workspaces": [
-    "packages/*"
+    "packages/chrome",
+    "packages/core"
   ],
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.36.1",

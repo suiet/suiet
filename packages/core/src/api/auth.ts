@@ -76,18 +76,32 @@ export class AuthApi implements IAuthApi {
       dataVersion: DATA_VERSION,
     };
     const wallets = await this.storage.getWallets();
-    wallets.forEach((wallet) => {
-      const mnemonic = crypto.decryptMnemonic(
-        currentToken,
-        wallet.encryptedMnemonic
-      );
-      wallet.encryptedMnemonic = crypto
-        .encryptMnemonic(newToken, mnemonic)
-        .toString('hex');
-    });
+    {
+      const t = Date.now();
+      try {
+        wallets.forEach((wallet) => {
+          const mnemonic = crypto.decryptMnemonic(
+            currentToken,
+            wallet.encryptedMnemonic
+          );
+          wallet.encryptedMnemonic = crypto
+            .encryptMnemonic(newToken, mnemonic)
+            .toString('hex');
+        });
+      } finally {
+        console.log('decryptMnemonic', Date.now() - t);
+      }
+    }
     await this.storage.updateMetaAndWallets(newMeta, wallets);
 
-    await this.login(newPassword);
+    {
+      const t = Date.now();
+      try {
+        await this.login(newPassword);
+      } finally {
+        console.log('login', Date.now() - t);
+      }
+    }
   }
 
   public async verifyPassword(password: string) {
@@ -113,8 +127,11 @@ export class AuthApi implements IAuthApi {
   }
 
   public async login(password: string) {
+    const t = Date.now();
     const token = await this.loadTokenWithPassword(password);
+    console.log('loadTokenWithPassword', Date.now() - t);
     await maybeFixDataConsistency(this.storage, token);
+    console.log('maybeFixDataConsistency', Date.now() - t);
     this.session.setToken(token);
     // no need to await as we don't care about the result
     // and we don't want to block the login process
@@ -130,11 +147,14 @@ export class AuthApi implements IAuthApi {
     if (!meta) {
       throw new MetadataMissingError();
     }
+    const t = Date.now();
     const salt = Buffer.from(meta.cipher.salt, 'hex');
     const token = crypto.password2Token(password, salt);
+    console.log('password2Token', Date.now() - t);
     if (!crypto.validateToken(token, meta.cipher)) {
       throw new Error('Invalid password');
     }
+    console.log('validateToken', Date.now() - t);
     return token.toString('hex');
   }
 
@@ -387,6 +407,7 @@ async function maybeFixDataConsistency(storage: Storage, token: string) {
         continue;
       }
       const res = accountData.hdPath.match(/^m\/44'\/784'\/(\d+)'$/);
+      const t = Date.now();
       // console.log(res, accountData);
       if (res) {
         const path = crypto.derivationHdPath(+res[1]);
@@ -395,11 +416,13 @@ async function maybeFixDataConsistency(storage: Storage, token: string) {
         );
         accountData.hdPath = path;
       }
+      console.log('crypto.derivationHdPath', Date.now() - t);
       const vault = await Vault.create(
         accountData.hdPath,
         Buffer.from(token, 'hex'),
         wallet.encryptedMnemonic
       );
+      console.log('Vault.create', Date.now() - t);
       if (accountData.address !== vault.getAddress()) {
         console.debug(
           `update account address from ${

@@ -15,6 +15,7 @@ import { swrKeyWithNetwork, useNetwork } from '../../../hooks/useNetwork';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
 import { swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
 import { mutate } from 'swr';
 export type ReceiveButtonProps = {
   address: string;
@@ -75,7 +76,10 @@ function MainPage({ address, networkId }: DashboardProps) {
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
-
+  const featureFlags = useFeatureFlags();
+  const faucetApi = featureFlags?.networks
+    ? featureFlags.networks[networkId]?.faucet_api
+    : `https://faucet.${networkId}.sui.io/gas`;
   return (
     <div className={styles['main-content']}>
       <Banner />
@@ -111,21 +115,26 @@ function MainPage({ address, networkId }: DashboardProps) {
                   }),
                 };
                 setAirdropLoading(true);
-                fetch(`https://faucet.${networkId}.sui.io/gas`, options)
+                fetch(faucetApi, options)
                   .then(async (response) => {
                     if (response.ok) {
                       message.success('Airdrop succeeded');
                       return await response.json();
                     } else {
                       const text = await response.text();
-                      if (text.includes('rate limited')) {
-                        message.error(
-                          'You have been rate limited, please try again 6 hours later'
-                        );
-                      } else {
-                        message.error(
-                          'Sui network is not available, please try again in a few hours'
-                        );
+                      try {
+                        const json = JSON.parse(text);
+                        message.error(json.error);
+                      } catch (e) {
+                        if (text.includes('rate limited')) {
+                          message.error(
+                            'You have been rate limited, please try again 6 hours later'
+                          );
+                        } else {
+                          message.error(
+                            'Sui network is not available, please try again in a few hours'
+                          );
+                        }
                       }
                     }
                   })

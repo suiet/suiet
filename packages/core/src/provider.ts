@@ -25,6 +25,7 @@ import {
   RawSigner,
   SignableTransaction,
   SuiExecuteTransactionResponse,
+  ExecuteTransactionRequestType,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -400,10 +401,10 @@ export class QueryProvider {
               effect.effects.gasUsed.storageCost -
               effect.effects.gasUsed.storageRebate,
             from: data.sender,
-            to: moveCall.package.objectId as string,
+            to: moveCall.package,
             object: {
               type: 'move_call' as 'move_call',
-              packageObjectId: moveCall.package.objectId,
+              packageObjectId: moveCall.package,
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
@@ -747,11 +748,12 @@ export class TxProvider {
 
   public async signAndExecuteTransaction(
     tx: SignableTransaction,
-    vault: Vault
+    vault: Vault,
+    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
   ): Promise<SuiExecuteTransactionResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
-    return await signer.signAndExecuteTransaction(tx);
+    return await signer.signAndExecuteTransaction(tx, requestType);
   }
 
   public async stakeCoin(
