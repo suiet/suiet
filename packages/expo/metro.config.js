@@ -24,6 +24,8 @@ config.resolver.extraNodeModules = {
   stream: require.resolve('readable-stream/'),
   crypto: require.resolve('react-native-crypto/'),
   // crypto: 'empty',
+
+  'xhr-shim': 'empty',
 };
 
 module.exports = config;
