@@ -48,5 +48,8 @@
   "lint-staged": {
     "*": "prettier --write --ignore-unknown",
     "*.{jsx?,tsx?}": "eslint --fix"
+  },
+  "dependencies": {
+    "build": "^0.1.4"
   }
 }
