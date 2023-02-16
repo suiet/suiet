@@ -4,7 +4,9 @@
   "packageRules": [
     {
       "packagePatterns": ["*"],
-      "excludePackagePatterns": ["^swr"]
+      "excludePackagePatterns": ["^swr"],
+      "groupName": "dependencies",
+      "automerge": true
     }
   ]
 }
