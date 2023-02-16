@@ -3,7 +3,8 @@
   "extends": ["config:base"],
   "packageRules": [
     {
-      "packagePatterns": ["*"]
+      "packagePatterns": ["*"],
+      "excludePackagePatterns": ["^swr"]
     }
   ]
 }
