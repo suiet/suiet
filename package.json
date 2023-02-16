@@ -50,6 +50,10 @@
     "*.{jsx?,tsx?}": "eslint --fix"
   },
   "dependencies": {
+<<<<<<< HEAD
     "install": "^0.13.0"
+=======
+    "build": "^0.1.4"
+>>>>>>> 38bbb58 (feat: upgrade dependency)
   }
 }
