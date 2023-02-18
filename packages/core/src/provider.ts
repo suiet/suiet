@@ -57,7 +57,7 @@ export function getPayAllSuiTransaction(
 }
 
 export function getVersionFoundResponse(
-  resp: GetPastObjectDataResponse
+  resp: GetPastObjectDataResponseType
 ): SuiObject | undefined {
   return resp.status === 'VersionFound'
     ? (resp.details as SuiObject)
@@ -65,7 +65,7 @@ export function getVersionFoundResponse(
 }
 
 export function getObjectNotExistsResponse(
-  resp: GetPastObjectDataResponse
+  resp: GetPastObjectDataResponseType
 ): ObjectId | undefined {
   return resp.status === 'ObjectNotExists'
     ? (resp.details as ObjectId)
@@ -73,7 +73,7 @@ export function getObjectNotExistsResponse(
 }
 
 export function getObjectDeletedResponse(
-  resp: GetPastObjectDataResponse
+  resp: GetPastObjectDataResponseType
 ): SuiObjectRef | undefined {
   return resp.status === 'ObjectDeleted'
     ? (resp.details as SuiObjectRef)
@@ -81,7 +81,7 @@ export function getObjectDeletedResponse(
 }
 
 export function getVersionNotFoundResponse(
-  resp: GetPastObjectDataResponse
+  resp: GetPastObjectDataResponseType
 ): [string, number] | undefined {
   return resp.status === 'VersionNotFound'
     ? (resp.details as [string, number])
@@ -89,14 +89,14 @@ export function getVersionNotFoundResponse(
 }
 
 export function getVersionTooHighResponse(
-  resp: GetPastObjectDataResponse
-): SuiPastVersionTooHigh | undefined {
+  resp: GetPastObjectDataResponseType
+): SuiPastVersionTooHighType | undefined {
   return resp.status === 'VersionTooHigh'
-    ? (resp.details as SuiPastVersionTooHigh)
+    ? (resp.details as SuiPastVersionTooHighType)
     : undefined;
 }
 
-type SuiPastVersionTooHigh = {
+type SuiPastVersionTooHighType = {
   object_id: string;
   asked_version: number;
   latest_version: number;
@@ -105,7 +105,7 @@ type SuiPastVersionTooHigh = {
 export function isSuiPastVersionTooHigh(
   obj: any,
   _argumentName?: string
-): obj is SuiPastVersionTooHigh {
+): obj is SuiPastVersionTooHighType {
   return (
     ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
     typeof obj.object_id === 'string' &&
@@ -122,7 +122,7 @@ const PastObjectStatus = union([
   literal('VersionTooHigh'),
 ]);
 
-type PastObjectStatus = Infer<typeof PastObjectStatus>;
+type PastObjectStatusType = Infer<typeof PastObjectStatus>;
 
 const SuiPastVersionTooHigh = object({
   object_id: string(),
@@ -141,7 +141,7 @@ const GetPastObjectDataResponse = object({
   ]),
 });
 
-type GetPastObjectDataResponse = Infer<typeof GetPastObjectDataResponse>;
+type GetPastObjectDataResponseType = Infer<typeof GetPastObjectDataResponse>;
 
 export const DEFAULT_GAS_BUDGET = 2000;
 
@@ -647,7 +647,7 @@ export class QueryProvider {
   async tryGetPastObject(
     objectId: string,
     version: number
-  ): Promise<GetPastObjectDataResponse> {
+  ): Promise<GetPastObjectDataResponseType> {
     try {
       return await this.client.requestWithType(
         'sui_tryGetPastObject',
