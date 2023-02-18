@@ -12,7 +12,7 @@ import { fullyFormatCurrency } from '../../../utils/format';
 import { Coin, useCoins } from '../../../hooks/useCoins';
 import { isNonEmptyArray } from '../../../utils/check';
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
@@ -22,7 +22,7 @@ type TokenItemProps = Extendable & {
 
 const TokenItem = (props: TokenItemProps) => {
   const { amount = 0 } = props;
-
+  const navigate = useNavigate();
   return (
     <div
       className={classnames(
@@ -30,7 +30,10 @@ const TokenItem = (props: TokenItemProps) => {
         props.symbol === 'SUI' ? styles['token-item-sui'] : null
       )}
     >
-      <div className="flex w-full flex-row items-center justify-between">
+      <Link
+        className="flex w-full flex-row items-center justify-between"
+        to={'/coin/detail/' + props.symbol}
+      >
         <div className="flex">
           <TokenIcon
             icon={props.symbol === 'SUI' ? IconWaterDrop : IconToken}
@@ -59,11 +62,19 @@ const TokenItem = (props: TokenItemProps) => {
           </div>
         </div>
         {props.symbol === 'SUI' && (
-          <Link className={styles['click-button']} to={'/staking'}>
+          <button
+            className={styles['click-button']}
+            onClick={(e) => {
+              // to={'/staking'}
+              e.preventDefault();
+              e.stopPropagation();
+              navigate('/staking');
+            }}
+          >
             Stake
-          </Link>
+          </button>
         )}
-      </div>
+      </Link>
     </div>
   );
 };

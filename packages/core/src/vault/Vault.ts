@@ -49,9 +49,7 @@ export class Vault {
   }
 
   public async signTransaction(unsigned: UnsignedTx): Promise<SignedTx> {
-    const signature = await this.hdKey.sign(
-      Buffer.from(unsigned.data.getData())
-    );
+    const signature = await this.hdKey.sign(Buffer.from(unsigned.data));
     const pubKey = await this.hdKey.getPublicKey();
     return {
       data: unsigned.data,

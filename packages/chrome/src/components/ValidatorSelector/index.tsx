@@ -2,26 +2,34 @@
 import * as Select from '@radix-ui/react-select';
 import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow.svg';
 import { useQuery } from '@apollo/client';
-import { GET_VALIDATORS } from '../../utils/graphql/query';
 import classNames from 'classnames';
 import Address from '../Address';
 import Skeleton from 'react-loading-skeleton';
 import { useEffect, useState } from 'react';
-export default function ValidatorSelector() {
-  const { loading, error, data } = useQuery(GET_VALIDATORS);
-  const [defaultValue, setDefaultValue] = useState('');
-  const validators = data?.validators || [];
+import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
+import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
+export default function ValidatorSelector({
+  loading,
+  validators,
+  selectedValidator,
+  setSelectedValidator,
+}) {
   useEffect(() => {
-    setDefaultValue(validators[0]?.suiAddress);
+    setSelectedValidator(validators[0]?.suiAddress);
   }, [validators]);
-  return loading && data?.validators ? (
+
+  const selectedValidatorImg = validators.find((validator) => {
+    if (validator.suiAddress === selectedValidator) {
+      return true;
+    }
+    return false;
+  })?.imageURL;
+  return loading && selectedValidator ? (
     <div className="rounded-2xl validator-info p-4 flex items-center justify-between m-2 bg-sky-50 ">
-      <Skeleton className={classNames('w-full', 'h-full')}>
-        {defaultValue}
-      </Skeleton>
+      <Skeleton className={classNames('w-full', 'h-full')} />
     </div>
   ) : (
-    <Select.Root defaultValue={defaultValue}>
+    <Select.Root value={selectedValidator} onValueChange={setSelectedValidator}>
       <Select.Trigger
         className="SelectTrigger w-full outline-none"
         aria-label="Food"
@@ -29,7 +37,16 @@ export default function ValidatorSelector() {
         <div className="rounded-2xl validator-info p-4 flex items-center justify-between m-2 bg-sky-50 ">
           <>
             <div className="flex items-center gap-2">
-              <img className="w-[24px] h-[24px] rounded-full"></img>
+              {selectedValidatorImg ? (
+                <img
+                  src={selectedValidatorImg}
+                  className={classNames('w-[32px]', 'h-[32px]', 'rounded-xl')}
+                ></img>
+              ) : (
+                <IconStakeFilled
+                  className={classNames('w-[32px]', 'h-[32px]')}
+                ></IconStakeFilled>
+              )}
               <div className="text-sky-800 text-md font-medium">
                 <Select.Value placeholder="Select a validator" />
               </div>
@@ -92,10 +109,21 @@ export function ValidatorItem({
       <div className="w-full flex items-center justify-between pl-2 pr-4 py-3">
         <div className="flex items-center">
           <div className="">
-            <img
-              src={imageURL}
-              className={classNames('w-8', 'h-8', 'rounded-xl', 'm-2')}
-            ></img>
+            {imageURL ? (
+              <img
+                src={imageURL}
+                className={classNames(
+                  'w-[32px]',
+                  'h-[32px]',
+                  'rounded-xl',
+                  'm-2'
+                )}
+              ></img>
+            ) : (
+              <IconStake
+                className={classNames('w-[32px]', 'h-[32px]', 'm-2')}
+              ></IconStake>
+            )}
           </div>
           <div className="flex flex-col">
             <Select.ItemText className="font-bold">{name}</Select.ItemText>
