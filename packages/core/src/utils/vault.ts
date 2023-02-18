@@ -1,7 +1,6 @@
 import { Vault } from '../vault/Vault';
 import { Account, Wallet } from '../storage/types';
 import {
-  Base64DataBuffer,
   Ed25519PublicKey,
   ExportedKeypair,
   Keypair,
@@ -35,9 +34,9 @@ export function createKeypair(vault: Vault): Keypair {
     getPublicKey(): PublicKey {
       return new Ed25519PublicKey(vault.hdKey.getPublicKey());
     },
-    signData(data: Base64DataBuffer): Base64DataBuffer {
-      const buffer = Buffer.from(data.getData());
-      return new Base64DataBuffer(vault.hdKey.sign(buffer));
+    signData(data: Uint8Array): Uint8Array {
+      const buffer = Buffer.from(data);
+      return new Uint8Array(vault.hdKey.sign(buffer));
     },
   };
 }

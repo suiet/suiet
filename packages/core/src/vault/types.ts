@@ -1,13 +1,13 @@
-import { Base64DataBuffer, Coin } from '@mysten/sui.js';
+import { Coin } from '@mysten/sui.js';
 
 export type UnsignedTx = {
-  data: Base64DataBuffer;
+  data: Uint8Array;
 };
 
 export type SignedTx = {
   signature: Buffer;
   pubKey: Buffer;
-  data: Base64DataBuffer;
+  data: Uint8Array;
 };
 
 export type SignedMessage = {

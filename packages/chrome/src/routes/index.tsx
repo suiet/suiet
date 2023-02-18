@@ -5,6 +5,9 @@ import { withSus } from '../components/TheSuspense';
 import Session from '../components/Session';
 
 const MainPage = lazy(async () => await import('../pages/MainPage'));
+const CoinDetailPage = lazy(
+  async () => await import('../pages/CoinDetailPage')
+);
 const NFTPage = lazy(async () => await import('../pages/NFTPage'));
 const NFTDetailPage = lazy(
   async () => await import('../pages/NFTPage/NftDetail')
@@ -86,6 +89,10 @@ const routesConfig: RouteObject[] = [
             element: withSus(<NFTSendPage />),
           },
         ],
+      },
+      {
+        path: 'coin/detail/:symbol',
+        element: withSus(<CoinDetailPage />),
       },
       {
         path: 'dapps',

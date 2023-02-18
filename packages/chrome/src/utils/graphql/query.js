@@ -11,6 +11,7 @@ export const GET_VALIDATORS = gql`
       stakeAmount
       commissionRate
       gasPrice
+      epoch
       apy
     }
   }
