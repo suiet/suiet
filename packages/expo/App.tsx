@@ -28,39 +28,39 @@ function HomeScreen() {
   const [token, setToken] = useState<string>();
   const [mnemonic, setMnemonic] = useState<string>();
 
-  useEffect(() => {
-    const execute = async () => {
-      const authApi = new AuthApi(storage);
-      const walletApi = new WalletApi(storage);
+  // useEffect(() => {
+  //   const execute = async () => {
+  //     const authApi = new AuthApi(storage);
+  //     const walletApi = new WalletApi(storage);
 
-      const t = Date.now();
+  //     const t = Date.now();
 
-      await storage.reset();
-      await authApi.initPassword(password);
-      await authApi.updatePassword({ oldPassword: password, newPassword: password });
-      // console.log('time to updatePassword', Date.now() - t);
-      const token = await authApi.loadTokenWithPassword(password);
-      // console.log('time to loadTokenWithPassword', Date.now() - t);
-      const wallet = await walletApi.createWallet({ token });
-      // console.log('time to createWallet', Date.now() - t);
-      const mnemonic = await walletApi.revealMnemonic({ walletId: wallet.id, token });
+  //     await storage.reset();
+  //     await authApi.initPassword(password);
+  //     await authApi.updatePassword({ oldPassword: password, newPassword: password });
+  //     // console.log('time to updatePassword', Date.now() - t);
+  //     const token = await authApi.loadTokenWithPassword(password);
+  //     // console.log('time to loadTokenWithPassword', Date.now() - t);
+  //     const wallet = await walletApi.createWallet({ token });
+  //     // console.log('time to createWallet', Date.now() - t);
+  //     const mnemonic = await walletApi.revealMnemonic({ walletId: wallet.id, token });
 
-      console.log('time to create a wallet: ', Date.now() - t);
+  //     console.log('time to create a wallet: ', Date.now() - t);
 
-      setToken(token);
-      setMnemonic(mnemonic);
-    };
+  //     setToken(token);
+  //     setMnemonic(mnemonic);
+  //   };
 
-    setTimeout(async () => {
-      await execute();
-    }, 500);
-  }, []);
+  //   setTimeout(async () => {
+  //     await execute();
+  //   }, 500);
+  // }, []);
 
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
       <Text>random string: {JSON.stringify(random)}</Text>
-      <StatusBar style="auto" />
+      {/* <StatusBar style="auto" /> */}
     </View>
   );
 }
@@ -74,14 +74,15 @@ const styles = StyleSheet.create({
   },
 });
 
-const Stack = createNativeStackNavigator();
+// const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function App() {
   return (
     <NavigationContainer>
+      <StatusBar style="dark" />
       <Tab.Navigator>
-        <Tab.Screen name="Coin" component={Coin} />
+        <Tab.Screen name="Coin" component={Coin} options={{ headerShown: false }} />
         <Tab.Screen name="Home2" component={HomeScreen} />
       </Tab.Navigator>
     </NavigationContainer>
