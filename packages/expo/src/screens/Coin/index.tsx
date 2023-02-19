@@ -43,6 +43,8 @@ import {
 } from '@styles/colors';
 import CoinIcon from '@components/CoinIcon';
 import ButtonWithIcon from '@components/ButtonWithIcon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 const Send: React.FC = () => {
   return (
@@ -158,6 +160,7 @@ const ListItem: React.FC<
 };
 
 const CoinAction: React.FC<{ text: string; iconSvg: string }> = ({ text, iconSvg }) => {
+  const { top, bottom } = useSafeAreaInsets();
   const [showModal, setShowModal] = useState(false);
   const toggleShowModal = () => setShowModal((modal) => !modal);
 
@@ -183,13 +186,10 @@ const CoinAction: React.FC<{ text: string; iconSvg: string }> = ({ text, iconSvg
          */
         backdropTransitionOutTiming={0}
       >
+        <View style={{ flexGrow: 1 }}></View>
         <View
           style={{
-            maxHeight: Dimensions.get('window').height - 100,
-            // minHeight: Dimensions.get('window').height - 300,
-
-            marginTop: 'auto',
-
+            marginTop: top,
             marginLeft: -21,
             marginRight: -21,
             marginBottom: -21, // hack
@@ -246,9 +246,9 @@ const CoinAction: React.FC<{ text: string; iconSvg: string }> = ({ text, iconSvg
           </View>
 
           <ScrollView style={{ marginTop: 68, paddingLeft: 24, paddingRight: 24 }}>
-            <Pressable>
-              <Send />
-            </Pressable>
+            <Send />
+
+            <View style={{ height: bottom }} />
           </ScrollView>
         </View>
       </Modal>
@@ -256,96 +256,107 @@ const CoinAction: React.FC<{ text: string; iconSvg: string }> = ({ text, iconSvg
   );
 };
 
-const Coin: React.FC = () => {
+const Coin: React.FC = ({}) => {
+  const navigation = useNavigation();
+  const { top } = useSafeAreaInsets();
+
   return (
-    <ScrollView style={{ backgroundColor: '#FFF', paddingLeft: 24, paddingRight: 24 }}>
-      <Image style={{ width: 64, height: 64 }} source={require('../../../assets/Avatar.png')} />
+    <View style={{ backgroundColor: '#FFF', paddingTop: top }}>
+      <ScrollView style={{ paddingTop: 24, paddingLeft: 24, paddingRight: 24 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home2')}>
+          <Image style={{ width: 64, height: 64 }} source={require('../../../assets/Avatar.png')} />
+        </TouchableOpacity>
 
-      <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-        <Text style={{ fontWeight: '700', fontSize: 32, lineHeight: 38, color: Gray_900 }}>Suiet</Text>
-        <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
-          <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
+        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+          <Text style={{ fontWeight: '700', fontSize: 32, lineHeight: 38, color: Gray_900 }}>Suiet</Text>
+          <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
+            <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
+          </View>
         </View>
-      </View>
 
-      <View>
-        <View
-          style={{
-            alignSelf: 'flex-start',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#EFF1F5',
-            borderRadius: 9999,
-            paddingLeft: 8,
-            paddingRight: 8,
-            paddingTop: 4,
-            paddingBottom: 4,
-          }}
-        >
-          <Text
+        <View>
+          <View
             style={{
-              fontWeight: '400',
-              fontSize: 14,
-              lineHeight: 18,
-              fontFamily: Platform.select({
-                ios: 'Menlo',
-                android: 'monospace',
-              }),
-              color: Gray_700,
+              alignSelf: 'flex-start',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#EFF1F5',
+              borderRadius: 9999,
+              paddingLeft: 8,
+              paddingRight: 8,
+              paddingTop: 4,
+              paddingBottom: 4,
             }}
           >
-            0x2152f....01f6
-          </Text>
-          <SvgXml style={{ margin: 4 }} width={12} height={12} color={Gray_700} xml={SvgCopy}></SvgXml>
+            <Text
+              style={{
+                fontWeight: '400',
+                fontSize: 14,
+                lineHeight: 18,
+                fontFamily: Platform.select({
+                  ios: 'Menlo',
+                  android: 'monospace',
+                }),
+                color: Gray_700,
+              }}
+            >
+              0x2152f....01f6
+            </Text>
+            <SvgXml style={{ margin: 4 }} width={12} height={12} color={Gray_700} xml={SvgCopy}></SvgXml>
+          </View>
         </View>
-      </View>
 
-      <View style={{ display: 'flex', flexDirection: 'row', marginTop: 16, marginBottom: 16 }}>
-        {[
-          {
-            svg: SvgPlus,
-            text: 'Buy',
-          },
-          {
-            svg: SvgArrowDown,
-            text: 'Receive',
-          },
-          {
-            svg: SvgArrowUp,
-            text: 'Send',
-          },
-          {
-            svg: SvgSwitchHorizontal01,
-            text: 'Swap',
-          },
-        ].map(({ svg, text }, index) => (
-          <CoinAction key={text} text={text} iconSvg={svg} />
-        ))}
-      </View>
-
-      <View>
-        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ flexGrow: 1, fontWeight: '700', fontSize: 16, lineHeight: 20, color: Gray_900 }}>Tokens</Text>
-          <Text style={{ color: Gray_400 }}>See all</Text>
-          <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml>
+        <View style={{ display: 'flex', flexDirection: 'row', marginTop: 16, marginBottom: 16 }}>
+          {[
+            {
+              svg: SvgPlus,
+              text: 'Buy',
+            },
+            {
+              svg: SvgArrowDown,
+              text: 'Receive',
+            },
+            {
+              svg: SvgArrowUp,
+              text: 'Send',
+            },
+            {
+              svg: SvgSwitchHorizontal01,
+              text: 'Swap',
+            },
+          ].map(({ svg, text }, index) => (
+            <CoinAction key={text} text={text} iconSvg={svg} />
+          ))}
         </View>
-        {['SUI', 'Token', 'SUI', 'Token', 'SUI', 'Token'].map((item, i) => {
-          const backgroundColor = Secondary_50;
-          const textColor = Gray_900;
-          return (
-            <ListItem
-              key={i}
-              backgroundColor={backgroundColor}
-              textColor={textColor}
-              symbol={item}
-              balance={'1234.56'}
-            />
-          );
-        })}
-      </View>
-    </ScrollView>
+
+        <View>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ flexGrow: 1, fontWeight: '700', fontSize: 16, lineHeight: 20, color: Gray_900 }}>
+              Tokens
+            </Text>
+            <Text style={{ color: Gray_400 }}>See all</Text>
+            <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml>
+          </View>
+          {['SUI', 'Token', 'SUI', 'Token', 'SUI', 'Token', 'SUI', 'Token', 'SUI', 'Token', 'SUI', 'Token'].map(
+            (item, i) => {
+              const backgroundColor = Secondary_50;
+              const textColor = Gray_900;
+              return (
+                <ListItem
+                  key={i}
+                  backgroundColor={backgroundColor}
+                  textColor={textColor}
+                  symbol={item}
+                  balance={'1234.56'}
+                />
+              );
+            }
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
