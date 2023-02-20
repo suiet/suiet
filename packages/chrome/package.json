@@ -21,7 +21,7 @@
     "@reduxjs/toolkit": "^1.8.5",
     "@suiet/core": "^1.0.0",
     "@suiet/wallet-adapter": "^0.0.19",
-    "@suiet/wallet-kit": "^0.1.24",
+    "@suiet/wallet-kit": "^0.1.25",
     "@wallet-standard/features": "1.0.1",
     "@wallet-standard/standard": "0.1.0-alpha.5",
     "@wallet-standard/util": "0.1.0-alpha.6",
