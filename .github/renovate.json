@@ -1,7 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": [
+    "config:base"
+  ],
   "packageRules": [
+    {
+      "packagePatterns": [
+        "*"
+      ],
+      "excludePackagePatterns": [
+        "^@wallet-standard",
+        "^@mysten",
+        "^@suiet"
+      ],
+      "enabled": false,
+      "groupName": "sui_dependencies",
+      "automerge": true
+    },
     {
       "packagePatterns": ["*"],
       "excludePackagePatterns": ["^swr"],
