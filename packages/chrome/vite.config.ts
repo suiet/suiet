@@ -7,7 +7,10 @@ import viteSvgr from 'vite-plugin-svgr';
 import { Buffer } from 'buffer';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  esbuild: {
+    pure: mode === 'production' ? ['console.log', 'debugger'] : [],
+  },
   build: {
     commonjsOptions: {
       // vite build use @rollup/plugin-commonjs as default, which transforms all the cjs files
@@ -22,4 +25,4 @@ export default defineConfig({
     'process.env': {},
   },
   plugins: [react(), crx({ manifest }), viteSvgr()],
-});
+}));
