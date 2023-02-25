@@ -46,7 +46,7 @@ export type TxnHistoryEntry<T = TxObject> = {
   from: string;
   to: string;
   object: T | MoveCallInfo<T>;
-  timestamp_ms: number | null;
+  timestamp_ms: number | null | undefined;
 };
 
 export type TxObject = CoinObject | NftObject | ObjectId;

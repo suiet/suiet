@@ -25,6 +25,7 @@ import {
   SignableTransaction,
   SuiExecuteTransactionResponse,
   ExecuteTransactionRequestType,
+  Connection,
 } from '@mysten/sui.js';
 import { Coin, CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
@@ -232,13 +233,16 @@ export class QueryProvider {
   provider: JsonRpcProvider;
   client: JsonRpcClient;
 
-  constructor(queryEndpoint: string, versionCacheTimoutInSeconds: number) {
-    this.provider = new JsonRpcProvider(queryEndpoint, {
-      skipDataValidation: true,
-      // TODO: add socket options
-      // socketOptions?: WebsocketClientOptions.
-      versionCacheTimoutInSeconds,
-    });
+  constructor(queryEndpoint: string, versionCacheTimeoutInSeconds: number) {
+    this.provider = new JsonRpcProvider(
+      new Connection({ fullnode: queryEndpoint }),
+      {
+        skipDataValidation: true,
+        // TODO: add socket options
+        // socketOptions?: WebsocketClientOptions.
+        versionCacheTimeoutInSeconds,
+      }
+    );
     this.client = new JsonRpcClient(queryEndpoint);
   }
 
@@ -319,11 +323,18 @@ export class QueryProvider {
     const effects = await this.provider.getTransactionWithEffectsBatch(digests);
     const results = [];
     for (const effect of effects) {
+      console.log('effect', effect);
+      if (!effect.certificate) {
+        throw new Error(
+          "response structure mismatch: effect doesn't contain certificate!"
+        );
+      }
       const data = getTransactionData(effect.certificate);
       for (const tx of data.transactions) {
         const transferSui = getTransferSuiTransaction(tx);
         const transferObject = getTransferObjectTransaction(tx);
         const moveCall = getMoveCallTransaction(tx);
+        console.log('moveCall in tx : ', moveCall);
         const pay = getPayTransaction(tx);
         const paySui = getPaySuiTransaction(tx);
         const payAllSui = getPayAllSuiTransaction(tx);
@@ -391,6 +402,7 @@ export class QueryProvider {
           }
         }
         if (kind === 'Call' && moveCall) {
+          console.log('call moveCall.package: ', moveCall.package);
           results.push({
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
@@ -400,16 +412,10 @@ export class QueryProvider {
               effect.effects.gasUsed.storageCost -
               effect.effects.gasUsed.storageRebate,
             from: data.sender,
-            to:
-              typeof moveCall.package === 'string'
-                ? moveCall.package
-                : moveCall.package.objectId,
+            to: moveCall.package,
             object: {
               type: 'move_call' as 'move_call',
-              packageObjectId:
-                typeof moveCall.package === 'string'
-                  ? moveCall.package
-                  : moveCall.package.objectId,
+              packageObjectId: moveCall.package,
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
@@ -667,13 +673,16 @@ export class TxProvider {
   provider: JsonRpcProvider;
   serializer: RpcTxnDataSerializer;
 
-  constructor(txEndpoint: string, versionCacheTimoutInSeconds: number) {
-    this.provider = new JsonRpcProvider(txEndpoint, {
-      skipDataValidation: true,
-      // TODO: add socket options
-      // socketOptions?: WebsocketClientOptions.
-      versionCacheTimoutInSeconds,
-    });
+  constructor(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
+    this.provider = new JsonRpcProvider(
+      new Connection({ fullnode: txEndpoint }),
+      {
+        skipDataValidation: true,
+        // TODO: add socket options
+        // socketOptions?: WebsocketClientOptions.
+        versionCacheTimeoutInSeconds,
+      }
+    );
     this.serializer = new RpcTxnDataSerializer(txEndpoint);
   }
 
