@@ -323,7 +323,6 @@ export class QueryProvider {
     const effects = await this.provider.getTransactionWithEffectsBatch(digests);
     const results = [];
     for (const effect of effects) {
-      console.log('effect', effect);
       if (!effect.certificate) {
         throw new Error(
           "response structure mismatch: effect doesn't contain certificate!"
@@ -334,7 +333,6 @@ export class QueryProvider {
         const transferSui = getTransferSuiTransaction(tx);
         const transferObject = getTransferObjectTransaction(tx);
         const moveCall = getMoveCallTransaction(tx);
-        console.log('moveCall in tx : ', moveCall);
         const pay = getPayTransaction(tx);
         const paySui = getPaySuiTransaction(tx);
         const payAllSui = getPayAllSuiTransaction(tx);
@@ -402,7 +400,6 @@ export class QueryProvider {
           }
         }
         if (kind === 'Call' && moveCall) {
-          console.log('call moveCall.package: ', moveCall.package);
           results.push({
             timestamp_ms: effect.timestamp_ms,
             txStatus: getExecutionStatusType(effect),
