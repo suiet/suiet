@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
+    "strict": true,
     "paths": {
+      "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@styles/*": ["./src/styles/*"]
     }
