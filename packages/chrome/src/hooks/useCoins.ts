@@ -4,6 +4,9 @@ import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
 import { swrKeyWithNetwork, useNetwork } from './useNetwork';
+import { useQuery } from '@apollo/client';
+import { coinsGql } from '../utils/graphql/coins';
+import { formatCurrency } from '../utils/format';
 
 export interface Coin {
   symbol: string;
@@ -73,4 +76,40 @@ export function useCoins(address: string, networkId: string = 'devnet') {
     loading: swrLoading(coins, error),
     getBalance,
   };
+}
+
+export interface Coins {
+  balance: string;
+  isVerified: boolean;
+  iconURL: string;
+  description: string;
+  symbol: string;
+  type: string;
+  metadata: {
+    decimals: number;
+  };
+}
+
+export function useCoinsGql(address: string): Coins[] {
+  const { data, loading } = useQuery<{
+    coins: Coins[];
+  }>(coinsGql, {
+    variables: {
+      address,
+      coin: [],
+    },
+  });
+
+  if (!data) {
+    return [];
+  }
+
+  console.log('sdf data', data);
+
+  const coins = data.coins || [];
+  return coins.map((coin) => {
+    return {
+      ...coin,
+    };
+  });
 }

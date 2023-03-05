@@ -1,0 +1,35 @@
+@import '../../styles/variables.scss';
+
+.token-item {
+  @apply box-border flex items-center;
+  padding: 26px 24px;
+  margin: 12px 12px;
+
+  background: $gray-50;
+  border-radius: 16px;
+  transition: 0.2s;
+  &:hover {
+    /* Gray/50 */
+    background: $gray-100;
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
+
+  &.selected {
+    background: $gray-200;
+  }
+  &-sui {
+    background: $primary-25;
+
+    &:hover {
+      /* Gray/50 */
+      background: $primary-50;
+    }
+
+    &.selected {
+      background: $primary-100;
+    }
+  }
+}

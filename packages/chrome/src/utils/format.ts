@@ -10,11 +10,11 @@ export function addressEllipsis(address: string) {
 // less than 1M -> show original
 // [1M, 1B)  -> x.xxxM
 // [1B, Infinity)  -> x.xxxB
-export function formatCurrency(amount: number | string) {
+export function formatCurrency(amount: number | string, decimals = 9) {
   const MILLION = 1000000;
   const BILLION = 1000000000;
   const TRILLION = 1000000000000;
-  const _amount = Number(amount) / 1e9;
+  const _amount = Number(amount) / 10 ** decimals;
 
   if (_amount < 1) {
     return formatSmallCurrency(amount);
