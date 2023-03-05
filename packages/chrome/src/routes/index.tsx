@@ -97,7 +97,12 @@ const routesConfig: RouteObject[] = [
       },
       {
         path: 'send',
-        element: withSus(<SendPage />),
+        children: [
+          {
+            index: true,
+            element: withSus(<SendPage />),
+          },
+        ],
       },
       {
         path: 'transaction/flow',

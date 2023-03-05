@@ -6,9 +6,10 @@ import Textarea from '../Textarea';
 
 interface AddressInputProps {
   form: UseFormReturn<any>;
+  className?: string;
 }
 
-function AddressInput({ form }: AddressInputProps) {
+function AddressInput({ form, className }: AddressInputProps) {
   return (
     <FormControl
       name={'address'}
@@ -18,7 +19,7 @@ function AddressInput({ form }: AddressInputProps) {
           return isValidSuiAddress(val) || 'this is not a valid address';
         },
       }}
-      className={'mt-[6px]'}
+      className={className}
     >
       <Textarea
         placeholder="Enter SUI address"

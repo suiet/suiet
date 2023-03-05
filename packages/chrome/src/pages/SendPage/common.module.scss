@@ -1,0 +1,9 @@
+@import '../../styles/variables.scss';
+
+.next-step {
+  @apply absolute;
+  width: 100%;
+  padding: 16px;
+  border-top: 1px solid $gray-100;
+  bottom: 0;
+}

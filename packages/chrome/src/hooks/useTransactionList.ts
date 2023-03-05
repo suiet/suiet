@@ -31,6 +31,8 @@ function useTransactionList(address: string, networkId: string = 'devnet') {
     return hs;
   }
 
+  console.log(history, address);
+
   return {
     history,
     error,

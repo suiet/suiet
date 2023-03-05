@@ -113,7 +113,7 @@ export default function SendNft() {
       <Form form={form} onSubmit={submitNftTransaction}>
         <div className={styles['address-container']}>
           <Typo.Title className={styles['address']}>Address</Typo.Title>
-          <AddressInput form={form} />
+          <AddressInput form={form} className={'mt-[6px]'} />
         </div>
         <div className={styles['gas-container']}>
           <Typo.Title className={styles['gas']}>Gas Fee</Typo.Title>
