@@ -1,119 +1,42 @@
 import {
+  Coin as CoinAPI,
+  Connection,
+  getExecutionStatusType,
+  getMoveCallTransaction,
+  getMoveObject,
   getObjectExistsResponse,
-  JsonRpcProvider,
-  SuiMoveObject,
-  SuiObject,
+  getPayTransaction,
+  getPublishTransaction,
+  getTransactionData,
+  getTransactionKindName,
   getTransferObjectTransaction,
   getTransferSuiTransaction,
-  getTransactionData,
-  getExecutionStatusType,
-  getMoveObject,
-  MoveCallTransaction,
-  SuiTransactionKind,
-  getMoveCallTransaction,
-  getTransactionKindName,
-  getPublishTransaction,
-  PaySui,
-  PayAllSui,
+  JsonRpcProvider,
   OwnedObjectRef,
-  RpcTxnDataSerializer,
-  Coin as CoinAPI,
-  getPayTransaction,
+  SuiMoveObject,
+  SuiObject,
   SuiObjectRef,
-  ObjectId,
-  RawSigner,
-  SignableTransaction,
-  SuiExecuteTransactionResponse,
-  ExecuteTransactionRequestType,
-  Connection,
 } from '@mysten/sui.js';
-import { Coin, CoinObject, Nft, NftObject } from './object';
-import { TxnHistoryEntry, TxObject } from './storage/types';
-import { Vault } from './vault/Vault';
-import { isNonEmptyArray } from './utils';
-import { JsonRpcClient } from './client';
-import { createKeypair } from './utils/vault';
+import { JsonRpcClient } from '../client';
 import {
-  literal,
-  object,
-  union,
-  string,
-  number,
-  tuple,
   Infer,
+  literal,
+  number,
+  object,
+  string,
+  tuple,
+  union,
 } from 'superstruct';
-
-export const SUI_SYSTEM_STATE_OBJECT_ID =
-  '0x0000000000000000000000000000000000000005';
-export function getPaySuiTransaction(
-  data: SuiTransactionKind
-): PaySui | undefined {
-  return 'PaySui' in data ? data.PaySui : undefined;
-}
-
-export function getPayAllSuiTransaction(
-  data: SuiTransactionKind
-): PayAllSui | undefined {
-  return 'PayAllSui' in data ? data.PayAllSui : undefined;
-}
-
-export function getVersionFoundResponse(
-  resp: GetPastObjectDataResponseType
-): SuiObject | undefined {
-  return resp.status === 'VersionFound'
-    ? (resp.details as SuiObject)
-    : undefined;
-}
-
-export function getObjectNotExistsResponse(
-  resp: GetPastObjectDataResponseType
-): ObjectId | undefined {
-  return resp.status === 'ObjectNotExists'
-    ? (resp.details as ObjectId)
-    : undefined;
-}
-
-export function getObjectDeletedResponse(
-  resp: GetPastObjectDataResponseType
-): SuiObjectRef | undefined {
-  return resp.status === 'ObjectDeleted'
-    ? (resp.details as SuiObjectRef)
-    : undefined;
-}
-
-export function getVersionNotFoundResponse(
-  resp: GetPastObjectDataResponseType
-): [string, number] | undefined {
-  return resp.status === 'VersionNotFound'
-    ? (resp.details as [string, number])
-    : undefined;
-}
-
-export function getVersionTooHighResponse(
-  resp: GetPastObjectDataResponseType
-): SuiPastVersionTooHighType | undefined {
-  return resp.status === 'VersionTooHigh'
-    ? (resp.details as SuiPastVersionTooHighType)
-    : undefined;
-}
-
-type SuiPastVersionTooHighType = {
-  object_id: string;
-  asked_version: number;
-  latest_version: number;
-};
-
-export function isSuiPastVersionTooHigh(
-  obj: any,
-  _argumentName?: string
-): obj is SuiPastVersionTooHighType {
-  return (
-    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
-    typeof obj.object_id === 'string' &&
-    typeof obj.asked_version === 'number' &&
-    typeof obj.latest_version === 'number'
-  );
-}
+import { Coin, CoinObject, Nft, NftObject } from '../object';
+import { TxnHistoryEntry, TxObject } from '../storage/types';
+import { isNonEmptyArray } from '../utils';
+import {
+  getObjectDeletedResponse,
+  getPayAllSuiTransaction,
+  getPaySuiTransaction,
+  getVersionFoundResponse,
+  SUI_SYSTEM_STATE_OBJECT_ID,
+} from '../provider';
 
 const PastObjectStatus = union([
   literal('VersionFound'),
@@ -122,15 +45,11 @@ const PastObjectStatus = union([
   literal('VersionNotFound'),
   literal('VersionTooHigh'),
 ]);
-
-type PastObjectStatusType = Infer<typeof PastObjectStatus>;
-
 const SuiPastVersionTooHigh = object({
   object_id: string(),
   asked_version: number(),
   latest_version: number(),
 });
-
 const GetPastObjectDataResponse = object({
   status: PastObjectStatus,
   details: union([
@@ -141,95 +60,9 @@ const GetPastObjectDataResponse = object({
     SuiPastVersionTooHigh,
   ]),
 });
-
 type GetPastObjectDataResponseType = Infer<typeof GetPastObjectDataResponse>;
 
-export const DEFAULT_GAS_BUDGET = 2000;
-
-export interface ExampleNftMetadata {
-  name: string;
-  desc: string;
-  imageUrl: string;
-}
-// use getter to avoid variable be modified somewhere
-export const createMintExampleNftMoveCall = (metadata: ExampleNftMetadata) => ({
-  packageObjectId: '0x2',
-  module: 'devnet_nft',
-  function: 'mint',
-  typeArguments: [],
-  arguments: [metadata?.name, metadata?.desc, metadata?.imageUrl],
-  gasBudget: DEFAULT_GAS_BUDGET,
-});
-
-export class Provider {
-  query: QueryProvider;
-  tx: TxProvider;
-
-  constructor(
-    queryEndpoint: string,
-    txEndpoint: string,
-    versionCacheTimoutInSeconds: number
-  ) {
-    this.query = new QueryProvider(queryEndpoint, versionCacheTimoutInSeconds);
-    this.tx = new TxProvider(txEndpoint, versionCacheTimoutInSeconds);
-  }
-
-  async transferCoin(
-    coinType: string,
-    amount: bigint,
-    recipient: string,
-    vault: Vault,
-    gasBudgetForPay?: number
-  ) {
-    const coins = (await this.query.getOwnedCoins(vault.getAddress())).filter(
-      (coin) => CoinAPI.getCoinTypeArg(coin.object) === coinType
-    );
-    if (coins.length === 0) {
-      throw new Error('No coin to transfer');
-    }
-    return await this.tx.transferCoin(
-      coins,
-      coinType,
-      amount,
-      recipient,
-      vault,
-      gasBudgetForPay
-    );
-  }
-
-  async transferObject(
-    objectId: string,
-    recipient: string,
-    vault: Vault,
-    gasBudget?: number
-  ) {
-    const object = (await this.query.getOwnedObjects(vault.getAddress())).find(
-      (object) => object.reference.objectId === objectId
-    );
-    if (!object) {
-      throw new Error('No object to transfer');
-    }
-    await this.tx.transferObject(objectId, recipient, vault, gasBudget);
-  }
-
-  async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
-    const gasObject = await this.query.getGasObject(
-      vault.getAddress(),
-      DEFAULT_GAS_BUDGET // FIXME: hard coded
-    );
-    return await this.tx.executeMoveCall(
-      tx,
-      vault,
-      gasObject ? gasObject.objectId : undefined
-    );
-  }
-
-  async mintExampleNft(metadata: ExampleNftMetadata, vault: Vault) {
-    await this.executeMoveCall(createMintExampleNftMoveCall(metadata), vault);
-  }
-}
-
-export class QueryProvider {
+class QueryProvider {
   provider: JsonRpcProvider;
   client: JsonRpcClient;
 
@@ -666,107 +499,4 @@ export class QueryProvider {
   }
 }
 
-/**
- * @Deprecated use src/providers/TxProvider instead
- */
-export class TxProvider {
-  provider: JsonRpcProvider;
-  serializer: RpcTxnDataSerializer;
-
-  constructor(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
-    this.provider = new JsonRpcProvider(
-      new Connection({ fullnode: txEndpoint }),
-      {
-        skipDataValidation: true,
-        // TODO: add socket options
-        // socketOptions?: WebsocketClientOptions.
-        versionCacheTimeoutInSeconds,
-      }
-    );
-    this.serializer = new RpcTxnDataSerializer(txEndpoint);
-  }
-
-  async transferObject(
-    objectId: string,
-    recipient: string,
-    vault: Vault,
-    gasBudgest?: number
-  ) {
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'transferObject',
-        data: {
-          objectId,
-          gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET,
-          recipient,
-        },
-      },
-      vault
-    );
-  }
-
-  public async transferCoin(
-    coins: CoinObject[],
-    coinType: string, // such as 0x2::sui::SUI
-    amount: bigint,
-    recipient: string,
-    vault: Vault,
-    gasBudgetForPay?: number
-  ) {
-    const allCoins = coins.map((c) => c.object);
-    const allCoinsOfTransferType = allCoins.filter(
-      (c) => CoinAPI.getCoinTypeArg(c) === coinType
-    );
-    const gasBudget =
-      gasBudgetForPay ??
-      Coin.computeGasBudgetForPay(allCoinsOfTransferType, amount);
-
-    const payTx = await Coin.newPayTransaction(
-      allCoins,
-      coinType,
-      amount,
-      recipient,
-      gasBudget
-    );
-    return await this.signAndExecuteTransaction(payTx, vault);
-  }
-
-  public async executeMoveCall(
-    tx: MoveCallTransaction,
-    vault: Vault,
-    gasObjectId: string | undefined
-  ) {
-    const _tx = { ...tx };
-    if (!_tx.gasPayment) {
-      _tx.gasPayment = gasObjectId;
-    }
-
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'moveCall',
-        data: tx,
-      },
-      vault
-    );
-  }
-
-  public async executeSerializedMoveCall(txBytes: Uint8Array, vault: Vault) {
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'bytes',
-        data: txBytes,
-      },
-      vault
-    );
-  }
-
-  public async signAndExecuteTransaction(
-    tx: SignableTransaction,
-    vault: Vault,
-    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
-  ): Promise<SuiExecuteTransactionResponse> {
-    const keypair = createKeypair(vault);
-    const signer = new RawSigner(keypair, this.provider, this.serializer);
-    return await signer.signAndExecuteTransaction(tx, requestType);
-  }
-}
+export default QueryProvider;

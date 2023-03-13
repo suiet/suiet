@@ -1,7 +1,7 @@
 import { TransferObjectParams } from '@suiet/core';
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddressInput from '../../../components/AddressInput';
@@ -17,12 +17,15 @@ import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
 import { formatCurrency } from '../../../utils/format';
 import styles from './index.module.scss';
+import { useEstimatedGasBudget } from '../../../hooks/transaction/useEstimatedGasBudget';
+import {
+  isValidSuiAddress,
+  UnserializedSignableTransaction,
+} from '@mysten/sui.js';
 
 interface SendFormValues {
   address: string;
 }
-
-const GAS_BUDGET = 100;
 
 export default function SendNft() {
   const apiClient = useApiClient();
@@ -48,6 +51,21 @@ export default function SendNft() {
     },
   });
 
+  const transaction: UnserializedSignableTransaction | undefined =
+    useMemo(() => {
+      // use mock addr only to dryRun and fetch precise gas price as gas budget
+      const mockAddr = '0x0000000000000000000000000000000000000000';
+      if (!isValidSuiAddress(mockAddr)) return undefined;
+      return {
+        kind: 'transferObject',
+        data: {
+          objectId: id,
+          recipient: mockAddr,
+        },
+      };
+    }, [id]);
+  const { data: estimatedGasBudget } = useEstimatedGasBudget(transaction);
+
   useEffect(() => {
     if (!id) throw new Error('id should be passed within location state');
   }, [id]);
@@ -58,7 +76,6 @@ export default function SendNft() {
 
     setSendLoading(true);
     try {
-      message.success('Send succeeded');
       await apiClient.callFunc<OmitToken<TransferObjectParams>, undefined>(
         'txn.transferObject',
         {
@@ -70,6 +87,7 @@ export default function SendNft() {
         },
         { withAuth: true }
       );
+      message.success('Send succeeded');
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);
@@ -116,9 +134,9 @@ export default function SendNft() {
           <AddressInput form={form} className={'mt-[6px]'} />
         </div>
         <div className={styles['gas-container']}>
-          <Typo.Title className={styles['gas']}>Gas Fee</Typo.Title>
+          <Typo.Title className={styles['gas']}>Estimated Gas Fee</Typo.Title>
           <Typo.Normal className={styles['gas-amount']}>
-            {formatCurrency(GAS_BUDGET)} SUI
+            {formatCurrency(estimatedGasBudget ?? 0)} SUI
           </Typo.Normal>
         </div>
         <div className={styles['btn-container']}>
