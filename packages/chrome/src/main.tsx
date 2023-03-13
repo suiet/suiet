@@ -12,17 +12,20 @@ import { SWRConfig } from 'swr';
 import { swrConfig } from './configs/swr';
 import { ApiClientContext } from './hooks/useApiClient';
 import { BackgroundApiClient } from './scripts/shared/ui-api-client';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <HashRouter>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistorStore}>
-          <SWRConfig value={swrConfig}>
-            <ApiClientContext.Provider value={new BackgroundApiClient()}>
-              <App />
-            </ApiClientContext.Provider>
-          </SWRConfig>
+          <QueryClientProvider client={new QueryClient()}>
+            <SWRConfig value={swrConfig}>
+              <ApiClientContext.Provider value={new BackgroundApiClient()}>
+                <App />
+              </ApiClientContext.Provider>
+            </SWRConfig>
+          </QueryClientProvider>
         </PersistGate>
       </Provider>
     </HashRouter>

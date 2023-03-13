@@ -9,6 +9,7 @@ import {
   Network,
   NetworkApi,
   TransactionApi,
+  TxEssentials,
 } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
@@ -21,6 +22,7 @@ import {
   SignableTransaction,
   SuiTransactionResponse,
   TransactionEffects,
+  UnserializedSignableTransaction,
 } from '@mysten/sui.js';
 import { TxRequestManager, TxRequestType } from '../transaction';
 import {
@@ -245,6 +247,24 @@ export class DappBgApi {
 
     const { transaction, requestType } = payload.params;
     const network = await this._getNetwork(connectionCtx.networkId);
+
+    const token = this.authApi.getToken();
+    const txContext: TxEssentials = {
+      token,
+      network,
+      walletId: connectionCtx.target.walletId,
+      accountId: connectionCtx.target.accountId,
+    };
+
+    // if not specified gasBudget, then dryRun to estimate gas budget
+    if (transaction.kind !== 'bytes' && !transaction.data?.gasBudget) {
+      transaction.data.gasBudget = await this.txApi.getEstimatedGasBudget({
+        ...txContext,
+        transaction,
+      });
+      console.log('getEstimatedGasBudget', transaction.data.gasBudget);
+    }
+
     const txMetadata = await this._transactionMetadata(
       transaction,
       connectionCtx
@@ -261,13 +281,6 @@ export class DappBgApi {
       throw new UserRejectionError();
     }
 
-    const token = this.authApi.getToken();
-    const txContext = {
-      token,
-      network,
-      walletId: connectionCtx.target.walletId,
-      accountId: connectionCtx.target.accountId,
-    };
     const response = await this.txApi.signAndExecuteTransaction({
       transaction:
         transaction.kind === 'bytes'

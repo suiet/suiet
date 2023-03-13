@@ -2,14 +2,13 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useWallet } from '../../../hooks/useWallet';
 import { useLocationSearch } from '../../../hooks/useLocationSearch';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import message from '../../../components/message';
 import { sleep } from '../../../utils/time';
 import { useNavigate } from 'react-router-dom';
 import {
   TxRequest,
   TxRequestStorage,
-  TxRequestType,
 } from '../../../scripts/background/transaction';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
@@ -71,7 +70,7 @@ const TxApprovePage = () => {
   function renderMetadataForPaySui(
     recipients: string[],
     amounts: number[],
-    gasBudget: number
+    gasBudget: number = 0
   ) {
     const totalAmount = amounts.reduce((pre, cur) => pre + cur, 0);
 
@@ -153,13 +152,11 @@ const TxApprovePage = () => {
       }
       const txReqStorage = new TxRequestStorage();
       const reqData = await txReqStorage.get(txReqId);
-      console.log('reqData', reqData);
       if (!reqData) {
         message.error('cannot find txReq data!');
         sleep(3000).then(() => navigate('/'));
         return;
       }
-      console.log('txReqData', reqData);
       setTxReqData(reqData);
     })();
   }, [txReqId]);
@@ -214,6 +211,14 @@ const TxApprovePage = () => {
             </Typo.Normal>
             <Typo.Normal className={styles['detail-item__value']}>
               {txReqData.type}
+            </Typo.Normal>
+          </div>
+          <div className={styles['detail-item']}>
+            <Typo.Normal className={styles['detail-item__key']}>
+              Gas Budget
+            </Typo.Normal>
+            <Typo.Normal className={styles['detail-item__value']}>
+              {txReqData.data.gasBudget} MIST
             </Typo.Normal>
           </div>
           {renderMetadata()}

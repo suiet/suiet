@@ -24,5 +24,12 @@ export default defineConfig(({ mode }) => ({
     // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
     'process.env': {},
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
   plugins: [react(), crx({ manifest }), viteSvgr()],
 }));
