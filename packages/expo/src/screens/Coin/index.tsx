@@ -32,6 +32,9 @@ import CoinIcon from '@components/CoinIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { RootStackParamList } from '@/../App';
+import { useWallets } from '@/hooks/useWallets';
+import { Wallet } from '@/utils/wallet';
+import { addressEllipsis } from '@/utils/format';
 
 export const ListItem: React.FC<
   { backgroundColor: ColorValue; textColor: ColorValue; symbol: string; balance: string } & ViewProps
@@ -90,6 +93,16 @@ const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navi
   const [scrollIndicatorY, setScrollIndicatorY] = useState<number>();
   const [showCollapse, setShowCollapse] = useState(false);
 
+  const { wallets, selectedWallet } = useWallets();
+  const walletsByAddress = React.useMemo(
+    () => Object.fromEntries(wallets.map((wallet) => [wallet.address, wallet])),
+    [wallets]
+  );
+
+  if (typeof selectedWallet === 'undefined' || typeof walletsByAddress[selectedWallet] === 'undefined') {
+    return null;
+  }
+
   return (
     <View style={{ backgroundColor: '#FFF', paddingTop: top }}>
       <ScrollView
@@ -112,12 +125,20 @@ const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navi
         <View style={{ paddingTop: 24 }}>
           <Image style={{ width: 64, height: 64 }} source={require('@assets/Avatar.png')} />
 
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-            <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 32, lineHeight: 38, color: Gray_900 }}>Suiet</Text>
-            <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
-              <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
+          <TouchableOpacity
+            onPressOut={() => {
+              navigation.navigate('SelectWallet');
+            }}
+          >
+            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+              <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 32, lineHeight: 38, color: Gray_900 }}>
+                {walletsByAddress[selectedWallet]?.name}
+              </Text>
+              <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
+                <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
 
           <View>
             <View
@@ -147,7 +168,7 @@ const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navi
                   color: Gray_700,
                 }}
               >
-                0x2152f....01f6
+                {addressEllipsis(walletsByAddress[selectedWallet]?.address)}
               </Text>
               <SvgXml style={{ margin: 4 }} width={12} height={12} color={Gray_700} xml={SvgCopy}></SvgXml>
             </View>
@@ -223,12 +244,6 @@ const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navi
       <View
         style={[
           StyleSheet.absoluteFill,
-          showCollapse && {
-            backgroundColor: '#FFF',
-            borderBottomColor: Gray_100,
-            borderBottomWidth: 1,
-            zIndex: 999,
-          },
           {
             height: 64,
             top,
@@ -236,14 +251,24 @@ const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navi
             alignItems: 'center',
             paddingHorizontal: 24,
           },
+          showCollapse && {
+            backgroundColor: '#FFF',
+            borderBottomColor: Gray_100,
+            borderBottomWidth: 1,
+            height: 65,
+            zIndex: 999,
+          },
         ]}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-          <View
+          <TouchableOpacity
             style={[
               { flexDirection: 'row', alignItems: 'center', display: 'none' },
               showCollapse && { display: 'flex' },
             ]}
+            onPress={() => {
+              navigation.navigate('SelectWallet');
+            }}
           >
             <Image style={{ width: 32, height: 32, marginRight: 4 }} source={require('../../../assets/Avatar.png')} />
             <Text
@@ -255,10 +280,10 @@ const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navi
                 marginHorizontal: 4,
               }}
             >
-              Suiet
+              {walletsByAddress[selectedWallet]?.name}
             </Text>
             <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_400} xml={SvgChevronDown} />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity>

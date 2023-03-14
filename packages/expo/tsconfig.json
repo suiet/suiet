@@ -5,7 +5,8 @@
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@styles/*": ["./src/styles/*"]
-    }
+    },
+    "module": "ESNext"
   },
   "extends": "expo/tsconfig.base"
 }

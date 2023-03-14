@@ -15,3 +15,11 @@ web-build/
 
 android/
 ios/
+
+build-*/
+build-*.apk
+build-*.ipa
+build-*.zip
+build-*.tar.gz
+
+Suiet.app/
