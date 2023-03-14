@@ -9,5 +9,5 @@ HUSKY=0 npm i
 popd
 
 pushd ../../packages/core
-npm run build
+# npm run build
 popd

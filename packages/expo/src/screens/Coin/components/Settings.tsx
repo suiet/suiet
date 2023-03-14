@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity, View, ScrollView } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
@@ -6,7 +7,13 @@ export const Settings: React.FC = () => {
     <ScrollView style={{ backgroundColor: '#fff' }}>
       <SvgXml width={'100%'} xml={Svg1} style={{ marginBottom: 32 }} />
       <SvgXml width={'100%'} xml={Svg2} style={{ marginBottom: 20 }} />
-      <SvgXml width={'100%'} xml={Svg3} style={{ marginBottom: 20 }} />
+      <TouchableOpacity
+        onPressOut={() => {
+          AsyncStorage.clear();
+        }}
+      >
+        <SvgXml width={'100%'} xml={Svg3} style={{ marginBottom: 20 }} />
+      </TouchableOpacity>
       <SvgXml width={'100%'} xml={Svg4} style={{ marginBottom: 20 }} />
     </ScrollView>
   );

@@ -4,19 +4,17 @@
     "slug": "suiet-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/ic_launcher-playstore.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    "icon": "./assets/icon.png",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "ac.oasis.Suiet"
+      "bundleIdentifier": "ac.oasis.Suiet",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "This app will optionally use Face ID or Touch ID to save wallets"
+      }
     },
     "android": {
       "package": "ac.oasis.Suiet",
@@ -26,11 +24,18 @@
       }
     },
     "jsEngine": "hermes",
-
     "extra": {
       "eas": {
         "projectId": "b3e4434c-02b6-4090-95a6-0103915d9b54"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {}
+        }
+      ]
+    ]
   }
 }
