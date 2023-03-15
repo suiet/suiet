@@ -76,7 +76,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       <Button
         title={'Copy and Done'}
         innerStyle={{ marginBottom: 8 }}
-        onPressOut={() => {
+        onPress={() => {
           const existingWallets = wallets ?? [];
           const address = route.params?.address;
           if (typeof address === 'string') {
@@ -85,7 +85,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
               {
                 name: `Wallet ${existingWallets.length + 1}`,
                 address,
-                avatar: '',
+                avatar: 0,
               },
             ]);
             if (typeof selectedWallet === 'undefined') {

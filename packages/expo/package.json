@@ -7,10 +7,10 @@
     "eas-build-pre-install": "./scripts/pre-install",
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web"
+    "ios": "expo run:ios"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.5",
     "@expo-google-fonts/inter": "0.2.3",
     "@expo-google-fonts/work-sans": "0.2.3",
     "@expo-google-fonts/roboto-mono": "0.2.3",
@@ -19,6 +19,7 @@
     "@react-navigation/native": "6.1.1",
     "@react-navigation/native-stack": "6.9.7",
     "@react-navigation/stack": "6.3.16",
+    "@reduxjs/toolkit": "^1.8.5",
     "@scure/bip39": "1.1.1",
     "eventemitter3": "5.0.0",
     "events": "3.3.0",
@@ -26,6 +27,7 @@
     "expo-asset": "~8.9.1",
     "expo-barcode-scanner": "~12.3.0",
     "expo-build-properties": "~0.5.1",
+    "expo-clipboard": "~4.1.2",
     "expo-crypto": "~12.2.1",
     "expo-dev-client": "~2.1.5",
     "expo-random": "~13.1.1",
@@ -33,7 +35,10 @@
     "expo-standard-web-crypto": "1.4.3",
     "expo-status-bar": "~1.4.4",
     "expo-navigation-bar": "2.1.1",
+    "lodash-es": "4.17.21",
+    "graphql": "16.6.0",
     "react": "18.2.0",
+    "redux-persist": "^6.0.0",
     "react-native": "0.71.3",
     "react-native-keychain": "8.1.1",
     "react-native-crypto": "2.2.0",
@@ -44,10 +49,14 @@
     "react-native-safe-area-context": "4.5.0",
     "react-native-screens": "~3.20.0",
     "react-native-svg": "13.4.0",
+    "react-native-qrcode-svg": "6.2.0",
+    "react-native-toast-message": "2.1.6",
+    "react-redux": "8.0.5",
     "text-encoding": "0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@types/react-native": "~0.70.6"
+    "@types/lodash-es": "4.17.7",
+    "@types/react-native": "~0.71.3"
   }
 }

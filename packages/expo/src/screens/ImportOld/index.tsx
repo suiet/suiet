@@ -1,37 +1,18 @@
 import * as React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  View,
-  Text,
-  TextInput,
-  Platform,
-  ScrollView,
-  KeyboardAvoidingView,
-  StyleSheet,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, Alert } from 'react-native';
 
 import type { RootStackParamList } from '@/../App';
-import { Gray_100, Gray_200, Gray_400, Gray_500, Primary_400 } from '@/styles/colors';
-import ButtonWithIcon from '@/components/ButtonWithIcon';
+import { Gray_100, Gray_200, Gray_400, Gray_500 } from '@/styles/colors';
+import { ButtonWithIcon } from '@/components/ButtonWithIcon';
 import { SvgCopy, SvgQRCode } from '@/components/icons/constants';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ee } from '../ScanQRCode';
 import { Button } from '@/components/Button';
-// import {
-//   setGenericPassword,
-//   ACCESS_CONTROL,
-//   AUTHENTICATION_TYPE,
-//   ACCESSIBLE,
-//   STORAGE_TYPE,
-//   SECURITY_LEVEL,
-//   getGenericPassword,
-//   resetGenericPassword,
-// } from 'react-native-keychain';
-import { useFakeKeychain, useKeychain } from '@/hooks/useKeychain';
+import { useKeychain } from '@/hooks/useKeychain';
 import { useWallets } from '@/hooks/useWallets';
+import { FontFamilys } from '@/hooks/useFonts';
 
 export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld'>> = ({ navigation }) => {
   const { width, height } = Dimensions.get('screen');
@@ -59,12 +40,21 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
             </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 }}>
-            <ButtonWithIcon iconSvg={SvgCopy} title="Paste" style={{ marginRight: 8 }} />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16, columnGap: 8 }}>
+            <ButtonWithIcon
+              iconSvg={SvgCopy}
+              title="Paste"
+              onPress={async () => {
+                const { getStringAsync } = await import('expo-clipboard');
+                const text = await getStringAsync();
+                textInputRef.current?.focus();
+                setTextInputValue(text);
+              }}
+            />
             <ButtonWithIcon
               iconSvg={SvgQRCode}
               title="Scan QR Code"
-              onPressOut={() => {
+              onPress={() => {
                 navigation.navigate('ScanQRCode');
                 ee.once('qrCodeScanned', (data) => {
                   textInputRef.current?.focus();
@@ -91,13 +81,10 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
                 borderColor: Gray_200,
                 borderRadius: 16,
 
-                fontFamily: Platform.select({
-                  ios: 'Menlo',
-                  android: 'monospace',
-                }),
-                fontWeight: '400',
+                fontFamily: FontFamilys.Inter_500Medium,
                 fontSize: 14,
                 lineHeight: 20,
+                color: Gray_500,
 
                 minHeight: 168,
               }}
@@ -119,7 +106,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
       <View style={{ padding: 16 }}>
         <Button
           title="Confirm and Import"
-          onPressOut={async () => {
+          onPress={async () => {
             if (!textInputValue) {
               return;
             }
@@ -174,7 +161,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
               {
                 name: `Wallet ${wallets.length + 1}`,
                 address,
-                avatar: '',
+                avatar: 0,
               },
             ]);
             if (typeof selectedWallet === 'undefined') {
@@ -187,7 +174,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
         />
       </View>
 
-      <View style={{ height: bottom }} />
+      <View style={{ height: bottom - 8 }} />
     </View>
   );
 };

@@ -1,16 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import { SvgXml } from 'react-native-svg';
-import { Gray_100, Gray_500, Gray_900 } from '@styles/colors';
-import { SvgClockRewind, SvgCoins, SvgGrid } from '@components/icons/constants';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import Toast from 'react-native-toast-message';
 
-import Coin from '@/screens/Coin';
 import { Send } from '@/screens/Coin/components/Send';
 import { Header } from '@/screens/Coin/components/Header';
 import { Settings } from '@/screens/Coin/components/Settings';
@@ -26,6 +22,8 @@ import { Welcome } from '@/screens/Welcome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Home } from '@/screens/Home';
 import { SelectWallet } from '@/screens/SelectWallet';
+import { EditWallet } from '@/screens/EditWallet';
+import { Receive } from '@/screens/Receive';
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -47,7 +45,9 @@ export type RootStackParamList = {
   Home2: undefined;
 
   Send: undefined;
+  Receive: undefined;
   Settings: undefined;
+  EditWallet: undefined;
 };
 
 // setStatusBarStyle('dark');
@@ -91,6 +91,7 @@ function App() {
                 const r = getFocusedRouteNameFromRoute(route);
                 if (r === 'SendInputAddress') {
                   return {
+                    gestureEnabled: false,
                     header: ({ navigation, route: { name } }) => (
                       <Header
                         title={name}
@@ -101,18 +102,30 @@ function App() {
                   };
                 }
                 return {
+                  gestureEnabled: false,
                   header: ({ navigation, route: { name } }) => (
                     <Header title={name} onRightAction={() => navigation.goBack()} />
                   ),
                 };
               }}
             />
+
+            <RootStack.Screen
+              name="Receive"
+              component={Receive}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Receive'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+
             <RootStack.Screen
               name="Settings"
               component={Settings}
               options={{
                 header: ({ navigation, route: { name } }) => (
-                  <Header title={name} onRightAction={() => navigation.goBack()} />
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
                 ),
               }}
             />
@@ -123,7 +136,7 @@ function App() {
               options={{
                 title: 'Create New',
                 header: ({ navigation, route: { name } }) => (
-                  <Header title={name} onRightAction={() => navigation.goBack()} />
+                  <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
                 ),
               }}
             />
@@ -134,7 +147,7 @@ function App() {
               options={{
                 title: 'Import Old',
                 header: ({ navigation, route: { name } }) => (
-                  <Header title={name} onRightAction={() => navigation.goBack()} />
+                  <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
                 ),
               }}
             />
@@ -149,12 +162,28 @@ function App() {
                 ),
               }}
             />
+
+            <RootStack.Screen
+              name="EditWallet"
+              component={EditWallet}
+              options={{
+                title: 'Wallet List',
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
           </RootStack.Group>
         </RootStack.Navigator>
       </NavigationContainer>
     </>
   );
 }
+
+const client = new ApolloClient({
+  uri: 'https://devnet.suiet.app/query',
+  cache: new InMemoryCache(),
+});
 
 function Root() {
   const [isFontsLoaded] = useFonts();
@@ -176,11 +205,14 @@ function Root() {
   }
 
   return (
-    <Provider store={store}>
-      <PersistGate /* loading={<SpinningLogo />} */ persistor={persistor}>
-        <App />
-      </PersistGate>
-    </Provider>
+    <ApolloProvider client={client}>
+      <Provider store={store}>
+        <PersistGate /* loading={<SpinningLogo />} */ persistor={persistor}>
+          <App />
+          <Toast />
+        </PersistGate>
+      </Provider>
+    </ApolloProvider>
   );
 }
 
