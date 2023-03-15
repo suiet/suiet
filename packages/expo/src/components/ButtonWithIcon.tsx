@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View, type TouchableOpacityProps } from 'react-
 import { SvgXml } from 'react-native-svg';
 import { SvgSui, SvgToken } from '@components/icons/constants';
 
-const ButtonWithIcon: React.FC<{ iconSvg: string; title: string } & TouchableOpacityProps> = ({
+export const ButtonWithIcon: React.FC<{ iconSvg: string; title: string } & TouchableOpacityProps> = ({
   iconSvg,
   title,
   ...props
@@ -28,5 +28,3 @@ const ButtonWithIcon: React.FC<{ iconSvg: string; title: string } & TouchableOpa
     </TouchableOpacity>
   );
 };
-
-export default ButtonWithIcon;

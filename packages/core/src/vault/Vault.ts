@@ -1,6 +1,6 @@
 import * as bip39 from '@scure/bip39';
 import { Ed25519HdKey } from './hdkey';
-import { decryptMnemonic } from '../crypto';
+import { decryptMnemonic, derivationHdPath } from '../crypto';
 import { SHA3 } from 'sha3';
 import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx, SignedMessage } from './types';
@@ -30,7 +30,8 @@ export class Vault {
   public static async fromMnemonic(mnemonic: string): Promise<Vault> {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const master = await Ed25519HdKey.fromMasterSeed(Buffer.from(seed));
-    return new Vault(master);
+    const hdKey = await master.derive(derivationHdPath(0));
+    return new Vault(hdKey);
   }
 
   public getAddress(): string {

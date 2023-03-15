@@ -3,7 +3,12 @@ import { View, ViewProps } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { SvgSui, SvgToken } from '@components/icons/constants';
 
-const CoinIcon: React.FC<{ symbol: string; scale?: number } & ViewProps> = ({ symbol, scale = 1, style, ...props }) => {
+export const CoinIcon: React.FC<{ symbol: string; scale?: number } & ViewProps> = ({
+  symbol,
+  scale = 1,
+  style,
+  ...props
+}) => {
   if (symbol === 'SUI') {
     return (
       <View
@@ -36,5 +41,3 @@ const CoinIcon: React.FC<{ symbol: string; scale?: number } & ViewProps> = ({ sy
     </View>
   );
 };
-
-export default CoinIcon;

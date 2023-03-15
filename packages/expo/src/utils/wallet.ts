@@ -3,7 +3,7 @@ import AsyncStorage, { AsyncStorageStatic } from '@react-native-async-storage/as
 export interface Wallet {
   address: string;
   name: string;
-  avatar: string;
+  avatar: number;
 }
 
 // export class WalletManager {

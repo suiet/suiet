@@ -6,7 +6,7 @@ import { View, Text, Platform, ScrollView } from 'react-native';
 
 import type { RootStackParamList } from '@/../App';
 import { Error_100, Gray_100, Gray_500, Gray_900 } from '@/styles/colors';
-import ButtonWithIcon from '@/components/ButtonWithIcon';
+import { ButtonWithIcon } from '@/components/ButtonWithIcon';
 import { SvgCheck, SvgCopy, SvgDownload, SvgMinus, SvgPlus, SvgQRCode } from '@/components/icons/constants';
 import { FontFamilys } from '@/hooks/useFonts';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -14,6 +14,7 @@ import { SvgXml } from 'react-native-svg';
 import { useWallets } from '@/hooks/useWallets';
 import { Wallet } from '@/utils/wallet';
 import { addressEllipsis } from '@/utils/format';
+import { AVATARS } from '@/utils/constants';
 
 export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'SelectWallet'>> = ({ navigation }) => {
   const { top, bottom } = useSafeAreaInsets();
@@ -42,7 +43,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
         }}
       >
         <Image
-          source={require('@assets/avatars_bg/Avatar-1.png')}
+          source={AVATARS[wallet.avatar]}
           style={{ width: 32, height: 32 }}
           resizeMethod="scale"
           resizeMode="contain"

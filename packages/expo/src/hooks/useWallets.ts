@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Wallet /* WalletManager */ } from '@/utils/wallet';
 import { AppDispatch, RootState } from '../store';
 import { updateWallets, updateSelectedWallet } from '../store/reducers/appContext';
+import { useMemo } from 'react';
 
 export function useWallets() {
   const dispatch = useDispatch<AppDispatch>();
@@ -12,12 +13,20 @@ export function useWallets() {
 
   const { wallets, selectedWallet } = useSelector((state: RootState) => state.appContext);
 
+  const wallet = useMemo(() => {
+    if (wallets && selectedWallet) {
+      return wallets.find((wallet) => wallet.address === selectedWallet);
+    }
+  }, [wallets, selectedWallet]);
+
   return {
     isLoading,
     isEmpty,
 
     wallets,
     selectedWallet,
+
+    wallet,
 
     // loadWallets,
     // putWallet,
