@@ -20,9 +20,20 @@ on:
         options:
           - development
           - preview
+  workflow_call:
+    inputs:
+      os:
+        type: string
+        required: true
+      platform:
+        type: string
+        required: true
+      profile:
+        type: string
+        required: true
 jobs:
   build:
-    runs-on: ${{ github.event.inputs.os }}
+    runs-on: ${{ inputs.os }}
     strategy:
       matrix:
         node: [16.x]
@@ -34,7 +45,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
-          cache: yarn
 
       - name: 🏗 Setup Expo and EAS
         uses: expo/expo-github-action@v7
@@ -60,10 +70,10 @@ jobs:
           cd packages/expo
           eas build --local \
             --non-interactive \
-            --platform=${{ github.event.inputs.platform }} \
-            --profile=${{ github.event.inputs.profile }}
+            --platform=${{ inputs.platform }} \
+            --profile=${{ inputs.profile }}
       - name: 📱 Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: app-${{ github.event.inputs.platform }}-${{ github.event.inputs.profile }}
+          name: app-${{ inputs.platform }}-${{ inputs.profile }}
           path: packages/expo/build-*

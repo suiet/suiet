@@ -7,65 +7,24 @@ on:
     branches: ['main']
 
 jobs:
-  build-ios: &build
-    runs-on: macos-latest
-    env:
-      SUIET_PLATFORM: ios
-      SUIET_PROFILE: preview
-    strategy:
-      matrix:
-        node: [16.x]
-    steps:
-      - name: 🏗 Setup repo
-        uses: actions/checkout@v2
-
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-          cache: yarn
-
-      - name: 🏗 Setup Expo and EAS
-        uses: expo/expo-github-action@v7
-        with:
-          token: ${{ secrets.EXPO_TOKEN }}
-          expo-version: latest
-          eas-version: latest
-
-      - name: 🏗 Setup EAS local builds
-        run: yarn global add eas-cli-local-build-plugin
-
-      - name: 📦 Install dependencies (root)
-        run: |
-          npm ci
-
-      - name: 📦 Install dependencies
-        working-directory: packages/expo
-        run: |
-          npm ci
-
-      - name: 👷 Build app
-        run: |
-          cd packages/expo
-          eas build --local \
-            --non-interactive \
-            --platform=$SUIET_PLATFORM \
-            --profile=$SUIET_PROFILE
-      - name: 📱 Upload binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-${{ env.SUIET_PLATFORM }}-${{ env.SUIET_PROFILE }}
-          path: packages/expo/build-*
-
   build-android:
-    <<: *build
-    runs-on: ubuntu-latest
-    env:
-      SUIET_PLATFORM: android
-      SUIET_PROFILE: preview
+    uses: ./.github/workflows/build-app.yml
+    secrets: inherit
+    with:
+      os: ubuntu-latest
+      platform: android
+      profile: preview
+
+  build-ios:
+    uses: ./.github/workflows/build-app.yml
+    secrets: inherit
+    with:
+      os: macos-latest
+      platform: ios
+      profile: preview
 
   build-all:
-    depends-on: [build-ios, build-android]
+    needs: [build-android, build-ios]
     runs-on: ubuntu-latest
 
     steps:
