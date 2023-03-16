@@ -1,4 +1,4 @@
-name: Build App
+name: Build App (Manual)
 on:
   workflow_dispatch:
     inputs:
@@ -34,6 +34,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
+          cache: yarn
 
       - name: 🏗 Setup Expo and EAS
         uses: expo/expo-github-action@v7
@@ -43,12 +44,15 @@ jobs:
           eas-version: latest
 
       - name: 🏗 Setup EAS local builds
-        run: npm i -g eas-cli-local-build-plugin
+        run: yarn global add eas-cli-local-build-plugin
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install dependencies (root)
         run: |
           npm ci
-          cd packages/expo
+
+      - name: 📦 Install dependencies
+        working-directory: packages/expo
+        run: |
           npm ci
 
       - name: 👷 Build app
