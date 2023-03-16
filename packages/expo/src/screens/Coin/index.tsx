@@ -20,6 +20,7 @@ import { Wallet } from '@/utils/wallet';
 import { AVATARS } from '@/utils/constants';
 import { Address } from '@/components/Address';
 import { Coins } from '@/components/Coins';
+import { FAB } from '@/components/FAB';
 
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
@@ -63,20 +64,22 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         <View style={{ paddingTop: 24 }}>
           <Image style={{ width: 64, height: 64 }} source={AVATARS[wallet.avatar]} />
 
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('SelectWallet');
-            }}
-          >
-            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-              <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 32, lineHeight: 38, color: Gray_900 }}>
-                {wallet.name}
-              </Text>
-              <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
-                <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
+          <View style={{ alignItems: 'flex-start' }}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('SelectWallet');
+              }}
+            >
+              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+                <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 32, lineHeight: 38, color: Gray_900 }}>
+                  {wallet.name}
+                </Text>
+                <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
+                  <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
 
           <View style={{ alignItems: 'flex-start' }}>
             <Address wallet={wallet} />
@@ -112,14 +115,21 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               text: 'Swap',
             },
           ].map(({ svg, text: title }, index) => (
-            <TouchableOpacity key={title} onPress={() => navigation.navigate(title as any)}>
-              <View style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <View style={{ backgroundColor: Gray_100, borderRadius: 9999 }}>
-                  <SvgXml style={{ margin: 14 }} width={24} height={24} color={Gray_700} xml={svg} />
-                </View>
-                <Text style={{ color: Gray_500, fontSize: 12, lineHeight: 24 }}>{title}</Text>
-              </View>
-            </TouchableOpacity>
+            // <TouchableOpacity key={title} onPress={() => navigation.navigate(title as any)}>
+            //   <View style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            //     <View style={{ backgroundColor: Gray_100, borderRadius: 9999 }}>
+            //       <SvgXml style={{ margin: 14 }} width={24} height={24} color={Gray_700} xml={svg} />
+            //     </View>
+            //     <Text style={{ color: Gray_500, fontSize: 12, lineHeight: 24 }}>{title}</Text>
+            //   </View>
+            // </TouchableOpacity>
+            <View
+              key={title}
+              style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            >
+              <FAB svg={svg} onPress={() => navigation.navigate(title as any)} />
+              <Text style={{ color: Gray_500, fontSize: 12, lineHeight: 24 }}>{title}</Text>
+            </View>
           ))}
         </View>
 

@@ -61,5 +61,5 @@ jobs:
       - name: 📱 Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: app-${{ github.event.inputs.platform }}
+          name: app-${{ github.event.inputs.platform }}-${{ github.event.inputs.profile }}
           path: packages/expo/build-*

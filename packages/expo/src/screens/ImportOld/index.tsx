@@ -6,7 +6,7 @@ import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, Al
 import type { RootStackParamList } from '@/../App';
 import { Gray_100, Gray_200, Gray_400, Gray_500 } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
-import { SvgCopy, SvgQRCode } from '@/components/icons/constants';
+import { SvgCopy, SvgCopyDotted, SvgQRCode } from '@/components/icons/constants';
 import { useState } from 'react';
 import { ee } from '../ScanQRCode';
 import { Button } from '@/components/Button';
@@ -26,7 +26,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
 
   return (
     <View style={{ flexDirection: 'column', flexGrow: 1, backgroundColor: 'white' }}>
-      <KeyboardAvoidingView style={{}} behavior={'height'}>
+      <KeyboardAvoidingView style={{ flexGrow: 1 }} behavior={'height'}>
         <ScrollView style={{ paddingHorizontal: 24 }}>
           <View style={{ marginVertical: 24 }}>
             <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 36, lineHeight: 40, color: 'black' }}>Input</Text>
@@ -42,13 +42,17 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16, columnGap: 8 }}>
             <ButtonWithIcon
-              iconSvg={SvgCopy}
               title="Paste"
+              iconSvg={SvgCopyDotted}
               onPress={async () => {
                 const { getStringAsync } = await import('expo-clipboard');
-                const text = await getStringAsync();
-                textInputRef.current?.focus();
-                setTextInputValue(text);
+                try {
+                  const text = await getStringAsync();
+                  setTextInputValue(text);
+                  textInputRef.current?.focus();
+                } catch (e) {
+                  Alert.alert('Error', "Can't get clipboard content. Please try again.");
+                }
               }}
             />
             <ButtonWithIcon
@@ -74,16 +78,15 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
               // numberOfLines={6}
               maxLength={40}
               style={{
-                padding: 10,
-                paddingLeft: 14,
-                paddingRight: 14,
+                paddingHorizontal: 14,
+                paddingTop: 10,
+                paddingBottom: 10,
                 borderWidth: 1,
                 borderColor: Gray_200,
                 borderRadius: 16,
 
                 fontFamily: FontFamilys.Inter_500Medium,
                 fontSize: 14,
-                lineHeight: 20,
                 color: Gray_500,
 
                 minHeight: 168,
@@ -94,16 +97,16 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
             />
           </View>
 
-          <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 14, lineHeight: 20, color: Gray_400 }}>
+          <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
             Recovery phrase was displayed when you first created your wallet.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <View style={{ flexGrow: 1 }}></View>
+      {/* <View style={{ flexGrow: 1 }}></View> */}
 
       <View style={{ height: 1, backgroundColor: Gray_100, width }} />
-      <View style={{ padding: 16 }}>
+      <View style={{ padding: 12 }}>
         <Button
           title="Confirm and Import"
           onPress={async () => {
@@ -171,6 +174,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
             navigation.popToTop();
             navigation.replace('Home');
           }}
+          disabled={!textInputValue}
         />
       </View>
 

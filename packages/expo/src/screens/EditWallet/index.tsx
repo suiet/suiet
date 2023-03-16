@@ -15,7 +15,6 @@ const AvatarSelector: React.FC<{ initialSelectedAvatar: number; onChange?: (sele
   onChange,
 }) => {
   const { width, height } = Dimensions.get('screen');
-
   const [selectedAvatar, setSelectedAvatar] = useState<number>(initialSelectedAvatar);
 
   return (
@@ -96,7 +95,7 @@ export const EditWallet: React.FC<StackScreenProps<RootStackParamList, 'EditWall
             paddingVertical: 10,
 
             fontSize: 14,
-            lineHeight: 20,
+            // lineHeight: 20,
           }}
           value={textInputValue}
           onChangeText={(text) => {
