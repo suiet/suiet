@@ -83,11 +83,10 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
 
   return (
     <View style={{ flexDirection: 'column', flexGrow: 1, backgroundColor: 'white' }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16, justifyContent: 'center' }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16, justifyContent: 'center', gap: 8 }}>
         <ButtonWithIcon
           iconSvg={SvgPlus}
           title="Cretae New"
-          style={{ marginRight: 8 }}
           onPress={() => {
             navigation.navigate('CreateNew');
           }}

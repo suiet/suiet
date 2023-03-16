@@ -52,10 +52,9 @@ export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> 
           </Text>
         </View>
 
-        <View>
+        <View style={{ gap: 8 }}>
           <Button
             title={'Create New Wallet'}
-            innerStyle={{ marginBottom: 8 }}
             onPress={() => {
               // const { getSupportedBiometryType } = await import('react-native-keychain');
               // const supportedType = await getSupportedBiometryType();
@@ -90,8 +89,7 @@ export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> 
 
           <Button
             title={'Import Old Wallet'}
-            innerStyle={{ backgroundColor: Gray_100, marginBottom: 8 }}
-            textStyle={{ color: Gray_700 }}
+            type="Secondary"
             onPress={() => {
               isSupported().then((supported) => {
                 if (supported) {

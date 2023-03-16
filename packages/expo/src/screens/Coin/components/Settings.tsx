@@ -29,6 +29,7 @@ import { AVATARS } from '@/utils/constants';
 import { useWallets } from '@/hooks/useWallets';
 import { Address } from '@/components/Address';
 import { getAllGenericPasswordServices, resetGenericPassword } from 'react-native-keychain';
+import { Alert } from 'react-native';
 
 export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settings'>> = ({ navigation }) => {
   const { wallet } = useWallets();
@@ -88,9 +89,10 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
           borderWidth: 2,
           borderColor: Gray_100,
           borderRadius: 16,
-          paddingVertical: 8,
+          // paddingVertical: 8,
 
           marginBottom: 20,
+          overflow: 'hidden',
         }}
       >
         {[
@@ -103,7 +105,9 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
               item,
               {
                 onPress: () => {
-                  navigation.navigate('EditWallet');
+                  if (item === 'Wallet') {
+                    navigation.navigate('EditWallet');
+                  }
                 },
               },
               svg,
@@ -118,9 +122,10 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
           borderWidth: 2,
           borderColor: Gray_100,
           borderRadius: 16,
-          paddingVertical: 8,
+          // paddingVertical: 8,
 
           marginBottom: 20,
+          overflow: 'hidden',
         }}
       >
         {[
@@ -133,17 +138,32 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
               {
                 onPress: async () => {
                   if (item === 'Reset All') {
-                    await AsyncStorage.clear();
+                    Alert.alert('Reset All', 'Are you sure you want to reset all data?', [
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'YES',
+                        style: 'destructive',
+                        onPress: async () => {
+                          {
+                            const a = await getAllGenericPasswordServices();
+                            console.log(a);
+                            for (const service of a) {
+                              await resetGenericPassword({ service });
+                            }
+                            const b = await getAllGenericPasswordServices();
+                            console.log(b);
+                          }
 
-                    {
-                      const a = await getAllGenericPasswordServices();
-                      console.log(a);
-                      for (const service of a) {
-                        await resetGenericPassword({ service });
-                      }
-                      const b = await getAllGenericPasswordServices();
-                      console.log(b);
-                    }
+                          await AsyncStorage.clear();
+
+                          const { default: RNRestart } = await import('react-native-restart');
+                          RNRestart.restart();
+                        },
+                      },
+                    ]);
                   }
                 },
               },
@@ -159,9 +179,10 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
           borderWidth: 2,
           borderColor: Gray_100,
           borderRadius: 16,
-          paddingVertical: 8,
+          // paddingVertical: 8,
 
           marginBottom: 20,
+          overflow: 'hidden',
         }}
       >
         {[

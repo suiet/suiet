@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Send } from '@/screens/Coin/components/Send';
 import { Header } from '@/screens/Coin/components/Header';
@@ -19,11 +20,11 @@ import { ScanQRCode } from '@/screens/ScanQRCode';
 import { persistor, store } from '@/store';
 import { useWallets } from '@/hooks/useWallets';
 import { Welcome } from '@/screens/Welcome';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Home } from '@/screens/Home';
 import { SelectWallet } from '@/screens/SelectWallet';
 import { EditWallet } from '@/screens/EditWallet';
 import { Receive } from '@/screens/Receive';
+// import { LoadingAvatars, LoadingDots } from '@/components/Loading';
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -50,21 +51,10 @@ export type RootStackParamList = {
   EditWallet: undefined;
 };
 
-// setStatusBarStyle('dark');
-// setStatusBarTranslucent(true);
-
-// const RootStack = createNativeStackNavigator();
 const RootStack = createStackNavigator<RootStackParamList>();
 
 function App() {
   const { isLoading: isWalletsLoading, isEmpty: isWalletsEmpty /* loadWallets */, wallets } = useWallets();
-  // useEffect(() => {
-  //   loadWallets();
-  // }, []);
-
-  // if (isWalletsLoading) {
-  //   return null;
-  // }
 
   return (
     <>
@@ -75,7 +65,6 @@ function App() {
             <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
             <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
             <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
-            <RootStack.Screen name="ScanQRCode" component={ScanQRCode} options={{ headerShown: false }} />
           </RootStack.Group>
           <RootStack.Group
             screenOptions={{
@@ -91,7 +80,7 @@ function App() {
                 const r = getFocusedRouteNameFromRoute(route);
                 if (r === 'SendInputAddress') {
                   return {
-                    gestureEnabled: false,
+                    // gestureEnabled: false,
                     header: ({ navigation, route: { name } }) => (
                       <Header
                         title={name}
@@ -102,14 +91,13 @@ function App() {
                   };
                 }
                 return {
-                  gestureEnabled: false,
+                  // gestureEnabled: false,
                   header: ({ navigation, route: { name } }) => (
                     <Header title={name} onRightAction={() => navigation.goBack()} />
                   ),
                 };
               }}
             />
-
             <RootStack.Screen
               name="Receive"
               component={Receive}
@@ -119,7 +107,6 @@ function App() {
                 ),
               }}
             />
-
             <RootStack.Screen
               name="Settings"
               component={Settings}
@@ -129,7 +116,6 @@ function App() {
                 ),
               }}
             />
-
             <RootStack.Screen
               name="CreateNew"
               component={CreateNew}
@@ -140,7 +126,6 @@ function App() {
                 ),
               }}
             />
-
             <RootStack.Screen
               name="ImportOld"
               component={ImportOld}
@@ -151,7 +136,6 @@ function App() {
                 ),
               }}
             />
-
             <RootStack.Screen
               name="SelectWallet"
               component={SelectWallet}
@@ -162,7 +146,6 @@ function App() {
                 ),
               }}
             />
-
             <RootStack.Screen
               name="EditWallet"
               component={EditWallet}
@@ -171,6 +154,15 @@ function App() {
                 header: ({ navigation, route: { name } }) => (
                   <Header title={''} onRightAction={() => navigation.goBack()} />
                 ),
+              }}
+            />
+
+            <RootStack.Screen
+              name="ScanQRCode"
+              component={ScanQRCode}
+              options={{
+                title: 'Scan QR Code',
+                header: () => null,
               }}
             />
           </RootStack.Group>
@@ -207,7 +199,7 @@ function Root() {
   return (
     <ApolloProvider client={client}>
       <Provider store={store}>
-        <PersistGate /* loading={<SpinningLogo />} */ persistor={persistor}>
+        <PersistGate /* loading={<LoadingAvatars />} */ persistor={persistor}>
           <App />
           <Toast />
         </PersistGate>

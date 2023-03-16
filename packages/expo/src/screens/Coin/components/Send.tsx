@@ -12,11 +12,13 @@ import { ButtonWithIcon } from '@components/ButtonWithIcon';
 import { CoinIcon } from '@/components/CoinIcon';
 import { Coins } from '@/components/Coins';
 import { Button } from '@/components/Button';
+import { ee } from '@/screens/ScanQRCode';
+import { RootStackParamList } from '@/../App';
 
 type SendStackParamList = {
   SendSelectCoin: undefined;
   SendInputAddress: undefined;
-};
+} & RootStackParamList;
 
 const SendStackNavgiator = createStackNavigator<SendStackParamList>();
 
@@ -52,7 +54,7 @@ const SendSelectCoin: React.FC<StackScreenProps<SendStackParamList, 'SendSelectC
   );
 };
 
-const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddress'>> = () => {
+const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddress'>> = ({ navigation }) => {
   const textInputRef = React.useRef<TextInput>(null);
   const [toAddress, setToAddress] = React.useState<string>();
 
@@ -64,7 +66,13 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
       <KeyboardAvoidingView
         style={{ flexGrow: 1, overflow: 'scroll', marginBottom: bottom - 8 }}
         behavior={'padding'}
-        keyboardVerticalOffset={top + 68}
+        keyboardVerticalOffset={
+          Platform.select({
+            android: top,
+            ios: top + 10,
+            default: 0,
+          }) + 68
+        }
       >
         <ScrollView
           scrollEnabled={true}
@@ -137,7 +145,17 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
                 }
               }}
             />
-            <ButtonWithIcon title="Scan QR Code" iconSvg={SvgQRCode} />
+            <ButtonWithIcon
+              title="Scan QR Code"
+              iconSvg={SvgQRCode}
+              onPress={() => {
+                navigation.navigate('ScanQRCode');
+                ee.once('qrCodeScanned', (data) => {
+                  textInputRef.current?.focus();
+                  setToAddress(data);
+                });
+              }}
+            />
           </View>
 
           <View style={{ marginBottom: 16 }}>
@@ -160,7 +178,6 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
 
                 fontFamily: FontFamilys.RobotoMono_400Regular,
                 fontSize: 16,
-                lineHeight: 24,
                 color: Gray_700,
 
                 ...Platform.select({
@@ -179,8 +196,8 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
         </ScrollView>
 
         <View style={{ height: 1, backgroundColor: Gray_100, width }} />
-        <View style={{ padding: 16 }}>
-          <Button title="Next Step" />
+        <View style={{ padding: 12 }}>
+          <Button title="Next Step" disabled={!toAddress} />
         </View>
       </KeyboardAvoidingView>
     </View>
