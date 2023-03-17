@@ -6,6 +6,7 @@ import { formatCurrency } from '@/utils/format';
 import { useQuery } from '@apollo/client';
 import { GET_COINS } from '@/utils/gql';
 import { LoadingDots } from '@/components/Loading';
+import { FontFamilys } from '@/hooks/useFonts';
 
 const ListItem: React.FC<
   { backgroundColor: ColorValue; textColor: ColorValue; symbol: string; balance: string } & ViewProps
@@ -35,7 +36,7 @@ const ListItem: React.FC<
         style={{
           flexGrow: 1,
           flexShrink: 0,
-          fontWeight: '600',
+          fontFamily: FontFamilys.Inter_600SemiBold,
           fontSize: 19,
           lineHeight: 19,
           color: textColor,
@@ -47,7 +48,7 @@ const ListItem: React.FC<
         style={{
           flexGrow: 0,
           flexShrink: 0,
-          fontWeight: '600',
+          fontFamily: FontFamilys.Inter_600SemiBold,
           fontSize: 19,
           lineHeight: 19,
           color: textColor,

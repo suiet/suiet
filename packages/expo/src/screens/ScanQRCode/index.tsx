@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import { BarCodeScanner, PermissionStatus, BarCodeScannedCallback } from 'expo-barcode-scanner';
-import { RootStackParamList } from '@/../App';
+import type { RootStackParamList } from '@/../App';
 import { StackScreenProps } from '@react-navigation/stack';
 import { EventEmitter } from 'eventemitter3';
 import { StatusBar } from 'expo-status-bar';
@@ -20,22 +20,28 @@ export const ScanQRCode: React.FC<StackScreenProps<RootStackParamList, 'ScanQRCo
   const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === PermissionStatus.GRANTED);
-    };
+    async function requestPermission() {
+      const { getPermissionsAsync, requestPermissionsAsync } = await import('expo-barcode-scanner');
+      if (!(await getPermissionsAsync()).granted) {
+        if (!(await requestPermissionsAsync()).granted) {
+          Alert.alert('Error', "Can't get camera permission. Please try again.");
+          return;
+        }
+      }
 
-    getBarCodeScannerPermissions();
+      setHasPermission(true);
+    }
+
+    requestPermission();
   }, []);
 
   const handleBarCodeScanned: BarCodeScannedCallback = ({ type, data }) => {
     setScanned(true);
-    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     ee.emit('qrCodeScanned', data);
     navigation.goBack();
   };
 
-  if (hasPermission === null) {
+  if (hasPermission === undefined) {
     return <Text>Requesting for camera permission</Text>;
   }
   if (hasPermission === false) {
@@ -49,9 +55,6 @@ export const ScanQRCode: React.FC<StackScreenProps<RootStackParamList, 'ScanQRCo
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
-        onLayout={({ nativeEvent: { layout } }) => {
-          console.log(layout);
-        }}
       />
 
       <View

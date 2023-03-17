@@ -23,7 +23,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { RootStackParamList } from '@/../App';
+import type { RootStackParamList } from '@/../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AVATARS } from '@/utils/constants';
 import { useWallets } from '@/hooks/useWallets';

@@ -1,19 +1,17 @@
-import { Text, View, TextInput, Platform, ScrollView, Alert, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { Text, View, Platform, ScrollView, Dimensions, KeyboardAvoidingView } from 'react-native';
 import * as React from 'react';
 import { createStackNavigator, StackScreenProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FontFamilys } from '@/hooks/useFonts';
 import { useWallets } from '@/hooks/useWallets';
-import { Gray_100, Gray_200, Gray_400, Gray_500, Gray_700, Primary_50, Primary_900 } from '@styles/colors';
-import { SvgCopyDotted, SvgQRCode } from '@components/icons/constants';
+import { Gray_100, Gray_400, Primary_50, Primary_900 } from '@styles/colors';
 
-import { ButtonWithIcon } from '@components/ButtonWithIcon';
 import { CoinIcon } from '@/components/CoinIcon';
 import { Coins } from '@/components/Coins';
 import { Button } from '@/components/Button';
-import { ee } from '@/screens/ScanQRCode';
-import { RootStackParamList } from '@/../App';
+import type { RootStackParamList } from '@/../App';
+import { TextInput } from '@/components/TextInput';
 
 type SendStackParamList = {
   SendSelectCoin: undefined;
@@ -55,8 +53,7 @@ const SendSelectCoin: React.FC<StackScreenProps<SendStackParamList, 'SendSelectC
 };
 
 const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddress'>> = ({ navigation }) => {
-  const textInputRef = React.useRef<TextInput>(null);
-  const [toAddress, setToAddress] = React.useState<string>();
+  const [textInputValue, setTextInputValue] = React.useState<string>();
 
   const { width, height } = Dimensions.get('screen');
   const { top, bottom } = useSafeAreaInsets();
@@ -101,7 +98,7 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
               style={{
                 flexGrow: 1,
                 flexShrink: 0,
-                fontWeight: '600',
+                fontFamily: FontFamilys.Inter_600SemiBold,
                 fontSize: 16,
                 lineHeight: 20,
                 color: Primary_900,
@@ -113,7 +110,7 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
               style={{
                 flexGrow: 0,
                 flexShrink: 0,
-                fontWeight: '600',
+                fontFamily: FontFamilys.Inter_600SemiBold,
                 fontSize: 20,
                 lineHeight: 24,
                 color: Primary_900,
@@ -124,80 +121,28 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
           </View>
 
           <View style={{ marginLeft: 8, marginRight: 8, marginBottom: 24 }}>
-            <Text style={{ fontWeight: '700', fontSize: 24, lineHeight: 36, color: '#000000' }}>Input Address</Text>
-            <Text style={{ fontWeight: '600', fontSize: 16, lineHeight: 20, color: Gray_400 }}>
+            <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 24, lineHeight: 36, color: '#000000' }}>
+              Input Address
+            </Text>
+            <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 16, lineHeight: 20, color: Gray_400 }}>
               Enter and validate Address
             </Text>
           </View>
 
-          <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 16, columnGap: 8 }}>
-            <ButtonWithIcon
-              title="Paste"
-              iconSvg={SvgCopyDotted}
-              onPress={async () => {
-                const { getStringAsync } = await import('expo-clipboard');
-                try {
-                  const text = await getStringAsync();
-                  setToAddress(text);
-                  textInputRef.current?.focus();
-                } catch (e) {
-                  Alert.alert('Error', "Can't get clipboard content. Please try again.");
-                }
-              }}
-            />
-            <ButtonWithIcon
-              title="Scan QR Code"
-              iconSvg={SvgQRCode}
-              onPress={() => {
-                navigation.navigate('ScanQRCode');
-                ee.once('qrCodeScanned', (data) => {
-                  textInputRef.current?.focus();
-                  setToAddress(data);
-                });
-              }}
-            />
-          </View>
-
-          <View style={{ marginBottom: 16 }}>
-            <TextInput
-              ref={textInputRef}
-              value={toAddress}
-              onChangeText={setToAddress}
-              multiline
-              editable
-              numberOfLines={4}
-              maxLength={40}
-              keyboardType="email-address"
-              style={{
-                padding: 10,
-                paddingLeft: 14,
-                paddingRight: 14,
-                borderWidth: 1,
-                borderColor: Gray_200,
-                borderRadius: 16,
-
-                fontFamily: FontFamilys.RobotoMono_400Regular,
-                fontSize: 16,
-                color: Gray_700,
-
-                ...Platform.select({
-                  ios: {
-                    minHeight: 100,
-                  },
-                }),
-              }}
-              placeholder="Enter SUI Address"
-              placeholderTextColor={Gray_500}
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* <View style={{ height: 10, backgroundColor: 'red' }} /> */}
+          <TextInput
+            value={textInputValue}
+            onChangeText={setTextInputValue}
+            placeholder="Enter SUI address"
+            style={{
+              fontFamily: FontFamilys.RobotoMono_400Regular,
+              minHeight: 96,
+            }}
+          />
         </ScrollView>
 
         <View style={{ height: 1, backgroundColor: Gray_100, width }} />
         <View style={{ padding: 12 }}>
-          <Button title="Next Step" disabled={!toAddress} />
+          <Button title="Next Step" disabled={!textInputValue} />
         </View>
       </KeyboardAvoidingView>
     </View>
