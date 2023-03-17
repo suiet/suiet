@@ -5,7 +5,7 @@ import { Gray_100, Gray_500, Gray_900 } from '@styles/colors';
 import { SvgClockRewind, SvgCoins, SvgGrid } from '@components/icons/constants';
 
 import { Coin } from '@/screens/Coin';
-import { RootStackParamList } from '@/../App';
+import type { RootStackParamList } from '@/../App';
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 

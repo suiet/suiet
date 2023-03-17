@@ -75,7 +75,7 @@ export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> 
           <Image style={{ width: 32, height: 32, marginRight: 4 }} source={AVATARS[wallet.avatar]} />
           <Text
             style={{
-              fontFamily: 'Inter_700Bold',
+              fontFamily: FontFamilys.Inter_700Bold,
               fontSize: 16,
               lineHeight: 20,
               color: Gray_700,

@@ -4,7 +4,7 @@ import { Gray_100, Gray_400, Gray_700 } from '@styles/colors';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
-import { RootStackParamList } from '@/../App';
+import type { RootStackParamList } from '@/../App';
 import { useWallets } from '@/hooks/useWallets';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFakeKeychain, useKeychain } from '@/hooks/useKeychain';
@@ -103,7 +103,7 @@ export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> 
         </View>
       </View>
 
-      <View style={{ height: bottom }} />
+      <View style={{ height: bottom + 4 }} />
     </View>
   );
 };

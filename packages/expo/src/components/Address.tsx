@@ -7,6 +7,7 @@ import { addressEllipsis } from '@/utils/format';
 import { Wallet } from '@/utils/wallet';
 import { Gray_700 } from '@/styles/colors';
 import { SvgCopy } from './icons/constants';
+import { FontFamilys } from '@/hooks/useFonts';
 
 export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
   return (
@@ -37,13 +38,9 @@ export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
       >
         <Text
           style={{
-            fontWeight: '400',
+            fontFamily: FontFamilys.RobotoMono_400Regular,
             fontSize: 14,
             lineHeight: 18,
-            fontFamily: Platform.select({
-              ios: 'Menlo',
-              android: 'monospace',
-            }),
             color: Gray_700,
           }}
         >

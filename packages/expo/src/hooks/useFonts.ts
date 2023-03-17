@@ -10,7 +10,7 @@ export type FontFamily = Exclude<
 
 import { Inter_700Bold, Inter_600SemiBold, Inter_500Medium } from '@expo-google-fonts/inter';
 import { WorkSans_700Bold } from '@expo-google-fonts/work-sans';
-import { RobotoMono_400Regular } from '@expo-google-fonts/roboto-mono';
+import { RobotoMono_400Regular, RobotoMono_500Medium } from '@expo-google-fonts/roboto-mono';
 
 const MAP = {
   Inter_700Bold,
@@ -18,6 +18,7 @@ const MAP = {
   Inter_500Medium,
   WorkSans_700Bold,
   RobotoMono_400Regular,
+  RobotoMono_500Medium,
 };
 
 export function useFonts() {

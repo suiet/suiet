@@ -65,6 +65,11 @@ jobs:
         run: |
           npm ci
 
+      - name: 🧪 Run checks
+        working-directory: packages/expo
+        run: |
+          ./node_modules/.bin/tsc --noEmit
+
       - name: 👷 Build app
         run: |
           cd packages/expo

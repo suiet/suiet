@@ -62,13 +62,9 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
 
           <Text
             style={{
-              fontWeight: '400',
+              fontFamily: FontFamilys.RobotoMono_400Regular,
               fontSize: 12,
               lineHeight: 16,
-              fontFamily: Platform.select({
-                ios: 'Menlo',
-                android: 'monospace',
-              }),
               color: Gray_500,
             }}
             children={addressEllipsis(wallet.address)}

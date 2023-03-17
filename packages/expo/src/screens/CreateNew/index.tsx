@@ -8,6 +8,7 @@ import { Button } from '@/components/Button';
 import { LoadingAvatars, LoadingDots } from '@/components/Loading';
 import { Gray_400 } from '@/styles/colors';
 import { useFakeKeychain, useKeychain } from '@/hooks/useKeychain';
+import { FontFamilys } from '@/hooks/useFonts';
 
 // import {
 //   setGenericPassword,
@@ -164,11 +165,11 @@ export const CreateNew: React.FC<StackScreenProps<RootStackParamList, 'CreateNew
     >
       <LoadingAvatars />
       <View style={{ height: 24 }} />
-      <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 36, lineHeight: 40, textAlign: 'center' }}>
+      <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, textAlign: 'center' }}>
         Waiting...
       </Text>
       <View style={{ height: 4 }} />
-      <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 14, lineHeight: 20, color: Gray_400 }}>
+      <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
         Your new wallet is creating now.
       </Text>
       <View style={{ height: 24 }} />

@@ -1,9 +1,10 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import { Dimensions, View, Platform, Image, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { RootStackParamList } from '@/../App';
+import type { RootStackParamList } from '@/../App';
 import { Button } from '@/components/Button';
 import { useWallets } from '@/hooks/useWallets';
+import { FontFamilys } from '@/hooks/useFonts';
 
 export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'BackupAndDone'>> = ({
   route,
@@ -23,11 +24,24 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       <View style={{ flexGrow: 1, maxHeight: 150 }} />
 
       <View style={{ marginBottom: 40 }}>
-        <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 48, lineHeight: 54, color: 'white' }}>Welcome</Text>
-        <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 48, lineHeight: 54, color: 'white' }}>to Your</Text>
-        <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 48, lineHeight: 54, color: 'white' }}>New Wallet</Text>
+        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'white' }}>
+          Welcome
+        </Text>
+        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'white' }}>
+          to Your
+        </Text>
+        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'white' }}>
+          New Wallet
+        </Text>
         <View style={{ height: 8 }} />
-        <Text style={{ fontFamily: 'Inter_500Medium', fontSize: 14, lineHeight: 20, color: 'rgba(255,255,255,0.7)' }}>
+        <Text
+          style={{
+            fontFamily: FontFamilys.Inter_500Medium,
+            fontSize: 14,
+            lineHeight: 20,
+            color: 'rgba(255,255,255,0.7)',
+          }}
+        >
           Copy and save your recovery phrase.
         </Text>
       </View>
@@ -38,10 +52,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
             <View key={item} style={{ width: '33.3%', flexDirection: 'row', paddingVertical: 8 }}>
               <Text
                 style={{
-                  fontFamily: Platform.select({
-                    ios: 'Menlo',
-                    android: 'monospace',
-                  }),
+                  fontFamily: FontFamilys.RobotoMono_400Regular,
                   fontSize: 14,
                   lineHeight: 20,
                   width: 20,
@@ -54,12 +65,8 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
               </Text>
               <Text
                 style={{
-                  fontFamily: Platform.select({
-                    ios: 'Menlo',
-                    android: 'monospace',
-                  }),
+                  fontFamily: FontFamilys.RobotoMono_500Medium,
                   fontSize: 14,
-                  fontWeight: '500',
                   lineHeight: 20,
                   color: 'rgba(255,255,255,1)',
                 }}

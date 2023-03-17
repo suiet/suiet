@@ -7,7 +7,7 @@ on:
     branches: ['main']
 
 jobs:
-  build-android:
+  build-android-preview:
     uses: ./.github/workflows/build-app.yml
     secrets: inherit
     with:
@@ -15,7 +15,7 @@ jobs:
       platform: android
       profile: preview
 
-  build-ios:
+  build-ios-preview:
     uses: ./.github/workflows/build-app.yml
     secrets: inherit
     with:
@@ -23,25 +23,33 @@ jobs:
       platform: ios
       profile: preview
 
-  build-all:
-    needs: [build-android, build-ios]
+  build-android-development:
+    uses: ./.github/workflows/build-app.yml
+    secrets: inherit
+    with:
+      os: ubuntu-latest
+      platform: android
+      profile: development
+
+  build-ios-development:
+    uses: ./.github/workflows/build-app.yml
+    secrets: inherit
+    with:
+      os: macos-latest
+      platform: ios
+      profile: development
+
+  build:
+    needs:
+      [
+        build-android-preview,
+        build-ios-preview,
+        build-android-development,
+        build-ios-development,
+      ]
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📱 Download iOS binary
-        uses: actions/download-artifact@v2
-        with:
-          name: app-ios-preview
-          path: packages/expo
-
-      - name: 📱 Download Android binary
-        uses: actions/download-artifact@v2
-        with:
-          name: app-android-preview
-          path: packages/expo
-
-      - name: 📱 Upload binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-preview
-          path: packages/expo/build-*
+      - name: 👷 Placeholder
+        run: |
+          echo "Hello World"

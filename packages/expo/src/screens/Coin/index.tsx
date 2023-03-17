@@ -21,6 +21,7 @@ import { AVATARS } from '@/utils/constants';
 import { Address } from '@/components/Address';
 import { Coins } from '@/components/Coins';
 import { FAB } from '@/components/FAB';
+import { FontFamilys } from '@/hooks/useFonts';
 
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
@@ -71,7 +72,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               }}
             >
               <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-                <Text style={{ fontFamily: 'WorkSans_700Bold', fontSize: 32, lineHeight: 38, color: Gray_900 }}>
+                <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 32, lineHeight: 38, color: Gray_900 }}>
                   {wallet.name}
                 </Text>
                 <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
@@ -128,14 +129,24 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
               <FAB svg={svg} onPress={() => navigation.navigate(title as any)} />
-              <Text style={{ color: Gray_500, fontSize: 12, lineHeight: 24 }}>{title}</Text>
+              <Text style={{ color: Gray_500, fontFamily: FontFamilys.Inter_500Medium, fontSize: 12, lineHeight: 24 }}>
+                {title}
+              </Text>
             </View>
           ))}
         </View>
 
         <View>
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ flexGrow: 1, fontWeight: '700', fontSize: 16, lineHeight: 20, color: Gray_900 }}>
+            <Text
+              style={{
+                flexGrow: 1,
+                fontFamily: FontFamilys.WorkSans_700Bold,
+                fontSize: 16,
+                lineHeight: 20,
+                color: Gray_900,
+              }}
+            >
               Tokens
             </Text>
             {/* <Text style={{ color: Gray_400 }}>See all</Text>
@@ -177,7 +188,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
             <Image style={{ width: 32, height: 32, marginRight: 4 }} source={AVATARS[wallet.avatar]} />
             <Text
               style={{
-                fontFamily: 'Inter_700Bold',
+                fontFamily: FontFamilys.Inter_700Bold,
                 fontSize: 16,
                 lineHeight: 20,
                 color: Gray_700,

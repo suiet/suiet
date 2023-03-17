@@ -34,7 +34,7 @@ export function formatCurrency(amount: number | string, decimals = 9) {
 
 // // [1M, 1B)  -> x.xxxM
 export function fullyFormatCurrency(amount: number | string) {
-  if (amount < 1e9) {
+  if (Number(amount) < 1e9) {
     return formatSmallCurrency(amount);
   }
   return parseFloat(String(Number(amount) / 1e9)).toLocaleString();

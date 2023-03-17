@@ -4,6 +4,7 @@ import { SvgArrowLeft, SvgClose } from '@components/icons/constants';
 import { Gray_100, Gray_400, Gray_700 } from '@styles/colors';
 import { SvgXml } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FontFamilys } from '@/hooks/useFonts';
 
 export const Header: React.FC<{ onLeftAction?: () => void; onRightAction?: () => void; title: string }> = ({
   onLeftAction,
@@ -67,7 +68,7 @@ export const Header: React.FC<{ onLeftAction?: () => void; onRightAction?: () =>
         <Text
           style={{
             flexGrow: 1,
-            fontWeight: '600',
+            fontFamily: FontFamilys.Inter_600SemiBold,
             fontSize: 18,
             lineHeight: 28,
             color: Gray_700,
