@@ -39,6 +39,7 @@ import {
   uint8arrayToArray,
 } from '../../shared/msg-passing/uint8array-passing';
 import { AccountInfo } from '../../background/types';
+import { UserRejectionError } from '../../background/errors';
 
 type WalletEventsMap = {
   [E in keyof EventsListeners]: Parameters<EventsListeners[E]>[0];
@@ -58,16 +59,9 @@ enum Feature {
   EXP__SIGN_MESSAGE = 'exp:signMessage',
 }
 
-enum ConnectStatus {
-  CONNECTED = 'connected',
-  DISCONNECTED = 'disconnected',
-  CONNECTING = 'connecting',
-}
-
 export class SuietWallet implements Wallet {
   readonly #name = 'Suiet' as const;
   readonly #version = '1.0.0' as const;
-  #connectStatus: ConnectStatus = ConnectStatus.DISCONNECTED;
   #activeAccount: ReadonlyWalletAccount | null = null;
   #winMsgStream: WindowMsgStream;
   #events: Emitter<WalletEventsMap>;
@@ -133,25 +127,11 @@ export class SuietWallet implements Wallet {
   };
 
   #connect: ConnectMethod = async (input) => {
-    if (this.#connectStatus === ConnectStatus.CONNECTING) {
-      throw new Error(
-        'Existed connection is pending, please do not make duplicated calls'
-      );
-    }
-    if (this.#connectStatus === ConnectStatus.DISCONNECTED) {
-      this.#connectStatus = ConnectStatus.CONNECTING;
-      try {
-        const isSuccess = await this.#request('dapp.connect', {
-          permissions: [Permission.SUGGEST_TX, Permission.VIEW_ACCOUNT],
-        });
-        if (!isSuccess) {
-          throw new Error('User rejects approval');
-        }
-        this.#connectStatus = ConnectStatus.CONNECTED;
-      } catch (e) {
-        this.#connectStatus = ConnectStatus.DISCONNECTED;
-        throw e;
-      }
+    const isSuccess = await this.#request('dapp.connect', {
+      permissions: [Permission.SUGGEST_TX, Permission.VIEW_ACCOUNT],
+    });
+    if (!isSuccess) {
+      throw new UserRejectionError();
     }
 
     // after connection permission approved
@@ -183,7 +163,6 @@ export class SuietWallet implements Wallet {
   };
 
   #disconnect: DisconnectMethod = async () => {
-    this.#connectStatus = ConnectStatus.DISCONNECTED;
     this.#activeAccount = null;
     this.#events.all.clear();
   };
