@@ -23,7 +23,7 @@ import { RpcError } from '../errors';
 const DEFAULT_GAS_BUDGET_FOR_PAY = 150;
 const DEFAULT_GAS_BUDGET = 2000;
 
-function getDefaultGasBudgetByKind(kind: string) {
+export function getDefaultGasBudgetByKind(kind: string) {
   switch (kind) {
     case 'paySui':
       return DEFAULT_GAS_BUDGET_FOR_PAY;
@@ -124,12 +124,10 @@ class TxProvider {
     const keypair = createKeypair(this.vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
 
-    // only try estimating gasBudget for unserialized tx
     if (tx.kind !== 'bytes') {
+      // only try estimating gasBudget for unserializable tx
       const estimatedGasBudget = await this.getEstimatedGasBudget(tx);
-      console.log('before estimatedGasBudget', JSON.parse(JSON.stringify(tx)));
       Object.assign(tx.data, { gasBudget: estimatedGasBudget });
-      console.log('after estimatedGasBudget', JSON.parse(JSON.stringify(tx)));
     }
     const res = await signer.signAndExecuteTransaction(tx, requestType);
     if (
@@ -154,14 +152,9 @@ class TxProvider {
   ): Promise<TransactionEffects> {
     const keypair = createKeypair(this.vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
-    let res: TransactionEffects;
-    try {
-      res = await signer.dryRunTransaction(tx);
-    } catch (e) {
-      throw e;
-    }
+    const res: TransactionEffects = await signer.dryRunTransaction(tx);
     if (res.status.status === 'failure') {
-      throw new RpcError(res.status.error || res.status.status, res);
+      throw new RpcError(res.status.error ?? res.status.status, res);
     }
     return res;
   }
@@ -170,37 +163,28 @@ class TxProvider {
    * try to calculate estimated gas budget from dryRun API
    * @param tx
    */
-  async getEstimatedGasBudget(
-    tx: UnserializedSignableTransaction
-  ): Promise<number> {
-    // if already specified non-zero gasBudget, return it
-    if (typeof tx.data?.gasBudget === 'number' && tx.data.gasBudget > 0) {
-      return tx.data.gasBudget;
-    }
-
-    const MAX_RETRY = 3;
-    let retryCount = 1;
+  async getEstimatedGasBudget(tx: SignableTransaction): Promise<number> {
     const defaultGasBudget = getDefaultGasBudgetByKind(tx.kind);
+    if (tx.kind !== 'bytes') {
+      if (typeof tx.data?.gasBudget === 'number' && tx.data.gasBudget > 0) {
+        // if already specified non-zero gasBudget, return it
+        return tx.data.gasBudget;
+      }
+      // else, assign a default budget
+      Object.assign(tx.data, { gasBudget: defaultGasBudget });
+    }
 
     let effects: TransactionEffects;
-    while (retryCount <= MAX_RETRY) {
-      // try 3 times with linear increasing budget
-      Object.assign(tx.data, { gasBudget: retryCount * defaultGasBudget });
-      try {
-        effects = await this.dryRunTransaction(tx);
-        break;
-      } catch (e) {
-        retryCount++;
-        if (retryCount > MAX_RETRY) {
-          throw e;
-        }
-      }
+    try {
+      effects = await this.dryRunTransaction(tx);
+      const RATIO = 1.5;
+      const res = getTotalGasUsed(effects); // infer est budget from dryRun result
+      // return estimated budget based on the response of dryRun
+      return is(res, number()) ? Math.ceil(res * RATIO) : DEFAULT_GAS_BUDGET;
+    } catch (e) {
+      // if failed, return default gas budget
+      return defaultGasBudget;
     }
-
-    const RATIO = 1.5;
-    // @ts-expect-error
-    const res = getTotalGasUsed(effects); // infer est budget from dryRun result
-    return is(res, number()) ? Math.ceil(res * RATIO) : DEFAULT_GAS_BUDGET;
   }
 }
 
