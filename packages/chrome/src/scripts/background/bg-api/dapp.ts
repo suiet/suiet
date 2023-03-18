@@ -22,9 +22,12 @@ import {
   SignableTransaction,
   SuiTransactionResponse,
   TransactionEffects,
-  UnserializedSignableTransaction,
 } from '@mysten/sui.js';
-import { TxRequestManager, TxRequestType } from '../transaction';
+import {
+  TxFailureReason,
+  TxRequestManager,
+  TxRequestType,
+} from '../transaction';
 import {
   InvalidParamError,
   InvalidPermissionTypeError,
@@ -243,7 +246,7 @@ export class DappBgApi {
     ]);
 
     const connectionCtx = await this._prepareConnectionContext(payload.context);
-    await this._transactionGuard(payload.params.transaction, connectionCtx);
+    // await this._transactionGuard(payload.params.transaction, connectionCtx);
 
     const { transaction, requestType } = payload.params;
     const network = await this._getNetwork(connectionCtx.networkId);
@@ -256,29 +259,23 @@ export class DappBgApi {
       accountId: connectionCtx.target.accountId,
     };
 
-    // if not specified gasBudget, then dryRun to estimate gas budget
-    if (transaction.kind !== 'bytes' && !transaction.data?.gasBudget) {
-      transaction.data.gasBudget = await this.txApi.getEstimatedGasBudget({
-        ...txContext,
-        transaction,
-      });
-      console.log('getEstimatedGasBudget', transaction.data.gasBudget);
-    }
-
-    const txMetadata = await this._transactionMetadata(
-      transaction,
-      connectionCtx
-    );
     const { finalResult } = await this.promptForTxApproval(
       {
         txType: transaction.kind,
         txData: transaction.data,
-        metadata: txMetadata,
+        metadata: null,
       },
       connectionCtx
     );
     if (!finalResult.approved) {
-      throw new UserRejectionError();
+      switch (finalResult.reason) {
+        case TxFailureReason.USER_REJECTION:
+          throw new UserRejectionError();
+        case TxFailureReason.INSUFFICIENT_GAS:
+          throw new InvalidParamError('Insufficient gas fee');
+        default:
+          throw new Error();
+      }
     }
 
     const response = await this.txApi.signAndExecuteTransaction({
@@ -416,6 +413,7 @@ export class DappBgApi {
         return {
           ...txReq,
           approved: result.approved,
+          reason: result.reason,
           updatedAt: result.updatedAt,
         };
       })
@@ -583,61 +581,30 @@ export class DappBgApi {
     }
   }
 
-  private async _transactionGuard(
-    tx: SignableTransaction,
-    context: DappConnectionContext
-  ) {
-    const network = await this._getNetwork(context.networkId);
-    const coinBalanceList = await this.txApi.getCoinsBalance({
-      network,
-      address: context.target.address,
-    });
-    const sui = coinBalanceList.find((item) => item.symbol === CoinSymbol.SUI);
-    if (!sui) {
-      throw new Error('SUI balance is insufficient to pay for gasBudget');
-    }
-    if (tx.kind !== 'bytes') {
-      if (+sui.balance < tx.data.gasBudget) {
-        throw new Error('SUI balance is insufficient to pay for gasBudget');
-      }
-    }
-    // TODO: set balance guard for pay & paySui & payAllSui
-    // if (tx.kind === 'paySui') {
-    //   if (
-    //     +sui.balance <
-    //     tx.data.gasBudget + tx.data.amounts.reduce((c, r) => c + r, 0)
-    //   ) {
-    //     throw new Error(
-    //       'SUI balance is insufficient to pay for amount + gasBudget'
-    //     );
-    //   }
-    // }
-  }
-
-  private async _transactionMetadata(
-    tx: SignableTransaction,
-    context: DappConnectionContext
-  ) {
-    if (tx.kind === 'payAllSui') {
-      const network = await this._getNetwork(context.networkId);
-      const coinObjList = await this.txApi.getOwnedCoins({
-        network,
-        address: context.target.address,
-      });
-      const suiToPayList = coinObjList.filter(
-        (obj) =>
-          obj.symbol === CoinSymbol.SUI && tx.data.inputCoins.includes(obj.id)
-      );
-      const payAllSuiAmount = suiToPayList.reduce(
-        (p, c) => p + Number(c.balance),
-        0
-      );
-      return {
-        payAllSuiAmount,
-      };
-    }
-    return null;
-  }
+  // private async _transactionMetadata(
+  //   tx: SignableTransaction,
+  //   context: DappConnectionContext
+  // ) {
+  //   if (tx.kind === 'payAllSui') {
+  //     const network = await this._getNetwork(context.networkId);
+  //     const coinObjList = await this.txApi.getOwnedCoins({
+  //       network,
+  //       address: context.target.address,
+  //     });
+  //     const suiToPayList = coinObjList.filter(
+  //       (obj) =>
+  //         obj.symbol === CoinSymbol.SUI && tx.data.inputCoins.includes(obj.id)
+  //     );
+  //     const payAllSuiAmount = suiToPayList.reduce(
+  //       (p, c) => p + Number(c.balance),
+  //       0
+  //     );
+  //     return {
+  //       payAllSuiAmount,
+  //     };
+  //   }
+  //   return null;
+  // }
 
   private async _getActiveAccount(accountId: string): Promise<Account> {
     const account = await this.ctx.storage.getAccount(accountId);

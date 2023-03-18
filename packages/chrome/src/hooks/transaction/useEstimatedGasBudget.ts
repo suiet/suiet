@@ -3,12 +3,15 @@ import { useApiClient } from '../useApiClient';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useNetwork } from '../useNetwork';
-import { GetEstimatedGasBudgetParams } from '@suiet/core';
-import { UnserializedSignableTransaction } from '@mysten/sui.js';
+import { GetEstimatedGasBudgetParams, Network } from '@suiet/core';
+import {
+  SignableTransaction,
+  UnserializedSignableTransaction,
+} from '@mysten/sui.js';
 import { OmitToken } from '../../types';
 
 export function useEstimatedGasBudget(
-  transaction: UnserializedSignableTransaction | undefined
+  transaction: SignableTransaction | undefined
 ) {
   const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -19,10 +22,15 @@ export function useEstimatedGasBudget(
       'txn.getEstimatedGasBudget',
       transaction,
       appContext.accountId,
-      network?.id,
+      network,
     ],
+    enabled: !!transaction && !!network && !!appContext,
     queryFn: async () => {
-      if (!transaction || !network) return;
+      const tx = transaction as UnserializedSignableTransaction;
+      if (tx.data?.gasBudget && tx.data.gasBudget > 0) {
+        // if specified gasBudget, just return it back without dryRun
+        return tx.data.gasBudget;
+      }
 
       return await apiClient.callFunc<
         OmitToken<GetEstimatedGasBudgetParams>,
@@ -30,8 +38,8 @@ export function useEstimatedGasBudget(
       >(
         'txn.getEstimatedGasBudget',
         {
-          transaction,
-          network,
+          transaction: tx,
+          network: network as Network,
           walletId: appContext.walletId,
           accountId: appContext.accountId,
         },
@@ -40,6 +48,5 @@ export function useEstimatedGasBudget(
         }
       );
     },
-    // enabled: false,
   });
 }
