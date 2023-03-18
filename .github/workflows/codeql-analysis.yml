@@ -23,6 +23,8 @@ on:
 jobs:
   analyze:
     name: Analyze
+    # Before we setup CodeQL we skip this job
+    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       actions: read
