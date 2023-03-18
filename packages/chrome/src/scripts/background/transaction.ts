@@ -12,6 +12,11 @@ export enum TxRequestType {
   SERIALIZED_MOVE_CALL = 'bytes',
 }
 
+export enum TxFailureReason {
+  USER_REJECTION = 'USER_REJECTION',
+  INSUFFICIENT_GAS = 'INSUFFICIENT_GAS',
+}
+
 export interface TxRequest extends DappBaseRequest {
   metadata: Record<string, any> | null;
   type: string;
@@ -74,6 +79,7 @@ export class TxRequestManager {
       id: uuidv4(),
       createdAt: new Date().toISOString(),
       approved: null,
+      reason: null,
       response: null,
       responseError: null,
       updatedAt: null,

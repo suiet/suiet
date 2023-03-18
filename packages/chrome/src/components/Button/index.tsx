@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import { Extendable } from '../../types';
-import Loading, { LoadingSpokes } from '../../components/Loading';
+import { LoadingSpokes } from '../../components/Loading';
 
 export type ButtonState = 'normal' | 'primary' | 'danger';
 

@@ -2,7 +2,7 @@ import Avatar, { withFavicon } from '../../components/Avatar';
 import HyperLink from '../../components/HyperLink';
 import styles from './index.module.scss';
 import Typo from '../../components/Typo';
-import Button from '../../components/Button';
+import Button, { ButtonState } from '../../components/Button';
 import { Extendable } from '../../types';
 import classnames from 'classnames';
 import WalletSelector from '../../pages/dapp/WalletSelector';
@@ -15,7 +15,9 @@ export type DappPopupLayoutProps = Extendable & {
   favicon?: string;
   loading?: boolean;
   okText?: string;
+  showOk?: boolean;
   cancelText?: string;
+  cancelState?: ButtonState;
   onOk?: () => void;
   onCancel?: () => void;
 };
@@ -26,6 +28,8 @@ const DappPopupLayout = (props: DappPopupLayoutProps) => {
     loading = false,
     okText = 'OK',
     cancelText = 'Cancel',
+    cancelState = 'danger',
+    showOk = true,
   } = props;
   return (
     <div className={styles['container']}>
@@ -55,17 +59,19 @@ const DappPopupLayout = (props: DappPopupLayoutProps) => {
       </div>
 
       <footer className={styles['footer']}>
-        <Button state={'danger'} disabled={loading} onClick={props.onCancel}>
+        <Button state={cancelState} disabled={loading} onClick={props.onCancel}>
           {cancelText}
         </Button>
-        <Button
-          state={'primary'}
-          className={'ml-[8px]'}
-          loading={loading}
-          onClick={props.onOk}
-        >
-          {okText}
-        </Button>
+        {showOk && (
+          <Button
+            state={'primary'}
+            className={'ml-[8px]'}
+            disabled={loading}
+            onClick={props.onOk}
+          >
+            {okText}
+          </Button>
+        )}
       </footer>
     </div>
   );

@@ -23,6 +23,7 @@ export type DappConnectionContext = {
 export type DappBaseRequest = DappConnectionContext & {
   id: string;
   approved: boolean | null;
+  reason: string | null;
   createdAt: string;
   updatedAt: string | null;
 };
@@ -31,6 +32,7 @@ export interface Approval {
   id: string;
   type: ApprovalType;
   approved: boolean;
+  reason: string;
   updatedAt: string;
 }
 export interface AccountInfo {
