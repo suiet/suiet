@@ -11,7 +11,7 @@ import {
   resetGenericPassword,
 } from 'react-native-keychain';
 
-export function useKeychain() {
+export function useRealKeychain() {
   const isSupported = async () => {
     const { getSupportedBiometryType } = await import('react-native-keychain');
     const supportedType = await getSupportedBiometryType();
@@ -90,7 +90,7 @@ export function useKeychain() {
   };
 }
 
-export function useFakeKeychain() {
+export const useFakeKeychain: typeof useRealKeychain = () => {
   const isSupported = async () => {
     return true;
   };
@@ -110,4 +110,11 @@ export function useFakeKeychain() {
     saveMnemonic,
     loadMnemonic,
   };
-}
+};
+
+/**
+ * Set this to true to use the fake keychain
+ */
+const shouldUseFakeKeychain = false;
+
+export const useKeychain = shouldUseFakeKeychain ? useFakeKeychain : useRealKeychain;

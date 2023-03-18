@@ -24,6 +24,8 @@ import { Home } from '@/screens/Home';
 import { SelectWallet } from '@/screens/SelectWallet';
 import { EditWallet } from '@/screens/EditWallet';
 import { Receive } from '@/screens/Receive';
+import { Swap } from '@/screens/Swap';
+import { SelectToken } from '@/screens/SelectToken';
 // import { LoadingAvatars, LoadingDots } from '@/components/Loading';
 
 // SplashScreen.preventAutoHideAsync();
@@ -47,6 +49,8 @@ export type RootStackParamList = {
 
   Send: undefined;
   Receive: undefined;
+  Swap: undefined;
+  SelectToken: undefined;
   Settings: undefined;
   EditWallet: undefined;
 };
@@ -104,6 +108,24 @@ function App() {
               options={{
                 header: ({ navigation, route: { name } }) => (
                   <Header title={'Receive'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="Swap"
+              component={Swap}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Swap'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="SelectToken"
+              component={SelectToken}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Select Token'} onRightAction={() => navigation.goBack()} />
                 ),
               }}
             />
