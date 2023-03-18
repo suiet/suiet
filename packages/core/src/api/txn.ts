@@ -17,7 +17,6 @@ import {
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
   TransactionEffects,
-  UnserializedSignableTransaction,
 } from '@mysten/sui.js';
 import { SignedMessage } from '../vault/types';
 import { RpcError } from '../errors';
@@ -59,7 +58,7 @@ export type TransferObjectParams = {
 };
 
 export type GetEstimatedGasBudgetParams = TxEssentials & {
-  transaction: UnserializedSignableTransaction;
+  transaction: SignableTransaction;
 };
 
 export type MintNftParams = {
