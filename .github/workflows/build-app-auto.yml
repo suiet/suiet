@@ -7,47 +7,21 @@ on:
     branches: ['main']
 
 jobs:
-  build-android-preview:
-    uses: ./.github/workflows/build-app.yml
+  build-preview:
+    uses: ./.github/workflows/build-app-self-hosted.yml
     secrets: inherit
     with:
-      os: ubuntu-latest
-      platform: android
       profile: preview
 
-  build-ios-preview:
-    uses: ./.github/workflows/build-app.yml
+  build-development:
+    uses: ./.github/workflows/build-app-self-hosted.yml
     secrets: inherit
     with:
-      os: macos-latest
-      platform: ios
-      profile: preview
-
-  build-android-development:
-    uses: ./.github/workflows/build-app.yml
-    secrets: inherit
-    with:
-      os: ubuntu-latest
-      platform: android
-      profile: development
-
-  build-ios-development:
-    uses: ./.github/workflows/build-app.yml
-    secrets: inherit
-    with:
-      os: macos-latest
-      platform: ios
       profile: development
 
   build:
-    needs:
-      [
-        build-android-preview,
-        build-ios-preview,
-        build-android-development,
-        build-ios-development,
-      ]
-    runs-on: ubuntu-latest
+    needs: [build-preview, build-development]
+    runs-on: self-hosted
 
     steps:
       - name: 👷 Placeholder
