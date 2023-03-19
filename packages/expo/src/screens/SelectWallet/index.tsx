@@ -15,6 +15,7 @@ import { useWallets } from '@/hooks/useWallets';
 import { Wallet } from '@/utils/wallet';
 import { addressEllipsis } from '@/utils/format';
 import { AVATARS } from '@/utils/constants';
+import Typography from '@/components/Typography';
 
 export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'SelectWallet'>> = ({ navigation }) => {
   const { top, bottom } = useSafeAreaInsets();
@@ -50,25 +51,8 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
         />
 
         <View style={{ paddingLeft: 16 }}>
-          <Text
-            style={{
-              fontFamily: FontFamilys.WorkSans_700Bold,
-              fontSize: 16,
-              lineHeight: 24,
-              color: Gray_900,
-            }}
-            children={wallet.name}
-          />
-
-          <Text
-            style={{
-              fontFamily: FontFamilys.RobotoMono_400Regular,
-              fontSize: 12,
-              lineHeight: 16,
-              color: Gray_500,
-            }}
-            children={addressEllipsis(wallet.address)}
-          />
+          <Typography.Subtitle color={Gray_900} children={wallet.name} />
+          <Typography.MonoS color={Gray_500} children={addressEllipsis(wallet.address)} />
         </View>
 
         <View style={{ flex: 1 }} />

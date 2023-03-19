@@ -9,6 +9,7 @@ import { useWallets } from '@/hooks/useWallets';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFakeKeychain, useKeychain } from '@/hooks/useKeychain';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from '@/components/Typography';
 
 export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> = ({ navigation }) => {
   const source = Image.resolveAssetSource(require('@assets/welcome_bg.png'));
@@ -44,12 +45,10 @@ export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> 
         }}
       >
         <View style={{ marginBottom: 80 }}>
-          <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 48, lineHeight: 54 }}>Welcome</Text>
-          <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 48, lineHeight: 54 }}>Suiet</Text>
+          <Typography.Display children="Welcome" color={'black'} />
+          <Typography.Display children="Suiet" color={'black'} />
           <View style={{ height: 8 }} />
-          <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
-            The wallet for everyone.
-          </Text>
+          <Typography.Body children="The wallet for everyone." color={Gray_400} />
         </View>
 
         <View style={{ gap: 8 }}>

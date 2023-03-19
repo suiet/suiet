@@ -22,6 +22,7 @@ import { Button } from '@/components/Button';
 import type { RootStackParamList } from '@/../App';
 import { SvgXml } from 'react-native-svg';
 import { SvgChevronDown, SvgSwitchVertical01 } from '@/components/icons/constants';
+import Typography from '@/components/Typography';
 
 export const TokenSelector: React.FC = () => {
   return (
@@ -40,10 +41,7 @@ export const TokenSelector: React.FC = () => {
       }}
     >
       <CoinIcon symbol="SUI" scale={0.5}></CoinIcon>
-      <Text
-        style={{ fontFamily: FontFamilys.Inter_600SemiBold, fontSize: 14, lineHeight: 20, color: Gray_700 }}
-        children="SUI"
-      />
+      <Typography.LabelS color={Gray_700} children="SUI" />
       <SvgXml width={16} height={16} color={Gray_400} xml={SvgChevronDown} />
     </View>
   );
@@ -64,8 +62,9 @@ const TokenAmountInput: React.FC = () => {
       }}
     >
       <View style={{ position: 'relative', alignItems: 'center' }}>
-        <Text
-          style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, color: Gray_200, opacity: 0 }}
+        <Typography.Headline
+          color={Gray_200}
+          style={{ opacity: 0, lineHeight: undefined }}
           children={textInputValue || '0'}
         />
 
@@ -76,7 +75,7 @@ const TokenAmountInput: React.FC = () => {
           style={[
             StyleSheet.absoluteFill,
             {
-              fontFamily: FontFamilys.Inter_700Bold,
+              fontFamily: FontFamilys.WorkSans_700Bold,
               fontSize: 36,
               color: Gray_900,
               minWidth: 100,
@@ -94,7 +93,7 @@ const TokenAmountInput: React.FC = () => {
           textInputRef.current?.focus();
         }}
       >
-        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, color: Gray_200 }} children="SUI" />
+        <Typography.Headline color={Gray_200} style={{ lineHeight: undefined }} children={'SUI'} />
       </TouchableWithoutFeedback>
     </View>
   );
@@ -146,7 +145,7 @@ export const Swap: React.FC<StackScreenProps<RootStackParamList, 'Swap'>> = ({ n
           contentContainerStyle={{ minHeight: height }}
         >
           <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', gap: 8 }}>
-            <Text children="Pay" style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 16, lineHeight: 24 }} />
+            <Typography.Subtitle children="Pay" color={Gray_900} />
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('SelectToken');
@@ -161,10 +160,7 @@ export const Swap: React.FC<StackScreenProps<RootStackParamList, 'Swap'>> = ({ n
           <Divider />
 
           <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', gap: 8 }}>
-            <Text
-              children="Receive"
-              style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 16, lineHeight: 24 }}
-            />
+            <Typography.Subtitle children="Receive" color={Gray_900} />
             <TokenSelector />
           </View>
 
@@ -175,38 +171,12 @@ export const Swap: React.FC<StackScreenProps<RootStackParamList, 'Swap'>> = ({ n
           <View style={{ height: 1, backgroundColor: Gray_100, width: '100%' }} />
 
           <View style={{ flexDirection: 'row' }}>
-            <Text
-              style={{ fontFamily: FontFamilys.Inter_600SemiBold, fontSize: 14, lineHeight: 20, color: Gray_900 }}
-              children="Exchange Rate"
-            />
-            <Text
-              style={{
-                fontFamily: FontFamilys.RobotoMono_400Regular,
-                fontSize: 14,
-                lineHeight: 20,
-                color: Gray_500,
-                flexGrow: 1,
-                textAlign: 'right',
-              }}
-              children="12 SUI ≈ 12 USD"
-            />
+            <Typography.LabelS color={Gray_900} children="Exchange Rate" />
+            <Typography.Mono style={{ flexGrow: 1, textAlign: 'right' }} color={Gray_500} children="12 SUI ≈ 12 USD" />
           </View>
           <View style={{ flexDirection: 'row' }}>
-            <Text
-              style={{ fontFamily: FontFamilys.Inter_600SemiBold, fontSize: 14, lineHeight: 20, color: Gray_900 }}
-              children="Network Fee"
-            />
-            <Text
-              style={{
-                fontFamily: FontFamilys.RobotoMono_400Regular,
-                fontSize: 14,
-                lineHeight: 20,
-                color: Gray_500,
-                flexGrow: 1,
-                textAlign: 'right',
-              }}
-              children="14.5 SUI"
-            />
+            <Typography.LabelS color={Gray_900} children="Network Fee" />
+            <Typography.Mono style={{ flexGrow: 1, textAlign: 'right' }} color={Gray_500} children="14.5 SUI" />
           </View>
         </View>
 

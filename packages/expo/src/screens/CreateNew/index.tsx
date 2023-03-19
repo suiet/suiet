@@ -9,6 +9,7 @@ import { LoadingAvatars, LoadingDots } from '@/components/Loading';
 import { Gray_400 } from '@/styles/colors';
 import { useFakeKeychain, useKeychain } from '@/hooks/useKeychain';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from '@/components/Typography';
 
 // import {
 //   setGenericPassword,
@@ -165,13 +166,10 @@ export const CreateNew: React.FC<StackScreenProps<RootStackParamList, 'CreateNew
     >
       <LoadingAvatars />
       <View style={{ height: 24 }} />
-      <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, textAlign: 'center' }}>
-        Waiting...
-      </Text>
+
+      <Typography.Headline style={{ textAlign: 'center' }} color="black" children="Waiting..." />
       <View style={{ height: 4 }} />
-      <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
-        Your new wallet is creating now.
-      </Text>
+      <Typography.Body style={{ textAlign: 'center' }} color={Gray_400} children="Your new wallet is creating now." />
       <View style={{ height: 24 }} />
       <LoadingDots />
       <View style={{ height: 80 }} />

@@ -30,6 +30,7 @@ import { useWallets } from '@/hooks/useWallets';
 import { Address } from '@/components/Address';
 import { getAllGenericPasswordServices, resetGenericPassword } from 'react-native-keychain';
 import { Alert } from 'react-native';
+import Typography from '@/components/Typography';
 
 export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settings'>> = ({ navigation }) => {
   const { wallet } = useWallets();
@@ -52,16 +53,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
           }}
         >
           <SvgXml style={{ marginRight: 16 }} width={24} height={24} xml={iconSvgLeft} />
-          <Text
-            style={{
-              fontFamily: FontFamilys.Inter_600SemiBold,
-              fontSize: 16,
-              lineHeight: 24,
-              color: Gray_900,
-              flexGrow: 1,
-            }}
-            children={title}
-          />
+          <Typography.Label color={Gray_900} children={title} style={{ flexGrow: 1 }} />
           {iconSvgRight && <SvgXml width={24} height={24} color={Gray_400} xml={iconSvgRight} />}
         </View>
       </TouchableHighlight>
@@ -75,9 +67,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
           <Image style={{ width: 64, height: 64 }} source={AVATARS[wallet.avatar]} />
 
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-            <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 28, lineHeight: 36, color: Gray_900 }}>
-              {wallet.name}
-            </Text>
+            <Typography.Title children={wallet.name} color={Gray_900} />
           </View>
 
           <Address wallet={wallet} />
