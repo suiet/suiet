@@ -6,7 +6,7 @@ import * as Clipboard from 'expo-clipboard';
 // import * as Brightness from 'expo-brightness';
 
 import type { RootStackParamList } from '@/../App';
-import { Gray_200, Gray_400, Gray_700 } from '@/styles/colors';
+import { Gray_200, Gray_400, Gray_700, Gray_900 } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
 import { SvgChevronDown, SvgCopy, SvgShare } from '@/components/icons/constants';
 import { useWallets } from '@/hooks/useWallets';
@@ -15,6 +15,7 @@ import { AVATARS } from '@/utils/constants';
 import { SvgXml } from 'react-native-svg';
 import { FontFamilys } from '@/hooks/useFonts';
 import Toast from 'react-native-toast-message';
+import Typography from '@/components/Typography';
 
 export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> = ({ navigation }) => {
   // useEffect(() => {
@@ -67,42 +68,21 @@ export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> 
 
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
         <TouchableOpacity
-          style={[{ flexDirection: 'row', alignItems: 'center', display: 'none' }, { display: 'flex' }]}
+          style={[{ flexDirection: 'row', alignItems: 'center', display: 'none', gap: 4 }, { display: 'flex' }]}
           onPress={() => {
             navigation.navigate('SelectWallet');
           }}
         >
           <Image style={{ width: 32, height: 32, marginRight: 4 }} source={AVATARS[wallet.avatar]} />
-          <Text
-            style={{
-              fontFamily: FontFamilys.Inter_700Bold,
-              fontSize: 16,
-              lineHeight: 20,
-              color: Gray_700,
-              marginHorizontal: 4,
-            }}
-          >
-            {wallet.name}
-          </Text>
-          <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_400} xml={SvgChevronDown} />
+          <Typography.Subtitle children={wallet.name} color={Gray_900} />
+          <SvgXml width={16} height={16} color={Gray_400} xml={SvgChevronDown} />
         </TouchableOpacity>
       </View>
 
       <View style={{ height: 16 }} />
 
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-        <Text
-          style={{
-            fontFamily: FontFamilys.RobotoMono_400Regular,
-            fontSize: 14,
-            lineHeight: 20,
-            color: Gray_400,
-            maxWidth: 250,
-
-            textAlign: 'center',
-          }}
-          children={wallet.address}
-        />
+        <Typography.Mono style={{ textAlign: 'center', maxWidth: 250 }} color={Gray_400} children={wallet.address} />
       </View>
 
       <View style={{ height: 32 }} />

@@ -22,6 +22,7 @@ import { Address } from '@/components/Address';
 import { Coins } from '@/components/Coins';
 import { FAB } from '@/components/FAB';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from '@/components/Typography';
 
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
@@ -72,9 +73,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               }}
             >
               <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-                <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 32, lineHeight: 38, color: Gray_900 }}>
-                  {wallet.name}
-                </Text>
+                <Typography.Headline style={{ color: Gray_900 }} children={wallet.name} />
                 <View style={{ backgroundColor: Gray_100, borderRadius: 9999, margin: 8 }}>
                   <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_700} xml={SvgChevronDown} />
                 </View>
@@ -126,29 +125,17 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
             // </TouchableOpacity>
             <View
               key={title}
-              style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
             >
               <FAB svg={svg} onPress={() => navigation.navigate(title as any)} />
-              <Text style={{ color: Gray_500, fontFamily: FontFamilys.Inter_500Medium, fontSize: 12, lineHeight: 24 }}>
-                {title}
-              </Text>
+              <Typography.Comment children={title} color={Gray_500} />
             </View>
           ))}
         </View>
 
         <View>
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-            <Text
-              style={{
-                flexGrow: 1,
-                fontFamily: FontFamilys.WorkSans_700Bold,
-                fontSize: 16,
-                lineHeight: 20,
-                color: Gray_900,
-              }}
-            >
-              Tokens
-            </Text>
+            <Typography.Subtitle children="Tokens" color={Gray_900} />
             {/* <Text style={{ color: Gray_400 }}>See all</Text>
             <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml> */}
           </View>
@@ -178,7 +165,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           <TouchableOpacity
             style={[
-              { flexDirection: 'row', alignItems: 'center', display: 'none' },
+              { flexDirection: 'row', alignItems: 'center', display: 'none', gap: 4 },
               showCollapse && { display: 'flex' },
             ]}
             onPress={() => {
@@ -186,18 +173,8 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
             }}
           >
             <Image style={{ width: 32, height: 32, marginRight: 4 }} source={AVATARS[wallet.avatar]} />
-            <Text
-              style={{
-                fontFamily: FontFamilys.Inter_700Bold,
-                fontSize: 16,
-                lineHeight: 20,
-                color: Gray_700,
-                marginHorizontal: 4,
-              }}
-            >
-              {wallet.name}
-            </Text>
-            <SvgXml style={{ margin: 4 }} width={16} height={16} color={Gray_400} xml={SvgChevronDown} />
+            <Typography.Subtitle children={wallet.name} color={Gray_900} />
+            <SvgXml width={16} height={16} color={Gray_400} xml={SvgChevronDown} />
           </TouchableOpacity>
         </View>
 

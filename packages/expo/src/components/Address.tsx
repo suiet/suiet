@@ -8,6 +8,7 @@ import { Wallet } from '@/utils/wallet';
 import { Gray_700 } from '@/styles/colors';
 import { SvgCopy } from './icons/constants';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from '@/components/Typography';
 
 export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
   return (
@@ -36,16 +37,7 @@ export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
           paddingBottom: 4,
         }}
       >
-        <Text
-          style={{
-            fontFamily: FontFamilys.RobotoMono_400Regular,
-            fontSize: 14,
-            lineHeight: 18,
-            color: Gray_700,
-          }}
-        >
-          {addressEllipsis(wallet.address)}
-        </Text>
+        <Typography.Mono children={addressEllipsis(wallet.address)} color={Gray_700} />
         <SvgXml style={{ margin: 4 }} width={12} height={12} color={Gray_700} xml={SvgCopy}></SvgXml>
       </View>
     </TouchableWithoutFeedback>

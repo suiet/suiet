@@ -7,6 +7,7 @@ import { useQuery } from '@apollo/client';
 import { GET_COINS } from '@/utils/gql';
 import { LoadingDots } from '@/components/Loading';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from './Typography';
 
 const ListItem: React.FC<
   { backgroundColor: ColorValue; textColor: ColorValue; symbol: string; balance: string } & ViewProps
@@ -32,30 +33,12 @@ const ListItem: React.FC<
       <View style={{ marginRight: 12 }}>
         <CoinIcon symbol={symbol} />
       </View>
-      <Text
-        style={{
-          flexGrow: 1,
-          flexShrink: 0,
-          fontFamily: FontFamilys.Inter_600SemiBold,
-          fontSize: 19,
-          lineHeight: 19,
-          color: textColor,
-        }}
-      >
-        {symbol}
-      </Text>
-      <Text
-        style={{
-          flexGrow: 0,
-          flexShrink: 0,
-          fontFamily: FontFamilys.Inter_600SemiBold,
-          fontSize: 19,
-          lineHeight: 19,
-          color: textColor,
-        }}
-      >
-        {balance}
-      </Text>
+      <View style={{ flexGrow: 1, flexShrink: 0 }}>
+        <Typography.Label children={symbol} color={textColor} />
+      </View>
+      <View style={{ flexGrow: 0, flexShrink: 0 }}>
+        <Typography.Num children={balance} color={textColor} />
+      </View>
     </View>
   );
 };

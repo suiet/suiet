@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useWallets } from '@/hooks/useWallets';
 import { FontFamilys } from '@/hooks/useFonts';
 import { AVATARS, AVATARS_BG } from '@/utils/constants';
+import Typography from '@/components/Typography';
 
 const AvatarSelector: React.FC<{ initialSelectedAvatar: number; onChange?: (selectedAvatar: number) => void }> = ({
   initialSelectedAvatar,
@@ -72,16 +73,10 @@ export const EditWallet: React.FC<StackScreenProps<RootStackParamList, 'EditWall
     <View style={{ flexDirection: 'column', flexGrow: 1, backgroundColor: 'white' }}>
       <ScrollView style={{ paddingHorizontal: 24 }}>
         <View style={{ marginVertical: 24 }}>
-          <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-            Edit
-          </Text>
-          <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-            Wallet
-          </Text>
+          <Typography.Headline color="black" children="Edit" />
+          <Typography.Headline color="black" children="Wallet" />
           <View style={{ height: 8 }} />
-          <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
-            Customize your wallet.
-          </Text>
+          <Typography.Body color={Gray_400} children="Customize your wallet." />
         </View>
 
         <TextInput

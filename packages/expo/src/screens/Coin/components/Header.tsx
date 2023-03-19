@@ -5,6 +5,7 @@ import { Gray_100, Gray_400, Gray_700 } from '@styles/colors';
 import { SvgXml } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from '@/components/Typography';
 
 export const Header: React.FC<{ onLeftAction?: () => void; onRightAction?: () => void; title: string }> = ({
   onLeftAction,
@@ -65,21 +66,11 @@ export const Header: React.FC<{ onLeftAction?: () => void; onRightAction?: () =>
             </TouchableOpacity>
           )}
         </View>
-        <Text
-          style={{
-            flexGrow: 1,
-            fontFamily: FontFamilys.Inter_600SemiBold,
-            fontSize: 18,
-            lineHeight: 28,
-            color: Gray_700,
-            textAlign: 'center',
-
-            marginTop: 20,
-            marginBottom: 20,
-          }}
-        >
-          {title}
-        </Text>
+        <Typography.Label
+          style={{ flexGrow: 1, textAlign: 'center', marginVertical: 20 }}
+          color={Gray_700}
+          children={title}
+        />
         <View style={{ width: 68, height: 68 }}>
           {onRightAction && (
             <TouchableOpacity onPress={onRightAction}>

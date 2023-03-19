@@ -12,6 +12,7 @@ import { Coins } from '@/components/Coins';
 import { Button } from '@/components/Button';
 import type { RootStackParamList } from '@/../App';
 import { TextInput } from '@/components/TextInput';
+import Typography from '@/components/Typography';
 
 type SendStackParamList = {
   SendSelectCoin: undefined;
@@ -30,16 +31,10 @@ const SendSelectCoin: React.FC<StackScreenProps<SendStackParamList, 'SendSelectC
   return (
     <ScrollView style={{ paddingHorizontal: 24, backgroundColor: '#fff' }}>
       <View style={{ marginVertical: 24 }}>
-        <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-          Choose
-        </Text>
-        <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-          Token
-        </Text>
+        <Typography.Headline children="Choose" color="black" />
+        <Typography.Headline children="Token" color="black" />
         <View style={{ height: 8 }} />
-        <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
-          Which token do you want to send?
-        </Text>
+        <Typography.Body children="Which token do you want to send?" color={Gray_400} />
       </View>
 
       <Coins
@@ -94,39 +89,18 @@ const SendInputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInput
             <View style={{ marginRight: 12, width: 24, height: 24 }}>
               <CoinIcon symbol={'SUI'} scale={0.6} />
             </View>
-            <Text
-              style={{
-                flexGrow: 1,
-                flexShrink: 0,
-                fontFamily: FontFamilys.Inter_600SemiBold,
-                fontSize: 16,
-                lineHeight: 20,
-                color: Primary_900,
-              }}
-            >
-              SUI
-            </Text>
-            <Text
-              style={{
-                flexGrow: 0,
-                flexShrink: 0,
-                fontFamily: FontFamilys.Inter_600SemiBold,
-                fontSize: 20,
-                lineHeight: 24,
-                color: Primary_900,
-              }}
-            >
-              1234.56
-            </Text>
+
+            <View style={{ flexGrow: 1, flexShrink: 0 }}>
+              <Typography.Label children={'SUI'} color={Primary_900} />
+            </View>
+            <View style={{ flexGrow: 0, flexShrink: 0 }}>
+              <Typography.Num children={'1256.45'} color={Primary_900} />
+            </View>
           </View>
 
           <View style={{ marginLeft: 8, marginRight: 8, marginBottom: 24 }}>
-            <Text style={{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 24, lineHeight: 36, color: '#000000' }}>
-              Input Address
-            </Text>
-            <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 16, lineHeight: 20, color: Gray_400 }}>
-              Enter and validate Address
-            </Text>
+            <Typography.Title color="black">Input Address</Typography.Title>
+            <Typography.Body color={Gray_400}>Enter and validate Address</Typography.Body>
           </View>
 
           <TextInput

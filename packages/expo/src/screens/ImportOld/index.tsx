@@ -15,6 +15,7 @@ import { useWallets } from '@/hooks/useWallets';
 import { FontFamilys } from '@/hooks/useFonts';
 import { useCameraPermission } from '@/hooks/useCameraPermission';
 import { TextInput } from '@/components/TextInput';
+import Typography from '@/components/Typography';
 
 export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld'>> = ({ navigation }) => {
   const { width, height } = Dimensions.get('screen');
@@ -30,19 +31,11 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
       <KeyboardAvoidingView style={{ flexGrow: 1 }} behavior={'height'}>
         <ScrollView style={{ paddingHorizontal: 24 }}>
           <View style={{ marginVertical: 24 }}>
-            <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-              Input
-            </Text>
-            <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-              Recovery
-            </Text>
-            <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'black' }}>
-              Phrase
-            </Text>
+            <Typography.Headline color="black" children="Input" />
+            <Typography.Headline color="black" children="Recovery" />
+            <Typography.Headline color="black" children="Phrase" />
             <View style={{ height: 8 }} />
-            <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
-              From an existing wallet.
-            </Text>
+            <Typography.Body color={Gray_400} children="From an existing wallet." />
           </View>
 
           <TextInput
@@ -56,9 +49,10 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
 
           <View style={{ height: 16 }} />
 
-          <Text style={{ fontFamily: FontFamilys.Inter_500Medium, fontSize: 14, lineHeight: 20, color: Gray_400 }}>
-            Recovery phrase was displayed when you first created your wallet.
-          </Text>
+          <Typography.Body
+            color={Gray_400}
+            children="Recovery phrase was displayed when you first created your wallet."
+          />
         </ScrollView>
       </KeyboardAvoidingView>
 

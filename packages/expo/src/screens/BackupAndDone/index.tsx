@@ -5,6 +5,8 @@ import type { RootStackParamList } from '@/../App';
 import { Button } from '@/components/Button';
 import { useWallets } from '@/hooks/useWallets';
 import { FontFamilys } from '@/hooks/useFonts';
+import Typography from '@/components/Typography';
+import { White_100 } from '@/styles/colors';
 
 export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'BackupAndDone'>> = ({
   route,
@@ -24,55 +26,23 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       <View style={{ flexGrow: 1, maxHeight: 150 }} />
 
       <View style={{ marginBottom: 40 }}>
-        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'white' }}>
-          Welcome
-        </Text>
-        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'white' }}>
-          to Your
-        </Text>
-        <Text style={{ fontFamily: FontFamilys.Inter_700Bold, fontSize: 36, lineHeight: 40, color: 'white' }}>
-          New Wallet
-        </Text>
+        <Typography.Headline children="Welcome" color={White_100} />
+        <Typography.Headline children="to Your" color={White_100} />
+        <Typography.Headline children="New Wallet" color={White_100} />
         <View style={{ height: 8 }} />
-        <Text
-          style={{
-            fontFamily: FontFamilys.Inter_500Medium,
-            fontSize: 14,
-            lineHeight: 20,
-            color: 'rgba(255,255,255,0.7)',
-          }}
-        >
-          Copy and save your recovery phrase.
-        </Text>
+        <Typography.Body children="Copy and save your recovery phrase." color={`rgba(255,255,255,0.7)`} />
       </View>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
         {route.params?.mnemonic?.split(' ').map((word, item) => {
           return (
-            <View key={item} style={{ width: '33.3%', flexDirection: 'row', paddingVertical: 8 }}>
-              <Text
-                style={{
-                  fontFamily: FontFamilys.RobotoMono_400Regular,
-                  fontSize: 14,
-                  lineHeight: 20,
-                  width: 20,
-                  marginRight: 8,
-                  textAlign: 'right',
-                  color: 'rgba(255,255,255,0.5)',
-                }}
-              >
-                {item + 1}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: FontFamilys.RobotoMono_500Medium,
-                  fontSize: 14,
-                  lineHeight: 20,
-                  color: 'rgba(255,255,255,1)',
-                }}
-              >
-                {word}
-              </Text>
+            <View key={item} style={{ width: '33.3%', flexDirection: 'row', paddingVertical: 8, gap: 8 }}>
+              <Typography.Mono
+                children={item + 1}
+                color={`rgba(255,255,255,0.5)`}
+                style={{ width: 20, textAlign: 'right' }}
+              />
+              <Typography.MonoBold children={word} color={`rgba(255,255,255,1)`} />
             </View>
           );
         })}
