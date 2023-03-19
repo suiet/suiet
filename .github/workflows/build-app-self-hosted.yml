@@ -1,0 +1,76 @@
+name: Build App (Self-Hosted)
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        description: Build profile to use
+        options:
+          - development
+          - preview
+  workflow_call:
+    inputs:
+      profile:
+        type: string
+        required: true
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v2
+
+      - name: 📦 Install dependencies (root)
+        run: |
+          npm ci
+
+      - name: 📦 Install dependencies
+        working-directory: packages/expo
+        run: |
+          npm ci
+
+      - name: 🧪 Run checks
+        working-directory: packages/expo
+        run: |
+          ./node_modules/.bin/tsc --noEmit
+
+      - name: ㊙️ Setup credentials
+        working-directory: packages/expo
+        run: |
+          echo "$EXPO_CREDENTIALS" | base64 -D | tar xzvf -
+
+      - name: 👷 Build app (Android)
+        working-directory: packages/expo
+        run: |
+          eas build --local \
+            --non-interactive \
+            --platform=android \
+            --profile=${{ inputs.profile }}
+
+      - name: 📱 Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-android-${{ inputs.profile }}
+          path: packages/expo/build-*
+
+      - name: Cleanup
+        run: |
+          rm -rf packages/expo/build-*
+
+      - name: 👷 Build app (iOS)
+        working-directory: packages/expo
+        run: |
+          eas build --local \
+            --non-interactive \
+            --platform=ios \
+            --profile=${{ inputs.profile }}
+
+      - name: 📱 Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-ios-${{ inputs.profile }}
+          path: packages/expo/build-*
+
+      - name: Cleanup
+        run: |
+          rm -rf packages/expo/build-*

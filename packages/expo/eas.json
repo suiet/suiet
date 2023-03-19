@@ -8,19 +8,22 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m1-medium"
-      }
+        "resourceClass": "m-medium"
+      },
+      "credentialsSource": "local"
     },
     "preview": {
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m1-medium"
-      }
+        "resourceClass": "m-medium"
+      },
+      "credentialsSource": "local"
     },
     "production": {
       "ios": {
-        "resourceClass": "m1-medium"
-      }
+        "resourceClass": "m-medium"
+      },
+      "credentialsSource": "local"
     }
   },
   "submit": {
