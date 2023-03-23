@@ -87,7 +87,7 @@ npm run start
 
 Then you can scan the QR code in the terminal with your phone camera.
 
-### 🏁 Develop the app
+### 👨‍💻👩‍💻 Develop the app
 
 You can use previous development builds until you add / change native packages. Changes to the JavaScript / TypeScript code will take effect immediately. The develop experience is similar to React Native.
 
