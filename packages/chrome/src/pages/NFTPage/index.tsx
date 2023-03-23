@@ -16,18 +16,15 @@ import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useApiClient } from '../../hooks/useApiClient';
 import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ReactComponent as GiftIcon } from '../../assets/icons/gift.svg';
 import { useMintNftCampaign } from './hooks/useMintNftCampaign';
+import Message from '../../components/message';
 
 function MainPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(appContext.accountId);
-  const {
-    data: nftList,
-    loading,
-    mutate: refreshNftList,
-  } = useNftList(address, appContext.networkId);
+  const { data: nftList, loading, error } = useNftList(address);
 
   const apiClient = useApiClient();
   const { data: network } = useNetwork(appContext.networkId);
@@ -73,11 +70,11 @@ function MainPage() {
       return (
         <Empty
           onMintSuccess={async () => {
-            await refreshNftList();
+            // await refreshNftList();
             await sleep(1000);
-            await refreshNftList();
+            // await refreshNftList();
             await sleep(1000);
-            await refreshNftList();
+            // await refreshNftList();
           }}
         />
       );
@@ -112,7 +109,7 @@ function MainPage() {
           // skeleton
           <NftList
             loading={true}
-            value={['', '', '', ''] as any}
+            value={[{}, {}, {}, {}] as any}
             className={styles['nft-list']}
           />
         ) : (
@@ -121,6 +118,11 @@ function MainPage() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (!error) return;
+    Message.error(error.message);
+  }, [error]);
 
   return <AppLayout>{renderContent()}</AppLayout>;
 }
