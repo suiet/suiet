@@ -5,11 +5,11 @@ import Typo from '../../../components/Typo';
 import { nftImgUrl } from '../../../utils/nft';
 import { useNavigate } from 'react-router-dom';
 import NftImg from '../../../components/NftImg';
-import { NftObjectDto } from '@suiet/core';
 import Skeleton from 'react-loading-skeleton';
+import { NftGqlDto } from '../../../hooks/useNftList';
 
 export type NftListProps = StyleExtendable & {
-  value: NftObjectDto[];
+  value: NftGqlDto[];
   loading?: boolean;
 };
 
@@ -20,7 +20,6 @@ export interface NftMeta {
   previousTransaction: string | undefined;
   url: string;
   objectType: string;
-  fields: Record<string, any>;
   hasPublicTransfer: boolean;
 }
 
@@ -31,25 +30,27 @@ type NftItemProps = Extendable &
   };
 
 const NftItem = (props: NftItemProps) => {
-  const { loading = false } = props;
+  const {
+    loading = false,
+    id = '',
+    name = 'No Name',
+    description = 'No Description',
+    previousTransaction = '',
+    objectType = '',
+    url = '',
+    hasPublicTransfer = false,
+  } = props;
   return (
     <div
       className={classnames(styles['nft-item'], props.className)}
       onClick={() => {
         props.onClick?.({
-          id: props.id,
-          name: props.name || props.fields.metadata?.fields.name,
-          description:
-            props.description ||
-            props.fields.metadata?.fields.description ||
-            'No Description',
-          previousTransaction: props.previousTransaction,
-          objectType: props.objectType,
-          url:
-            props.url ||
-            props.fields.metadata?.fields.uri ||
-            props.fields.metadata?.fields.url,
-          fields: props.fields,
+          id,
+          name,
+          description,
+          previousTransaction,
+          objectType,
+          url,
           hasPublicTransfer: props.hasPublicTransfer,
         });
       }}
@@ -57,14 +58,7 @@ const NftItem = (props: NftItemProps) => {
       {loading ? (
         <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
       ) : (
-        <NftImg
-          src={nftImgUrl(
-            props.url ||
-              props.fields.metadata?.fields.uri ||
-              props.fields.metadata?.fields.url
-          )}
-          alt={props.name || props.fields.metadata?.fields.name}
-        />
+        <NftImg src={nftImgUrl(props.url)} alt={props.name || 'No Name'} />
       )}
       <div className={classnames('w-full', 'mt-2')}>
         {loading ? (
@@ -72,12 +66,10 @@ const NftItem = (props: NftItemProps) => {
         ) : (
           <div className="ml-1">
             <Typo.Normal className={classnames(styles['nft-name'])}>
-              {props.name || props.fields.metadata?.fields.name}
+              {props.name || 'No Name'}
             </Typo.Normal>
             <Typo.Small className={classnames(styles['nft-description'])}>
-              {props.description ||
-                props.fields.metadata?.fields.description ||
-                'No Description'}
+              {props.description || 'No Description'}
             </Typo.Small>
           </div>
         )}
@@ -89,7 +81,6 @@ const NftItem = (props: NftItemProps) => {
 const NftList = (props: NftListProps) => {
   const { value: nftList = [], loading = false } = props;
   const navigate = useNavigate();
-
   function handleClickNft(data: NftMeta) {
     navigate(`/nft/details`, {
       state: {
@@ -111,18 +102,31 @@ const NftList = (props: NftListProps) => {
       style={props.style}
     >
       {nftList.map((nft, index) => {
+        if (loading) {
+          return (
+            <NftItem
+              key={index}
+              loading={true}
+              id={''}
+              name={''}
+              description={''}
+              previousTransaction={undefined}
+              url={''}
+              objectType={''}
+              hasPublicTransfer={false}
+            />
+          );
+        }
         return (
           <NftItem
-            key={nft.id || index}
-            loading={loading}
-            id={nft.id}
+            key={nft.object.objectID}
+            id={nft.object.objectID}
             name={nft.name}
             url={nft.url}
             description={nft.description}
-            previousTransaction={nft.previousTransaction}
-            objectType={nft.objectType}
+            previousTransaction={nft.object.previousTransaction}
+            objectType={nft.object?.type}
             onClick={handleClickNft}
-            fields={nft.fields}
             hasPublicTransfer={nft.hasPublicTransfer}
           />
         );

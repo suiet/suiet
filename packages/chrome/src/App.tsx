@@ -5,7 +5,7 @@ import './styles/react-toastify.scss';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-tabs/style/react-tabs.css';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import message from './components/message';
 import { ToastContainer } from 'react-toastify';
 import {
@@ -34,10 +34,14 @@ function App() {
     };
   }, []);
 
-  const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    uri: `https://${appContext.networkId}.suiet.app/query`,
-  });
+  const client = useMemo(
+    () =>
+      new ApolloClient({
+        cache: new InMemoryCache(),
+        uri: `https://${appContext.networkId}.suiet.app/query`,
+      }),
+    [appContext.networkId]
+  );
   return (
     <div className="app">
       <ErrorBoundary>

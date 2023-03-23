@@ -53,6 +53,7 @@ const NftDetail = () => {
           <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
             {name}
           </Typo.Title>
+          {/* TODO: add hasPublicTransfer indicator in graphql  */}
           {hasPublicTransfer && (
             <div
               className={styles['nft-send']}
@@ -107,7 +108,7 @@ const NftDetail = () => {
               }}
             >
               <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap cursor-pointer">
-                {objectType}{' '}
+                {objectType}
               </span>
               <CopyIcon
                 className={classnames(
@@ -130,7 +131,7 @@ const NftDetail = () => {
               }}
             >
               <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap cursor-pointer">
-                {previousTransaction}{' '}
+                {previousTransaction}
               </span>
               <CopyIcon
                 className={classnames(
@@ -148,7 +149,7 @@ const NftDetail = () => {
               className="m-auto"
               rel="noreferrer"
             >
-              View in explorer{' '}
+              View in explorer
               <IconExternal className="inline w-[12px] h-[12px] stroke-gray-400"></IconExternal>
             </a>
           </div>
