@@ -7,6 +7,7 @@ const GET_NFT_LIST = gql`
         objectID
         type
         previousTransaction
+        hasPublicTransfer
       }
       name
       description
@@ -20,6 +21,7 @@ export type NftGqlDto = {
     objectID: string;
     type: string;
     previousTransaction: string;
+    hasPublicTransfer: boolean;
   };
   name: string;
   url: string;
