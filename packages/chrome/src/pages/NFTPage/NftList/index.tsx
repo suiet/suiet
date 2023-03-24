@@ -51,14 +51,14 @@ const NftItem = (props: NftItemProps) => {
           previousTransaction,
           objectType,
           url,
-          hasPublicTransfer: props.hasPublicTransfer,
+          hasPublicTransfer,
         });
       }}
     >
       {loading ? (
         <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
       ) : (
-        <NftImg src={nftImgUrl(props.url)} alt={props.name || 'No Name'} />
+        <NftImg src={nftImgUrl(url)} alt={name} />
       )}
       <div className={classnames('w-full', 'mt-2')}>
         {loading ? (
@@ -66,10 +66,10 @@ const NftItem = (props: NftItemProps) => {
         ) : (
           <div className="ml-1">
             <Typo.Normal className={classnames(styles['nft-name'])}>
-              {props.name || 'No Name'}
+              {name}
             </Typo.Normal>
             <Typo.Small className={classnames(styles['nft-description'])}>
-              {props.description || 'No Description'}
+              {description}
             </Typo.Small>
           </div>
         )}
@@ -125,9 +125,9 @@ const NftList = (props: NftListProps) => {
             url={nft.url}
             description={nft.description}
             previousTransaction={nft.object.previousTransaction}
-            objectType={nft.object?.type}
+            objectType={nft.object.type}
+            hasPublicTransfer={nft.object.hasPublicTransfer}
             onClick={handleClickNft}
-            hasPublicTransfer={nft.hasPublicTransfer}
           />
         );
       })}
