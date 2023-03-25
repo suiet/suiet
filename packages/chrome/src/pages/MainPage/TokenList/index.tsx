@@ -10,8 +10,8 @@ import { Extendable } from '../../../types';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import TokenIcon from '../../../components/TokenIcon';
-import IconWaterDrop from '../../../assets/images/icon-water-drop.svg';
-import IconToken from '../../../assets/images/icon-token.svg';
+import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
+import IconToken from '../../../assets/icons/token.svg';
 import { fullyFormatCurrency } from '../../../utils/format';
 // import TokenItem from '../../../components/TokenItem';
 
