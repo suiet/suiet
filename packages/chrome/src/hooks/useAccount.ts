@@ -1,11 +1,10 @@
 import { Account, GetAddressParams } from '@suiet/core';
-import useSWR from 'swr';
-import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
 import { useEffect, useState } from 'react';
 import { OmitToken } from '../types';
 import { BackgroundApiClient } from '../scripts/shared/ui-api-client';
 import { isNonEmptyArray } from '../utils/check';
+import { useQuery } from 'react-query';
 
 // memory cache variable, mapping accountId -> address
 const _addressMemoryCache_ = new Map<string, string>();
@@ -98,9 +97,9 @@ export async function getAddress(
 
 export function useAccount(accountId: string) {
   const apiClient = useApiClient();
-  const { data, error, mutate } = useSWR(
+  const { data, error, ...rest } = useQuery(
     ['account.getAccount', accountId],
-    fetchAccount
+    async () => await fetchAccount(accountId)
   );
   const [address, setAddress] = useState<string>('');
 
@@ -119,7 +118,7 @@ export function useAccount(accountId: string) {
     fetchAddressByAccountId(data.id);
   }, [data]);
 
-  async function fetchAccount(_: string, accountId: string) {
+  async function fetchAccount(accountId: string) {
     if (!accountId) return;
     return await apiClient.callFunc<string, Account>(
       'account.getAccount',
@@ -131,7 +130,7 @@ export function useAccount(accountId: string) {
     data,
     address,
     error,
-    loading: swrLoading(data, error),
-    fetchAccount: mutate,
+    loading: rest.isLoading,
+    ...rest,
   };
 }

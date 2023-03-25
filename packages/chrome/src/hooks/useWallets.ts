@@ -1,20 +1,22 @@
 import { useApiClient } from './useApiClient';
-import useSWR from 'swr';
-import { swrLoading } from '../utils/others';
 import { Wallet } from '@suiet/core';
+import { useQuery } from 'react-query';
 
 export function useWallets() {
   const apiClient = useApiClient();
-  const { data, error, mutate } = useSWR(['wallet.getWallets'], fetchWallets);
+  const { data, error, refetch, ...rest } = useQuery(
+    ['wallet.getWallets'],
+    fetchWallets
+  );
 
-  async function fetchWallets(_: string) {
+  async function fetchWallets() {
     return await apiClient.callFunc<null, Wallet[]>('wallet.getWallets', null);
   }
 
   return {
     data,
     error,
-    loading: swrLoading(data, error),
-    fetchWallets: mutate,
+    fetchWallets: refetch,
+    ...rest,
   };
 }

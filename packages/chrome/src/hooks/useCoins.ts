@@ -1,12 +1,11 @@
 import { Network, GetOwnedObjParams } from '@suiet/core';
 import { useCallback, useEffect, useMemo } from 'react';
-import useSWR from 'swr';
-import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
 import { swrKeyWithNetwork, useNetwork } from './useNetwork';
-import { useLazyQuery, useQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import { coinsGql } from '../utils/graphql/coins';
 import { formatCurrency } from '../utils/format';
+import { useQuery } from 'react-query';
 
 export interface Coin {
   symbol: string;
@@ -21,13 +20,13 @@ export function useCoins(address: string, networkId: string = 'devnet') {
   const {
     data: coins,
     error,
-    mutate,
-    isValidating,
-  } = useSWR(
+    refetch,
+    ...rest
+  } = useQuery(
     [swrKeyWithNetwork(swrKey, network), address, network],
-    fetchCoinsBalanceMap,
+    async () => await fetchCoinsBalanceMap(address, network),
     {
-      refreshInterval: 5000,
+      refetchInterval: 5000,
     }
   );
 
@@ -41,9 +40,8 @@ export function useCoins(address: string, networkId: string = 'devnet') {
   }, [coins]);
 
   async function fetchCoinsBalanceMap(
-    _: string,
     address: string,
-    network: Network
+    network: Network | undefined
   ) {
     if (!address || !network) return [];
 
@@ -70,11 +68,11 @@ export function useCoins(address: string, networkId: string = 'devnet') {
 
   return {
     data: coins,
-    mutate,
+    mutate: refetch,
     error,
-    isValidating,
-    loading: swrLoading(coins, error),
+    loading: rest.isLoading,
     getBalance,
+    ...rest,
   };
 }
 

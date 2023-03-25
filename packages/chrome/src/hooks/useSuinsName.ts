@@ -1,6 +1,5 @@
-import useSWR from 'swr';
-import { swrLoading } from '../utils/others';
 import { resolveAddress } from '../api/suins';
+import { useQuery } from 'react-query';
 
 export function useSuinsName(
   address: string,
@@ -8,28 +7,23 @@ export function useSuinsName(
     networkId: string;
   }
 ) {
-  const { data, error, mutate } = useSWR(
+  const { data, error, ...rest } = useQuery(
     [
       `fetchDefaultDomainName?address=${address}&networkId=${opts.networkId}`,
       address,
       opts.networkId,
     ],
-    fetchDefaultDomainName
+    async () => await fetchDefaultDomainName(address, opts.networkId)
   );
 
-  async function fetchDefaultDomainName(
-    _: string,
-    address: string,
-    networkId: string
-  ) {
+  async function fetchDefaultDomainName(address: string, networkId: string) {
     if (!address || !networkId) return;
     return await resolveAddress(address, { networkId });
   }
 
   return {
     data: data ?? address, // fallback
-    mutate,
     error,
-    loading: swrLoading(data, error),
+    ...rest,
   };
 }

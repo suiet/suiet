@@ -12,7 +12,6 @@ import { useApiClient } from '../../../hooks/useApiClient';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { swrKeyWithNetwork, useNetwork } from '../../../hooks/useNetwork';
-import { mutate } from 'swr';
 import { SUI_TYPE_ARG } from '@mysten/sui.js';
 import { OmitToken } from '../../../types';
 import { TransferCoinParams } from '@suiet/core';
@@ -48,7 +47,7 @@ function SendConfirm({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const [sendLoading, setSendLoading] = useState(false);
-  const decimals = coin?.metadata.decimals || 0;
+  const decimals = coin?.metadata.decimals ?? 0;
   const featureFlags = useFeatureFlags();
 
   const remaining = balance - state.amount >= 0 ? balance - state.amount : 0;
@@ -82,7 +81,7 @@ function SendConfirm({
           network,
           coinType: SUI_TYPE_ARG,
           amount: Math.ceil(
-            data.amount * Math.pow(10, coin?.metadata.decimals || 0)
+            data.amount * Math.pow(10, coin?.metadata.decimals ?? 0)
           ),
           recipient: data.address,
           walletId: appContext.walletId,
@@ -91,9 +90,10 @@ function SendConfirm({
         { withAuth: true }
       );
       message.success('Send transaction succeeded');
-      setTimeout(() => {
-        mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
-      }, 1000);
+      // TODO: refetch
+      // setTimeout(() => {
+      //   refetch(swrKeyWithNetwork(swrKeyForUseCoins, network));
+      // }, 1000);
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);

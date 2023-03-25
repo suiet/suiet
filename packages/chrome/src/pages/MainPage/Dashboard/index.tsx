@@ -16,7 +16,6 @@ import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
 import { swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
 import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
-import { mutate } from 'swr';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -151,9 +150,10 @@ function MainPage({ address, networkId }: DashboardProps) {
                     message.error(err.message);
                   })
                   .finally(() => {
-                    setTimeout(() => {
-                      mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
-                    }, 1000);
+                    // TODO: global refetch for coin
+                    // setTimeout(() => {
+                    //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
+                    // }, 1000);
                     setAirdropTime(d.getTime());
                     setAirdropLoading(false);
                   });

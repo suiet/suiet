@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { swrLoading } from '../utils/others';
 import { useCoins } from './useCoins';
 
 export enum CoinSymbol {
@@ -16,7 +15,7 @@ export function useCoinBalance(
     data: coinsBalance,
     getBalance,
     error,
-    isValidating,
+    ...rest
   } = useCoins(address, networkId);
 
   useEffect(() => {
@@ -27,8 +26,7 @@ export function useCoinBalance(
   return {
     balance,
     error,
-    isValidating,
-    loading: swrLoading(coinsBalance, error),
     getBalance,
+    ...rest,
   };
 }

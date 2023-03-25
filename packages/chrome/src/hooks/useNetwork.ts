@@ -1,9 +1,9 @@
-import useSWR from 'swr';
 import { useApiClient } from './useApiClient';
 import { Network } from '@suiet/core';
 import { useFeatureFlags } from './useFeatureFlags';
 import { useMemo } from 'react';
 import { isNonEmptyArray } from '../utils/check';
+import { useQuery } from 'react-query';
 
 export function swrKeyWithNetwork(key: string, network: Network | undefined) {
   if (network?.queryRpcUrl) {
@@ -15,9 +15,13 @@ export function swrKeyWithNetwork(key: string, network: Network | undefined) {
 export function useNetwork(networkId: string) {
   const featureFlags = useFeatureFlags();
   const apiClient = useApiClient();
-  const { data: defaultData, error } = useSWR(
+  const {
+    data: defaultData,
+    error,
+    ...rest
+  } = useQuery(
     ['fetchNetwork', networkId],
-    fetchNetwork
+    async () => await fetchNetwork(networkId)
   );
   const data: Network | undefined = useMemo(() => {
     if (
@@ -43,10 +47,7 @@ export function useNetwork(networkId: string) {
     return overrideData;
   }, [defaultData, featureFlags, networkId]);
 
-  async function fetchNetwork(
-    _: string,
-    networkId: string
-  ): Promise<Network | undefined> {
+  async function fetchNetwork(networkId: string): Promise<Network | undefined> {
     if (!networkId) return;
     return await apiClient.callFunc<string, Network>(
       'network.getNetwork',
@@ -57,6 +58,6 @@ export function useNetwork(networkId: string) {
   return {
     data,
     error,
-    loading: !error && !data,
+    ...rest,
   };
 }
