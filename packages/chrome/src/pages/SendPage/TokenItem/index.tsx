@@ -76,7 +76,7 @@ const TokenItem = (props: TokenItemProps) => {
               props.symbol === 'SUI' ? styles['token-amount-sui'] : null
             )}
           >
-            {`${formatCurrency(amount, decimals)} ${symbol}`}
+            {`${formatCurrency(amount, { decimals })} ${symbol}`}
           </Typo.Small>
         </div>
       </div>

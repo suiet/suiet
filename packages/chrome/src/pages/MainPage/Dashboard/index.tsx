@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
-import { formatCurrency } from '../../../utils/format';
+import { formatSUI } from '../../../utils/format';
 import message from '../../../components/message';
 import { useState } from 'react';
 import { swrKeyWithNetwork, useNetwork } from '../../../hooks/useNetwork';
@@ -86,7 +86,7 @@ function MainPage({ address, networkId }: DashboardProps) {
         {balanceLoading ? (
           <Skeleton width={'140px'} height={'36px'} />
         ) : (
-          formatCurrency(balance)
+          formatSUI(balance)
         )}
         <span className={styles['balance-unit']}>SUI</span>
       </div>

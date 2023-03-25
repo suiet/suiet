@@ -12,7 +12,7 @@ import Typo from '../../../components/Typo';
 import TokenIcon from '../../../components/TokenIcon';
 import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import IconToken from '../../../assets/icons/token.svg';
-import { fullyFormatCurrency } from '../../../utils/format';
+import { formatCurrency } from '../../../utils/format';
 // import TokenItem from '../../../components/TokenItem';
 
 // export type TokenListProps = StyleExtendable;
@@ -62,7 +62,8 @@ const TokenItem = (props: TokenItemProps) => {
                 props.symbol === 'SUI' ? styles['token-amount-sui'] : null
               )}
             >
-              {fullyFormatCurrency(amount)}
+              {/* TODO: pass decimals for each different coin */}
+              {formatCurrency(amount, { decimals: 9, withAbbr: false })}
             </Typo.Small>
           </div>
         </div>

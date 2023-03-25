@@ -4,7 +4,11 @@ import commonStyles from '../common.module.scss';
 import Typo from '../../../components/Typo';
 import { useMemo, useRef, useState } from 'react';
 import { SendData } from '../types';
-import { addressEllipsis, formatCurrency } from '../../../utils/format';
+import {
+  addressEllipsis,
+  formatCurrency,
+  formatSUI,
+} from '../../../utils/format';
 import message from '../../../components/message';
 import { useNavigate } from 'react-router-dom';
 import { useApiClient } from '../../../hooks/useApiClient';
@@ -50,7 +54,9 @@ function SendConfirm({
   const gasFee =
     featureFlags?.networks[appContext.networkId].pay_coin_gas_budget || 0;
   const max = useMemo(() => {
-    return Number(formatCurrency(balance * 10 ** decimals - gasFee, decimals));
+    return Number(
+      formatCurrency(balance * 10 ** decimals - gasFee, { decimals })
+    );
   }, [balance]);
   // use math.js?
   const remaining =
@@ -103,13 +109,10 @@ function SendConfirm({
         />
         <div className={styles['send-confirm-list']}>
           <SendConfirmItem name="To" value={addressEllipsis(state.address)} />
-          <SendConfirmItem
-            name="Gas Fee Budget"
-            value={formatCurrency(gasFee, decimals)}
-          />
+          <SendConfirmItem name="Gas Fee Budget" value={formatSUI(gasFee)} />
           <SendConfirmItem
             name="Balance"
-            value={formatCurrency(remaining * 10 ** decimals, decimals)}
+            value={formatCurrency(remaining * 10 ** decimals, { decimals })}
           />
         </div>
         <div className={commonStyles['next-step']}>

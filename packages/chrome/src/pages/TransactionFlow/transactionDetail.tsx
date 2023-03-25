@@ -3,11 +3,7 @@ import './transactionDetail.scss';
 import Button from '../../components/Button';
 import dayjs from 'dayjs';
 import classnames from 'classnames';
-import {
-  addressEllipsis,
-  formatCurrency,
-  fullyFormatCurrency,
-} from '../../utils/format';
+import { formatCurrency, formatSUI } from '../../utils/format';
 import Address from '../../components/Address';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
@@ -74,12 +70,15 @@ function TransactionDetail() {
             {txStatus === 'failure'
               ? 'FAILED'
               : type === 'sent'
-              ? `- ${fullyFormatCurrency(Number(object.balance))} ${
-                  object.symbol
-                }`
-              : `+ ${fullyFormatCurrency(Number(object.balance))} ${
-                  object.symbol
-                }`}
+              ? `- ${formatCurrency(object.balance, {
+                  // TODO: specify decimals for different coins
+                  decimals: 9,
+                  withAbbr: false,
+                })} ${object.symbol}`
+              : `+ ${formatCurrency(object.balance, {
+                  decimals: 9,
+                  withAbbr: false,
+                })} ${object.symbol}`}
           </div>
         ) : null}
       </div>
@@ -113,7 +112,12 @@ function TransactionDetail() {
           <div className="transaction-detail-item">
             <span className="transaction-detail-item-key">Token</span>
             <span>
-              {formatCurrency(Number(object.balance))} {object.symbol}
+              {/* TODO: specify decimals for different coins */}
+              {formatCurrency(object.balance, {
+                decimals: 9,
+                withAbbr: false,
+              })}{' '}
+              {object.symbol}
             </span>
           </div>
         ) : null}
@@ -121,7 +125,7 @@ function TransactionDetail() {
           <div className="transaction-detail-item">
             <span className="transaction-detail-item-key">Gas Fee</span>
             <span>
-              {formatCurrency(gasFee)} {object.symbol}
+              {formatSUI(gasFee)} {object.symbol}
             </span>
           </div>
         ) : null}

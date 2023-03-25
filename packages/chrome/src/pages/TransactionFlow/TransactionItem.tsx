@@ -3,7 +3,7 @@ import './transactionItem.scss';
 import Address from '../../components/Address';
 import { TxObject } from '@suiet/core/src/storage/types';
 import { nftImgUrl } from '../../utils/nft';
-import { fullyFormatCurrency } from '../../utils/format';
+import { formatCurrency } from '../../utils/format';
 import { capitalize } from 'lodash-es';
 
 interface TransactionItemProps {
@@ -33,8 +33,10 @@ function TransactionItem({
         <div className={classnames('transaction-item-amount', type, status)}>
           {status === 'failure'
             ? 'Failed'
-            : `${type === 'sent' ? '- ' : '+ '} ${fullyFormatCurrency(
-                object.balance
+            : `${type === 'sent' ? '- ' : '+ '} ${formatCurrency(
+                object.balance,
+                // TODO: specify decimals for different coins
+                { decimals: 9 }
               )} ${coin.toUpperCase()}`}
         </div>
       );

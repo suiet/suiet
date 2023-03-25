@@ -1,6 +1,6 @@
 import type { Extendable } from '../../types';
 import classnames from 'classnames';
-import { formatCurrency, fullyFormatCurrency } from '../../utils/format';
+import { formatCurrency } from '../../utils/format';
 import TokenIcon from '../TokenIcon';
 import Typo from '../Typo';
 import IconWaterDrop from '../../assets/icons/waterdrop.svg';
@@ -23,7 +23,14 @@ const TokenIconUrl: Record<string, string> = {
 };
 
 const TokenItem = (props: TokenItemProps) => {
-  const { amount = 0, symbol, iconUrl, decimals, onClick, selected } = props;
+  const {
+    amount = 0,
+    symbol,
+    iconUrl,
+    decimals = 0,
+    onClick,
+    selected,
+  } = props;
 
   let tokenIcon = TokenIconUrl[symbol] || TokenIconUrl.DEFAULT;
   if (iconUrl) {
@@ -63,7 +70,7 @@ const TokenItem = (props: TokenItemProps) => {
               props.symbol === 'SUI' ? styles['token-amount-sui'] : null
             )}
           >
-            {formatCurrency(amount, decimals)}
+            {formatCurrency(amount, { decimals })}
           </Typo.Small>
         </div>
       </div>
