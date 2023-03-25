@@ -2,7 +2,9 @@
 
 $icon-size: 40px;
 $icon-wrap-size--sm: 16px;
+$icon-wrap-size--lg: 64px;
 $icon-size--sm: 10px;
+$icon-size--lg: 36px;
 
 .token-item {
   @apply box-border flex items-center;
@@ -31,10 +33,19 @@ $icon-size--sm: 10px;
     width: $icon-wrap-size--sm;
     height: $icon-wrap-size--sm;
   }
+
+  &--large {
+    width: $icon-wrap-size--lg;
+    height: $icon-wrap-size--lg;
+  }
 }
 
 .icon {
   &--small {
     height: $icon-size--sm;
+  }
+
+  &--large {
+    height: $icon-size--lg;
   }
 }

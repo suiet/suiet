@@ -5,6 +5,9 @@ import { withSus } from '../components/TheSuspense';
 import Session from '../components/Session';
 
 const MainPage = lazy(async () => await import('../pages/MainPage'));
+const CoinDetailPage = lazy(
+  async () => await import('../pages/CoinDetailPage')
+);
 const NFTPage = lazy(async () => await import('../pages/NFTPage'));
 const NFTDetailPage = lazy(
   async () => await import('../pages/NFTPage/NftDetail')
@@ -24,6 +27,7 @@ const SettingSecurityPage = lazy(
   async () => await import('../pages/SettingsPage/security')
 );
 const SendPage = lazy(async () => await import('../pages/SendPage'));
+const StakingPage = lazy(async () => await import('../pages/StakingPage'));
 const TransactionFlowPage = lazy(
   async () => await import('../pages/TransactionFlow')
 );
@@ -87,6 +91,10 @@ const routesConfig: RouteObject[] = [
         ],
       },
       {
+        path: 'coin/detail/:symbol',
+        element: withSus(<CoinDetailPage />),
+      },
+      {
         path: 'dapps',
         children: [
           {
@@ -103,6 +111,10 @@ const routesConfig: RouteObject[] = [
             element: withSus(<SendPage />),
           },
         ],
+      },
+      {
+        path: 'staking',
+        element: withSus(<StakingPage />),
       },
       {
         path: 'transaction/flow',

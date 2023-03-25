@@ -169,7 +169,7 @@ export function useBiometricAuth() {
               id: bufferDecode(credentialIdBase64),
             },
           ],
-          userVerification: 'required',
+          userVerification: 'discouraged',
           timeout: 2e4,
         },
         signal,
