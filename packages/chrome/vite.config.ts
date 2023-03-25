@@ -8,10 +8,19 @@ import { Buffer } from 'buffer';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2020',
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
   esbuild: {
     pure: mode === 'production' ? ['console.log', 'debugger'] : [],
   },
   build: {
+    target: 'es2020',
     commonjsOptions: {
       // vite build use @rollup/plugin-commonjs as default, which transforms all the cjs files
       // However Sui Sdk mixed using esm & cjs，therefore should turn on transformMixedEsModules.
@@ -23,13 +32,6 @@ export default defineConfig(({ mode }) => ({
     // handle "process is not defined" for importing sui sdk
     // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
     'process.env': {},
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis',
-      },
-    },
   },
   plugins: [react(), crx({ manifest }), viteSvgr()],
 }));
