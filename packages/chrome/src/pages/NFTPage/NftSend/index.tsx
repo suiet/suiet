@@ -15,7 +15,7 @@ import { useApiClient } from '../../../hooks/useApiClient';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
-import { formatCurrency } from '../../../utils/format';
+import { formatSUI } from '../../../utils/format';
 import styles from './index.module.scss';
 import { useEstimatedGasBudget } from '../../../hooks/transaction/useEstimatedGasBudget';
 import {
@@ -136,7 +136,7 @@ export default function SendNft() {
         <div className={styles['gas-container']}>
           <Typo.Title className={styles['gas']}>Estimated Gas Fee</Typo.Title>
           <Typo.Normal className={styles['gas-amount']}>
-            {formatCurrency(estimatedGasBudget ?? 0)} SUI
+            {formatSUI(estimatedGasBudget ?? 0)} SUI
           </Typo.Normal>
         </div>
         <div className={styles['btn-container']}>

@@ -17,7 +17,6 @@ import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import { useApiClient } from '../../../hooks/useApiClient';
 import {
   MoveCallTransaction,
-  PayAllSuiTransaction,
   UnserializedSignableTransaction,
 } from '@mysten/sui.js';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
@@ -27,7 +26,7 @@ import { PaySuiTransaction } from '@mysten/sui.js/src/signers/txn-data-serialize
 import { isNonEmptyArray } from '../../../utils/check';
 import classnames from 'classnames';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
-import { formatCurrency } from '../../../utils/format';
+import { formatSUI } from '../../../utils/format';
 import { useEstimatedGasBudget } from '../../../hooks/transaction/useEstimatedGasBudget';
 import { isUndefined } from 'lodash-es';
 import { LoadingSpin } from '../../../components/Loading';
@@ -117,10 +116,10 @@ const TxApprovePage = () => {
         </Typo.Normal>
         <div className={'mt-1'}>
           <Typo.Normal className={classnames(styles['detail-item__value'])}>
-            Total Payment: {formatCurrency(totalAmount)} SUI
+            Total Payment: {formatSUI(totalAmount)} SUI
           </Typo.Normal>
           <Typo.Normal className={classnames(styles['detail-item__value'])}>
-            Gas Budget: {formatCurrency(gasBudget)} SUI
+            Gas Budget: {formatSUI(gasBudget)} SUI
           </Typo.Normal>
           <Typo.Normal
             className={classnames(
@@ -128,8 +127,8 @@ const TxApprovePage = () => {
               'flex item-center'
             )}
           >
-            Balance: {formatCurrency(balance)} -{'> '}
-            {formatCurrency(Number(balance) - totalAmount - gasBudget)} SUI
+            Balance: {formatSUI(balance)} -{'> '}
+            {formatSUI(Number(balance) - totalAmount - gasBudget)} SUI
           </Typo.Normal>
           <div className={classnames(styles['detail-item__value'])}>
             -----------------------------------
@@ -145,7 +144,7 @@ const TxApprovePage = () => {
               )}
             >
               <div className={'mr-2'}>To: </div>
-              {formatCurrency(amounts[i])}
+              {formatSUI(amounts[i])}
               <div className={'mx-2'}>SUI -{'> '}</div>
               <Address value={recipients[i]} hideCopy={true} />
             </Typo.Normal>

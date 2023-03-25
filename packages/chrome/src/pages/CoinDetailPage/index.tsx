@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { useWallet } from '../../hooks/useWallet';
-import { useState } from 'react';
 import Avatar from '../../components/Avatar';
 import IconWaterDrop from '../../assets/icons/waterdrop.svg';
 import IconToken from '../../assets/icons/token.svg';
@@ -13,7 +12,7 @@ import TokenIcon from '../../components/TokenIcon';
 import classNames from 'classnames';
 import { useCoins } from '../../hooks/useCoins';
 import { useNetwork } from '../../hooks/useNetwork';
-import { formatCurrency } from '../../utils/format';
+import { formatSUI } from '../../utils/format';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
 export default function CoinDetailPage() {
@@ -62,7 +61,7 @@ export default function CoinDetailPage() {
 
       <div className="flex justify-center flex-col items-center">
         <div className="mt-4">
-          <p className="inline text-3xl font-bold">{formatCurrency(balance)}</p>{' '}
+          <p className="inline text-3xl font-bold">{formatSUI(balance)}</p>{' '}
           <p className="inline text-3xl font-bold text-zinc-400">SUI</p>
         </div>
 
