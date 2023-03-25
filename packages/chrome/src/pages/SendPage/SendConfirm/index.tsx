@@ -17,6 +17,7 @@ import { SUI_TYPE_ARG } from '@mysten/sui.js';
 import { OmitToken } from '../../../types';
 import { TransferCoinParams } from '@suiet/core';
 import { Coins, swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
 
 function SendConfirmItem({ name, value }: Record<string, string>) {
   return (
@@ -44,22 +45,28 @@ function SendConfirm({
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const [val, setVal] = useState(state.amount || '0');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const [sendLoading, setSendLoading] = useState(false);
   const decimals = coin?.metadata.decimals || 0;
+  const featureFlags = useFeatureFlags();
 
+  const remaining = balance - state.amount >= 0 ? balance - state.amount : 0;
+  const gasFee =
+    featureFlags?.networks[appContext.networkId].pay_coin_gas_budget || 0;
   const setInputVal = (value: string) => {
     if (!inputRef.current) return;
-    const val = Number(value);
-    if (Number.isNaN(val) || val < 0) {
+    const tmpVal = Number(value);
+    if (Number.isNaN(tmpVal) || tmpVal < 0) {
       return;
     }
     if (value === '') value = '0';
-    if (val > 0 && value.startsWith('0')) {
-      setVal(val.toString());
+    if (tmpVal > 0 && value.startsWith('0')) {
+      setVal(tmpVal.toString());
+      onSubmit(Number(tmpVal));
     } else {
       setVal(value.toString());
+      onSubmit(Number(value));
     }
   };
 
@@ -101,7 +108,7 @@ function SendConfirm({
       <div className={''}>
         <div className={styles['balance-container']}>
           <div
-            className={classNames('flex', {
+            className={classNames('flex items-center', {
               [styles['fit']]: Number(val) > 0 && Number(val) <= balance,
               [styles['excess']]: Number(val) > balance,
             })}
@@ -111,25 +118,35 @@ function SendConfirm({
               }
             }}
           >
-            <input
-              ref={inputRef}
-              className={classNames(styles['balance-amount'])}
-              style={{ width: `${val.toString().length * 22}px` }}
-              value={val}
-              maxLength={7}
-              onChange={(e) => {
-                setInputVal(e.target.value);
-              }}
-              onBlur={() => {
-                onSubmit(Number(val));
-              }}
-            />
+            <div className={styles['balance-amount-box']}>
+              <textarea
+                ref={inputRef}
+                className={classNames(styles['balance-amount'])}
+                value={val}
+                rows={3}
+                onChange={(e) => {
+                  setInputVal(e.target.value);
+                }}
+              />
+              <div
+                className={styles['balance-amount-placeholder']}
+                style={{
+                  visibility: 'hidden',
+                  width: `${val.toString().length * 23}px`,
+                }}
+              >
+                {val}
+              </div>
+            </div>
+
             <span className={styles['balance-name']}>{symbol}</span>
           </div>
           <div
             className={styles['balance-max-btn']}
             onClick={() => {
-              setInputVal(balance.toString());
+              setInputVal(
+                formatCurrency(balance * 10 ** decimals - gasFee, decimals)
+              );
             }}
           >
             MAX
@@ -137,10 +154,13 @@ function SendConfirm({
         </div>
         <div className={styles['send-confirm-list']}>
           <SendConfirmItem name="To" value={addressEllipsis(state.address)} />
-          <SendConfirmItem name="Gas Fee" value="12 SUI ≈ 12 USD" />
+          <SendConfirmItem
+            name="Gas Fee"
+            value={formatCurrency(gasFee, decimals)}
+          />
           <SendConfirmItem
             name="Balance"
-            value={formatCurrency(balance * 10 ** decimals)}
+            value={formatCurrency(remaining * 10 ** decimals, decimals)}
           />
         </div>
         <div className={commonStyles['next-step']}>

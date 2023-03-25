@@ -2,13 +2,12 @@
 
 .balance {
   &-container {
-    @apply flex;
-    margin-top: 140px;
-    margin-bottom: 122px;
+    @apply flex items-center;
+    height: 304px;
   }
 
   &-name,
-  &-amount {
+  &-amount-box {
     font-weight: 700;
     font-size: 36px;
     line-height: 42px;
@@ -28,9 +27,23 @@
   }
 
   &-amount {
-    margin-left: 36px;
-    width: 22px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
     outline: none;
+    resize: none;
+
+    &-box {
+      position: relative;
+      margin-left: 36px;
+    }
+
+    &-placeholder {
+      width: 22px;
+      max-width: 154px;
+      word-wrap: break-word;
+    }
   }
 
   &-max-btn {

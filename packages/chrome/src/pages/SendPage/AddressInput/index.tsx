@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import AddressInput from '../../../components/AddressInput';
 import Button from '../../../components/Button';
@@ -7,9 +8,10 @@ import { getInputStateByFormState } from '../../../utils/form';
 import styles from './index.module.scss';
 import commonStyles from '../common.module.scss';
 import { SendData } from '../types';
-import useTransactionList from '../../../hooks/useTransactionList';
 import { ReactComponent as ViewIcon } from '../../../assets/icons/view.svg';
 import classNames from 'classnames';
+import { useTransactionListGql } from '../../../hooks/useTransactionList';
+import dayjs from 'dayjs';
 
 interface AddressInputValues {
   address: string;
@@ -32,7 +34,27 @@ function AddressInputPage({
   });
   const addressState = getInputStateByFormState(form.formState, 'address');
   const formAddress = form.getValues().address;
-  const { history, loading } = useTransactionList(formAddress);
+  const { getTransactionList, data, loading } = useTransactionListGql();
+  const disabled =
+    addressState === 'error' ||
+    (state.address === '' && addressState === 'default');
+
+  let history = null;
+  if (data) {
+    history = data.transactions;
+  }
+
+  useEffect(() => {
+    if (formAddress) {
+      getTransactionList({
+        variables: {
+          filter: {
+            fromAddress: formAddress,
+          },
+        },
+      });
+    }
+  }, [formAddress]);
 
   return (
     <>
@@ -53,10 +75,11 @@ function AddressInputPage({
 
           <AddressInput form={form} className={'mt-[48px]'} />
           {!loading &&
-            addressState === 'success' &&
-            (history && history.length > 0 ? (
+            history &&
+            !disabled &&
+            (history.length > 0 ? (
               <div className={styles['transaction-num']}>
-                {history?.length} transactions in 1 week
+                {history?.length} transactions
                 <div
                   onClick={() => {
                     window.open(
@@ -83,14 +106,7 @@ function AddressInputPage({
         </div>
 
         <div className={commonStyles['next-step']}>
-          <Button
-            type={'submit'}
-            state={'primary'}
-            disabled={
-              (state.address !== '' && addressState === 'error') ||
-              (state.address === '' && addressState === 'default')
-            }
-          >
+          <Button type={'submit'} state={'primary'} disabled={disabled}>
             Next Step
           </Button>
         </div>
