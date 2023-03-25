@@ -16,6 +16,10 @@ import { useNetwork } from '../../hooks/useNetwork';
 import { formatCurrency } from '../../utils/format';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
+import { useQuery } from '@apollo/client';
+import { GET_DELEGATED_STAKES } from '../../utils/graphql/query';
+import Button from '../../components/Button';
+import Nav from '../../components/Nav';
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
@@ -25,7 +29,7 @@ export default function CoinDetailPage() {
     context: state.appContext,
   }));
   const navigate = useNavigate();
-  const { address } = useAccount(context.accountId);
+  const { address } = useAccount(appContext.accountId);
   const dispatch = useDispatch<AppDispatch>();
   const { data: wallet } = useWallet(context.walletId);
 
@@ -34,10 +38,59 @@ export default function CoinDetailPage() {
     getBalance,
     error,
   } = useCoins(address, appContext.networkId);
+
+  const { data: delegatedStakesResult, loading } = useQuery(
+    GET_DELEGATED_STAKES,
+    {
+      variables: {
+        address,
+      },
+      skip: !address,
+    }
+  );
+
+  // [{"__typename":"DelegatedStake","stakes":[{"__typename":"Stake","status":"Pending","principal":0,"stakeActiveEpoch":1,"stakedSuiID":null,"stakeRequestEpoch":407}],"validator":{"__typename":"Validator","suiAddress":"0xba39e145d3d85fa14b80523d7eef49bf22d0031e","name":"validator-3","imageURL":"","epoch":407,"description":""}},{"__typename":"DelegatedStake","stakes":[{"__typename":"Stake","status":"Pending","principal":0,"stakeActiveEpoch":1,"stakedSuiID":null,"stakeRequestEpoch":407}],"validator":{"__typename":"Validator","suiAddress":"0x92c6ca2c92f32e781ab9831474fd83cd4e63c195","name":"validator-1","imageURL":"","epoch":407,"description":""}}]0x762a64b9eb541bbcee9db68334c5881cb1629bf5
+
+  const delegatedStakes = delegatedStakesResult?.delegatedStakes;
+  const stakedBalance =
+    delegatedStakes?.reduce((accumulator, current) => {
+      const sum = current.stakes.reduce(
+        (stakesAccumulator, stake) => stakesAccumulator + stake.principal,
+        0
+      );
+      return accumulator + sum;
+    }, 0) ?? 0;
+  const earnedBalance =
+    delegatedStakes?.reduce((accumulator, current) => {
+      const sum = current.stakes.reduce(
+        (stakesAccumulator, stake) => stakesAccumulator + stake.earned,
+        0
+      );
+      return accumulator + sum;
+    }, 0) ?? 0;
   const balance = symbol ? getBalance(symbol) : 0;
 
   return (
-    <AppLayout>
+    <div>
+      <Nav
+        position={'relative'}
+        onNavBack={() => {
+          navigate(-1);
+          //   switch (mode) {
+          //     case Mode.symbol:
+          //       navigate(-1);
+          //       break;
+          //     case Mode.address:
+          //       setMode(Mode.symbol);
+          //       break;
+          //     case Mode.confirm:
+          //       setMode(Mode.address);
+          //       break;
+          //     default:
+          //   }
+        }}
+        title="SUI"
+      />
       {/* <div className="">{params['symbol']}</div> */}
       {/* <div className="">{JSON.stringify(wallet)}</div> */}
       <div className="flex justify-center pt-8">
@@ -62,23 +115,27 @@ export default function CoinDetailPage() {
 
       <div className="flex justify-center flex-col items-center">
         <div className="mt-4">
-          <p className="inline text-3xl font-bold">{formatCurrency(balance)}</p>{' '}
+          <p className="inline text-3xl font-bold">
+            {formatCurrency(Number(balance) + Number(stakedBalance))}
+          </p>{' '}
           <p className="inline text-3xl font-bold text-zinc-400">SUI</p>
         </div>
 
         <div className="">
-          <p className="inline text-2 text-zinc-400"> Earned 0.222 SUI </p>
+          <p className="inline text-2 text-zinc-400">
+            Earned {formatCurrency(earnedBalance)} SUI{' '}
+          </p>
         </div>
       </div>
 
       <div className="balance details flex mt-2 mx-6 justify-between">
         <div className="free-balance">
           <p className="text-zinc-400 font-normal">Avaliable</p>
-          <div className="font-bold">2.2333 SUI</div>
+          <div className="font-bold">{formatCurrency(balance)} SUI</div>
         </div>
         <div className="staked-balance text-right">
           <p className="text-zinc-400 font-normal">Stake</p>
-          <div className="font-bold">2.2333 SUI</div>
+          <div className="font-bold">{formatCurrency(stakedBalance)} SUI</div>
         </div>
       </div>
 
@@ -86,31 +143,68 @@ export default function CoinDetailPage() {
         <div className="w-full rounded-full mx-auto h-2 bg-gray-200 overflow-hidden">
           <div
             className="h-full rounded-full bg-sky-300 transition-all duration-500 ease-in-out"
-            style={{ width: `${20.2}%` }}
+            style={{
+              width: `${
+                (Number(balance) * 100) / (stakedBalance + Number(balance))
+              }%`,
+            }}
           ></div>
         </div>
       </div>
 
-      <div className="mx-6 mt-6">
-        <div className="text-zinc-400">Staking on {2} validators</div>
+      <div className="mx-6 mt-6 mb-24">
+        <div className="text-zinc-400">
+          Staking on {delegatedStakes?.length ?? 0} validators
+        </div>
 
         <div className="flex flex-col mt-2">
-          <div className="flex justify-between items-center  bg-zinc-50 w-full rounded-xl p-3 ">
-            <div className="flex gap-4 items-center">
-              <IconStake />
-              <div className="">
-                <div className="font-bold">Validator1</div>
-                <div className="text-zinc-400 font-normal text-sm">
-                  Validator1 Desc
+          {delegatedStakes?.map((delegatedStake) => (
+            <div
+              className="flex justify-between items-center bg-sky-50 w-full rounded-2xl p-4 px-6 mb-2"
+              key={delegatedStake?.validator?.suiAddress}
+            >
+              <div className="flex gap-4 items-center">
+                <IconStakeFilled />
+                <div className="">
+                  <div className="font-bold">
+                    {delegatedStake?.validator?.name}
+                  </div>
+                  <div className="text-zinc-400 font-normal text-sm">
+                    {delegatedStake?.validator?.description.lenth === 0
+                      ? delegatedStake?.validator?.description
+                      : 'Current APY:' +
+                        formatCurrency(
+                          delegatedStake?.validator?.apy * 100,
+                          0
+                        ) +
+                        '%'}
+                  </div>
                 </div>
               </div>
+              <div className="font-medium">
+                {formatCurrency(
+                  delegatedStake.stakes.reduce(
+                    (stakesAccumulator, stake) =>
+                      stakesAccumulator + stake.principal,
+                    0
+                  )
+                )}
+                <div className="inline text-zinc-400 pl-1">SUI</div>{' '}
+              </div>
             </div>
-            <div className="font-medium">
-              {0.23} <div className="inline text-zinc-400">SUI</div>{' '}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-    </AppLayout>
+
+      <div className="fixed w-full bottom-0 left-0 right-0 p-4 border-t border-t-zinc-100">
+        <Button
+          type={'submit'}
+          state={'primary'}
+          onClick={() => navigate('/staking')}
+        >
+          Stake
+        </Button>
+      </div>
+    </div>
   );
 }

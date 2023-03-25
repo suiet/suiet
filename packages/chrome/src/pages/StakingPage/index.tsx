@@ -9,6 +9,8 @@ import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client';
 import { GET_VALIDATORS } from '../../utils/graphql/query';
+import { useNavigate } from 'react-router-dom';
+import Nav from '../../components/Nav';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -84,8 +86,28 @@ export default function StackingPage() {
     // );
     // console.log('stake');
   }
+  const navigate = useNavigate();
   return (
-    <AppLayout>
+    <div>
+      <Nav
+        position={'relative'}
+        onNavBack={() => {
+          navigate(-1);
+          //   switch (mode) {
+          //     case Mode.symbol:
+          //       navigate(-1);
+          //       break;
+          //     case Mode.address:
+          //       setMode(Mode.symbol);
+          //       break;
+          //     case Mode.confirm:
+          //       setMode(Mode.address);
+          //       break;
+          //     default:
+          //   }
+        }}
+        title="Stake SUI"
+      />
       <div className="px-2">
         <ValidatorSelector
           loading={loading}
@@ -130,6 +152,6 @@ export default function StackingPage() {
           </Button>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }
