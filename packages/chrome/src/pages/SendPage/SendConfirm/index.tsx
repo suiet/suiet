@@ -155,7 +155,7 @@ function SendConfirm({
         <div className={styles['send-confirm-list']}>
           <SendConfirmItem name="To" value={addressEllipsis(state.address)} />
           <SendConfirmItem
-            name="Gas Fee"
+            name="Gas Fee Budget"
             value={formatCurrency(gasFee, decimals)}
           />
           <SendConfirmItem
