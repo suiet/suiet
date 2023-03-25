@@ -3,24 +3,12 @@ import commonStyles from './common.module.scss';
 import Typo from '../../components/Typo';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
-import WaterDropIcon from '../../components/WaterDropIcon';
-import { isValidSuiAddress, SUI_TYPE_ARG } from '@mysten/sui.js';
-import { useForm } from 'react-hook-form';
-import message from '../../components/message';
-import Form from '../../components/form/Form';
-import FormControl from '../../components/form/FormControl';
-import { getInputStateByFormState } from '../../utils/form';
-import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import {
-  Coins,
-  swrKey as swrKeyForUseCoins,
-  useCoinsGql,
-} from '../../hooks/useCoins';
+import { Coins, useCoinsGql } from '../../hooks/useCoins';
 import Nav from '../../components/Nav';
-import TokenItem from '../../components/TokenItem';
+import TokenItem from './TokenItem';
 import { useEffect, useState } from 'react';
 import AddressInputPage from './AddressInput';
 import SendConfirm from './SendConfirm';
@@ -95,25 +83,21 @@ const SendPage = () => {
               Choose the token you want to send
             </Typo.Normal>
           </div>
-          {coinsLoading && (
-            <Skeleton
-              width="330px"
-              height="92px"
-              style={{
-                margin: '24px 16px',
-              }}
-            />
-          )}
-          {!coinsLoading && coins.length > 0 && (
-            <div className={styles['token-list']}>
-              {coins.map((coin) => {
-                const { symbol, balance, metadata } = coin;
+          <div className={styles['token-list']}>
+            {coinsLoading && (
+              <Skeleton width="100%" height="73px" className="block" />
+            )}
+            {!coinsLoading &&
+              coins.length > 0 &&
+              coins.map((coin) => {
+                const { symbol, balance, metadata, isVerified } = coin;
                 return (
                   <TokenItem
                     key={symbol}
                     symbol={symbol}
                     amount={balance}
                     decimals={metadata.decimals}
+                    verified={isVerified}
                     selected={sendData.symbol === symbol}
                     onClick={(symbol) => {
                       setSelectedCoin(coin);
@@ -127,9 +111,7 @@ const SendPage = () => {
                   />
                 );
               })}
-            </div>
-          )}
-
+          </div>
           <div className={commonStyles['next-step']}>
             <Button
               type={'submit'}

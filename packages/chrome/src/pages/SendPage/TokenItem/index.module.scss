@@ -1,0 +1,41 @@
+@import '../../../styles/variables.scss';
+
+.token-item {
+  @apply box-border flex items-center;
+  padding: 16px 22px;
+
+  background: #fff;
+  transition: 0.2s;
+  border-bottom: 1px solid #f2f4f7;
+
+  &:hover {
+    /* Gray/50 */
+    background: #eaecf0;
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
+
+  &.selected {
+    background: $gray-100;
+  }
+}
+
+.token-name {
+  font-family: 'Inter';
+  color: #000;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.token-amount {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #404968;
+}

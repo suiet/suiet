@@ -14,6 +14,7 @@
   font-size: 14px;
   line-height: 20px;
   color: #404968;
+  font-family: 'Inter';
 
   &.warn {
     background: #fffaeb;
@@ -30,6 +31,8 @@
   height: 24px;
   background: #dc6803;
   border-radius: 16px;
+  color: white;
+  font-family: 'Inter';
 }
 
 .view-btn {
@@ -41,6 +44,7 @@
   background: #404968;
   border-radius: 16px;
   color: #fff;
+  font-family: 'Inter';
 }
 
 .view-icon {

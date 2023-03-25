@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import AddressInput from '../../../components/AddressInput';
 import Button from '../../../components/Button';
 import Form from '../../../components/form/Form';
@@ -35,6 +35,7 @@ function AddressInputPage({
   const addressState = getInputStateByFormState(form.formState, 'address');
   const formAddress = form.getValues().address;
   const { getTransactionList, data, loading } = useTransactionListGql();
+  useWatch({ name: 'address', control: form.control });
   const disabled =
     addressState === 'error' ||
     (state.address === '' && addressState === 'default');
@@ -106,7 +107,7 @@ function AddressInputPage({
         </div>
 
         <div className={commonStyles['next-step']}>
-          <Button type={'submit'} state={'primary'} disabled={disabled}>
+          <Button type={'submit'} state={'primary'}>
             Next Step
           </Button>
         </div>

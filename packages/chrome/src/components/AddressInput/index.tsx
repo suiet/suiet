@@ -7,9 +7,10 @@ import Textarea from '../Textarea';
 interface AddressInputProps {
   form: UseFormReturn<any>;
   className?: string;
+  onChange?: () => void;
 }
 
-function AddressInput({ form, className }: AddressInputProps) {
+function AddressInput({ form, className, onChange }: AddressInputProps) {
   return (
     <FormControl
       name={'address'}
@@ -23,6 +24,7 @@ function AddressInput({ form, className }: AddressInputProps) {
     >
       <Textarea
         placeholder="Enter SUI address"
+        onChange={onChange}
         state={getInputStateByFormState(form.formState, 'address')}
       />
     </FormControl>

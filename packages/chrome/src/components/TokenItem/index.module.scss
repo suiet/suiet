@@ -33,3 +33,21 @@
     }
   }
 }
+
+.token-name {
+  font-family: 'Inter';
+  color: $gray-900;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 22px;
+}
+
+.token-amount {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #404968;
+}

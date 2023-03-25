@@ -2,10 +2,9 @@ import Button from '../../../components/Button';
 import styles from './index.module.scss';
 import commonStyles from '../common.module.scss';
 import Typo from '../../../components/Typo';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { SendData } from '../types';
 import { addressEllipsis, formatCurrency } from '../../../utils/format';
-import classNames from 'classnames';
 import message from '../../../components/message';
 import { useNavigate } from 'react-router-dom';
 import { useApiClient } from '../../../hooks/useApiClient';
@@ -17,6 +16,7 @@ import { OmitToken } from '../../../types';
 import { TransferCoinParams } from '@suiet/core';
 import { Coins, swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
 import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
+import InputAmount from '../../../components/InputAmount';
 
 function SendConfirmItem({ name, value }: Record<string, string>) {
   return (
@@ -43,31 +43,20 @@ function SendConfirm({
   const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
-  const [val, setVal] = useState(state.amount || '0');
-  const inputRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const [sendLoading, setSendLoading] = useState(false);
   const decimals = coin?.metadata.decimals ?? 0;
   const featureFlags = useFeatureFlags();
-
-  const remaining = balance - state.amount >= 0 ? balance - state.amount : 0;
   const gasFee =
     featureFlags?.networks[appContext.networkId].pay_coin_gas_budget || 0;
-  const setInputVal = (value: string) => {
-    if (!inputRef.current) return;
-    const tmpVal = Number(value);
-    if (Number.isNaN(tmpVal) || tmpVal < 0) {
-      return;
-    }
-    if (value === '') value = '0';
-    if (tmpVal > 0 && value.startsWith('0')) {
-      setVal(tmpVal.toString());
-      onSubmit(Number(tmpVal));
-    } else {
-      setVal(value.toString());
-      onSubmit(Number(value));
-    }
-  };
+  const max = useMemo(() => {
+    return Number(formatCurrency(balance * 10 ** decimals - gasFee, decimals));
+  }, [balance]);
+  // use math.js?
+  const remaining =
+    max * 10 ** decimals - state.amount * 10 ** decimals >= 0
+      ? (max * 10 ** decimals - state.amount * 10 ** decimals) / 10 ** decimals
+      : 0;
 
   async function submitTransaction(data: SendData) {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
@@ -106,52 +95,12 @@ function SendConfirm({
   return (
     <>
       <div className={''}>
-        <div className={styles['balance-container']}>
-          <div
-            className={classNames('flex items-center', {
-              [styles['fit']]: Number(val) > 0 && Number(val) <= balance,
-              [styles['excess']]: Number(val) > balance,
-            })}
-            onClick={() => {
-              if (inputRef.current) {
-                inputRef.current.focus();
-              }
-            }}
-          >
-            <div className={styles['balance-amount-box']}>
-              <textarea
-                ref={inputRef}
-                className={classNames(styles['balance-amount'])}
-                value={val}
-                rows={3}
-                onChange={(e) => {
-                  setInputVal(e.target.value);
-                }}
-              />
-              <div
-                className={styles['balance-amount-placeholder']}
-                style={{
-                  visibility: 'hidden',
-                  width: `${val.toString().length * 23}px`,
-                }}
-              >
-                {val}
-              </div>
-            </div>
-
-            <span className={styles['balance-name']}>{symbol}</span>
-          </div>
-          <div
-            className={styles['balance-max-btn']}
-            onClick={() => {
-              setInputVal(
-                formatCurrency(balance * 10 ** decimals - gasFee, decimals)
-              );
-            }}
-          >
-            MAX
-          </div>
-        </div>
+        <InputAmount
+          onInput={onSubmit}
+          max={max}
+          initAmount={state.amount}
+          symbol={symbol}
+        />
         <div className={styles['send-confirm-list']}>
           <SendConfirmItem name="To" value={addressEllipsis(state.address)} />
           <SendConfirmItem
@@ -167,7 +116,7 @@ function SendConfirm({
           <Button
             type={'submit'}
             state={'primary'}
-            disabled={Number(val) <= 0 || Number(val) > balance}
+            disabled={state.amount <= 0 || state.amount > max}
             onClick={() => {
               submitTransaction(state);
             }}
