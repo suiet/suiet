@@ -1,10 +1,10 @@
 import { Network, GetOwnedObjParams } from '@suiet/core';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
 import { swrLoading } from '../utils/others';
 import { useApiClient } from './useApiClient';
 import { swrKeyWithNetwork, useNetwork } from './useNetwork';
-import { useQuery } from '@apollo/client';
+import { useLazyQuery, useQuery } from '@apollo/client';
 import { coinsGql } from '../utils/graphql/coins';
 import { formatCurrency } from '../utils/format';
 
@@ -90,26 +90,41 @@ export interface Coins {
   };
 }
 
-export function useCoinsGql(address: string): Coins[] {
-  const { data, loading } = useQuery<{
+export function useCoinsGql(
+  address: string,
+  defaultCoins: Coins[] = []
+): {
+  coins: Coins[];
+  loading: boolean;
+} {
+  const [getCoins, { data, loading }] = useLazyQuery<{
     coins: Coins[];
   }>(coinsGql, {
-    variables: {
-      address,
-      coin: [],
-    },
+    fetchPolicy: 'network-only',
   });
+
+  useEffect(() => {
+    if (address) {
+      getCoins({
+        variables: {
+          address,
+          coin: [],
+        },
+      });
+    }
+  }, [address]);
 
   if (!data) {
-    return [];
+    return {
+      coins: [],
+      loading,
+    };
   }
 
-  console.log('sdf data', data);
-
   const coins = data.coins || [];
-  return coins.map((coin) => {
-    return {
-      ...coin,
-    };
-  });
+
+  return {
+    coins: coins.length > 0 ? coins : defaultCoins,
+    loading,
+  };
 }

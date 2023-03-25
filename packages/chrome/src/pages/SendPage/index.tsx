@@ -24,9 +24,7 @@ import TokenItem from '../../components/TokenItem';
 import { useEffect, useState } from 'react';
 import AddressInputPage from './AddressInput';
 import SendConfirm from './SendConfirm';
-import { formatCurrency } from '../../utils/format';
-import AppLayout from '../../layouts/AppLayout';
-import { mutate } from 'swr';
+import Skeleton from 'react-loading-skeleton';
 
 enum Mode {
   symbol,
@@ -34,13 +32,23 @@ enum Mode {
   confirm,
 }
 
-const GAS_BUDGET = 100;
+const defaultCoin = {
+  symbol: 'SUI',
+  description: '',
+  isVerified: true,
+  metadata: {
+    decimals: 9,
+  },
+  balance: '0',
+  type: '',
+  iconURL: '',
+};
 
 const SendPage = () => {
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(appContext.accountId);
-  const coins = useCoinsGql(address);
+  const { coins, loading: coinsLoading } = useCoinsGql(address, [defaultCoin]);
   const [selectedCoin, setSelectedCoin] = useState<Coins>();
   const [mode, setMode] = useState(Mode.symbol);
   const [sendData, setSendData] = useState({
@@ -49,16 +57,12 @@ const SendPage = () => {
     amount: 0,
   });
 
-  console.log('sdf data', coins, address, selectedCoin);
-
   useEffect(() => {
     if (coins.length > 0) {
       sendData.symbol = coins[0].symbol;
       setSelectedCoin(coins[0]);
     }
-  }, [coins.length]);
-
-  console.log('sdf send data', sendData);
+  }, [coinsLoading]);
 
   return (
     <>
@@ -91,7 +95,16 @@ const SendPage = () => {
               Choose the token you want to send
             </Typo.Normal>
           </div>
-          {coins.length > 0 && (
+          {coinsLoading && (
+            <Skeleton
+              width="330px"
+              height="92px"
+              style={{
+                margin: '24px 16px',
+              }}
+            />
+          )}
+          {!coinsLoading && coins.length > 0 && (
             <div className={styles['token-list']}>
               {coins.map((coin) => {
                 const { symbol, balance, metadata } = coin;
