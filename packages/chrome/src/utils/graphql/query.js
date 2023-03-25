@@ -16,3 +16,26 @@ export const GET_VALIDATORS = gql`
     }
   }
 `;
+
+export const GET_DELEGATED_STAKES = gql`
+  query DelegatedStake($address: Address!) {
+    delegatedStakes(ownerAddress: $address) {
+      stakes {
+        status
+        principal
+        stakeActiveEpoch
+        stakedSuiID
+        earned
+        stakeRequestEpoch
+      }
+      validator {
+        suiAddress
+        name
+        imageURL
+        epoch
+        description
+        apy
+      }
+    }
+  }
+`;
