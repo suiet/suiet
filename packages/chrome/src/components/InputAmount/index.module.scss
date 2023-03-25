@@ -1,4 +1,4 @@
-@import '../../../styles/variables.scss';
+@import '../../styles/variables.scss';
 
 .balance {
   &-container {
@@ -58,34 +58,5 @@
     font-weight: 600;
     font-size: 16px;
     line-height: 24px;
-  }
-}
-
-.send-confirm {
-  &-list {
-    margin: 0 32px;
-    border-top: solid 1px $gray-200;
-  }
-
-  &-name {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 20px;
-    color: $gray-900;
-  }
-
-  &-value {
-    font-family: 'IBM Plex Mono';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 20px;
-    color: #5d6b98;
-
-    &.error {
-      color: $error-600;
-    }
   }
 }

@@ -43,5 +43,11 @@
 }
 
 .token-list {
-  margin: 24px 4px 0;
+  width: 291px;
+  height: 262px;
+  overflow-y: scroll;
+  margin-top: 23px;
+  margin-left: 32px;
+  border: 1px solid #eaecf0;
+  border-radius: 20px;
 }
