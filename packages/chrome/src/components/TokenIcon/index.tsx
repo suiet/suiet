@@ -3,7 +3,7 @@ import { CSSProperties, ReactNode } from 'react';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 
-type Size = 'normal' | 'small';
+type Size = 'normal' | 'small' | 'large';
 
 export type TokenIconProps = Extendable & {
   icon: string | ReactNode;

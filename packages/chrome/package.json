@@ -13,11 +13,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.5",
     "@crxjs/vite-plugin": "^1.0.13",
     "@hookform/error-message": "^2.0.0",
     "@mysten/sui.js": "^0.29.1",
     "@mysten/wallet-standard": "^0.4.3",
     "@radix-ui/react-dialog": "^1.0.0",
+    "@radix-ui/react-select": "^1.2.0",
     "@reduxjs/toolkit": "^1.8.5",
     "@suiet/core": "^1.0.0",
     "@suiet/wallet-adapter": "^0.0.19",

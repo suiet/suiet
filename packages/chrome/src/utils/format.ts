@@ -1,4 +1,11 @@
+import { add } from 'lodash-es';
+
 export function addressEllipsis(address: string) {
+  if (typeof address !== 'string') {
+    console.log(address);
+    throw new Error('address is not a string');
+  }
+
   // 0x0000000000000000000000000000000000000000 40bits / 42 length
   if (!address || !address.startsWith('0x') || address.length !== 42)
     return address;

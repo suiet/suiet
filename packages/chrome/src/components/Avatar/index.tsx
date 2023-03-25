@@ -4,7 +4,7 @@ import { Extendable } from '../../types';
 import React, { ReactElement, ReactNode, useState } from 'react';
 
 export type AvatarProps = Extendable & {
-  size?: 'md' | 'lg' | 'sm';
+  size?: 'md' | 'lg' | 'sm' | 'xl';
   model?: number | string;
 };
 

@@ -12,6 +12,10 @@ import {
   getCertifiedTransaction,
   getTransactionEffects,
   MoveCallTransaction,
+  PayAllSuiTransaction,
+  PaySuiTransaction,
+  PayTransaction,
+  SuiMoveObject,
   SignableTransaction,
   SuiExecuteTransactionResponse,
   SuiMoveNormalizedFunction,
@@ -22,6 +26,7 @@ import { SignedMessage } from '../vault/types';
 import { RpcError } from '../errors';
 import { createMintExampleNftMoveCall, ExampleNftMetadata } from '../utils/nft';
 import { Provider } from '../provider';
+import { type } from 'superstruct';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -130,6 +135,29 @@ export type SendAndExecuteTxParams<T> = {
 };
 export type MoveCallParams = SendAndExecuteTxParams<MoveCallTransaction>;
 
+export type StakeCoinParams = {
+  walletId: string;
+  accountId: string;
+  token: string;
+  network: Network;
+  coins: SuiMoveObject[];
+  gasCoins: SuiMoveObject[];
+  amount: bigint;
+  validator: string; // address
+  vault: Vault;
+  gasBudgetForStake: number;
+};
+
+export type UnStakeCoinParams = {
+  walletId: string;
+  accountId: string;
+  token: string;
+  network: Network;
+  delegation: string;
+  stakedSuiId: string;
+  vault: Vault;
+  gasBudgetForStake: number;
+};
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -166,6 +194,13 @@ export interface ITransactionApi {
   getEstimatedGasBudget: (
     params: GetEstimatedGasBudgetParams
   ) => Promise<number>;
+  stakeCoin: (
+    params: StakeCoinParams
+  ) => Promise<SuiExecuteTransactionResponse>;
+
+  unStakeCoin: (
+    params: UnStakeCoinParams
+  ) => Promise<SuiExecuteTransactionResponse>;
 }
 
 export class TransactionApi implements ITransactionApi {
@@ -238,6 +273,12 @@ export class TransactionApi implements ITransactionApi {
       params.network.versionCacheTimoutInSeconds
     );
     let result: any = await provider.getTransactionsForAddress(address);
+
+    console.log(
+      result.filter(
+        (tx) => typeof tx?.from !== 'string' || typeof tx?.to !== 'string'
+      )
+    );
 
     // transform the balance of coin obj from bigint to string
     result = result.map((item: TxnHistoryEntry) => {
@@ -428,6 +469,57 @@ export class TransactionApi implements ITransactionApi {
       objectId,
       moduleName,
       functionName
+    );
+  }
+
+  async stakeCoin(params: StakeCoinParams) {
+    const { network, amount, validator, gasBudgetForStake } = params;
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
+
+    const provider = new Provider(
+      network.queryRpcUrl,
+      network.txRpcUrl,
+      network.versionCacheTimoutInSeconds
+    );
+
+    const coins = provider.query.getOwnedCoins(vault.getAddress());
+
+    return await provider.tx.stakeCoin(
+      coins,
+      amount,
+      validator,
+      vault,
+      gasBudgetForStake
+    );
+  }
+
+  async unStakeCoin(params: UnStakeCoinParams) {
+    const {
+      network,
+      gasBudgetForStake,
+      walletId,
+      accountId,
+      token,
+      delegation,
+      stakedSuiId,
+    } = params;
+
+    //   const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
+    //   params;
+    const vault = await this.prepareVault(walletId, accountId, token);
+    const provider = new TxProvider(
+      network.queryRpcUrl,
+      network.versionCacheTimoutInSeconds
+    );
+    return await provider.unStakeCoin(
+      delegation,
+      stakedSuiId,
+      vault,
+      gasBudgetForStake
     );
   }
 }

@@ -3,6 +3,14 @@ import commonStyles from './common.module.scss';
 import Typo from '../../components/Typo';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
+import WaterDropIcon from '../../components/WaterDropIcon';
+import { isValidSuiAddress, SUI_TYPE_ARG } from '@mysten/sui.js';
+import { useForm } from 'react-hook-form';
+import message from '../../components/message';
+import Form from '../../components/form/Form';
+import FormControl from '../../components/form/FormControl';
+import { getInputStateByFormState } from '../../utils/form';
+import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
@@ -17,7 +25,8 @@ import { useEffect, useState } from 'react';
 import AddressInputPage from './AddressInput';
 import SendConfirm from './SendConfirm';
 import { formatCurrency } from '../../utils/format';
-import message from '../../components/message';
+import AppLayout from '../../layouts/AppLayout';
+import { mutate } from 'swr';
 
 enum Mode {
   symbol,

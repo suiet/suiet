@@ -12,6 +12,7 @@ import {
   SuiTransactionKind,
   getMoveCallTransaction,
   getTransactionKindName,
+  SUI_TYPE_ARG,
   getPublishTransaction,
   PaySui,
   PayAllSui,
@@ -409,10 +410,16 @@ export class QueryProvider {
               effect.effects.gasUsed.storageCost -
               effect.effects.gasUsed.storageRebate,
             from: data.sender,
-            to: moveCall.package,
+            to:
+              typeof moveCall.package === 'string'
+                ? moveCall.package
+                : moveCall.package.objectId,
             object: {
               type: 'move_call' as 'move_call',
-              packageObjectId: moveCall.package,
+              packageObjectId:
+                typeof moveCall.package === 'string'
+                  ? moveCall.package
+                  : moveCall.package.objectId,
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
@@ -768,5 +775,89 @@ export class TxProvider {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider, this.serializer);
     return await signer.signAndExecuteTransaction(tx, requestType);
+  }
+
+  public async stakeCoin(
+    coins: CoinObject[],
+    amount: bigint,
+    validator: string,
+    vault: Vault,
+    gasBudgetForStake: number
+  ): Promise<SuiExecuteTransactionResponse> {
+    // todo select inside core
+    // coins: SuiMoveObject[],
+    // gasCoins: SuiMoveObject[],
+
+    // fixme: auto splite coin if coin appears in both coins and gas coins
+
+    const keypair = createKeypair(vault);
+    const signer = new RawSigner(keypair, this.provider, this.serializer);
+
+    // sort to get the smallest one for gas
+    const sortedGasCoins = CoinAPI.sortByBalance(
+      coins.filter((coin) => coin.symbol === 'SUI').map((coin) => coin.object)
+    );
+
+    const gasCoin = CoinAPI.selectCoinWithBalanceGreaterThanOrEqual(
+      sortedGasCoins,
+      BigInt(gasBudgetForStake)
+    );
+    if (!gasCoin) {
+      throw new Error(
+        'Insufficient funds, not enough funds to cover for gas fee.'
+      );
+    }
+    if (!coins.length) {
+      throw new Error('Insufficient funds, no coins found.');
+    }
+    const isSui = CoinAPI.getCoinTypeArg(coins[0].object) === SUI_TYPE_ARG;
+    const stakeCoins =
+      CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+        coins.map((coin) => coin.object),
+        amount,
+        isSui ? [CoinAPI.getID(gasCoin)] : undefined
+      ).map(CoinAPI.getID);
+    if (!stakeCoins.length) {
+      if (stakeCoins.length === 1 && isSui) {
+        throw new Error(
+          'Not enough coin objects, at least 2 coin objects are required.'
+        );
+      } else {
+        throw new Error('Insufficient funds, try reducing the stake amount.');
+      }
+    }
+    const txn = {
+      packageObjectId: '0x2',
+      module: 'sui_system',
+      function: 'request_add_delegation_mul_coin',
+      typeArguments: [],
+      arguments: [
+        SUI_SYSTEM_STATE_OBJECT_ID,
+        stakeCoins,
+        [String(amount)],
+        validator,
+      ],
+      gasBudget: gasBudgetForStake,
+    };
+    return await signer.executeMoveCall(txn);
+  }
+
+  public async unStakeCoin(
+    delegation: ObjectId,
+    stakedSuiId: ObjectId,
+    vault: Vault,
+    gasBudgetForStake: number
+  ): Promise<SuiExecuteTransactionResponse> {
+    const keypair = createKeypair(vault);
+    const signer = new RawSigner(keypair, this.provider, this.serializer);
+    const txn = {
+      packageObjectId: '0x2',
+      module: 'sui_system',
+      function: 'request_withdraw_delegation',
+      typeArguments: [],
+      arguments: [SUI_SYSTEM_STATE_OBJECT_ID, delegation, stakedSuiId],
+      gasBudget: gasBudgetForStake,
+    };
+    return await signer.executeMoveCall(txn);
   }
 }
