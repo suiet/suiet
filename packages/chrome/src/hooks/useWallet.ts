@@ -1,16 +1,16 @@
 import { UpdateWalletParams, Wallet } from '@suiet/core';
-import useSWR from 'swr';
 import { useApiClient } from './useApiClient';
 import { OmitToken } from '../types';
+import { useQuery } from 'react-query';
 
 export function useWallet(walletId: string) {
   const apiClient = useApiClient();
-  const { data, error, mutate } = useSWR(
+  const { data, error, refetch, ...rest } = useQuery(
     ['fetchWallet', walletId],
-    fetchWallet
+    async () => await fetchWallet(walletId)
   );
 
-  async function fetchWallet(_: string, walletId: string) {
+  async function fetchWallet(walletId: string) {
     if (!walletId) return;
     return await apiClient.callFunc<string, Wallet>(
       'wallet.getWallet',
@@ -30,14 +30,15 @@ export function useWallet(walletId: string) {
       },
       { withAuth: true }
     );
-    await mutate();
+    await refetch();
   }
 
   return {
     data,
     error,
     loading: !error && !data,
-    mutate,
     updateWallet,
+    refetch,
+    ...rest,
   };
 }

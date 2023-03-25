@@ -150,10 +150,10 @@ function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(context.accountId);
   // const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
-  const { history, loading } = useTransactionList(address, context.networkId);
+  const { history, isLoading } = useTransactionList(address, context.networkId);
 
   function renderContent() {
-    if (history === null || loading)
+    if (history === null || isLoading)
       return (
         <div className="m-4">
           <Skeleton className="w-full" height="200px" />

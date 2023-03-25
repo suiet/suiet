@@ -1,24 +1,27 @@
 import { GetTxHistoryParams, Network, TxnHistoryEntry } from '@suiet/core';
-import useSWR from 'swr';
 import { useApiClient } from './useApiClient';
-import { swrLoading } from '../utils/others';
 import { swrKeyWithNetwork, useNetwork } from './useNetwork';
 import { useLazyQuery } from '@apollo/client';
 import { transactionsGql } from '../utils/graphql/coins';
+import { useQuery } from 'react-query';
 
 export const swrKey = 'getTransactionHistory';
 
 function useTransactionList(address: string, networkId: string = 'devnet') {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
-  const { data: history, error } = useSWR(
+  const {
+    data: history,
+    error,
+    ...rest
+  } = useQuery(
     [swrKeyWithNetwork(swrKey, network), address, network],
-    getTransactionHistory
+    async () => await getTransactionHistory(address, network)
   );
+
   async function getTransactionHistory(
-    _: string,
     address: string,
-    network: Network
+    network: Network | undefined
   ) {
     if (!address || !network) return null;
     const hs = await apiClient.callFunc<GetTxHistoryParams, TxnHistoryEntry[]>(
@@ -33,12 +36,10 @@ function useTransactionList(address: string, networkId: string = 'devnet') {
     return hs;
   }
 
-  console.log(history, address);
-
   return {
     history,
     error,
-    loading: swrLoading(history, error),
+    ...rest,
   };
 }
 

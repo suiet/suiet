@@ -26,7 +26,8 @@ const mockDapps: DappItem[] = [
   },
 ];
 const DappsPage = () => {
-  const { loading, featured, popular, category, categoryKeys } = useDappList();
+  const { isLoading, featured, popular, category, categoryKeys } =
+    useDappList();
   return (
     <AppLayout className={styles['container']}>
       <header className={styles['header']}>
@@ -37,10 +38,10 @@ const DappsPage = () => {
         className={styles['tabs']}
         featured={featured}
         popular={popular}
-        loading={loading}
+        loading={isLoading}
       />
 
-      {loading ? (
+      {isLoading ? (
         <DappSectionSkeleton />
       ) : (
         isNonEmptyArray(categoryKeys) &&

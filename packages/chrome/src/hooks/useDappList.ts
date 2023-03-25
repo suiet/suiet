@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { DappItem, getDappList } from '../api/dapps';
-import useSWR from 'swr';
-import { swrLoading } from '../utils/others';
 import { isNonEmptyArray } from '../utils/check';
+import { useQuery } from 'react-query';
 
 export function useDappList() {
-  const { data: resData, error } = useSWR(['fetchDappList'], fetchDappList);
+  const {
+    data: resData,
+    error,
+    ...rest
+  } = useQuery(['fetchDappList'], fetchDappList);
 
   const category: Map<string, DappItem[]> = useMemo(() => {
     if (!resData) return new Map();
@@ -41,6 +44,6 @@ export function useDappList() {
     featured,
     popular,
     error,
-    loading: swrLoading(resData, error),
+    ...rest,
   };
 }

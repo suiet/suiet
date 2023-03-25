@@ -33,7 +33,6 @@ export default function CoinDetailPage() {
     data: coinsBalance,
     getBalance,
     error,
-    isValidating,
   } = useCoins(address, appContext.networkId);
   const balance = symbol ? getBalance(symbol) : 0;
 
