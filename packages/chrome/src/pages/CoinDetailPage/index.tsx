@@ -12,7 +12,7 @@ import TokenIcon from '../../components/TokenIcon';
 import classNames from 'classnames';
 import { useCoins } from '../../hooks/useCoins';
 import { useNetwork } from '../../hooks/useNetwork';
-import { formatSUI } from '../../utils/format';
+import { formatSUI, formatCurrency } from '../../utils/format';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
 import { useQuery } from '@apollo/client';
@@ -172,7 +172,9 @@ export default function CoinDetailPage() {
                     {delegatedStake?.validator?.description.lenth === 0
                       ? delegatedStake?.validator?.description
                       : 'Current APY:' +
-                        formatSUI(delegatedStake?.validator?.apy * 100, 0) +
+                        formatCurrency(delegatedStake?.validator?.apy, {
+                          decimals: 0,
+                        }) +
                         '%'}
                   </div>
                 </div>
