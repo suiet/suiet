@@ -40,9 +40,7 @@ export function useNetwork(networkId: string) {
       txRpcUrl: currentNetworkConfig.full_node_url,
       versionCacheTimoutInSeconds:
         currentNetworkConfig.version_cache_timout_in_seconds,
-      mintExampleNftGasBudget: currentNetworkConfig.mint_example_nft_gas_budget,
-      transferObjectGasBudget: currentNetworkConfig.transfer_object_gas_budget,
-      payCoinGasBudget: currentNetworkConfig.pay_coin_gas_budget,
+      stakeGasBudget: currentNetworkConfig.stake_gas_budget,
     };
     return overrideData;
   }, [defaultData, featureFlags, networkId]);

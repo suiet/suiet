@@ -3,9 +3,7 @@ export type Network = {
   name: string;
   queryRpcUrl: string;
   txRpcUrl: string;
-  mintExampleNftGasBudget?: number;
-  transferObjectGasBudget?: number;
-  payCoinGasBudget?: number;
+  stakeGasBudget?: number;
   versionCacheTimoutInSeconds: number;
 };
 

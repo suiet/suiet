@@ -59,6 +59,7 @@ function SendConfirm({
     );
   }, [balance]);
   // use math.js?
+  // fixme: use BigInt
   const remaining =
     max * 10 ** decimals - state.amount * 10 ** decimals >= 0
       ? (max * 10 ** decimals - state.amount * 10 ** decimals) / 10 ** decimals
@@ -100,8 +101,9 @@ function SendConfirm({
 
   return (
     <>
-      <div className={''}>
+      <div>
         <InputAmount
+          className="ml-[36px] h-[304px]"
           onInput={onSubmit}
           max={max}
           initAmount={state.amount}
@@ -109,7 +111,7 @@ function SendConfirm({
         />
         <div className={styles['send-confirm-list']}>
           <SendConfirmItem name="To" value={addressEllipsis(state.address)} />
-          <SendConfirmItem name="Gas Fee Budget" value={formatSUI(gasFee)} />
+          <SendConfirmItem name="Gas Budget" value={formatSUI(gasFee)} />
           <SendConfirmItem
             name="Balance"
             value={formatCurrency(remaining * 10 ** decimals, { decimals })}
