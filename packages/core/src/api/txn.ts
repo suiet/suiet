@@ -140,11 +140,8 @@ export type StakeCoinParams = {
   accountId: string;
   token: string;
   network: Network;
-  // coins: SuiMoveObject[];
-  // gasCoins: SuiMoveObject[];
   amount: bigint;
   validator: string; // address
-  // vault: Vault;
   gasBudgetForStake: number;
 };
 
@@ -486,8 +483,10 @@ export class TransactionApi implements ITransactionApi {
       network.versionCacheTimoutInSeconds
     );
 
-    const coins = provider.query.getOwnedCoins(vault.getAddress());
+    const coins = await provider.query.getOwnedCoins(vault.getAddress());
+    console.log('coins', coins);
 
+    console.log(params);
     return await provider.tx.stakeCoin(
       coins,
       amount,

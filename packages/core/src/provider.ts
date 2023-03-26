@@ -840,6 +840,7 @@ export class TxProvider {
       ],
       gasBudget: gasBudgetForStake,
     };
+    console.log(txn);
     return await signer.executeMoveCall(txn);
   }
 

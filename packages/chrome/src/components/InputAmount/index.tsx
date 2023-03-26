@@ -42,7 +42,7 @@ function InputAmount({
       textareaRef.current.style.height = `${
         textareaRef.current.scrollHeight - 8
       }px`;
-      console.dir(textareaRef.current);
+      // console.dir(textareaRef.current);
     }
   });
 

@@ -17,6 +17,8 @@ import { useAccount } from '../../hooks/useAccount';
 import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useEstimatedGasBudget } from '../../hooks/transaction/useEstimatedGasBudget';
 import message from '../../components/message';
+import { OmitToken } from '../../types';
+import { SuiExecuteTransactionResponse } from '@mysten/sui.js';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -73,16 +75,25 @@ export default function StackingPage() {
       // 2. assign gasCoins?
       // 3. caculate amount
       setButtonLoading(true);
-      await apiClient.callFunc<StakeCoinParams, undefined>('txn.stakeCoin', {
-        walletId,
-        accountId: appContext.accountId,
-        network,
-        amount: BigInt(amount),
-        validator: selectedValidator ?? '',
-        gasBudgetForStake: gasBudget,
-      });
+      if (!network) throw new Error('require network selected');
 
-      // navigate('/transaction/flow');
+      await apiClient.callFunc<
+        OmitToken<StakeCoinParams>,
+        SuiExecuteTransactionResponse
+      >(
+        'txn.stakeCoin',
+        {
+          walletId,
+          accountId: appContext.accountId,
+          network,
+          amount: BigInt(amount * 1000000000),
+          validator: selectedValidator ?? '',
+          gasBudgetForStake: gasBudget,
+        },
+        { withAuth: true }
+      );
+      message.success('Stake SUI succeeded');
+      navigate('/transaction/flow');
     } catch (e: any) {
       // console.error(e);
       message.error(`Send transaction failed: ${e?.message}`);
@@ -162,7 +173,12 @@ export default function StackingPage() {
           </div>
         </div>
         <div className="p-4 border-t border-t-zinc-100">
-          <Button type={'submit'} state={'primary'} loading={buttonLoading}>
+          <Button
+            type={'submit'}
+            state={'primary'}
+            loading={buttonLoading}
+            onClick={StakeCoins}
+          >
             Confirm
           </Button>
         </div>
