@@ -2,9 +2,9 @@ name: 'Build App'
 
 on:
   push:
-    branches: ['main']
+    branches: ['app-release']
   pull_request:
-    branches: ['main']
+    branches: ['app-release']
 
 jobs:
   build-preview:
