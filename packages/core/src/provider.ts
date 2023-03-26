@@ -46,6 +46,7 @@ import {
 
 export const SUI_SYSTEM_STATE_OBJECT_ID =
   '0x0000000000000000000000000000000000000005';
+
 export function getPaySuiTransaction(
   data: SuiTransactionKind
 ): PaySui | undefined {

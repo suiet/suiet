@@ -3,7 +3,6 @@
 .balance {
   &-container {
     @apply flex items-center;
-    height: 304px;
   }
 
   &-name,
@@ -12,7 +11,8 @@
     font-size: 36px;
     line-height: 42px;
     color: #dcdfea;
-
+    white-space: nowrap;
+    height: 100%;
     .fit & {
       color: #404968;
     }
@@ -24,19 +24,20 @@
 
   &-name {
     margin-left: 8px;
+    height: 40px;
   }
 
   &-amount {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
+    // position: absolute;
+    // top: 0;
+    width: 160px;
     outline: none;
     resize: none;
 
+    margin: auto;
     &-box {
       position: relative;
-      margin-left: 36px;
+      margin: auto;
     }
 
     &-placeholder {

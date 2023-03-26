@@ -100,8 +100,10 @@ function AddressInputPage({
                   styles['warn']
                 )}
               >
-                <div className={styles['warn-btn']}>warn</div>
-                no transiations in this address
+                <div className={styles['warn-btn']}>Warn</div>
+                <div className={styles['warn-desc']}>
+                  no recent transiations
+                </div>
               </div>
             ))}
         </div>

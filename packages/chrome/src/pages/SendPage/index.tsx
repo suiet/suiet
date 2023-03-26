@@ -68,7 +68,6 @@ const SendPage = () => {
               setMode(Mode.address);
               break;
             default:
-              return;
           }
         }}
         title="Send"
@@ -104,7 +103,7 @@ const SendPage = () => {
                       setSendData((prev) => {
                         return {
                           ...prev,
-                          symbol: symbol,
+                          symbol,
                         };
                       });
                     }}
@@ -148,7 +147,7 @@ const SendPage = () => {
           coin={selectedCoin}
           balance={
             Number(selectedCoin?.balance) /
-            10 ** (selectedCoin?.metadata.decimals || 0)
+            10 ** (selectedCoin?.metadata.decimals ?? 0)
           }
           symbol={selectedCoin?.symbol || ''}
           onSubmit={(amount) => {

@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styles from './index.module.scss';
 
 interface InputAmountProps {
@@ -17,11 +17,11 @@ function InputAmount({
   symbol = 'SUI',
   className,
 }: InputAmountProps) {
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState(initAmount || '0');
 
   const setInputVal = (value: string) => {
-    if (!inputRef.current) return;
+    if (!textareaRef.current) return;
     const tmpVal = Number(value);
     if (Number.isNaN(tmpVal) || tmpVal < 0) {
       return;
@@ -36,30 +36,40 @@ function InputAmount({
     }
   };
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${
+        textareaRef.current.scrollHeight - 8
+      }px`;
+      console.dir(textareaRef.current);
+    }
+  });
+
   return (
-    <div className={className || styles['balance-container']}>
+    <div className={classNames(className, styles['balance-container'])}>
       <div
         className={classNames('flex items-center', {
           [styles['fit']]: Number(val) > 0 && Number(val) <= max,
           [styles['excess']]: Number(val) > max,
         })}
         onClick={() => {
-          if (inputRef.current) {
-            inputRef.current.focus();
+          if (textareaRef.current) {
+            textareaRef.current.focus();
           }
         }}
       >
         <div className={styles['balance-amount-box']}>
           <textarea
-            ref={inputRef}
-            className={classNames(styles['balance-amount'])}
+            ref={textareaRef}
+            className={classNames(styles['balance-amount'], 'no-scrollbar')}
             value={val}
-            rows={3}
+            rows={1}
             onChange={(e) => {
               setInputVal(e.target.value);
             }}
           />
-          <div
+          {/* <div
             className={styles['balance-amount-placeholder']}
             style={{
               visibility: 'hidden',
@@ -67,7 +77,7 @@ function InputAmount({
             }}
           >
             {val}
-          </div>
+          </div> */}
         </div>
 
         <span className={styles['balance-name']}>{symbol}</span>

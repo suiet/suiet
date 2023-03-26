@@ -35,6 +35,11 @@
   font-family: 'Inter';
 }
 
+.warn-desc {
+  width: 100%;
+  margin-left: 48px;
+}
+
 .view-btn {
   @apply flex items-center justify-center absolute  cursor-pointer;
   width: 66px;

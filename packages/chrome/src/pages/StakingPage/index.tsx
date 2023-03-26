@@ -2,15 +2,21 @@ import AppLayout from '../../layouts/AppLayout';
 import Button from '../../components/Button';
 import ValidatorSelector from '../../components/ValidatorSelector';
 import { useApiClient } from '../../hooks/useApiClient';
-import { StakeCoinParams } from '@suiet/core';
+import { StakeCoinParams, SUI_SYSTEM_STATE_OBJECT_ID } from '@suiet/core';
 import { useNetwork } from '../../hooks/useNetwork';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client';
 import { GET_VALIDATORS } from '../../utils/graphql/query';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
+import InputAmount from '../../components/InputAmount';
+import { formatCurrency } from '../../utils/format';
+import { useAccount } from '../../hooks/useAccount';
+import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
+import { useEstimatedGasBudget } from '../../hooks/transaction/useEstimatedGasBudget';
+import message from '../../components/message';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -24,57 +30,64 @@ export default function StackingPage() {
   useEffect(() => {
     setSelectedValidator(validators[0]?.suiAddress);
   }, [validators]);
-
+  const gasBudget = network?.stakeGasBudget ?? 10000;
   const currentValidator = validators.find((validator) => {
     if (validator.suiAddress === selectedValidator) {
       return true;
     }
     return false;
   });
+  const [amount, setAmount] = useState(0);
+  const [buttonLoading, setButtonLoading] = useState(false);
+  // const { data: estimatedGasBudget, isSuccess: isBudgetLoaded } =
+  //   useEstimatedGasBudget({
+  //     kind: 'moveCall',
+  //     data: {
+  //       packageObjectId: '0x2',
+  //       module: 'sui_system',
+  //       function: 'request_add_delegation_mul_coin',
+  //       typeArguments: [],
+  //       arguments: [
+  //         SUI_SYSTEM_STATE_OBJECT_ID,
+  //         // stakeCoins,
+  //         // [String(amount)],
+  //         // validator,
+  //       ],
+  //     },
+  //   });
+  const { address } = useAccount(appContext.accountId);
+  const { balance, loading: balanceLoading } = useCoinBalance(
+    CoinSymbol.SUI,
+    address ?? '',
+    appContext.networkId
+  );
 
+  const max = useMemo(() => {
+    // return Number(formatCurrency(Number(balance) - Number(estimatedGasBudget)));
+    return (Number(balance) - 0) / 1000000000;
+  }, [balance]);
   async function StakeCoins() {
     try {
       // TODO:
       // 1. get coins object
       // 2. assign gasCoins?
       // 3. caculate amount
-      async function fetchAccount(_: string, accountId: string) {
-        if (!accountId) return;
-        return await apiClient.callFunc<StakeCoinParams, undefined>(
-          'txn.stakeCoin',
-          {
-            network,
-            walletId,
-            coins: [],
-            gasCoins: [],
-            validator: '',
-            gasBudgetForStake: 0,
-          }
-        );
-      }
+      setButtonLoading(true);
+      await apiClient.callFunc<StakeCoinParams, undefined>('txn.stakeCoin', {
+        walletId,
+        accountId: appContext.accountId,
+        network,
+        amount: BigInt(amount),
+        validator: selectedValidator ?? '',
+        gasBudgetForStake: gasBudget,
+      });
 
-      // await apiClient.callFunc<OmitToken<TransferCoinParams>, undefined>(
-      //   'txn.transferCoin',
-      //   {
-      //     network,
-      //     coinType: SUI_TYPE_ARG,
-      //     amount: Math.ceil(data.amount * 1e9),
-      //     recipient: data.address,
-      //     walletId: appContext.walletId,
-      //     accountId: appContext.accountId,
-      //   },
-      //   { withAuth: true }
-      // );
-      // message.success('Send transaction succeeded');
-      // setTimeout(() => {
-      //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
-      // }, 1000);
       // navigate('/transaction/flow');
     } catch (e: any) {
       // console.error(e);
-      // message.error(`Send transaction failed: ${e?.message}`);
+      message.error(`Send transaction failed: ${e?.message}`);
     } finally {
-      // setSendLoading(false);
+      setButtonLoading(false);
     }
     // const coinObjList = await this.txApi.getOwnedCoins({
     //   network,
@@ -117,15 +130,17 @@ export default function StackingPage() {
         ></ValidatorSelector>
       </div>
 
-      <div className="px-6 py-24 text-3xl flex items-center gap-2 w-full max-w-[362px]">
-        <input
-          className="flex-grow w-[200px] outline-none text-zinc-500"
-          placeholder="0"
-        />{' '}
-        <div className="font-bold text-zinc-300">SUI</div>
+      <div className="px-6 text-3xl flex items-center gap-2 w-full max-w-[362px]">
+        <InputAmount
+          className="h-48"
+          onInput={setAmount}
+          max={max}
+          symbol={'SUI'}
+        ></InputAmount>
+        {/* <div className="font-bold text-zinc-300">SUI</div>
         <button className="text-lg py-1 px-3 bg-zinc-100 text-zinc-500 hover:bg-zinc-200 transition font-medium rounded-2xl">
           Max
-        </button>
+        </button> */}
       </div>
       <div className="fixed b-0 w-full bottom-0 bg-white">
         <div className="border-t border-t-zinc-100 p-4 mx-4">
@@ -147,7 +162,7 @@ export default function StackingPage() {
           </div>
         </div>
         <div className="p-4 border-t border-t-zinc-100">
-          <Button type={'submit'} state={'primary'}>
+          <Button type={'submit'} state={'primary'} loading={buttonLoading}>
             Confirm
           </Button>
         </div>
