@@ -140,7 +140,7 @@ export type StakeCoinParams = {
   accountId: string;
   token: string;
   network: Network;
-  amount: bigint;
+  amount: string;
   validator: string; // address
   gasBudgetForStake: number;
 };
@@ -236,7 +236,7 @@ export class TransactionApi implements ITransactionApi {
     if (!res) {
       throw new RpcError('no response');
     }
-    const statusResult = (res as any)?.effects?.effects?.status;
+    const statusResult = res?.effects?.effects?.status;
     if (!statusResult) {
       throw new RpcError('invalid transaction status response');
     }
@@ -489,7 +489,7 @@ export class TransactionApi implements ITransactionApi {
     console.log(params);
     return await provider.tx.stakeCoin(
       coins,
-      amount,
+      BigInt(amount),
       validator,
       vault,
       gasBudgetForStake

@@ -86,7 +86,7 @@ export default function StackingPage() {
           walletId,
           accountId: appContext.accountId,
           network,
-          amount: BigInt(amount * 1000000000),
+          amount: String(BigInt(amount * 1000000000)),
           validator: selectedValidator ?? '',
           gasBudgetForStake: gasBudget,
         },
