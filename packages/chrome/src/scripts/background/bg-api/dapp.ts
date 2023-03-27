@@ -283,7 +283,7 @@ export class DappBgApi {
         transaction.kind === 'bytes'
           ? {
               kind: 'bytes',
-              data: arrayToUint8array(transaction.data as any), // hack logic for chrome messaging type conversion
+              data: arrayToUint8array(transaction.data), // hack logic for chrome messaging type conversion
             }
           : transaction,
       context: txContext,
@@ -483,7 +483,7 @@ export class DappBgApi {
     const connectionContext = await this._prepareConnectionContext(context);
     const permRequest = await this.permManager.createPermRequest(
       {
-        permissions: permissions,
+        permissions,
       },
       connectionContext
     );
@@ -651,6 +651,9 @@ export class DappBgApi {
       txRpcUrl: currentNetworkConfig.full_node_url,
       versionCacheTimoutInSeconds:
         currentNetworkConfig.version_cache_timout_in_seconds,
+      stakeGasBudget: currentNetworkConfig.stake_gas_budget,
+      enableStaking: currentNetworkConfig.enable_staking,
+      enableMintExampleNFT: currentNetworkConfig.enable_mint_example_nft,
     };
     return overrideData;
   }
