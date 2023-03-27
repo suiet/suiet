@@ -194,15 +194,17 @@ export default function CoinDetailPage() {
         </div>
       </div>
 
-      <div className="fixed w-full bottom-0 left-0 right-0 p-4 border-t border-t-zinc-100">
-        <Button
-          type={'submit'}
-          state={'primary'}
-          onClick={() => navigate('/staking')}
-        >
-          Stake
-        </Button>
-      </div>
+      {network?.enableStaking && (
+        <div className="fixed w-full bottom-0 left-0 right-0 p-4 border-t border-t-zinc-100">
+          <Button
+            type={'submit'}
+            state={'primary'}
+            onClick={() => navigate('/staking')}
+          >
+            Stake
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
