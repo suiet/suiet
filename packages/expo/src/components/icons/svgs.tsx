@@ -1,0 +1,68 @@
+import React, { useMemo } from 'react';
+import { renderToString } from 'react-dom/server';
+
+function renderToXml(component: React.ComponentClass | React.FC) {
+  return renderToString(React.createElement(component, { viewBox: '0 0 24 24' } as any));
+}
+
+import ArrowDown from '@untitled-ui/icons-react/build/esm/ArrowDown';
+import ArrowUp from '@untitled-ui/icons-react/build/esm/ArrowUp';
+import ArrowLeft from '@untitled-ui/icons-react/build/esm/ArrowLeft';
+import ArrowRight from '@untitled-ui/icons-react/build/esm/ArrowRight';
+import Plus from '@untitled-ui/icons-react/build/esm/Plus';
+import SwitchHorizontal01 from '@untitled-ui/icons-react/build/esm/SwitchHorizontal01';
+import SwitchVertical01 from '@untitled-ui/icons-react/build/esm/SwitchVertical01';
+import ChevronDown from '@untitled-ui/icons-react/build/esm/ChevronDown';
+import ChevronUp from '@untitled-ui/icons-react/build/esm/ChevronUp';
+import ChevronLeft from '@untitled-ui/icons-react/build/esm/ChevronLeft';
+import ChevronRight from '@untitled-ui/icons-react/build/esm/ChevronRight';
+import Copy03 from '@untitled-ui/icons-react/build/esm/Copy03';
+import Copy07 from '@untitled-ui/icons-react/build/esm/Copy07';
+import XClose from '@untitled-ui/icons-react/build/esm/XClose';
+import QrCode01 from '@untitled-ui/icons-react/build/esm/QrCode01';
+import Scan from '@untitled-ui/icons-react/build/esm/Scan';
+import Settings02 from '@untitled-ui/icons-react/build/esm/Settings02';
+import Coins03 from '@untitled-ui/icons-react/build/esm/Coins03';
+import Grid01 from '@untitled-ui/icons-react/build/esm/Grid01';
+import ClockRewind from '@untitled-ui/icons-react/build/esm/ClockRewind';
+import Check from '@untitled-ui/icons-react/build/esm/Check';
+import Minus from '@untitled-ui/icons-react/build/esm/Minus';
+import Download01 from '@untitled-ui/icons-react/build/esm/Download01';
+import Share06 from '@untitled-ui/icons-react/build/esm/Share06';
+import LinkExternal01 from '@untitled-ui/icons-react/build/esm/LinkExternal01';
+import Wallet02 from '@untitled-ui/icons-react/build/esm/Wallet02';
+import Globe01 from '@untitled-ui/icons-react/build/esm/Globe01';
+import LockKeyholeCircle from '@untitled-ui/icons-react/build/esm/LockKeyholeCircle';
+import Lock01 from '@untitled-ui/icons-react/build/esm/Lock01';
+import RefreshCcw04 from '@untitled-ui/icons-react/build/esm/RefreshCcw04';
+
+export const SvgArrowDown = renderToXml(ArrowDown);
+export const SvgArrowUp = renderToXml(ArrowUp);
+export const SvgArrowLeft = renderToXml(ArrowLeft);
+export const SvgArrowRight = renderToXml(ArrowRight);
+export const SvgPlus = renderToXml(Plus);
+export const SvgSwitchHorizontal01 = renderToXml(SwitchHorizontal01);
+export const SvgSwitchVertical01 = renderToXml(SwitchVertical01);
+export const SvgChevronDown = renderToXml(ChevronDown);
+export const SvgChevronUp = renderToXml(ChevronUp);
+export const SvgChevronLeft = renderToXml(ChevronLeft);
+export const SvgChevronRight = renderToXml(ChevronRight);
+export const SvgCopy03 = renderToXml(Copy03);
+export const SvgCopy07 = renderToXml(Copy07);
+export const SvgXClose = renderToXml(XClose);
+export const SvgQrCode01 = renderToXml(QrCode01);
+export const SvgScan = renderToXml(Scan);
+export const SvgSettings02 = renderToXml(Settings02);
+export const SvgCoins03 = renderToXml(Coins03);
+export const SvgGrid01 = renderToXml(Grid01);
+export const SvgClockRewind = renderToXml(ClockRewind);
+export const SvgCheck = renderToXml(Check);
+export const SvgMinus = renderToXml(Minus);
+export const SvgDownload01 = renderToXml(Download01);
+export const SvgShare06 = renderToXml(Share06);
+export const SvgLinkExternal01 = renderToXml(LinkExternal01);
+export const SvgWallet02 = renderToXml(Wallet02);
+export const SvgGlobe01 = renderToXml(Globe01);
+export const SvgLockKeyholeCircle = renderToXml(LockKeyholeCircle);
+export const SvgLock01 = renderToXml(Lock01);
+export const SvgRefreshCcw04 = renderToXml(RefreshCcw04);

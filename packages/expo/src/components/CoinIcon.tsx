@@ -1,4 +1,5 @@
 import { Gray_400, Primary_500, White_100 } from '@styles/colors';
+import React from 'react';
 import { View, ViewProps } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { SvgSui, SvgToken } from '@components/icons/constants';

@@ -6,9 +6,9 @@ import Toast from 'react-native-toast-message';
 import { addressEllipsis } from '@/utils/format';
 import { Wallet } from '@/utils/wallet';
 import { Gray_700 } from '@/styles/colors';
-import { SvgCopy } from './icons/constants';
-import { FontFamilys } from '@/hooks/useFonts';
+import { SvgCopy03 } from './icons/svgs';
 import Typography from '@/components/Typography';
+import { ToastProps } from './Toast';
 
 export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
   return (
@@ -18,7 +18,10 @@ export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
           await Clipboard.setStringAsync(wallet.address);
           Toast.show({
             type: 'info',
-            text1: 'Copied to clipboard',
+            text1: 'Copied to clipboard!',
+            props: {
+              icon: require('@assets/magic_wand.png'),
+            } as ToastProps,
           });
         } catch (e) {}
       }}
@@ -38,7 +41,7 @@ export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
         }}
       >
         <Typography.Mono children={addressEllipsis(wallet.address)} color={Gray_700} />
-        <SvgXml style={{ margin: 4 }} width={12} height={12} color={Gray_700} xml={SvgCopy}></SvgXml>
+        <SvgXml style={{ margin: 4 }} width={14} height={14} color={Gray_700} xml={SvgCopy03}></SvgXml>
       </View>
     </TouchableWithoutFeedback>
   );

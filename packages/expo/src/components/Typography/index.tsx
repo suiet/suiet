@@ -1,6 +1,7 @@
 import { FontFamilys } from '@/hooks/useFonts';
 import { TextProps, TextStyle } from 'react-native';
 import { Text } from 'react-native';
+import React from 'react';
 
 interface ColorProps {
   color?: TextStyle['color'];

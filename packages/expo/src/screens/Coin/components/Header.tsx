@@ -1,6 +1,6 @@
 import { Text, View, Platform, TouchableOpacity } from 'react-native';
 import * as React from 'react';
-import { SvgArrowLeft, SvgClose } from '@components/icons/constants';
+import { SvgArrowLeft, SvgXClose } from '@components/icons/svgs';
 import { Gray_100, Gray_400, Gray_700 } from '@styles/colors';
 import { SvgXml } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -74,7 +74,7 @@ export const Header: React.FC<{ onLeftAction?: () => void; onRightAction?: () =>
         <View style={{ width: 68, height: 68 }}>
           {onRightAction && (
             <TouchableOpacity onPress={onRightAction}>
-              <SvgXml style={{ margin: 24 }} width={20} height={20} color={Gray_400} xml={SvgClose} />
+              <SvgXml style={{ margin: 24 }} width={20} height={20} color={Gray_400} xml={SvgXClose} />
             </TouchableOpacity>
           )}
         </View>

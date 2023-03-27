@@ -2,13 +2,21 @@ import * as React from 'react';
 import { Image, Animated, TouchableOpacity, Alert } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View, Text, Platform, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 
 import type { RootStackParamList } from '@/../App';
-import { Error_100, Gray_100, Gray_500, Gray_900 } from '@/styles/colors';
+import {
+  Error_100,
+  Error_500,
+  Gray_100,
+  Gray_500,
+  Gray_900,
+  Primary_400,
+  Primary_500,
+  White_100,
+} from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
-import { SvgCheck, SvgCopy, SvgDownload, SvgMinus, SvgPlus, SvgQRCode } from '@/components/icons/constants';
-import { FontFamilys } from '@/hooks/useFonts';
+import { SvgCheck, SvgDownload01, SvgMinus, SvgPlus } from '@/components/icons/svgs';
 import { Swipeable } from 'react-native-gesture-handler';
 import { SvgXml } from 'react-native-svg';
 import { useWallets } from '@/hooks/useWallets';
@@ -56,7 +64,11 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
         </View>
 
         <View style={{ flex: 1 }} />
-        {wallet.address === selectedWallet && <SvgXml width={24} height={24} xml={SvgCheck} />}
+        {wallet.address === selectedWallet && (
+          <View style={{ padding: 4, backgroundColor: Primary_500, borderRadius: 9999 }}>
+            <SvgXml width={14} height={14} color={White_100} xml={SvgCheck} />
+          </View>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -72,7 +84,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
           }}
         />
         <ButtonWithIcon
-          iconSvg={SvgDownload}
+          iconSvg={SvgDownload01}
           title="Import Old"
           onPress={() => {
             navigation.navigate('ImportOld');
@@ -138,7 +150,9 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
                           );
                         }}
                       >
-                        <SvgXml width={24} height={24} xml={SvgMinus} />
+                        <View style={{ padding: 4, backgroundColor: Error_500, borderRadius: 9999 }}>
+                          <SvgXml width={14} height={14} color={White_100} xml={SvgMinus} />
+                        </View>
                       </TouchableOpacity>
                     </Animated.View>
                   );
