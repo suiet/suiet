@@ -16,8 +16,9 @@ import { formatCurrency } from '../../../utils/format';
 // import TokenItem from '../../../components/TokenItem';
 
 // export type TokenListProps = StyleExtendable;
-
+import { useNetwork } from '../../../hooks/useNetwork';
 import { Link, useNavigate } from 'react-router-dom';
+import Network from '../../SettingsPage/network';
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
@@ -28,6 +29,8 @@ type TokenItemProps = Extendable & {
 const TokenItem = (props: TokenItemProps) => {
   const { amount = 0 } = props;
   const navigate = useNavigate();
+  const appContext = useSelector((state: RootState) => state.appContext);
+  const { data: network } = useNetwork(appContext.networkId);
   return (
     <div
       className={classnames(
@@ -67,7 +70,7 @@ const TokenItem = (props: TokenItemProps) => {
             </Typo.Small>
           </div>
         </div>
-        {props.symbol === 'SUI' && (
+        {props.symbol === 'SUI' && network?.enableStaking && (
           <button
             className={styles['click-button']}
             onClick={(e) => {

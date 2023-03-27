@@ -41,6 +41,8 @@ export function useNetwork(networkId: string) {
       versionCacheTimoutInSeconds:
         currentNetworkConfig.version_cache_timout_in_seconds,
       stakeGasBudget: currentNetworkConfig.stake_gas_budget,
+      enableStaking: currentNetworkConfig.enable_staking,
+      enableMintExampleNFT: currentNetworkConfig.enable_mint_example_nft,
     };
     return overrideData;
   }, [defaultData, featureFlags, networkId]);

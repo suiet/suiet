@@ -78,13 +78,15 @@ export default function Empty(props: EmptyProps) {
           Get Sui first
         </a>{' '}
         to get start your journey
-        <Button
-          onClick={mintSampleNFT}
-          loading={sendLoading}
-          style={{ marginTop: '18px' }}
-        >
-          Mint NFT
-        </Button>
+        {network?.enableMintExampleNFT && (
+          <Button
+            onClick={mintSampleNFT}
+            loading={sendLoading}
+            style={{ marginTop: '18px' }}
+          >
+            Mint NFT
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -4,8 +4,10 @@ export interface FeatureFlagNetwork {
   full_node_url: string;
   on_maintenance: boolean;
   faucet_api: string;
-  mint_example_nft_gas_budget: number;
-  transfer_object_gas_budget: number;
+  // mint_example_nft_gas_budget: number;
+  // transfer_object_gas_budget: number;
+  enable_staking: boolean;
+  enable_mint_example_nft: boolean;
   version_cache_timout_in_seconds: number;
   pay_coin_gas_budget: number;
   stake_gas_budget: number;
