@@ -3,7 +3,7 @@ import { View, TextInput as ReactNativeTextInput, TextInputProps, Alert, Platfor
 
 import { Gray_200, Gray_500, Gray_700, Primary_500 } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
-import { SvgCopyDotted, SvgQRCode } from '@/components/icons/constants';
+import { SvgCopy07, SvgQrCode01 } from '@/components/icons/svgs';
 import { useState } from 'react';
 import { FontFamilys } from '@/hooks/useFonts';
 import { useCameraPermission } from '@/hooks/useCameraPermission';
@@ -21,7 +21,7 @@ export const TextInput: React.FC<TextInputProps> = ({ style, onChangeText, ...pr
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16, columnGap: 8 }}>
         <ButtonWithIcon
           title="Paste"
-          iconSvg={SvgCopyDotted}
+          iconSvg={SvgCopy07}
           onPress={async () => {
             const { getStringAsync } = await import('expo-clipboard');
 
@@ -42,7 +42,7 @@ export const TextInput: React.FC<TextInputProps> = ({ style, onChangeText, ...pr
           }}
         />
         <ButtonWithIcon
-          iconSvg={SvgQRCode}
+          iconSvg={SvgQrCode01}
           title="Scan QR Code"
           onPress={async () => {
             if (await ensureCameraPermission()) {

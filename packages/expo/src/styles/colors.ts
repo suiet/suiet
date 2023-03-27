@@ -25,9 +25,11 @@ export const Primary_700 = '#1f5eb2';
 export const Primary_800 = '#13428f';
 export const Primary_900 = '#0b2e77';
 
+export const Warning_50 = '#FFFAEB';
 export const Warning_100 = '#fff2d3';
 export const Warning_300 = '#ffcd7a';
 export const Warning_500 = '#ff9823';
+export const Warning_600 = '#DC6803';
 export const Warning_700 = '#b75a11';
 
 export const Orange_100 = '#fdead7';

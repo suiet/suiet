@@ -23,3 +23,5 @@ if (typeof TextDecoder === 'undefined') {
 if (typeof TextEncoder === 'undefined') {
   global.TextEncoder = require('text-encoding').TextEncoder;
 }
+
+global.Buffer = require('buffer').Buffer;

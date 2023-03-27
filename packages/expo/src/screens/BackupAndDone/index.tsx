@@ -1,3 +1,4 @@
+import React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Dimensions, View, Platform, Image, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

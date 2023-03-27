@@ -1,19 +1,14 @@
 import * as React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View, Text, ScrollView, KeyboardAvoidingView, Dimensions, Alert } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, Dimensions, Alert } from 'react-native';
 
 import type { RootStackParamList } from '@/../App';
-import { Gray_100, Gray_200, Gray_400, Gray_500, Primary_500 } from '@/styles/colors';
-import { ButtonWithIcon } from '@/components/ButtonWithIcon';
-import { SvgCopy, SvgCopyDotted, SvgQRCode } from '@/components/icons/constants';
+import { Gray_100, Gray_400 } from '@/styles/colors';
 import { useState } from 'react';
-import { ee } from '../ScanQRCode';
 import { Button } from '@/components/Button';
 import { useKeychain } from '@/hooks/useKeychain';
 import { useWallets } from '@/hooks/useWallets';
-import { FontFamilys } from '@/hooks/useFonts';
-import { useCameraPermission } from '@/hooks/useCameraPermission';
 import { TextInput } from '@/components/TextInput';
 import Typography from '@/components/Typography';
 
@@ -21,7 +16,9 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
   const { width, height } = Dimensions.get('screen');
   const { top, bottom } = useSafeAreaInsets();
 
-  const [textInputValue, setTextInputValue] = useState<string>();
+  const [textInputValue, setTextInputValue] = useState<string>(
+    'crop steak carry welcome ask tomorrow grass polar page violin vibrant season'
+  );
 
   const { saveMnemonic } = useKeychain();
   const { wallets, updateWallets, selectedWallet, updateSelectedWallet } = useWallets();

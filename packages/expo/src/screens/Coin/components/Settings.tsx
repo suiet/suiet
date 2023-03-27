@@ -1,18 +1,16 @@
 import {
   SvgChevronRight,
-  SvgDiscord,
-  SvgGithub,
-  SvgGlobe,
-  SvgLock,
+  SvgGlobe01,
+  SvgLock01,
   SvgLockKeyholeCircle,
-  SvgRefresh,
-  SvgTwitter,
-  SvgWallet,
-} from '@/components/icons/constants';
+  SvgRefreshCcw04,
+  SvgWallet02,
+} from '@/components/icons/svgs';
+import { SvgDiscord, SvgGithub, SvgTwitter } from '@/components/icons/constants';
 import { FontFamilys } from '@/hooks/useFonts';
 import { Gray_100, Gray_400, Gray_900 } from '@/styles/colors';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import {
   View,
   ScrollView,
@@ -39,6 +37,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
     title: string,
     touchableProps: TouchableHighlightProps,
     iconSvgLeft: string,
+    iconSvgLeftColor?: string,
     iconSvgRight?: string
   ) => {
     return (
@@ -52,7 +51,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
             backgroundColor: 'white',
           }}
         >
-          <SvgXml style={{ marginRight: 16 }} width={24} height={24} xml={iconSvgLeft} />
+          <SvgXml style={{ marginRight: 16 }} width={24} height={24} xml={iconSvgLeft} color={iconSvgLeftColor} />
           <Typography.Label color={Gray_900} children={title} style={{ flexGrow: 1 }} />
           {iconSvgRight && <SvgXml width={24} height={24} color={Gray_400} xml={iconSvgRight} />}
         </View>
@@ -86,10 +85,10 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
         }}
       >
         {[
-          [SvgWallet, 'Wallet'],
-          [SvgGlobe, 'Network'],
-          [SvgLock, 'Security'],
-        ].map(([svg, item]) => (
+          [SvgWallet02, 'Wallet', '#F1821B'],
+          [SvgGlobe01, 'Network', '#6172F3'],
+          [SvgLock01, 'Security', '#33BD78'],
+        ].map(([svg, item, color]) => (
           <Fragment key={item}>
             {renderItem(
               item,
@@ -101,6 +100,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
                 },
               },
               svg,
+              color,
               SvgChevronRight
             )}
           </Fragment>
@@ -119,9 +119,9 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
         }}
       >
         {[
-          [SvgLockKeyholeCircle, 'Lock'],
-          [SvgRefresh, 'Reset All'],
-        ].map(([svg, item]) => (
+          [SvgLockKeyholeCircle, 'Lock', '#2E90FA'],
+          [SvgRefreshCcw04, 'Reset All', '#F04438'],
+        ].map(([svg, item, color]) => (
           <Fragment key={item}>
             {renderItem(
               item,
@@ -158,6 +158,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
                 },
               },
               svg,
+              color,
               undefined
             )}
           </Fragment>
@@ -180,7 +181,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
           [SvgDiscord, 'Discord'],
           [SvgTwitter, 'Twitter'],
         ].map(([svg, item]) => (
-          <Fragment key={item}>{renderItem(item, {}, svg, undefined)}</Fragment>
+          <Fragment key={item}>{renderItem(item, {}, svg, undefined, undefined)}</Fragment>
         ))}
       </View>
     </ScrollView>

@@ -1,21 +1,21 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
-import { View, Text, TouchableOpacity, Image, Share, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Share, Alert, StyleSheet } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 // import * as Brightness from 'expo-brightness';
 
 import type { RootStackParamList } from '@/../App';
-import { Gray_200, Gray_400, Gray_700, Gray_900 } from '@/styles/colors';
+import { Gray_200, Gray_400, Gray_700, Gray_900, White_100 } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
-import { SvgChevronDown, SvgCopy, SvgShare } from '@/components/icons/constants';
+import { SvgChevronDown, SvgCopy03, SvgShare06 } from '@/components/icons/svgs';
 import { useWallets } from '@/hooks/useWallets';
 import QRCode from 'react-native-qrcode-svg';
 import { AVATARS } from '@/utils/constants';
 import { SvgXml } from 'react-native-svg';
-import { FontFamilys } from '@/hooks/useFonts';
 import Toast from 'react-native-toast-message';
 import Typography from '@/components/Typography';
+import { ToastProps } from '@/components/Toast';
 
 export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> = ({ navigation }) => {
   // useEffect(() => {
@@ -89,18 +89,21 @@ export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> 
 
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', columnGap: 8 }}>
         <ButtonWithIcon
-          iconSvg={SvgCopy}
+          iconSvg={SvgCopy03}
           title="Copy"
           onPress={async () => {
             await Clipboard.setStringAsync(wallet.address);
             Toast.show({
-              type: 'info',
-              text1: 'Copied to clipboard',
+              type: 'success',
+              text1: 'Copied to clipboard!',
+              props: {
+                icon: require('@assets/magic_wand.png'),
+              } as ToastProps,
             });
           }}
         />
         <ButtonWithIcon
-          iconSvg={SvgShare}
+          iconSvg={SvgShare06}
           title="Share"
           onPress={async () => {
             try {

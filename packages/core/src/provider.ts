@@ -243,6 +243,8 @@ export class QueryProvider {
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
+
+        websocketClient: {} as any,
       }
     );
     this.client = new JsonRpcClient(queryEndpoint);
@@ -414,13 +416,15 @@ export class QueryProvider {
             to:
               typeof moveCall.package === 'string'
                 ? moveCall.package
-                : moveCall.package.objectId,
+                : // @ts-ignore
+                  moveCall.package.objectId,
             object: {
               type: 'move_call' as 'move_call',
               packageObjectId:
                 typeof moveCall.package === 'string'
                   ? moveCall.package
-                  : moveCall.package.objectId,
+                  : // @ts-ignore
+                    moveCall.package.objectId,
               module: moveCall.module,
               function: moveCall.function,
               arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
@@ -689,6 +693,8 @@ export class TxProvider {
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
+
+        websocketClient: {} as any,
       }
     );
     this.serializer = new RpcTxnDataSerializer(txEndpoint);

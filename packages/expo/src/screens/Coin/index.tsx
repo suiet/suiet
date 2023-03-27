@@ -9,8 +9,8 @@ import {
   SvgSwitchHorizontal01,
   SvgChevronDown,
   SvgScan,
-  SvgSetting,
-} from '@components/icons/constants';
+  SvgSettings02,
+} from '@components/icons/svgs';
 import { Gray_100, Gray_400, Gray_500, Gray_700, Gray_900 } from '@styles/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -186,7 +186,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         </TouchableOpacityModal> */}
 
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-          <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgSetting} />
+          <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgSettings02} />
         </TouchableOpacity>
       </View>
     </View>

@@ -79,7 +79,28 @@ export function useRealKeychain() {
     throw new Error(errorMessage);
   };
 
-  const loadMnemonic = async (address: string) => {};
+  const loadMnemonic = async (address: string) => {
+    const service = `SUIET_WALLET_MNEMONIC_${address}`;
+
+    try {
+      const saved = await getGenericPassword({
+        service,
+        authenticationPrompt: {
+          title: 'Authenticate to access your wallet',
+          description: 'We need to access your wallet to continue',
+          cancel: 'Cancel',
+        },
+      });
+
+      // @ts-ignore
+      if (saved && saved.username === address) {
+        // @ts-ignore
+        return saved.password;
+      }
+    } catch (e) {}
+
+    throw new Error('Failed to load your wallet from device');
+  };
 
   return {
     isSupported,
@@ -101,7 +122,9 @@ export const useFakeKeychain: typeof useRealKeychain = () => {
     return { address, mnemonic };
   };
 
-  const loadMnemonic = async (address: string) => {};
+  const loadMnemonic = async (address: string) => {
+    throw new Error('not implemented');
+  };
 
   return {
     isSupported,

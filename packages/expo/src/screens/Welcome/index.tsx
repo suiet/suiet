@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions, Alert } from 'react-native';
 import { Gray_100, Gray_400, Gray_700 } from '@styles/colors';
 import { StackScreenProps } from '@react-navigation/stack';

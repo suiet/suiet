@@ -9,6 +9,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  TextInputProps,
+  ViewStyle,
 } from 'react-native';
 import * as React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -21,7 +23,7 @@ import { CoinIcon } from '@/components/CoinIcon';
 import { Button } from '@/components/Button';
 import type { RootStackParamList } from '@/../App';
 import { SvgXml } from 'react-native-svg';
-import { SvgChevronDown, SvgSwitchVertical01 } from '@/components/icons/constants';
+import { SvgChevronDown, SvgSwitchVertical01 } from '@/components/icons/svgs';
 import Typography from '@/components/Typography';
 
 export const TokenSelector: React.FC = () => {
@@ -47,45 +49,70 @@ export const TokenSelector: React.FC = () => {
   );
 };
 
-const TokenAmountInput: React.FC = () => {
+export const TokenAmountInput: React.FC<TextInputProps & { wrapperStyle?: ViewStyle }> = ({
+  style,
+  wrapperStyle,
+  ...props
+}) => {
   const textInputRef = React.useRef<TextInput>(null);
-  const [textInputValue, setTextInputValue] = React.useState<string>();
+  // const [textInputValue, setTextInputValue] = React.useState<string>();
+  const layoutRef = React.useRef<View>(null);
+
+  const [maxWidth, setMaxWidth] = React.useState<number>(0);
+  const [height, setHeight] = React.useState<number>();
 
   return (
     <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 16,
-        marginBottom: 24,
-      }}
+      ref={layoutRef}
+      style={[
+        {
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          gap: 8,
+        },
+        wrapperStyle,
+      ]}
     >
       <View style={{ position: 'relative', alignItems: 'center' }}>
-        <Typography.Headline
-          color={Gray_200}
-          style={{ opacity: 0, lineHeight: undefined }}
-          children={textInputValue || '0'}
-        />
-
         <TextInput
           ref={textInputRef}
-          value={textInputValue}
-          onChangeText={setTextInputValue}
+          multiline
+          keyboardType="numeric"
+          placeholder="0"
+          placeholderTextColor={Gray_200}
+          textAlignVertical="center"
+          onContentSizeChange={Platform.select({
+            android: ({ nativeEvent: { contentSize } }) => {
+              setHeight(contentSize.height);
+            },
+          })}
+          {...props}
           style={[
-            StyleSheet.absoluteFill,
+            // StyleSheet.absoluteFill,
             {
               fontFamily: FontFamilys.WorkSans_700Bold,
               fontSize: 36,
               color: Gray_900,
-              minWidth: 100,
+              flex: 1,
 
-              backgroundColor: 'white',
+              maxWidth,
             },
+
+            Platform.select({
+              android: {
+                height,
+              },
+            }),
+
+            Platform.select({
+              ios: {
+                paddingBottom: 4,
+              },
+            }),
+
+            style,
           ]}
-          keyboardType="numeric"
-          placeholder="0"
-          placeholderTextColor={Gray_200}
         />
       </View>
       <TouchableWithoutFeedback
@@ -93,13 +120,40 @@ const TokenAmountInput: React.FC = () => {
           textInputRef.current?.focus();
         }}
       >
-        <Typography.Headline color={Gray_200} style={{ lineHeight: undefined }} children={'SUI'} />
+        <TextInput
+          onLayout={({ nativeEvent: { layout } }) => {
+            layoutRef.current?.measure((x, y, width, height, pageX, pageY) => {
+              setMaxWidth(width - (Math.ceil(layout.width) + 8));
+            });
+          }}
+          value="SUI"
+          multiline
+          // textAlignVertical="top"
+          style={[
+            // StyleSheet.absoluteFill,
+            {
+              fontFamily: FontFamilys.WorkSans_700Bold,
+              fontSize: 36,
+              color: Gray_200,
+            },
+
+            Platform.select({
+              ios: {
+                paddingBottom: 4,
+              },
+            }),
+          ]}
+          keyboardType="numeric"
+          editable={false}
+          selectTextOnFocus={false}
+          scrollEnabled={false}
+        />
       </TouchableWithoutFeedback>
     </View>
   );
 };
 
-const Divider: React.FC = () => {
+export const Divider: React.FC = () => {
   return (
     <View style={{ position: 'relative', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
       <View
@@ -154,16 +208,18 @@ export const Swap: React.FC<StackScreenProps<RootStackParamList, 'Swap'>> = ({ n
               <TokenSelector />
             </TouchableOpacity>
           </View>
-
+          <View style={{ height: 16 }} />
           <TokenAmountInput />
 
-          <Divider />
+          <View style={{ marginVertical: 24 }}>
+            <Divider />
+          </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', gap: 8 }}>
             <Typography.Subtitle children="Receive" color={Gray_900} />
             <TokenSelector />
           </View>
-
+          <View style={{ height: 16 }} />
           <TokenAmountInput />
         </ScrollView>
 

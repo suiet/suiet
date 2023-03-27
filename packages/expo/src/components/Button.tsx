@@ -30,7 +30,7 @@ export const Button: React.FC<
     textStyle?: TextStyle;
     type?: 'Primary' | 'Secondary';
   }
-> = ({ onPress, scaleTo = 0.95, disabled, innerStyle, textStyle, title, type = 'Primary' }) => {
+> = ({ onPress, scaleTo = 1, disabled, innerStyle, textStyle, title, type = 'Primary' }) => {
   const colors =
     type === 'Primary'
       ? {
@@ -90,7 +90,6 @@ export const Button: React.FC<
             width: '100%',
             height: 48,
             borderRadius: 9999,
-            paddingVertical: 12,
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',

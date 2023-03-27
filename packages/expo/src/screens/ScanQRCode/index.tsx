@@ -7,7 +7,7 @@ import { EventEmitter } from 'eventemitter3';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
-import { SvgClose } from '@/components/icons/constants';
+import { SvgXClose } from '@/components/icons/svgs';
 import { Gray_700 } from '@/styles/colors';
 
 export const ScanQRCode: React.FC<StackScreenProps<RootStackParamList, 'ScanQRCode'>> = ({ route, navigation }) => {
@@ -84,7 +84,7 @@ export const ScanQRCode: React.FC<StackScreenProps<RootStackParamList, 'ScanQRCo
               alignItems: 'center',
             }}
           >
-            <SvgXml width={48} height={48} xml={SvgClose} color={Gray_700} />
+            <SvgXml width={48} height={48} xml={SvgXClose} color={Gray_700} />
           </View>
         </TouchableOpacity>
       </View>

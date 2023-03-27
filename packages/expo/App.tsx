@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
@@ -28,6 +28,10 @@ import { Swap } from '@/screens/Swap';
 import { SelectToken } from '@/screens/SelectToken';
 // import { LoadingAvatars, LoadingDots } from '@/components/Loading';
 
+import { ContextFeatureFlags, useAutoLoadFeatureFlags } from '@/hooks/useFeatureFlags';
+import { AngularGradientToast } from '@/components/Toast';
+import { Image } from 'react-native';
+
 // SplashScreen.preventAutoHideAsync();
 
 export type RootStackParamList = {
@@ -39,13 +43,13 @@ export type RootStackParamList = {
     address: string;
   };
   Coin: undefined;
+  Nft: undefined;
+  History: undefined;
 
   ScanQRCode: undefined;
   SelectWallet: undefined;
 
   Home: undefined;
-  Home1: undefined;
-  Home2: undefined;
 
   Send: undefined;
   Receive: undefined;
@@ -80,26 +84,8 @@ function App() {
             <RootStack.Screen
               name="Send"
               component={Send}
-              options={({ route }) => {
-                const r = getFocusedRouteNameFromRoute(route);
-                if (r === 'SendInputAddress') {
-                  return {
-                    // gestureEnabled: false,
-                    header: ({ navigation, route: { name } }) => (
-                      <Header
-                        title={name}
-                        onLeftAction={() => navigation.navigate('SendSelectCoin')}
-                        onRightAction={() => navigation.goBack()}
-                      />
-                    ),
-                  };
-                }
-                return {
-                  // gestureEnabled: false,
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={name} onRightAction={() => navigation.goBack()} />
-                  ),
-                };
+              options={{
+                header: () => null,
               }}
             />
             <RootStack.Screen
@@ -142,7 +128,6 @@ function App() {
               name="CreateNew"
               component={CreateNew}
               options={{
-                title: 'Create New',
                 header: ({ navigation, route: { name } }) => (
                   <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
                 ),
@@ -152,7 +137,6 @@ function App() {
               name="ImportOld"
               component={ImportOld}
               options={{
-                title: 'Import Old',
                 header: ({ navigation, route: { name } }) => (
                   <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
                 ),
@@ -162,7 +146,6 @@ function App() {
               name="SelectWallet"
               component={SelectWallet}
               options={{
-                title: 'Wallet List',
                 header: ({ navigation, route: { name } }) => (
                   <Header title={'Wallet List'} onRightAction={() => navigation.goBack()} />
                 ),
@@ -172,7 +155,6 @@ function App() {
               name="EditWallet"
               component={EditWallet}
               options={{
-                title: 'Wallet List',
                 header: ({ navigation, route: { name } }) => (
                   <Header title={''} onRightAction={() => navigation.goBack()} />
                 ),
@@ -194,11 +176,6 @@ function App() {
   );
 }
 
-const client = new ApolloClient({
-  uri: 'https://devnet.suiet.app/query',
-  cache: new InMemoryCache(),
-});
-
 function Root() {
   const [isFontsLoaded] = useFonts();
   const [isAndroidNavigationSet] = useSetAndroidNavigation();
@@ -214,19 +191,44 @@ function Root() {
     });
   }, []);
 
+  const featureFlags = useAutoLoadFeatureFlags();
+  const network = featureFlags?.networks?.[featureFlags.default_network];
+
+  const client = useMemo(() => {
+    return new ApolloClient({
+      uri: network?.graphql_url,
+      cache: new InMemoryCache(),
+    });
+  }, [network]);
+
   if (!isFontsLoaded || !isAndroidNavigationSet) {
     return null;
   }
 
   return (
-    <ApolloProvider client={client}>
-      <Provider store={store}>
-        <PersistGate /* loading={<LoadingAvatars />} */ persistor={persistor}>
-          <App />
-          <Toast />
-        </PersistGate>
-      </Provider>
-    </ApolloProvider>
+    <ContextFeatureFlags.Provider value={featureFlags}>
+      <ApolloProvider client={client}>
+        <Provider store={store}>
+          <PersistGate /* loading={<LoadingAvatars />} */ persistor={persistor}>
+            <App />
+            <Toast
+              topOffset={60}
+              config={{
+                success: ({ text1, isVisible, props }) => (
+                  <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
+                ),
+                info: ({ text1, isVisible, props }) => (
+                  <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
+                ),
+                error: ({ text1, isVisible, props }) => (
+                  <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
+                ),
+              }}
+            />
+          </PersistGate>
+        </Provider>
+      </ApolloProvider>
+    </ContextFeatureFlags.Provider>
   );
 }
 

@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SvgXml } from 'react-native-svg';
 import { Gray_100, Gray_500, Gray_900 } from '@styles/colors';
-import { SvgClockRewind, SvgCoins, SvgGrid } from '@components/icons/constants';
+import { SvgClockRewind, SvgCoins03, SvgGrid01 } from '@components/icons/svgs';
 
 import { Coin } from '@/screens/Coin';
 import type { RootStackParamList } from '@/../App';
@@ -52,19 +53,19 @@ export const Home: React.FC = () => {
           component={Coin}
           options={{
             headerShown: false,
-            tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgCoins} />,
+            tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgCoins03} />,
           }}
         />
         <Tab.Screen
-          name="Home1"
+          name="Nft"
           component={HomeScreen}
           options={{
             headerShown: false,
-            tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgGrid} />,
+            tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgGrid01} />,
           }}
         />
         <Tab.Screen
-          name="Home2"
+          name="History"
           component={HomeScreen}
           options={{
             headerShown: false,

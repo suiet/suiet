@@ -1,12 +1,11 @@
-import { Text, View, ColorValue, ViewProps, TouchableOpacity } from 'react-native';
+import { View, ColorValue, ViewProps, TouchableOpacity } from 'react-native';
 import * as React from 'react';
 import { Gray_900, Secondary_50 } from '@styles/colors';
 import { CoinIcon } from '@components/CoinIcon';
 import { formatCurrency } from '@/utils/format';
 import { useQuery } from '@apollo/client';
-import { GET_COINS } from '@/utils/gql';
+import { Coin, GET_COINS } from '@/utils/gql';
 import { LoadingDots } from '@/components/Loading';
-import { FontFamilys } from '@/hooks/useFonts';
 import Typography from './Typography';
 
 const ListItem: React.FC<
@@ -43,9 +42,12 @@ const ListItem: React.FC<
   );
 };
 
-export const Coins: React.FC<{ address: string; onChooseCoin?: (coin: any) => void }> = ({ address, onChooseCoin }) => {
+export const Coins: React.FC<{ address: string; onChooseCoin?: (coin: Coin) => void }> = ({
+  address,
+  onChooseCoin,
+}) => {
   const { loading, error, data } = useQuery<{
-    coins: any[];
+    coins: Coin[];
   }>(GET_COINS, {
     variables: {
       address,
