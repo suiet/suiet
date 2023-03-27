@@ -8,6 +8,7 @@ export interface FeatureFlagNetwork {
   transfer_object_gas_budget: number;
   version_cache_timout_in_seconds: number;
   pay_coin_gas_budget: number;
+  stake_gas_budget: number;
 }
 export interface FeatureFlagRes {
   available_networks: string[];

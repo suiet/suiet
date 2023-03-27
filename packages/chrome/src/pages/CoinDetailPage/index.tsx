@@ -171,7 +171,7 @@ export default function CoinDetailPage() {
                   <div className="text-zinc-400 font-normal text-sm">
                     {delegatedStake?.validator?.description.lenth === 0
                       ? delegatedStake?.validator?.description
-                      : 'Current APY:' +
+                      : 'Current APY: ' +
                         formatCurrency(delegatedStake?.validator?.apy, {
                           decimals: 0,
                         }) +
