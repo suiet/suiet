@@ -1,4 +1,4 @@
-import { CoinBalanceChangeItem } from '../../../hooks/useTransactionList';
+import { CoinBalanceChangeItem } from '../../../types/gql/transactions';
 import { formatCurrency } from '../../../utils/format';
 import { TxItemDisplayType } from '../TransactionItem';
 
