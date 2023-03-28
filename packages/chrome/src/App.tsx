@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { ApolloProvider, ApolloClient } from '@apollo/client';
 import { InMemoryCache } from '@apollo/client/cache';
+import { fieldPolicyForTransactions } from './pages/TransactionFlow/hooks/useTransactionListForHistory';
 function App() {
   const routes = useRoutes(routesConfig);
   const featureFlags = useAutoLoadFeatureFlags();
@@ -37,7 +38,15 @@ function App() {
   const client = useMemo(
     () =>
       new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new InMemoryCache({
+          typePolicies: {
+            Query: {
+              fields: {
+                ...fieldPolicyForTransactions(),
+              },
+            },
+          },
+        }),
         uri: `https://${appContext.networkId}.suiet.app/query`,
       }),
     [appContext.networkId]

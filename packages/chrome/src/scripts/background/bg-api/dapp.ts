@@ -14,9 +14,10 @@ import { isNonEmptyArray } from '../../../utils/check';
 import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
 import {
   ExecuteTransactionRequestType,
-  SuiTransactionResponse,
-  SuiTransactionResponseOptions,
-  Transaction,
+  SignedTransaction,
+  SuiTransactionBlockResponse,
+  SuiTransactionBlockResponseOptions,
+  TransactionBlock,
 } from '@mysten/sui.js';
 import { TxRequestManager } from '../transaction';
 import {
@@ -142,8 +143,8 @@ export class DappBgApi {
   public async signMessage(
     payload: DappMessage<{ message: number[]; account: WalletAccount }>
   ): Promise<{
-    signature: number[];
-    signedMessage: number[];
+    signature: string;
+    messageBytes: string;
   }> {
     if (!payload.params?.message) {
       throw new InvalidParamError(`params 'message' required`);
@@ -210,23 +211,20 @@ export class DappBgApi {
       walletId: connectionContext.target.walletId,
       accountId: connectionContext.target.accountId,
     });
-    return {
-      signature: uint8arrayToArray(result.signature),
-      signedMessage: payload.params.message,
-    };
+    return result;
   }
 
-  public async signAndExecuteTransaction(
+  public async signAndExecuteTransactionBlock(
     payload: DappMessage<{
-      transaction: Transaction;
+      transactionBlock: string;
       account: WalletAccount;
       chain: IdentifierString;
       requestType?: ExecuteTransactionRequestType;
-      options?: SuiTransactionResponseOptions;
+      options?: SuiTransactionBlockResponseOptions;
     }>
-  ): Promise<SuiTransactionResponse> {
-    if (!payload.params?.transaction) {
-      throw new InvalidParamError('params transaction is required');
+  ): Promise<SuiTransactionBlockResponse> {
+    if (!payload.params?.transactionBlock) {
+      throw new InvalidParamError('params transactionBlock is required');
     }
     await this._permissionGuard(payload.context.origin, [
       Permission.VIEW_ACCOUNT,
@@ -235,11 +233,13 @@ export class DappBgApi {
 
     const connectionCtx = await this._prepareConnectionContext(payload.context);
 
-    const { transaction, requestType } = payload.params;
+    const { transactionBlock: serializedTxBlock, requestType } = payload.params;
+    const transactionBlock = TransactionBlock.from(serializedTxBlock);
+
     const network = await this._getNetwork(connectionCtx.networkId);
     const { finalResult } = await this.promptForTxApproval(
       {
-        txData: transaction,
+        txData: serializedTxBlock,
       },
       connectionCtx
     );
@@ -254,10 +254,55 @@ export class DappBgApi {
       walletId: connectionCtx.target.walletId,
       accountId: connectionCtx.target.accountId,
     };
-    const response = await this.txApi.signAndExecuteTransaction({
-      transaction,
+    const response = await this.txApi.signAndExecuteTransactionBlock({
+      transactionBlock,
       context: txContext,
       requestType,
+    });
+    return response;
+  }
+
+  public async signTransactionBlock(
+    payload: DappMessage<{
+      transactionBlock: string;
+      account: WalletAccount;
+      chain: IdentifierString;
+    }>
+  ): Promise<SignedTransaction> {
+    if (!payload.params?.transactionBlock) {
+      throw new InvalidParamError('params transactionBlock is required');
+    }
+    await this._permissionGuard(payload.context.origin, [
+      Permission.VIEW_ACCOUNT,
+      Permission.SUGGEST_TX,
+    ]);
+
+    const connectionCtx = await this._prepareConnectionContext(payload.context);
+
+    const { transactionBlock: serializedTxBlock } = payload.params;
+    const transactionBlock = TransactionBlock.from(serializedTxBlock);
+
+    const network = await this._getNetwork(connectionCtx.networkId);
+    const { finalResult } = await this.promptForTxApproval(
+      {
+        txData: serializedTxBlock,
+      },
+      connectionCtx
+    );
+    if (!finalResult.approved) {
+      throw new UserRejectionError();
+    }
+
+    const token = this.authApi.getToken();
+    const txContext = {
+      token,
+      network,
+      walletId: connectionCtx.target.walletId,
+      accountId: connectionCtx.target.accountId,
+    };
+    const response = await this.txApi.signTransactionBlock({
+      transactionBlock,
+      context: txContext,
     });
     return response;
   }

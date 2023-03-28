@@ -4,11 +4,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useNetwork } from '../useNetwork';
 import { GetEstimatedGasBudgetParams, Network } from '@suiet/core';
-import { Transaction } from '@mysten/sui.js';
-import { OmitToken } from '../../types';
+import { TransactionBlock } from '@mysten/sui.js';
 import { useFeatureFlags } from '../useFeatureFlags';
 
-export function useEstimatedGasBudget(transaction: Transaction | undefined) {
+export function useEstimatedGasBudget(
+  transactionBlock: TransactionBlock | undefined
+) {
   // const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
@@ -20,13 +21,17 @@ export function useEstimatedGasBudget(transaction: Transaction | undefined) {
   return useQuery({
     queryKey: [
       'txn.getEstimatedGasBudget',
-      transaction,
+      transactionBlock,
       appContext.accountId,
       network,
     ],
-    enabled: !!transaction && !!network && !!appContext,
+    enabled: !!transactionBlock && !!network && !!appContext,
     queryFn: async () => {
+      console.log('transactionBlock?.blockData', transactionBlock?.blockData);
       // FIXME: support estimate gas budget via dryRun
+      if (transactionBlock?.blockData?.gasConfig?.budget) {
+        return transactionBlock.blockData.gasConfig.budget;
+      }
       return specifiedGasBudget;
       // const tx = transaction;
       //   if (tx.data?.gasBudget && tx.data.gasBudget > 0) {

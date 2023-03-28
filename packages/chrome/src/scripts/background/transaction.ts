@@ -1,11 +1,8 @@
-import {
-  SuiMoveNormalizedFunction,
-  SuiTransactionResponse,
-} from '@mysten/sui.js';
 import { ChromeStorage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
 import { DappBaseRequest, DappConnectionContext } from './types';
+import { SuiTransactionBlockResponse } from '@mysten/sui.js';
 
 export enum TxRequestType {
   MOVE_CALL = 'moveCall',
@@ -19,7 +16,7 @@ export enum TxFailureReason {
 
 export interface TxRequest extends DappBaseRequest {
   data: any; // depends on the type
-  response: SuiTransactionResponse | null;
+  response: SuiTransactionBlockResponse | null;
   responseError: string | null;
 }
 
