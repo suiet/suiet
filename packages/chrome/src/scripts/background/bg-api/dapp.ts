@@ -9,25 +9,16 @@ import {
   Network,
   NetworkApi,
   TransactionApi,
-  TxEssentials,
 } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
 import {
-  CertifiedTransaction,
   ExecuteTransactionRequestType,
-  getCertifiedTransaction,
-  getTransactionEffects,
-  MoveCallTransaction,
-  SignableTransaction,
   SuiTransactionResponse,
-  TransactionEffects,
+  SuiTransactionResponseOptions,
+  Transaction,
 } from '@mysten/sui.js';
-import {
-  TxFailureReason,
-  TxRequestManager,
-  TxRequestType,
-} from '../transaction';
+import { TxRequestManager } from '../transaction';
 import {
   InvalidParamError,
   InvalidPermissionTypeError,
@@ -43,10 +34,7 @@ import {
   uint8arrayToArray,
 } from '../../shared/msg-passing/uint8array-passing';
 import { Buffer } from 'buffer';
-import type {
-  SuiSignAndExecuteTransactionOutput,
-  WalletAccount,
-} from '@mysten/wallet-standard';
+import type { IdentifierString, WalletAccount } from '@mysten/wallet-standard';
 import { BackgroundApiContext } from '../api-proxy';
 import { BackendEventId } from '../../shared';
 import {
@@ -58,9 +46,6 @@ import {
   DappSourceContext,
 } from '../types';
 
-export enum CoinSymbol {
-  SUI = 'SUI',
-}
 export enum ApprovalType {
   PERMISSION = 'PERMISSION',
   TRANSACTION = 'TRANSACTION',
@@ -233,10 +218,13 @@ export class DappBgApi {
 
   public async signAndExecuteTransaction(
     payload: DappMessage<{
-      transaction: SignableTransaction;
+      transaction: Transaction;
+      account: WalletAccount;
+      chain: IdentifierString;
       requestType?: ExecuteTransactionRequestType;
+      options?: SuiTransactionResponseOptions;
     }>
-  ): Promise<SuiSignAndExecuteTransactionOutput> {
+  ): Promise<SuiTransactionResponse> {
     if (!payload.params?.transaction) {
       throw new InvalidParamError('params transaction is required');
     }
@@ -246,55 +234,32 @@ export class DappBgApi {
     ]);
 
     const connectionCtx = await this._prepareConnectionContext(payload.context);
-    // await this._transactionGuard(payload.params.transaction, connectionCtx);
 
     const { transaction, requestType } = payload.params;
     const network = await this._getNetwork(connectionCtx.networkId);
+    const { finalResult } = await this.promptForTxApproval(
+      {
+        txData: transaction,
+      },
+      connectionCtx
+    );
+    if (!finalResult.approved) {
+      throw new UserRejectionError();
+    }
 
     const token = this.authApi.getToken();
-    const txContext: TxEssentials = {
+    const txContext = {
       token,
       network,
       walletId: connectionCtx.target.walletId,
       accountId: connectionCtx.target.accountId,
     };
-
-    const { finalResult } = await this.promptForTxApproval(
-      {
-        txType: transaction.kind,
-        txData: transaction.data,
-        metadata: null,
-      },
-      connectionCtx
-    );
-    if (!finalResult.approved) {
-      switch (finalResult.reason) {
-        case TxFailureReason.USER_REJECTION:
-          throw new UserRejectionError();
-        case TxFailureReason.INSUFFICIENT_GAS:
-          throw new InvalidParamError('Insufficient gas fee');
-        default:
-          throw new Error();
-      }
-    }
-
     const response = await this.txApi.signAndExecuteTransaction({
-      transaction:
-        transaction.kind === 'bytes'
-          ? {
-              kind: 'bytes',
-              data: arrayToUint8array(transaction.data), // hack logic for chrome messaging type conversion
-            }
-          : transaction,
+      transaction,
       context: txContext,
       requestType,
     });
-    return {
-      certificate: getCertifiedTransaction(response) as CertifiedTransaction,
-      effects: getTransactionEffects(response) as TransactionEffects,
-      timestamp_ms: null,
-      parsed_data: null,
-    };
+    return response;
   }
 
   /**
@@ -304,63 +269,6 @@ export class DappBgApi {
   public async getAccounts(payload: DappMessage<{}>) {
     const result = await this._getAccounts(payload);
     return result.map((ac: Account) => ac.address);
-  }
-
-  /**
-   * @deprecated use signAndExecuteTransaction instead
-   * @param payload
-   */
-  public async requestTransaction(
-    payload: DappMessage<{
-      type: TxRequestType;
-      data: MoveCallTransaction;
-    }>
-  ): Promise<SuiTransactionResponse | null> {
-    const { params, context } = payload;
-    if (!params?.data) {
-      throw new InvalidParamError('Transaction params required');
-    }
-    await this._permissionGuard(context.origin, [
-      Permission.VIEW_ACCOUNT,
-      Permission.SUGGEST_TX,
-    ]);
-
-    const connectionCtx = await this._prepareConnectionContext(payload.context);
-    const network = await this._getNetwork(connectionCtx.networkId);
-    const { txReq, finalResult } = await this.promptForTxApproval(
-      {
-        txType: params.type,
-        txData: params.data,
-      },
-      connectionCtx
-    );
-    if (!finalResult.approved) {
-      throw new UserRejectionError();
-    }
-    const token = this.authApi.getToken();
-    const txContext = {
-      token,
-      network,
-      walletId: connectionCtx.target.walletId,
-      accountId: connectionCtx.target.accountId,
-    };
-    try {
-      const response = await this.txApi.executeMoveCall({
-        transaction: params.data,
-        context: txContext,
-      });
-      await this.txManager.storeTxRequest({
-        ...txReq,
-        response,
-      });
-      return response;
-    } catch (e: any) {
-      await this.txManager.storeTxRequest({
-        ...txReq,
-        responseError: e.message,
-      });
-      throw e;
-    }
   }
 
   // called from ui
@@ -376,17 +284,13 @@ export class DappBgApi {
 
   private async promptForTxApproval(
     params: {
-      txType: string;
       txData: any;
-      metadata?: any;
     },
     connectionContext: DappConnectionContext
   ) {
     const txReq = await this.txManager.createTxRequest(
       {
-        type: params.txType,
         data: params.txData,
-        metadata: params.metadata ?? null, // TODO: need to analysis
       },
       connectionContext
     );
@@ -580,31 +484,6 @@ export class DappBgApi {
       });
     }
   }
-
-  // private async _transactionMetadata(
-  //   tx: SignableTransaction,
-  //   context: DappConnectionContext
-  // ) {
-  //   if (tx.kind === 'payAllSui') {
-  //     const network = await this._getNetwork(context.networkId);
-  //     const coinObjList = await this.txApi.getOwnedCoins({
-  //       network,
-  //       address: context.target.address,
-  //     });
-  //     const suiToPayList = coinObjList.filter(
-  //       (obj) =>
-  //         obj.symbol === CoinSymbol.SUI && tx.data.inputCoins.includes(obj.id)
-  //     );
-  //     const payAllSuiAmount = suiToPayList.reduce(
-  //       (p, c) => p + Number(c.balance),
-  //       0
-  //     );
-  //     return {
-  //       payAllSuiAmount,
-  //     };
-  //   }
-  //   return null;
-  // }
 
   private async _getActiveAccount(accountId: string): Promise<Account> {
     const account = await this.ctx.storage.getAccount(accountId);

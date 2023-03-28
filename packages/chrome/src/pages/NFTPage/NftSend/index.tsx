@@ -1,7 +1,6 @@
 import { TransferObjectParams } from '@suiet/core';
 import classNames from 'classnames';
 import { useEffect, useMemo, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddressInput from '../../../components/AddressInput';
@@ -18,10 +17,7 @@ import { OmitToken } from '../../../types';
 import { formatSUI } from '../../../utils/format';
 import styles from './index.module.scss';
 import { useEstimatedGasBudget } from '../../../hooks/transaction/useEstimatedGasBudget';
-import {
-  isValidSuiAddress,
-  UnserializedSignableTransaction,
-} from '@mysten/sui.js';
+import { useForm } from 'react-hook-form';
 
 interface SendFormValues {
   address: string;
@@ -51,20 +47,21 @@ export default function SendNft() {
     },
   });
 
-  const transaction: UnserializedSignableTransaction | undefined =
-    useMemo(() => {
-      // use mock addr only to dryRun and fetch precise gas price as gas budget
-      const mockAddr = '0x0000000000000000000000000000000000000000';
-      if (!isValidSuiAddress(mockAddr)) return undefined;
-      return {
-        kind: 'transferObject',
-        data: {
-          objectId: id,
-          recipient: mockAddr,
-        },
-      };
-    }, [id]);
-  const { data: estimatedGasBudget } = useEstimatedGasBudget(transaction);
+  // FIXME: dryRun to get gas price
+  // const transaction: Transaction | undefined =
+  //   useMemo(() => {
+  //     // use mock addr only to dryRun and fetch precise gas price as gas budget
+  //     const mockAddr = '0x0000000000000000000000000000000000000000';
+  //     if (!isValidSuiAddress(mockAddr)) return undefined;
+  //     return {
+  //       kind: 'transferObject',
+  //       data: {
+  //         objectId: id,
+  //         recipient: mockAddr,
+  //       },
+  //     };
+  //   }, [id]);
+  const { data: estimatedGasBudget } = useEstimatedGasBudget({} as any);
 
   useEffect(() => {
     if (!id) throw new Error('id should be passed within location state');

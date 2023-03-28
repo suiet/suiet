@@ -1,6 +1,7 @@
 import { Account } from '../types';
 import { isNonEmptyArray } from '../../utils';
 import { StoreName } from '../constants';
+import SHA3 from 'sha3';
 
 export type MigrationMethod = (
   db: IDBDatabase,
@@ -115,4 +116,83 @@ const migrateFrom0To1: MigrationMethod = async (db, oldVersion, newVersion) => {
   };
 };
 
-export default new Map<string, MigrationMethod>([['0->1', migrateFrom0To1]]);
+/**
+ * version 1 -> 2
+ * 1. account in wallet data change from Array<string> to Array<{id: string, address: string}>
+ */
+const migrateFrom1To2: MigrationMethod = async (db, oldVersion, newVersion) => {
+  console.debug('[db migration] >>> version 1 -> 2, started');
+
+  const wallets = await getWallets(db);
+  console.debug('[db migration] get all wallets', wallets);
+  if (!isNonEmptyArray(wallets)) {
+    console.debug('[db migration] <<< wallets are empty, migration finished');
+    return;
+  }
+
+  const newWalletList: any[] = [];
+  const newAccountList: any[] = [];
+  for (const wallet of wallets) {
+    if (!isNonEmptyArray(wallet.accounts)) {
+      console.debug(
+        `[db migration] wallet has no accounts, continue. walletId=${wallet.id}`
+      );
+      continue;
+    }
+
+    for (let i = 0, len = wallet.accounts.length; i < len; i++) {
+      const account = wallet.accounts[i];
+      // debugger;
+      // account is just accountId string, need to change to {id: string, address: string}
+      const accountData = await getAccount(db, account.id);
+      if (!accountData) {
+        console.debug(
+          `[db migration] warning: account data is not found. walletId=${wallet.id} accountId=${account}`
+        );
+        continue;
+      }
+      const publicHash = new SHA3(256)
+        .update(Buffer.from(accountData.pubkey, 'hex'))
+        .digest();
+      accountData.pubkey =
+        '0x' + Buffer.from(publicHash.slice(0, 32)).toString('hex');
+      wallet.accounts[i] = {
+        id: accountData.id,
+        address: accountData.address,
+      };
+      newAccountList.push(accountData);
+    }
+    newWalletList.push(wallet);
+  }
+
+  console.debug('[db migration] wallets that needs to upgrade', newWalletList);
+  console.debug(
+    '[db migration] accounts that needs to upgrade',
+    newAccountList
+  );
+  const bulkUpgradeTx = db.transaction(
+    [StoreName.WALLETS, StoreName.ACCOUNTS],
+    'readwrite'
+  );
+  const walletStore = bulkUpgradeTx.objectStore(StoreName.WALLETS);
+  for (const updatedWallet of newWalletList) {
+    walletStore.put(updatedWallet);
+  }
+  const accountStore = bulkUpgradeTx.objectStore(StoreName.ACCOUNTS);
+  for (const updatedAccount of newAccountList) {
+    accountStore.put(updatedAccount);
+  }
+  bulkUpgradeTx.oncomplete = (e) => {
+    console.debug(
+      `[db migration] <<< BulkUpgradeTx succeeded! Welcome to new version ${newVersion} !`
+    );
+  };
+  bulkUpgradeTx.onerror = (e) => {
+    console.error('[db migration] <<< BulkUpgradeTx failed!', e);
+  };
+};
+
+export default new Map<string, MigrationMethod>([
+  ['0->1', migrateFrom0To1],
+  ['1->2', migrateFrom1To2],
+]);

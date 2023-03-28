@@ -3,7 +3,6 @@ import { RootState } from '../../../store';
 import { useWallet } from '../../../hooks/useWallet';
 import { useLocationSearch } from '../../../hooks/useLocationSearch';
 import { useEffect, useMemo, useState } from 'react';
-import message from '../../../components/message';
 import { sleep } from '../../../utils/time';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -15,14 +14,9 @@ import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import { useApiClient } from '../../../hooks/useApiClient';
-import {
-  MoveCallTransaction,
-  UnserializedSignableTransaction,
-} from '@mysten/sui.js';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import Address from '../../../components/Address';
 import DappPopupLayout from '../../../layouts/DappPopupLayout';
-import { PaySuiTransaction } from '@mysten/sui.js/src/signers/txn-data-serializers/txn-data-serializer';
 import { isNonEmptyArray } from '../../../utils/check';
 import classnames from 'classnames';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
@@ -54,15 +48,15 @@ const TxApprovePage = () => {
     error: balanceError,
   } = useCoinBalance(CoinSymbol.SUI, txReqData?.target.address ?? '');
 
-  const unserializedSignableTransaction = useMemo(() => {
-    if (!txReqData) return undefined;
-    return {
-      kind: txReqData.type,
-      data: txReqData.data,
-    } as UnserializedSignableTransaction;
-  }, [txReqData]);
+  // const unserializedSignableTransaction = useMemo(() => {
+  //   if (!txReqData) return undefined;
+  //   return {
+  //     kind: txReqData.type,
+  //     data: txReqData.data,
+  //   } as UnserializedSignableTransaction;
+  // }, [txReqData]);
   const { data: estimatedGasBudget, isSuccess: isBudgetLoaded } =
-    useEstimatedGasBudget(unserializedSignableTransaction);
+    useEstimatedGasBudget({} as any);
 
   const apiClient = useApiClient();
 
@@ -90,7 +84,7 @@ const TxApprovePage = () => {
           Function
         </Typo.Normal>
         <Typo.Normal className={styles['detail-item__value']}>
-          {(reqData.data as MoveCallTransaction)?.function}
+          {reqData.data?.function}
         </Typo.Normal>
       </div>
     );
@@ -156,9 +150,9 @@ const TxApprovePage = () => {
 
   function renderMetadata() {
     if (!txReqData) return null;
-    if (txReqData.type === 'moveCall') {
-      return renderMetadataForMoveCall(txReqData);
-    }
+    // if (txReqData.type === 'moveCall') {
+    //   return renderMetadataForMoveCall(txReqData);
+    // }
     // if (txReqData.type === 'paySui') {
     //   const { recipients, amounts, gasBudget } =
     //     txReqData.data as PaySuiTransaction;
@@ -176,14 +170,14 @@ const TxApprovePage = () => {
   useEffect(() => {
     (async function () {
       if (!txReqId) {
-        message.error('txReqId should not be empty!');
+        Message.error('txReqId should not be empty!');
         sleep(3000).then(() => navigate('/'));
         return;
       }
       const txReqStorage = new TxRequestStorage();
       const reqData = await txReqStorage.get(txReqId);
       if (!reqData) {
-        message.error('cannot find txReq data!');
+        Message.error('cannot find txReq data!');
         sleep(3000).then(() => navigate('/'));
         return;
       }
@@ -270,14 +264,14 @@ const TxApprovePage = () => {
                   {txReqData.networkId}
                 </Typo.Normal>
               </div>
-              <div className={styles['detail-item']}>
-                <Typo.Normal className={styles['detail-item__key']}>
-                  Transaction Type
-                </Typo.Normal>
-                <Typo.Normal className={styles['detail-item__value']}>
-                  {txReqData.type}
-                </Typo.Normal>
-              </div>
+              {/*<div className={styles['detail-item']}>*/}
+              {/*  <Typo.Normal className={styles['detail-item__key']}>*/}
+              {/*    Transaction Type*/}
+              {/*  </Typo.Normal>*/}
+              {/*  <Typo.Normal className={styles['detail-item__value']}>*/}
+              {/*    {txReqData.type}*/}
+              {/*  </Typo.Normal>*/}
+              {/*</div>*/}
               <div className={styles['detail-item']}>
                 <Typo.Normal className={styles['detail-item__key']}>
                   Gas Budget
