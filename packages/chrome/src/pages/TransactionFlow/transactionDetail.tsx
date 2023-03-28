@@ -9,7 +9,7 @@ import CopyIcon from '../../components/CopyIcon';
 import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { CoinBalanceChangeItem } from '../../hooks/useTransactionList';
+import { CoinBalanceChangeItem } from '../../types/gql/transactions';
 import { TxItemDisplayType } from './TransactionItem';
 import { upperFirst } from 'lodash-es';
 import formatTotalCoinChange from './utils/formatTotalCoinChange';

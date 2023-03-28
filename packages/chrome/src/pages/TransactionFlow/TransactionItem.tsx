@@ -4,7 +4,7 @@ import Address from '../../components/Address';
 import { nftImgUrl } from '../../utils/nft';
 import { formatCurrency } from '../../utils/format';
 import { upperFirst } from 'lodash-es';
-import { CoinBalanceChangeItem } from '../../hooks/useTransactionList';
+import { CoinBalanceChangeItem } from '../../types/gql/transactions';
 import formatTotalCoinChange from './utils/formatTotalCoinChange';
 import { isNonEmptyArray } from '../../utils/check';
 import renderAddress from './utils/renderAddress';
