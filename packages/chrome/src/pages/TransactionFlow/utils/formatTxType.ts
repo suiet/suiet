@@ -2,12 +2,16 @@ import { TxItemDisplayType } from '../TransactionItem';
 
 export default function formatTxType(
   type: string,
-  kind?: string
+  kind?: string,
+  category?: string
 ): TxItemDisplayType {
-  if (type === 'incoming') return 'received';
-  if (type === 'outgoing') {
-    if (kind === 'Call') return 'moveCall';
-    return 'sent';
+  if (category === 'transfer_coin') {
+    if (type === 'incoming') return 'received';
+    if (type === 'outgoing') {
+      if (kind === 'Call') return 'moveCall';
+      return 'sent';
+    }
   }
-  return 'unknown';
+
+  return kind as TxItemDisplayType;
 }

@@ -9,7 +9,7 @@ import formatTotalCoinChange from './utils/formatTotalCoinChange';
 import { isNonEmptyArray } from '../../utils/check';
 import renderAddress from './utils/renderAddress';
 
-export type TxItemDisplayType = 'received' | 'sent' | 'unknown' | 'moveCall';
+export type TxItemDisplayType = string;
 
 interface TransactionItemProps {
   type: TxItemDisplayType;
@@ -55,9 +55,10 @@ function TransactionItem(props: TransactionItemProps) {
     //   return null;
   }
 
+  const iconType = ['received', 'sent'].includes(type) ? type : 'default';
   return (
     <div className="transaction-item-container" onClick={props.onClick}>
-      <div className={classnames('transaction-item-icon', type, status)} />
+      <div className={classnames('transaction-item-icon', iconType, status)} />
       <div className={'transaction-item-wrap'}>
         <div className="transaction-item-detail">
           <div className="transaction-item-type">{upperFirst(type)}</div>
