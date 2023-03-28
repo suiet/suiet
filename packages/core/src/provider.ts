@@ -1,150 +1,36 @@
 import {
-  getObjectExistsResponse,
   JsonRpcProvider,
   SuiMoveObject,
-  SuiObject,
-  getTransferObjectTransaction,
-  getTransferSuiTransaction,
-  getTransactionData,
   getExecutionStatusType,
   getMoveObject,
-  MoveCallTransaction,
   SuiTransactionKind,
-  getMoveCallTransaction,
   getTransactionKindName,
-  SUI_TYPE_ARG,
-  getPublishTransaction,
-  PaySui,
-  PayAllSui,
   OwnedObjectRef,
-  RpcTxnDataSerializer,
   Coin as CoinAPI,
-  getPayTransaction,
   SuiObjectRef,
   ObjectId,
   RawSigner,
-  SignableTransaction,
-  SuiExecuteTransactionResponse,
+  Transaction,
   ExecuteTransactionRequestType,
   Connection,
+  SuiObjectResponse,
+  SuiObjectData,
+  getSuiObjectData,
+  SuiTransactionResponse,
+  SUI_TYPE_ARG,
+  CoinStruct,
+  PaginatedCoins,
+  DryRunTransactionResponse,
 } from '@mysten/sui.js';
-import { Coin, CoinObject, Nft, NftObject } from './object';
+import { CoinObject, Nft, NftObject } from './object';
 import { TxnHistoryEntry, TxObject } from './storage/types';
 import { Vault } from './vault/Vault';
 import { isNonEmptyArray } from './utils';
 import { JsonRpcClient } from './client';
 import { createKeypair } from './utils/vault';
-import {
-  literal,
-  object,
-  union,
-  string,
-  number,
-  tuple,
-  Infer,
-} from 'superstruct';
-
-export const SUI_SYSTEM_STATE_OBJECT_ID =
-  '0x0000000000000000000000000000000000000005';
-
-export function getPaySuiTransaction(
-  data: SuiTransactionKind
-): PaySui | undefined {
-  return 'PaySui' in data ? data.PaySui : undefined;
-}
-
-export function getPayAllSuiTransaction(
-  data: SuiTransactionKind
-): PayAllSui | undefined {
-  return 'PayAllSui' in data ? data.PayAllSui : undefined;
-}
-
-export function getVersionFoundResponse(
-  resp: GetPastObjectDataResponseType
-): SuiObject | undefined {
-  return resp.status === 'VersionFound'
-    ? (resp.details as SuiObject)
-    : undefined;
-}
-
-export function getObjectNotExistsResponse(
-  resp: GetPastObjectDataResponseType
-): ObjectId | undefined {
-  return resp.status === 'ObjectNotExists'
-    ? (resp.details as ObjectId)
-    : undefined;
-}
-
-export function getObjectDeletedResponse(
-  resp: GetPastObjectDataResponseType
-): SuiObjectRef | undefined {
-  return resp.status === 'ObjectDeleted'
-    ? (resp.details as SuiObjectRef)
-    : undefined;
-}
-
-export function getVersionNotFoundResponse(
-  resp: GetPastObjectDataResponseType
-): [string, number] | undefined {
-  return resp.status === 'VersionNotFound'
-    ? (resp.details as [string, number])
-    : undefined;
-}
-
-export function getVersionTooHighResponse(
-  resp: GetPastObjectDataResponseType
-): SuiPastVersionTooHighType | undefined {
-  return resp.status === 'VersionTooHigh'
-    ? (resp.details as SuiPastVersionTooHighType)
-    : undefined;
-}
-
-type SuiPastVersionTooHighType = {
-  object_id: string;
-  asked_version: number;
-  latest_version: number;
-};
-
-export function isSuiPastVersionTooHigh(
-  obj: any,
-  _argumentName?: string
-): obj is SuiPastVersionTooHighType {
-  return (
-    ((obj !== null && typeof obj === 'object') || typeof obj === 'function') &&
-    typeof obj.object_id === 'string' &&
-    typeof obj.asked_version === 'number' &&
-    typeof obj.latest_version === 'number'
-  );
-}
-
-const PastObjectStatus = union([
-  literal('VersionFound'),
-  literal('ObjectNotExists'),
-  literal('ObjectDeleted'),
-  literal('VersionNotFound'),
-  literal('VersionTooHigh'),
-]);
-
-type PastObjectStatusType = Infer<typeof PastObjectStatus>;
-
-const SuiPastVersionTooHigh = object({
-  object_id: string(),
-  asked_version: number(),
-  latest_version: number(),
-});
-
-const GetPastObjectDataResponse = object({
-  status: PastObjectStatus,
-  details: union([
-    SuiObject,
-    string(),
-    SuiObjectRef,
-    tuple([string(), number()]),
-    SuiPastVersionTooHigh,
-  ]),
-});
-
-type GetPastObjectDataResponseType = Infer<typeof GetPastObjectDataResponse>;
+import { RpcError } from './errors';
+import { number } from 'superstruct';
+import { getDefaultGasBudgetByKind } from './providers/TxProvider';
 
 export const DEFAULT_GAS_BUDGET = 2000;
 
@@ -180,12 +66,9 @@ export class Provider {
     coinType: string,
     amount: bigint,
     recipient: string,
-    vault: Vault,
-    gasBudgetForPay?: number
+    vault: Vault
   ) {
-    const coins = (await this.query.getOwnedCoins(vault.getAddress())).filter(
-      (coin) => CoinAPI.getCoinTypeArg(coin.object) === coinType
-    );
+    const coins = await this.query.getOwnedCoin(vault.getAddress(), coinType);
     if (coins.length === 0) {
       throw new Error('No coin to transfer');
     }
@@ -194,8 +77,7 @@ export class Provider {
       coinType,
       amount,
       recipient,
-      vault,
-      gasBudgetForPay
+      vault
     );
   }
 
@@ -205,29 +87,14 @@ export class Provider {
     vault: Vault,
     gasBudget?: number
   ) {
-    const object = (await this.query.getOwnedObjects(vault.getAddress())).find(
-      (object) => object.reference.objectId === objectId
+    const object = await this.query.getOwnedObject(
+      vault.getAddress(),
+      objectId
     );
     if (!object) {
       throw new Error('No object to transfer');
     }
     await this.tx.transferObject(objectId, recipient, vault, gasBudget);
-  }
-
-  async executeMoveCall(tx: MoveCallTransaction, vault: Vault) {
-    const gasObject = await this.query.getGasObject(
-      vault.getAddress(),
-      DEFAULT_GAS_BUDGET // FIXME: hard coded
-    );
-    return await this.tx.executeMoveCall(
-      tx,
-      vault,
-      gasObject ? gasObject.objectId : undefined
-    );
-  }
-
-  async mintExampleNft(metadata: ExampleNftMetadata, vault: Vault) {
-    await this.executeMoveCall(createMintExampleNftMoveCall(metadata), vault);
   }
 }
 
@@ -243,65 +110,113 @@ export class QueryProvider {
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
-
-        websocketClient: {} as any,
       }
     );
     this.client = new JsonRpcClient(queryEndpoint);
   }
 
-  public async getActiveValidators(): Promise<SuiMoveObject[]> {
-    const contents = await this.provider.getObject(SUI_SYSTEM_STATE_OBJECT_ID);
-    const data = (contents.details as SuiObject).data;
-    const validators = (data as SuiMoveObject).fields.validators;
-    const activeValidators = (validators as SuiMoveObject).fields
-      .active_validators;
-    return activeValidators as SuiMoveObject[];
+  // public async getActiveValidators(): Promise<any> {
+  //   const systemState = await this.provider.getLatestSuiSystemState();
+  //   return systemState.activeValidators;
+  // }
+
+  public async getOwnedObjects(address: string): Promise<SuiObjectData[]> {
+    let hasNextPage = true;
+    let nextCursor = null;
+    const objects: SuiObjectData[] = [];
+    while (hasNextPage) {
+      const resp: any = await this.provider.getOwnedObjects({
+        owner: address,
+        cursor: nextCursor,
+        options: {
+          showType: true,
+          showDisplay: true,
+          showContent: true,
+          showOwner: true,
+        },
+      });
+      const suiObjectResponses = resp.data as SuiObjectResponse[];
+
+      suiObjectResponses?.forEach((r) => {
+        const obj = getSuiObjectData(r);
+        if (obj) {
+          objects.push(obj);
+        }
+      });
+      hasNextPage = resp.hasNextPage;
+      nextCursor = resp.nextCursor;
+    }
+    return objects;
   }
 
-  public async getOwnedObjects(address: string): Promise<SuiObject[]> {
-    const objectInfos = await this.provider.getObjectsOwnedByAddress(address);
-    const objectIds = objectInfos.map((obj) => obj.objectId);
-    if (objectIds.length === 0) {
-      return [];
+  public async getOwnedObject(
+    address: string,
+    objectId: string
+  ): Promise<SuiObjectData | undefined> {
+    const resp = await this.provider.getObject({ id: objectId });
+    const object = getSuiObjectData(resp);
+    if (object && object.owner === address) {
+      return object;
     }
-    const resps = await this.provider.getObjectBatch(objectIds);
-    return resps
-      .filter((resp) => resp.status === 'Exists')
-      .map((resp) => getObjectExistsResponse(resp) as SuiObject);
+    return undefined;
   }
 
   public async getOwnedCoins(address: string): Promise<CoinObject[]> {
-    const objects = await this.getOwnedObjects(address);
-    const res = objects
-      .map((item) => ({
-        id: item.reference.objectId,
-        object: getMoveObject(item),
-      }))
-      .filter((item) => item.object && Coin.isCoin(item.object))
-      .map((item) => Coin.getCoinObject(item.object as SuiMoveObject));
-    return res;
+    const coins: CoinObject[] = [];
+    let hasNextPage = true;
+    let nextCursor = null;
+    while (hasNextPage) {
+      const resp: PaginatedCoins = await this.provider.getAllCoins({
+        owner: address,
+        cursor: nextCursor,
+      });
+      const data = resp.data as CoinStruct[];
+      data.forEach((item) => {
+        coins.push({
+          type: item.coinType,
+          objectId: item.coinObjectId,
+          symbol: CoinAPI.getCoinSymbol(item.coinType),
+          balance: BigInt(item.balance),
+        });
+      });
+      hasNextPage = resp.hasNextPage;
+      nextCursor = resp.nextCursor;
+    }
+    return coins;
   }
 
-  public async getGasObject(
+  public async getOwnedCoin(
     address: string,
-    gasBudget: number
-  ): Promise<CoinObject | undefined> {
-    // TODO: Try to merge coins in this case if gas object is undefined.
-    const coins = await this.getOwnedCoins(address);
-
-    const coin = CoinAPI.selectCoinWithBalanceGreaterThanOrEqual(
-      coins.map((c) => c.object),
-      BigInt(gasBudget)
-    );
-    return Coin.getCoinObject(coin as SuiMoveObject);
+    coinType: string
+  ): Promise<CoinObject[]> {
+    const coins: CoinObject[] = [];
+    let hasNextPage = true;
+    let nextCursor = null;
+    while (hasNextPage) {
+      const resp: any = await this.provider.getCoins({
+        owner: address,
+        coinType: coinType,
+        cursor: nextCursor,
+      });
+      resp.data.forEach((item: any) => {
+        coins.push({
+          type: item.coinType,
+          objectId: item.coinObjectId,
+          symbol: CoinAPI.getCoinSymbol(item.coinType),
+          balance: BigInt(item.balance),
+        });
+      });
+      hasNextPage = resp.hasNextPage;
+      nextCursor = resp.nextCursor;
+    }
+    return coins;
   }
 
   public async getOwnedNfts(address: string): Promise<NftObject[]> {
     const objects = await this.getOwnedObjects(address);
     const res = objects
       .map((item) => ({
-        id: item.reference.objectId,
+        id: item.objectId,
         object: getMoveObject(item),
         previousTransaction: item.previousTransaction,
       }))
@@ -313,377 +228,21 @@ export class QueryProvider {
     return res;
   }
 
-  public async getTransactionsForAddress(
-    address: string
-  ): Promise<TxnHistoryEntry[]> {
-    const txs = await this.provider.getTransactionsForAddress(address, true); // true for descending order, fix type issue of official sdk v0.15.0
-    if (txs.length === 0 || !txs[0]) {
-      return [];
-    }
-    const digests = txs.filter(
-      (value, index, self) => self.indexOf(value) === index
-    );
-
-    const effects = await this.provider.getTransactionWithEffectsBatch(digests);
-    const results = [];
-    for (const effect of effects) {
-      if (!effect.certificate) {
-        throw new Error(
-          "response structure mismatch: effect doesn't contain certificate!"
-        );
-      }
-      const data = getTransactionData(effect.certificate);
-      for (const tx of data.transactions) {
-        const transferSui = getTransferSuiTransaction(tx);
-        const transferObject = getTransferObjectTransaction(tx);
-        const moveCall = getMoveCallTransaction(tx);
-        const pay = getPayTransaction(tx);
-        const paySui = getPaySuiTransaction(tx);
-        const payAllSui = getPayAllSuiTransaction(tx);
-        const publish = getPublishTransaction(tx);
-        const kind = getTransactionKindName(tx);
-        // todo: add PayAllSui, PaySui
-        // console.log(transferSui, transferObject, moveCall, pay, kind, tx);
-        if (kind === 'TransferSui' && transferSui) {
-          results.push({
-            timestamp_ms: effect.timestamp_ms,
-            txStatus: getExecutionStatusType(effect),
-            transactionDigest: effect.certificate.transactionDigest,
-            gasFee:
-              effect.effects.gasUsed.computationCost +
-              effect.effects.gasUsed.storageCost -
-              effect.effects.gasUsed.storageRebate,
-            from: data.sender,
-            to: transferSui.recipient,
-            object: {
-              type: 'coin' as 'coin',
-              balance: String(
-                transferSui.amount ? BigInt(transferSui.amount) : BigInt(0)
-              ),
-              symbol: 'SUI',
-            },
-          });
-        }
-
-        if (kind === 'TransferObject' && transferObject) {
-          const resp = await this.provider.getObject(
-            transferObject.objectRef.objectId
-          );
-          const obj = getMoveObject(resp);
-          let txObj: TxObject | undefined;
-          // TODO: for now provider does not support to get histrorical object data,
-          // so the record here may not be accurate.
-          if (obj && Coin.isCoin(obj)) {
-            const coinObj = Coin.getCoinObject(obj);
-            txObj = {
-              type: 'coin' as 'coin',
-              symbol: coinObj.symbol,
-              balance: String(coinObj.balance),
-            };
-          } else if (obj && Nft.isNft(obj)) {
-            const nftObject = Nft.getNftObject(obj, undefined);
-            txObj = {
-              type: 'nft' as 'nft',
-              ...nftObject,
-            };
-          }
-          // TODO: handle more object types
-          if (txObj) {
-            results.push({
-              timestamp_ms: effect.timestamp_ms,
-              txStatus: getExecutionStatusType(effect),
-              transactionDigest: effect.certificate.transactionDigest,
-              gasFee:
-                effect.effects.gasUsed.computationCost +
-                effect.effects.gasUsed.storageCost -
-                effect.effects.gasUsed.storageRebate,
-              from: data.sender,
-              to: transferObject.recipient,
-              object: txObj,
-            });
-          }
-        }
-        if (kind === 'Call' && moveCall) {
-          results.push({
-            timestamp_ms: effect.timestamp_ms,
-            txStatus: getExecutionStatusType(effect),
-            transactionDigest: effect.certificate.transactionDigest,
-            gasFee:
-              effect.effects.gasUsed.computationCost +
-              effect.effects.gasUsed.storageCost -
-              effect.effects.gasUsed.storageRebate,
-            from: data.sender,
-            to:
-              typeof moveCall.package === 'string'
-                ? moveCall.package
-                : // @ts-ignore
-                  moveCall.package.objectId,
-            object: {
-              type: 'move_call' as 'move_call',
-              packageObjectId:
-                typeof moveCall.package === 'string'
-                  ? moveCall.package
-                  : // @ts-ignore
-                    moveCall.package.objectId,
-              module: moveCall.module,
-              function: moveCall.function,
-              arguments: moveCall.arguments?.map((arg) => JSON.stringify(arg)),
-
-              // fixme: put in details page
-              // created: await this.getCreatedTxObjects(effect.effects.created),
-              // changedOrDeleted: await this.getMutatedTxObjects(
-              //   effect.effects.mutated
-              // ),
-
-              // TODO: change to before and after
-            },
-          });
-        }
-
-        if (kind === 'Pay' && pay && isNonEmptyArray(pay.coins)) {
-          // TODO: replace it to tryGetOldObject
-          let coin: CoinObject | null = null;
-          for (const _coin of pay.coins) {
-            const resp = await this.provider.getObject(_coin.objectId);
-            const obj = getMoveObject(resp);
-            if (!obj) {
-              continue;
-            }
-            coin = Coin.getCoinObject(obj);
-          }
-          if (coin === null) {
-            continue;
-          }
-
-          const gasFee =
-            effect.effects.gasUsed.computationCost +
-            effect.effects.gasUsed.storageCost -
-            effect.effects.gasUsed.storageRebate;
-          for (let i = 0; i < pay.recipients.length; i++) {
-            results.push({
-              timestamp_ms: effect.timestamp_ms,
-              txStatus: getExecutionStatusType(effect),
-              transactionDigest: effect.certificate.transactionDigest,
-              gasFee: gasFee / pay.recipients.length,
-              from: data.sender,
-              to: pay.recipients[i],
-              object: {
-                type: 'coin' as 'coin',
-                balance: String(
-                  pay.amounts[i] ? BigInt(pay.amounts[i]) : BigInt(0)
-                ),
-                symbol: coin.symbol,
-              },
-            });
-          }
-        }
-
-        // TODO: add PayAllSui, PaySui, ChangeEpoch, Publish, TransferObject
-
-        if (kind === 'PaySui' && paySui) {
-          const gasFee =
-            effect.effects.gasUsed.computationCost +
-            effect.effects.gasUsed.storageCost -
-            effect.effects.gasUsed.storageRebate;
-          for (let i = 0; i < paySui.recipients.length; i++) {
-            results.push({
-              timestamp_ms: effect.timestamp_ms,
-              txStatus: getExecutionStatusType(effect),
-              transactionDigest: effect.certificate.transactionDigest,
-
-              gasFee: gasFee / paySui.recipients.length,
-              from: data.sender,
-              to: paySui.recipients[i],
-              object: {
-                type: 'coin' as 'coin',
-                balance: String(
-                  paySui.amounts[i] ? BigInt(paySui.amounts[i]) : BigInt(0)
-                ),
-                symbol: 'SUI',
-              },
-            });
-          }
-        }
-
-        if (kind === 'PayAllSui' && payAllSui) {
-          let coin: CoinObject | null = null;
-          const gasFee =
-            effect.effects.gasUsed.computationCost +
-            effect.effects.gasUsed.storageCost -
-            effect.effects.gasUsed.storageRebate;
-          for (const _coin of payAllSui.coins) {
-            const resp = await this.provider.getObject(_coin.objectId);
-            const obj = getMoveObject(resp);
-            if (!obj) {
-              continue;
-            }
-
-            coin = Coin.getCoinObject(obj);
-
-            results.push({
-              timestamp_ms: effect.timestamp_ms,
-              txStatus: getExecutionStatusType(effect),
-              transactionDigest: effect.certificate.transactionDigest,
-
-              gasFee,
-              from: data.sender,
-              to: payAllSui.recipient,
-              object: {
-                type: 'coin' as 'coin',
-                balance: String(coin.balance),
-                symbol: coin.symbol,
-              },
-            });
-          }
-        }
-      }
-    }
-    return results;
-  }
-
-  public async getCreatedTxObjects(
-    objectRefs: OwnedObjectRef[] | undefined
-  ): Promise<TxObject[]> {
-    if (!objectRefs) {
-      return [];
-    }
-    const objects = [];
-    for (const objRef of objectRefs) {
-      const pastObj = await this.getPastTxObject(
-        objRef.reference.objectId,
-        objRef.reference.version
-      );
-      if (pastObj) {
-        objects.push(pastObj);
-      }
-      // TODO: What do we need to do if the object is not found?
-    }
-    // console.log('created', objects);
-    return objects;
-  }
-
-  public async getMutatedTxObjects(
-    objectRefs: OwnedObjectRef[] | undefined
-  ): Promise<TxObject[]> {
-    if (!objectRefs) {
-      return [];
-    }
-    const objects = [];
-    for (const objRef of objectRefs) {
-      const obj = await this.getPastTxObject(
-        objRef.reference.objectId,
-        objRef.reference.version
-      );
-      if (obj) {
-        // Currently we only care about the coin object.
-        if (obj.type === 'coin') {
-          const previousObj = await this.getPastTxObject(
-            objRef.reference.objectId,
-            objRef.reference.version - 1
-          );
-          if (previousObj && previousObj.type === 'coin') {
-            objects.push({
-              ...obj,
-              balance: String(
-                BigInt(obj.balance) - BigInt(previousObj.balance)
-              ),
-            });
-          }
-        } else if (obj.type === 'nft') {
-          objects.push(obj);
-        } else if (obj.type === 'object_id') {
-          // Return Type is object_id means the object is deleted.
-          const previousObj = await this.getPastTxObject(
-            objRef.reference.objectId,
-            objRef.reference.version - 1
-          );
-          if (previousObj) {
-            if (previousObj.type === 'coin') {
-              objects.push({
-                ...previousObj,
-                balance: String(BigInt(previousObj.balance) * BigInt(-1)),
-              });
-            } else if (previousObj.type === 'nft') {
-              objects.push(previousObj);
-            }
-          }
-        }
-      }
-    }
-    // console.log('mutated', objects);
-    return objects;
-  }
-
-  public async getPastTxObject(
-    objectId: string,
-    version: number
-  ): Promise<TxObject | undefined> {
-    const resp = await this.tryGetPastObject(objectId, version);
-    const versionFoundResp = getVersionFoundResponse(resp);
-    const objectDeleted = getObjectDeletedResponse(resp);
-    if (versionFoundResp) {
-      const obj = getMoveObject(versionFoundResp);
-      if (obj) {
-        if (Coin.isCoin(obj)) {
-          const coinObj = Coin.getCoinObject(obj);
-          return {
-            type: 'coin' as 'coin',
-            symbol: coinObj.symbol,
-            balance: String(coinObj.balance),
-          };
-        } else if (Nft.isNft(obj)) {
-          return {
-            type: 'nft' as 'nft',
-            ...Nft.getNftObject(obj),
-          };
-        }
-      } else if (objectDeleted) {
-        return {
-          type: 'object_id' as 'object_id',
-          id: objectId,
-        };
-      }
-    }
-    return undefined;
-  }
-
   public async getNormalizedMoveFunction(
     objectId: string,
     moduleName: string,
     functionName: string
   ) {
-    return await this.provider.getNormalizedMoveFunction(
-      objectId,
-      moduleName,
-      functionName
-    );
-  }
-
-  async tryGetPastObject(
-    objectId: string,
-    version: number
-  ): Promise<GetPastObjectDataResponseType> {
-    try {
-      return await this.client.requestWithType(
-        'sui_tryGetPastObject',
-        [objectId, version],
-        GetPastObjectDataResponse as any, // FIXME: type error
-        true
-      );
-    } catch (err) {
-      throw new Error(
-        `Error fetching past object with object ID: ${objectId}, version: ${version}, error: ${err}`
-      );
-    }
+    return await this.provider.getNormalizedMoveFunction({
+      package: objectId,
+      module: moduleName,
+      function: functionName,
+    });
   }
 }
 
-/**
- * @Deprecated use src/providers/TxProvider instead
- */
 export class TxProvider {
   provider: JsonRpcProvider;
-  serializer: RpcTxnDataSerializer;
 
   constructor(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
     this.provider = new JsonRpcProvider(
@@ -693,11 +252,8 @@ export class TxProvider {
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
-
-        websocketClient: {} as any,
       }
     );
-    this.serializer = new RpcTxnDataSerializer(txEndpoint);
   }
 
   async transferObject(
@@ -706,17 +262,9 @@ export class TxProvider {
     vault: Vault,
     gasBudgest?: number
   ) {
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'transferObject',
-        data: {
-          objectId,
-          gasBudget: gasBudgest ?? DEFAULT_GAS_BUDGET,
-          recipient,
-        },
-      },
-      vault
-    );
+    const tx = new Transaction();
+    tx.transferObjects([tx.object(objectId)], tx.pure(recipient));
+    return await this.signAndExecuteTransaction(tx, vault);
   }
 
   public async transferCoin(
@@ -724,148 +272,177 @@ export class TxProvider {
     coinType: string, // such as 0x2::sui::SUI
     amount: bigint,
     recipient: string,
-    vault: Vault,
-    gasBudgetForPay?: number
+    vault: Vault
   ) {
-    const allCoins = coins.map((c) => c.object);
-    const allCoinsOfTransferType = allCoins.filter(
-      (c) => CoinAPI.getCoinTypeArg(c) === coinType
+    const tx = new Transaction();
+    const [primaryCoin, ...mergeCoins] = coins.filter(
+      (coin) => coin.type === coinType
     );
-    const gasBudget =
-      gasBudgetForPay ??
-      Coin.computeGasBudgetForPay(allCoinsOfTransferType, amount);
 
-    const payTx = await Coin.newPayTransaction(
-      allCoins,
-      coinType,
-      amount,
-      recipient,
-      gasBudget
-    );
-    return await this.signAndExecuteTransaction(payTx, vault);
-  }
-
-  public async executeMoveCall(
-    tx: MoveCallTransaction,
-    vault: Vault,
-    gasObjectId: string | undefined
-  ) {
-    const _tx = { ...tx };
-    if (!_tx.gasPayment) {
-      _tx.gasPayment = gasObjectId;
+    if (coinType === SUI_TYPE_ARG) {
+      const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
+      tx.transferObjects([coin], tx.pure(recipient));
+    } else {
+      const primaryCoinInput = tx.object(primaryCoin.objectId);
+      if (mergeCoins.length) {
+        // TODO: This could just merge a subset of coins that meet the balance requirements instead of all of them.
+        tx.mergeCoins(
+          primaryCoinInput,
+          mergeCoins.map((coin) => tx.object(coin.objectId))
+        );
+      }
+      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(coins)]);
+      tx.transferObjects([coin], tx.pure(recipient));
     }
 
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'moveCall',
-        data: tx,
-      },
-      vault
-    );
-  }
-
-  public async executeSerializedMoveCall(txBytes: Uint8Array, vault: Vault) {
-    return await this.signAndExecuteTransaction(
-      {
-        kind: 'bytes',
-        data: txBytes,
-      },
-      vault
-    );
+    return await this.signAndExecuteTransaction(tx, vault);
   }
 
   public async signAndExecuteTransaction(
-    tx: SignableTransaction,
+    tx: Transaction,
     vault: Vault,
     requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
-  ): Promise<SuiExecuteTransactionResponse> {
+  ): Promise<SuiTransactionResponse> {
     const keypair = createKeypair(vault);
-    const signer = new RawSigner(keypair, this.provider, this.serializer);
-    return await signer.signAndExecuteTransaction(tx, requestType);
+    const signer = new RawSigner(keypair, this.provider);
+    return await signer.signAndExecuteTransaction({
+      transaction: tx,
+      options: {},
+      requestType,
+    });
   }
 
-  public async stakeCoin(
-    coins: CoinObject[],
-    amount: bigint,
-    validator: string,
-    vault: Vault,
-    gasBudgetForStake: number
-  ): Promise<SuiExecuteTransactionResponse> {
-    // todo select inside core
-    // coins: SuiMoveObject[],
-    // gasCoins: SuiMoveObject[],
+  // public async stakeCoin(
+  //   coins: CoinObject[],
+  //   amount: bigint,
+  //   validator: string,
+  //   vault: Vault,
+  //   gasBudgetForStake: number
+  // ): Promise<SuiTransactionResponse> {
+  //   // todo select inside core
+  //   // coins: SuiMoveObject[],
+  //   // gasCoins: SuiMoveObject[],
+  //
+  //   // fixme: auto splite coin if coin appears in both coins and gas coins
+  //
+  //   const keypair = createKeypair(vault);
+  //   const signer = new RawSigner(keypair, this.provider, this.serializer);
+  //
+  //   // sort to get the smallest one for gas
+  //   const sortedGasCoins = CoinAPI.sortByBalance(
+  //     coins.filter((coin) => coin.symbol === 'SUI').map((coin) => coin.object)
+  //   );
+  //
+  //   const gasCoin = CoinAPI.selectCoinWithBalanceGreaterThanOrEqual(
+  //     sortedGasCoins,
+  //     BigInt(gasBudgetForStake)
+  //   );
+  //   if (!gasCoin) {
+  //     throw new Error(
+  //       'Insufficient funds, not enough funds to cover for gas fee.'
+  //     );
+  //   }
+  //   if (!coins.length) {
+  //     throw new Error('Insufficient funds, no coins found.');
+  //   }
+  //   const isSui = CoinAPI.getCoinTypeArg(coins[0].object) === SUI_TYPE_ARG;
+  //   const stakeCoins =
+  //     CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+  //       coins.map((coin) => coin.object),
+  //       amount,
+  //       isSui ? [CoinAPI.getID(gasCoin)] : undefined
+  //     ).map(CoinAPI.getID);
+  //   if (!stakeCoins.length) {
+  //     if (stakeCoins.length === 1 && isSui) {
+  //       throw new Error(
+  //         'Not enough coin objects, at least 2 coin objects are required.'
+  //       );
+  //     } else {
+  //       throw new Error('Insufficient funds, try reducing the stake amount.');
+  //     }
+  //   }
+  //   const txn = {
+  //     packageObjectId: '0x2',
+  //     module: 'sui_system',
+  //     function: 'request_add_delegation_mul_coin',
+  //     typeArguments: [],
+  //     arguments: [
+  //       SUI_SYSTEM_STATE_OBJECT_ID,
+  //       stakeCoins,
+  //       [String(amount)],
+  //       validator,
+  //     ],
+  //     gasBudget: gasBudgetForStake,
+  //   };
+  //   console.log(txn);
+  //   return await signer.executeMoveCall(txn);
+  // }
+  //
+  // public async unStakeCoin(
+  //   delegation: ObjectId,
+  //   stakedSuiId: ObjectId,
+  //   vault: Vault,
+  //   gasBudgetForStake: number
+  // ): Promise<SuiTransactionResponse> {
+  //   const keypair = createKeypair(vault);
+  //   const signer = new RawSigner(keypair, this.provider, this.serializer);
+  //   const txn = {
+  //     packageObjectId: '0x2',
+  //     module: 'sui_system',
+  //     function: 'request_withdraw_delegation',
+  //     typeArguments: [],
+  //     arguments: [SUI_SYSTEM_STATE_OBJECT_ID, delegation, stakedSuiId],
+  //     gasBudget: gasBudgetForStake,
+  //   };
+  //   return await signer.executeMoveCall(txn);
+  // }
 
-    // fixme: auto splite coin if coin appears in both coins and gas coins
-
+  /**
+   * simulate transaction execution
+   * can be used to estimate gas fee
+   * @param tx
+   * @param vault
+   */
+  public async dryRunTransaction(
+    tx: Transaction,
+    vault: Vault
+  ): Promise<DryRunTransactionResponse> {
     const keypair = createKeypair(vault);
-    const signer = new RawSigner(keypair, this.provider, this.serializer);
-
-    // sort to get the smallest one for gas
-    const sortedGasCoins = CoinAPI.sortByBalance(
-      coins.filter((coin) => coin.symbol === 'SUI').map((coin) => coin.object)
-    );
-
-    const gasCoin = CoinAPI.selectCoinWithBalanceGreaterThanOrEqual(
-      sortedGasCoins,
-      BigInt(gasBudgetForStake)
-    );
-    if (!gasCoin) {
-      throw new Error(
-        'Insufficient funds, not enough funds to cover for gas fee.'
-      );
+    const signer = new RawSigner(keypair, this.provider);
+    const res = await signer.dryRunTransaction({ transaction: tx });
+    if (res?.effects?.status?.status === 'failure') {
+      const { status } = res.effects;
+      throw new RpcError(status.error ?? status.status, res);
     }
-    if (!coins.length) {
-      throw new Error('Insufficient funds, no coins found.');
-    }
-    const isSui = CoinAPI.getCoinTypeArg(coins[0].object) === SUI_TYPE_ARG;
-    const stakeCoins =
-      CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-        coins.map((coin) => coin.object),
-        amount,
-        isSui ? [CoinAPI.getID(gasCoin)] : undefined
-      ).map(CoinAPI.getID);
-    if (!stakeCoins.length) {
-      if (stakeCoins.length === 1 && isSui) {
-        throw new Error(
-          'Not enough coin objects, at least 2 coin objects are required.'
-        );
-      } else {
-        throw new Error('Insufficient funds, try reducing the stake amount.');
-      }
-    }
-    const txn = {
-      packageObjectId: '0x2',
-      module: 'sui_system',
-      function: 'request_add_delegation_mul_coin',
-      typeArguments: [],
-      arguments: [
-        SUI_SYSTEM_STATE_OBJECT_ID,
-        stakeCoins,
-        [String(amount)],
-        validator,
-      ],
-      gasBudget: gasBudgetForStake,
-    };
-    console.log(txn);
-    return await signer.executeMoveCall(txn);
+    return res;
   }
 
-  public async unStakeCoin(
-    delegation: ObjectId,
-    stakedSuiId: ObjectId,
-    vault: Vault,
-    gasBudgetForStake: number
-  ): Promise<SuiExecuteTransactionResponse> {
-    const keypair = createKeypair(vault);
-    const signer = new RawSigner(keypair, this.provider, this.serializer);
-    const txn = {
-      packageObjectId: '0x2',
-      module: 'sui_system',
-      function: 'request_withdraw_delegation',
-      typeArguments: [],
-      arguments: [SUI_SYSTEM_STATE_OBJECT_ID, delegation, stakedSuiId],
-      gasBudget: gasBudgetForStake,
-    };
-    return await signer.executeMoveCall(txn);
-  }
+  // TODO: add estimated gas budget calculation
+  // /**
+  //  * try to calculate estimated gas budget from dryRun API
+  //  * @param tx
+  //  */
+  // async getEstimatedGasBudget(tx: Transaction): Promise<number> {
+  //   const defaultGasBudget = getDefaultGasBudgetByKind(tx.kind);
+  //   if (tx.kind !== 'bytes') {
+  //     if (typeof tx.data?.gasBudget === 'number' && tx.data.gasBudget > 0) {
+  //       // if already specified non-zero gasBudget, return it
+  //       return tx.data.gasBudget;
+  //     }
+  //     // else, assign a default budget
+  //     Object.assign(tx.data, { gasBudget: defaultGasBudget });
+  //   }
+  //
+  //   let effects: TransactionEffects;
+  //   try {
+  //     effects = await this.dryRunTransaction(tx);
+  //     const RATIO = 1.5;
+  //     const res = getTotalGasUsed(effects); // infer est budget from dryRun result
+  //     // return estimated budget based on the response of dryRun
+  //     return is(res, number()) ? Math.ceil(res * RATIO) : DEFAULT_GAS_BUDGET;
+  //   } catch (e) {
+  //     // if failed, return default gas budget
+  //     return defaultGasBudget;
+  //   }
+  // }
 }

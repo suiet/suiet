@@ -1,11 +1,14 @@
 import * as bip39 from '@scure/bip39';
 import { Ed25519HdKey } from './hdkey';
-import { decryptMnemonic, derivationHdPath } from '../crypto';
-import { SHA3 } from 'sha3';
+import { decryptMnemonic } from '../crypto';
 import { Buffer } from 'buffer';
 import { UnsignedTx, SignedTx, SignedMessage } from './types';
-
-const ED25519_ADDRESS_PREFIX = 0x00;
+import { blake2b } from '@noble/hashes/blake2b';
+import {
+  SIGNATURE_SCHEME_TO_FLAG,
+  SUI_ADDRESS_LENGTH,
+  normalizeSuiAddress,
+} from '@mysten/sui.js';
 
 export class Vault {
   hdKey: Ed25519HdKey;
@@ -27,21 +30,23 @@ export class Vault {
   }
 
   // Used for testing
-  public static async fromMnemonic(mnemonic: string): Promise<Vault> {
+  public static async fromMnemonic(
+    path: string,
+    mnemonic: string
+  ): Promise<Vault> {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     const master = await Ed25519HdKey.fromMasterSeed(Buffer.from(seed));
-    const hdKey = await master.derive(derivationHdPath(0));
-    return new Vault(hdKey);
+    return new Vault(await master.derive(path));
   }
 
   public getAddress(): string {
     const keyWithPrefix = new Uint8Array(32 + 1);
-    keyWithPrefix.set([ED25519_ADDRESS_PREFIX]);
+    keyWithPrefix.set([SIGNATURE_SCHEME_TO_FLAG['ED25519']]);
     keyWithPrefix.set(this.hdKey.getPublicKey(), 1);
-    const publicHash = new SHA3(256)
-      .update(Buffer.from(keyWithPrefix))
-      .digest();
-    return '0x' + Buffer.from(publicHash.slice(0, 20)).toString('hex');
+    const publicHash = blake2b(keyWithPrefix, { dkLen: 32 });
+    return normalizeSuiAddress(
+      Buffer.from(publicHash.slice(0, SUI_ADDRESS_LENGTH * 2)).toString('hex')
+    );
   }
 
   public getPublicKey(): string {

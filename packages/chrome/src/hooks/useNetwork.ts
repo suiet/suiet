@@ -34,7 +34,12 @@ export function useNetwork(networkId: string) {
     const currentNetworkConfig = featureFlags.networks[networkId];
     if (!currentNetworkConfig?.full_node_url) return defaultData;
 
-    const overrideData: Network = {
+    const overrideData: Network & {
+      enableStaking?: boolean;
+      enableMintExampleNFT?: boolean;
+      moveCallGasBudget?: number;
+      payCoinGasBudget?: number;
+    } = {
       ...defaultData,
       queryRpcUrl: currentNetworkConfig.full_node_url,
       txRpcUrl: currentNetworkConfig.full_node_url,
@@ -43,6 +48,8 @@ export function useNetwork(networkId: string) {
       stakeGasBudget: currentNetworkConfig.stake_gas_budget,
       enableStaking: currentNetworkConfig.enable_staking,
       enableMintExampleNFT: currentNetworkConfig.enable_mint_example_nft,
+      moveCallGasBudget: currentNetworkConfig.move_call_gas_budget,
+      payCoinGasBudget: currentNetworkConfig.pay_coin_gas_budget,
     };
     return overrideData;
   }, [defaultData, featureFlags, networkId]);

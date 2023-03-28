@@ -11,8 +11,8 @@ export type SignedTx = {
 };
 
 export type SignedMessage = {
-  signature: ArrayBuffer;
-  pubKey: ArrayBuffer;
+  signature: Uint8Array;
+  pubKey: Uint8Array;
 };
 
 export type CoinType = {

@@ -3,8 +3,9 @@ export type Network = {
   name: string;
   queryRpcUrl: string;
   txRpcUrl: string;
-  stakeGasBudget?: number;
   versionCacheTimoutInSeconds: number;
+  stakeGasBudget?: number;
+  moveCallGasBudget?: number;
 };
 
 export interface INetworkApi {

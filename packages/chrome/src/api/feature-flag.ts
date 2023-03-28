@@ -6,10 +6,11 @@ export interface FeatureFlagNetwork {
   faucet_api: string;
   // mint_example_nft_gas_budget: number;
   // transfer_object_gas_budget: number;
+  move_call_gas_budget: number;
+  pay_coin_gas_budget: number;
   enable_staking: boolean;
   enable_mint_example_nft: boolean;
   version_cache_timout_in_seconds: number;
-  pay_coin_gas_budget: number;
   stake_gas_budget: number;
 }
 export interface FeatureFlagRes {

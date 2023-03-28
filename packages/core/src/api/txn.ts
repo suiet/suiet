@@ -1,31 +1,19 @@
 import { TxnHistoryEntry } from '../storage/types';
 import { Network } from './network';
-import TxProvider from '../providers/TxProvider';
-import QueryProvider from '../providers/QueryProvider';
+import { Provider, QueryProvider, TxProvider } from '../provider';
 import { validateToken } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
-  CertifiedTransaction,
   ExecuteTransactionRequestType,
-  getCertifiedTransaction,
-  getTransactionEffects,
-  MoveCallTransaction,
-  PayAllSuiTransaction,
-  PaySuiTransaction,
-  PayTransaction,
-  SuiMoveObject,
-  SignableTransaction,
-  SuiExecuteTransactionResponse,
   SuiMoveNormalizedFunction,
   SuiTransactionResponse,
-  TransactionEffects,
+  Transaction,
 } from '@mysten/sui.js';
 import { SignedMessage } from '../vault/types';
 import { RpcError } from '../errors';
 import { createMintExampleNftMoveCall, ExampleNftMetadata } from '../utils/nft';
-import { Provider } from '../provider';
 import { type } from 'superstruct';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
@@ -63,7 +51,7 @@ export type TransferObjectParams = {
 };
 
 export type GetEstimatedGasBudgetParams = TxEssentials & {
-  transaction: SignableTransaction;
+  transaction: Transaction;
 };
 
 export type MintNftParams = {
@@ -133,7 +121,6 @@ export type SendAndExecuteTxParams<T> = {
   context: TxEssentials;
   requestType?: ExecuteTransactionRequestType;
 };
-export type MoveCallParams = SendAndExecuteTxParams<MoveCallTransaction>;
 
 export type StakeCoinParams = {
   walletId: string;
@@ -157,26 +144,16 @@ export type UnStakeCoinParams = {
 };
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
-  transferCoin: (
-    params: TransferCoinParams
-  ) => Promise<SuiExecuteTransactionResponse>;
+  transferCoin: (params: TransferCoinParams) => Promise<SuiTransactionResponse>;
   transferObject: (params: TransferObjectParams) => Promise<void>;
-  getTransactionHistory: (
-    params: GetTxHistoryParams
-  ) => Promise<Array<TxnHistoryEntry<ObjectDto>>>;
+  // getTransactionHistory: (
+  //   params: GetTxHistoryParams
+  // ) => Promise<Array<TxnHistoryEntry<ObjectDto>>>;
   getOwnedCoins: (params: GetOwnedObjParams) => Promise<CoinObjectDto[]>;
   getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObjectDto[]>;
   getCoinsBalance: (
     params: GetOwnedObjParams
   ) => Promise<Array<{ symbol: string; type: string; balance: string }>>;
-
-  mintExampleNft: (params: MintNftParams) => Promise<void>;
-
-  executeMoveCall: (params: MoveCallParams) => Promise<SuiTransactionResponse>;
-
-  executeSerializedMoveCall: (
-    params: SerializedMoveCallParams
-  ) => Promise<void>;
 
   getNormalizedMoveFunction: (
     params: GetNormalizedMoveFunctionParams
@@ -185,19 +162,19 @@ export interface ITransactionApi {
   signMessage: (params: SignMessageParams) => Promise<SignedMessage>;
 
   signAndExecuteTransaction: (
-    params: SendAndExecuteTxParams<SignableTransaction>
-  ) => Promise<SuiExecuteTransactionResponse>;
+    params: SendAndExecuteTxParams<Transaction>
+  ) => Promise<SuiTransactionResponse>;
 
-  getEstimatedGasBudget: (
-    params: GetEstimatedGasBudgetParams
-  ) => Promise<number>;
-  stakeCoin: (
-    params: StakeCoinParams
-  ) => Promise<SuiExecuteTransactionResponse>;
-
-  unStakeCoin: (
-    params: UnStakeCoinParams
-  ) => Promise<SuiExecuteTransactionResponse>;
+  // getEstimatedGasBudget: (
+  //   params: GetEstimatedGasBudgetParams
+  // ) => Promise<number>;
+  // stakeCoin: (
+  //   params: StakeCoinParams
+  // ) => Promise<SuiExecuteTransactionResponse>;
+  //
+  // unStakeCoin: (
+  //   params: UnStakeCoinParams
+  // ) => Promise<SuiExecuteTransactionResponse>;
 }
 
 export class TransactionApi implements ITransactionApi {
@@ -213,9 +190,8 @@ export class TransactionApi implements ITransactionApi {
 
   async transferCoin(
     params: TransferCoinParams
-  ): Promise<SuiExecuteTransactionResponse> {
+  ): Promise<SuiTransactionResponse> {
     await validateToken(this.storage, params.token);
-    // TODO: substitute to TxProvider
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
@@ -236,7 +212,7 @@ export class TransactionApi implements ITransactionApi {
     if (!res) {
       throw new RpcError('no response');
     }
-    const statusResult = res?.effects?.effects?.status;
+    const statusResult = (res as any)?.effects?.effects?.status;
     if (!statusResult) {
       throw new RpcError('invalid transaction status response');
     }
@@ -247,59 +223,60 @@ export class TransactionApi implements ITransactionApi {
   }
 
   async transferObject(params: TransferObjectParams): Promise<void> {
-    const provider = await this.getTxProvider({
-      network: params.network,
-      walletId: params.walletId,
-      accountId: params.accountId,
-      token: params.token,
-    });
-    await provider.transferObject(
-      params.objectId,
-      params.recipient
-      // TODO: allow network control
-      // params.network.transferObjectGasBudget
-    );
-  }
-
-  async getTransactionHistory(
-    params: GetTxHistoryParams
-  ): Promise<Array<TxnHistoryEntry<ObjectDto>>> {
-    const { network, address } = params;
-    const provider = new QueryProvider(
-      network.queryRpcUrl,
+    await validateToken(this.storage, params.token);
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
       params.network.versionCacheTimoutInSeconds
     );
-    let result: any = await provider.getTransactionsForAddress(address);
-
-    console.log(
-      result.filter(
-        (tx) => typeof tx?.from !== 'string' || typeof tx?.to !== 'string'
-      )
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
     );
-
-    // transform the balance of coin obj from bigint to string
-    result = result.map((item: TxnHistoryEntry) => {
-      if (item.object.type !== 'coin') return item;
-      return {
-        ...item,
-        object: {
-          ...item.object,
-          balance: String(item.object.balance),
-        },
-      };
-    });
-    return result;
+    await provider.transferObject(
+      params.objectId,
+      params.recipient,
+      vault,
+      params.network?.moveCallGasBudget
+    );
   }
+
+  // async getTransactionHistory(
+  //   params: GetTxHistoryParams
+  // ): Promise<Array<TxnHistoryEntry<ObjectDto>>> {
+  //   const { network, address } = params;
+  //   const provider = new Provider(
+  //     network.queryRpcUrl,
+  //     network.txRpcUrl,
+  //     params.network.versionCacheTimoutInSeconds
+  //   );
+  //   let result: any = await provider.query.getTransactionsForAddress(address);
+
+  //   // transform the balance of coin obj from bigint to string
+  //   result = result.map((item: TxnHistoryEntry) => {
+  //     if (item.object.type !== 'coin') return item;
+  //     return {
+  //       ...item,
+  //       object: {
+  //         ...item.object,
+  //         balance: String(item.object.balance),
+  //       },
+  //     };
+  //   });
+  //   return result;
+  // }
 
   async getCoinsBalance(
     params: GetOwnedObjParams
   ): Promise<Array<{ symbol: string; type: string; balance: string }>> {
     const { network, address } = params;
-    const provider = new QueryProvider(
+    const provider = new Provider(
       network.queryRpcUrl,
+      network.txRpcUrl,
       params.network.versionCacheTimoutInSeconds
     );
-    const objects = await provider.getOwnedCoins(address);
+    const objects = await provider.query.getOwnedCoins(address);
     const result = new Map();
 
     // using type to agg
@@ -317,11 +294,12 @@ export class TransactionApi implements ITransactionApi {
 
   async getOwnedCoins(params: GetOwnedObjParams): Promise<CoinObjectDto[]> {
     const { network, address } = params;
-    const provider = new QueryProvider(
+    const provider = new Provider(
       network.queryRpcUrl,
+      network.txRpcUrl,
       params.network.versionCacheTimoutInSeconds
     );
-    const coins = await provider.getOwnedCoins(address);
+    const coins = await provider.query.getOwnedCoins(address);
     return coins.map((coin) => {
       return {
         type: 'coin',
@@ -334,11 +312,12 @@ export class TransactionApi implements ITransactionApi {
 
   async getOwnedNfts(params: GetOwnedObjParams): Promise<NftObjectDto[]> {
     const { network, address } = params;
-    const provider = new QueryProvider(
+    const provider = new Provider(
       network.queryRpcUrl,
+      network.txRpcUrl,
       params.network.versionCacheTimoutInSeconds
     );
-    const nfts = await provider.getOwnedNfts(address);
+    const nfts = await provider.query.getOwnedNfts(address);
     return nfts.map((nft) => ({
       type: 'nft',
       id: nft.objectId,
@@ -352,82 +331,39 @@ export class TransactionApi implements ITransactionApi {
     }));
   }
 
-  async mintExampleNft(params: MintNftParams): Promise<void> {
-    const provider = await this.getTxProvider({
-      network: params.network,
-      walletId: params.walletId,
-      accountId: params.accountId,
-      token: params.token,
-    });
-    await provider.signAndExecuteTransaction({
-      kind: 'moveCall',
-      data: createMintExampleNftMoveCall(params.metadata),
-    });
-  }
-
-  async executeMoveCall(
-    params: MoveCallParams
-  ): Promise<SuiTransactionResponse> {
-    const provider = await this.getTxProvider(params.context);
-    const response = await provider.signAndExecuteTransaction({
-      kind: 'moveCall',
-      data: params.transaction,
-    });
-    return {
-      certificate: getCertifiedTransaction(response) as CertifiedTransaction,
-      effects: getTransactionEffects(response) as TransactionEffects,
-      timestamp_ms: null,
-      parsed_data: null,
-    };
-  }
-
-  async executeSerializedMoveCall(
-    params: SerializedMoveCallParams
-  ): Promise<void> {
-    const provider = await this.getTxProvider({
-      network: params.network,
-      walletId: params.walletId,
-      accountId: params.accountId,
-      token: params.token,
-    });
-    await provider.executeSerializedMoveCall(params.txBytes);
-  }
-
   async signMessage(params: SignMessageParams) {
     const { walletId, accountId, message, token } = params;
     const vault = await this.prepareVault(walletId, accountId, token);
-    return await vault.signMessage(message);
+    const signedMsg = await vault.signMessage(message);
+    return signedMsg;
   }
 
-  async signAndExecuteTransaction(
-    params: SendAndExecuteTxParams<SignableTransaction>
-  ) {
-    const provider = await this.getTxProvider(params.context);
+  async signAndExecuteTransaction(params: SendAndExecuteTxParams<Transaction>) {
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
     return await provider.signAndExecuteTransaction(
       params.transaction,
+      vault,
       params.requestType
     );
   }
 
-  async getEstimatedGasBudget(
-    params: GetEstimatedGasBudgetParams
-  ): Promise<number> {
-    // TODO: think about how to pass context more elegantly
-    const txProvider = await this.getTxProvider({
-      network: params.network,
-      walletId: params.walletId,
-      accountId: params.accountId,
-      token: params.token,
-    });
-    return await txProvider.getEstimatedGasBudget(params.transaction);
-  }
+  // async getEstimatedGasBudget(
+  //   params: GetEstimatedGasBudgetParams
+  // ): Promise<number> {
+  //   const { network } = params;
+  //   const provider = new Provider(
+  //     network.queryRpcUrl,
+  //     network.txRpcUrl,
+  //     params.network.versionCacheTimoutInSeconds
+  //   );
+  //   return await provider.getEstimatedGasBudget(params.transaction);
+  // }
 
   private async prepareVault(
     walletId: string,
     accountId: string,
     token: string
   ) {
-    await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet not found');
@@ -436,24 +372,29 @@ export class TransactionApi implements ITransactionApi {
     if (!account) {
       throw new Error('Account not found');
     }
-    return await Vault.create(
+    const vault = await Vault.create(
       account.hdPath,
       Buffer.from(token, 'hex'),
       wallet.encryptedMnemonic
     );
+    return vault;
   }
 
-  private async getTxProvider(context: TxEssentials): Promise<TxProvider> {
+  private async prepareTxEssentials(context: TxEssentials) {
+    await validateToken(this.storage, context.token);
+    const provider = new TxProvider(
+      context.network.queryRpcUrl,
+      context.network.versionCacheTimoutInSeconds
+    );
     const vault = await this.prepareVault(
       context.walletId,
       context.accountId,
       context.token
     );
-    return new TxProvider(
-      context.network.queryRpcUrl,
+    return {
+      provider,
       vault,
-      context.network.versionCacheTimoutInSeconds
-    );
+    };
   }
 
   async getNormalizedMoveFunction(params: GetNormalizedMoveFunctionParams) {
@@ -469,57 +410,57 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  async stakeCoin(params: StakeCoinParams) {
-    const { network, amount, validator, gasBudgetForStake } = params;
-    const vault = await this.prepareVault(
-      params.walletId,
-      params.accountId,
-      params.token
-    );
-
-    const provider = new Provider(
-      network.queryRpcUrl,
-      network.txRpcUrl,
-      network.versionCacheTimoutInSeconds
-    );
-
-    const coins = await provider.query.getOwnedCoins(vault.getAddress());
-    console.log('coins', coins);
-
-    console.log(params);
-    return await provider.tx.stakeCoin(
-      coins,
-      BigInt(amount),
-      validator,
-      vault,
-      gasBudgetForStake
-    );
-  }
-
-  async unStakeCoin(params: UnStakeCoinParams) {
-    const {
-      network,
-      gasBudgetForStake,
-      walletId,
-      accountId,
-      token,
-      delegation,
-      stakedSuiId,
-    } = params;
-
-    //   const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
-    //   params;
-    const vault = await this.prepareVault(walletId, accountId, token);
-    const provider = new Provider(
-      network.queryRpcUrl,
-      network.txRpcUrl,
-      network.versionCacheTimoutInSeconds
-    );
-    return await provider.tx.unStakeCoin(
-      delegation,
-      stakedSuiId,
-      vault,
-      gasBudgetForStake
-    );
-  }
+  // async stakeCoin(params: StakeCoinParams) {
+  //   const { network, amount, validator, gasBudgetForStake } = params;
+  //   const vault = await this.prepareVault(
+  //     params.walletId,
+  //     params.accountId,
+  //     params.token
+  //   );
+  //
+  //   const provider = new Provider(
+  //     network.queryRpcUrl,
+  //     network.txRpcUrl,
+  //     network.versionCacheTimoutInSeconds
+  //   );
+  //
+  //   const coins = await provider.query.getOwnedCoins(vault.getAddress());
+  //   console.log('coins', coins);
+  //
+  //   console.log(params);
+  //   return await provider.tx.stakeCoin(
+  //     coins,
+  //     BigInt(amount),
+  //     validator,
+  //     vault,
+  //     gasBudgetForStake
+  //   );
+  // }
+  //
+  // async unStakeCoin(params: UnStakeCoinParams) {
+  //   const {
+  //     network,
+  //     gasBudgetForStake,
+  //     walletId,
+  //     accountId,
+  //     token,
+  //     delegation,
+  //     stakedSuiId,
+  //   } = params;
+  //
+  //   //   const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
+  //   //   params;
+  //   const vault = await this.prepareVault(walletId, accountId, token);
+  //   const provider = new Provider(
+  //     network.queryRpcUrl,
+  //     network.txRpcUrl,
+  //     network.versionCacheTimoutInSeconds
+  //   );
+  //   return await provider.tx.unStakeCoin(
+  //     delegation,
+  //     stakedSuiId,
+  //     vault,
+  //     gasBudgetForStake
+  //   );
+  // }
 }

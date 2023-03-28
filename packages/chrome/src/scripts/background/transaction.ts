@@ -18,8 +18,6 @@ export enum TxFailureReason {
 }
 
 export interface TxRequest extends DappBaseRequest {
-  metadata: Record<string, any> | null;
-  type: string;
   data: any; // depends on the type
   response: SuiTransactionResponse | null;
   responseError: string | null;
@@ -67,9 +65,7 @@ export class TxRequestManager {
 
   async createTxRequest(
     params: {
-      type: string;
       data: any;
-      metadata: SuiMoveNormalizedFunction | null;
     },
     connectionContext: DappConnectionContext
   ): Promise<TxRequest> {
