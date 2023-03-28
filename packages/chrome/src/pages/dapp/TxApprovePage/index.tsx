@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useWallet } from '../../../hooks/useWallet';
 import { useLocationSearch } from '../../../hooks/useLocationSearch';
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { sleep } from '../../../utils/time';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -25,11 +25,26 @@ import { useEstimatedGasBudget } from '../../../hooks/transaction/useEstimatedGa
 import { isUndefined } from 'lodash-es';
 import { LoadingSpin } from '../../../components/Loading';
 import Message from '../../../components/message';
+import { TransactionBlock } from '@mysten/sui.js';
+import isMoveCall from '../utils/isMoveCall';
 
 enum Mode {
   LOADING,
   INSUFFICIENT_SUI,
   NORMAL,
+}
+
+function TxItem(props: { name: ReactNode; value: ReactNode }) {
+  return (
+    <div className={styles['detail-item']}>
+      <Typo.Normal className={styles['detail-item__key']}>
+        {props.name}
+      </Typo.Normal>
+      <Typo.Normal className={styles['detail-item__value']}>
+        {props.value}
+      </Typo.Normal>
+    </div>
+  );
 }
 
 const TxApprovePage = () => {
@@ -42,6 +57,12 @@ const TxApprovePage = () => {
   const txReqId = search.get('txReqId');
   const navigate = useNavigate();
   const [txReqData, setTxReqData] = useState<TxRequest>();
+  const transactionBlock = useMemo(() => {
+    if (!txReqData) return undefined;
+    return TransactionBlock.from(txReqData.data);
+  }, [txReqData]);
+  const [activeTab, setActiveTab] = useState(0);
+
   const {
     balance,
     loading: isBalanceLoading,
@@ -56,7 +77,7 @@ const TxApprovePage = () => {
   //   } as UnserializedSignableTransaction;
   // }, [txReqData]);
   const { data: estimatedGasBudget, isSuccess: isBudgetLoaded } =
-    useEstimatedGasBudget({} as any);
+    useEstimatedGasBudget(transactionBlock);
 
   const apiClient = useApiClient();
 
@@ -77,16 +98,24 @@ const TxApprovePage = () => {
     }
   }
 
-  function renderMetadataForMoveCall(reqData: TxRequest) {
+  function renderMetadataForMoveCall(reqData: any) {
     return (
-      <div className={styles['detail-item']}>
-        <Typo.Normal className={styles['detail-item__key']}>
-          Function
-        </Typo.Normal>
-        <Typo.Normal className={styles['detail-item__value']}>
-          {reqData.data?.function}
-        </Typo.Normal>
-      </div>
+      <>
+        <TxItem name={'Type'} value={'MoveCall'}></TxItem>
+        <TxItem name={'Target'} value={reqData.target}></TxItem>
+        <TxItem
+          name={'Arguments'}
+          value={
+            <pre
+              className={
+                'w-[180px] h-[200px] whitespace-pre-wrap break-all overflow-y-auto no-scrollbar'
+              }
+            >
+              <code>{JSON.stringify(reqData.arguments)}</code>
+            </pre>
+          }
+        ></TxItem>
+      </>
     );
   }
 
@@ -148,11 +177,16 @@ const TxApprovePage = () => {
     );
   }
 
-  function renderMetadata() {
-    if (!txReqData) return null;
-    // if (txReqData.type === 'moveCall') {
-    //   return renderMetadataForMoveCall(txReqData);
-    // }
+  function renderMetadata(activeIndex: number) {
+    if (!transactionBlock) return null;
+    const { transactions } = transactionBlock.blockData;
+    return <>{renderSingleTransaction(transactions[activeIndex])}</>;
+  }
+
+  function renderSingleTransaction(tx: any) {
+    if (isMoveCall(tx)) {
+      return renderMetadataForMoveCall(tx);
+    }
     // if (txReqData.type === 'paySui') {
     //   const { recipients, amounts, gasBudget } =
     //     txReqData.data as PaySuiTransaction;
@@ -161,9 +195,12 @@ const TxApprovePage = () => {
     // if (txReqData.type === 'payAllSui') {
     //   const { recipient, gasBudget } = txReqData.data as PayAllSuiTransaction;
     //   const payAllSuiAmount = txReqData.metadata?.payAllSuiAmount ?? 0;
-    //   return renderMetadataForPaySui([recipient], [payAllSuiAmount], gasBudget);
+    //   return renderMetadataForPaySui(
+    //     [recipient],
+    //     [payAllSuiAmount],
+    //     gasBudget
+    //   );
     // }
-    return null;
   }
 
   // validate txReqId
@@ -236,51 +273,30 @@ const TxApprovePage = () => {
           }}
           loading={submitLoading}
         >
-          <Tabs className={styles['tabs']}>
+          <Tabs
+            className={styles['tabs']}
+            onSelect={(activeIndex) => {
+              setActiveTab(activeIndex);
+            }}
+          >
             <TabList>
-              <Tab>
-                <Typo.Normal className={styles['tab-title']}>
-                  Details
-                </Typo.Normal>
-              </Tab>
+              {isNonEmptyArray(transactionBlock?.blockData?.transactions) &&
+                transactionBlock?.blockData.transactions.map((tx, i) => (
+                  <Tab key={i}>
+                    <Typo.Normal className={styles['tab-title']}>
+                      {`Transaction ${i + 1}`}
+                    </Typo.Normal>
+                  </Tab>
+                ))}
             </TabList>
 
             <TabPanel className={'mt-[8px]'}>
-              <div className={styles['detail-item']}>
-                <Typo.Normal className={styles['detail-item__key']}>
-                  Account
-                </Typo.Normal>
-                <Address
-                  value={txReqData.target.address}
-                  className={styles['detail-item__value']}
-                  hideCopy={true}
-                />
-              </div>
-              <div className={styles['detail-item']}>
-                <Typo.Normal className={styles['detail-item__key']}>
-                  Network
-                </Typo.Normal>
-                <Typo.Normal className={styles['detail-item__value']}>
-                  {txReqData.networkId}
-                </Typo.Normal>
-              </div>
-              {/*<div className={styles['detail-item']}>*/}
-              {/*  <Typo.Normal className={styles['detail-item__key']}>*/}
-              {/*    Transaction Type*/}
-              {/*  </Typo.Normal>*/}
-              {/*  <Typo.Normal className={styles['detail-item__value']}>*/}
-              {/*    {txReqData.type}*/}
-              {/*  </Typo.Normal>*/}
-              {/*</div>*/}
-              <div className={styles['detail-item']}>
-                <Typo.Normal className={styles['detail-item__key']}>
-                  Gas Budget
-                </Typo.Normal>
-                <Typo.Normal className={styles['detail-item__value']}>
-                  {estimatedGasBudget} MIST
-                </Typo.Normal>
-              </div>
-              {renderMetadata()}
+              <TxItem name={'Network'} value={txReqData.networkId} />
+              <TxItem
+                name={'Gas Budget'}
+                value={<>{estimatedGasBudget} MIST</>}
+              />
+              {renderMetadata(activeTab)}
             </TabPanel>
           </Tabs>
         </DappPopupLayout>

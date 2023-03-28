@@ -2,13 +2,18 @@ import * as bip39 from '@scure/bip39';
 import { Ed25519HdKey } from './hdkey';
 import { decryptMnemonic } from '../crypto';
 import { Buffer } from 'buffer';
-import { UnsignedTx, SignedTx, SignedMessage } from './types';
+import { UnsignedTx, SignedTx } from './types';
 import { blake2b } from '@noble/hashes/blake2b';
 import {
   SIGNATURE_SCHEME_TO_FLAG,
   SUI_ADDRESS_LENGTH,
   normalizeSuiAddress,
+  SignedMessage,
+  RawSigner,
+  JsonRpcProvider,
+  fromB64,
 } from '@mysten/sui.js';
+import { createKeypair } from '../utils/vault';
 
 export class Vault {
   hdKey: Ed25519HdKey;
@@ -65,8 +70,8 @@ export class Vault {
   }
 
   public async signMessage(
-    message: Uint8Array | string
-  ): Promise<SignedMessage> {
+    message: Uint8Array
+  ): Promise<{ signature: Buffer; pubKey: Buffer }> {
     function Uint8ArrayToBuffer(bytes: Uint8Array) {
       const buffer = Buffer.alloc(bytes.byteLength);
       for (let i = 0; i < buffer.length; ++i) {
@@ -74,11 +79,7 @@ export class Vault {
       }
       return buffer;
     }
-    const buffer =
-      message instanceof Uint8Array
-        ? Uint8ArrayToBuffer(message)
-        : Buffer.from(message);
-    const signature = await this.hdKey.sign(buffer);
+    const signature = await this.hdKey.sign(Uint8ArrayToBuffer(message));
     const pubKey = await this.hdKey.getPublicKey();
     return {
       signature,

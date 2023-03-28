@@ -1,36 +1,27 @@
 import {
   JsonRpcProvider,
   SuiMoveObject,
-  getExecutionStatusType,
   getMoveObject,
-  SuiTransactionKind,
-  getTransactionKindName,
-  OwnedObjectRef,
   Coin as CoinAPI,
-  SuiObjectRef,
-  ObjectId,
   RawSigner,
-  Transaction,
+  TransactionBlock,
   ExecuteTransactionRequestType,
   Connection,
   SuiObjectResponse,
   SuiObjectData,
   getSuiObjectData,
-  SuiTransactionResponse,
   SUI_TYPE_ARG,
   CoinStruct,
   PaginatedCoins,
-  DryRunTransactionResponse,
+  DryRunTransactionBlockResponse,
+  SuiTransactionBlockResponse,
 } from '@mysten/sui.js';
 import { CoinObject, Nft, NftObject } from './object';
-import { TxnHistoryEntry, TxObject } from './storage/types';
 import { Vault } from './vault/Vault';
-import { isNonEmptyArray } from './utils';
 import { JsonRpcClient } from './client';
 import { createKeypair } from './utils/vault';
 import { RpcError } from './errors';
-import { number } from 'superstruct';
-import { getDefaultGasBudgetByKind } from './providers/TxProvider';
+import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 
 export const DEFAULT_GAS_BUDGET = 2000;
 
@@ -262,9 +253,9 @@ export class TxProvider {
     vault: Vault,
     gasBudgest?: number
   ) {
-    const tx = new Transaction();
+    const tx = new TransactionBlock();
     tx.transferObjects([tx.object(objectId)], tx.pure(recipient));
-    return await this.signAndExecuteTransaction(tx, vault);
+    return await this.signAndExecuteTransactionBlock(tx, vault);
   }
 
   public async transferCoin(
@@ -274,7 +265,7 @@ export class TxProvider {
     recipient: string,
     vault: Vault
   ) {
-    const tx = new Transaction();
+    const tx = new TransactionBlock();
     const [primaryCoin, ...mergeCoins] = coins.filter(
       (coin) => coin.type === coinType
     );
@@ -295,21 +286,32 @@ export class TxProvider {
       tx.transferObjects([coin], tx.pure(recipient));
     }
 
-    return await this.signAndExecuteTransaction(tx, vault);
+    return await this.signAndExecuteTransactionBlock(tx, vault);
   }
 
-  public async signAndExecuteTransaction(
-    tx: Transaction,
+  public async signAndExecuteTransactionBlock(
+    tx: TransactionBlock,
     vault: Vault,
     requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
-  ): Promise<SuiTransactionResponse> {
+  ): Promise<SuiTransactionBlockResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
-    return await signer.signAndExecuteTransaction({
-      transaction: tx,
-      options: {},
+    return await signer.signAndExecuteTransactionBlock({
+      transactionBlock: tx,
+      options: {
+        showEffects: true,
+      },
       requestType,
     });
+  }
+
+  public async signTransactionBlock(
+    tx: TransactionBlock,
+    vault: Vault
+  ): Promise<SignedTransaction> {
+    const keypair = createKeypair(vault);
+    const signer = new RawSigner(keypair, this.provider);
+    return await signer.signTransactionBlock({ transactionBlock: tx });
   }
 
   // public async stakeCoin(
@@ -318,7 +320,7 @@ export class TxProvider {
   //   validator: string,
   //   vault: Vault,
   //   gasBudgetForStake: number
-  // ): Promise<SuiTransactionResponse> {
+  // ): Promise<SuiTransactionBlockResponse> {
   //   // todo select inside core
   //   // coins: SuiMoveObject[],
   //   // gasCoins: SuiMoveObject[],
@@ -383,7 +385,7 @@ export class TxProvider {
   //   stakedSuiId: ObjectId,
   //   vault: Vault,
   //   gasBudgetForStake: number
-  // ): Promise<SuiTransactionResponse> {
+  // ): Promise<SuiTransactionBlockResponse> {
   //   const keypair = createKeypair(vault);
   //   const signer = new RawSigner(keypair, this.provider, this.serializer);
   //   const txn = {
@@ -403,13 +405,13 @@ export class TxProvider {
    * @param tx
    * @param vault
    */
-  public async dryRunTransaction(
-    tx: Transaction,
+  public async dryRunTransactionBlock(
+    tx: TransactionBlock,
     vault: Vault
-  ): Promise<DryRunTransactionResponse> {
+  ): Promise<DryRunTransactionBlockResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
-    const res = await signer.dryRunTransaction({ transaction: tx });
+    const res = await signer.dryRunTransactionBlock({ transactionBlock: tx });
     if (res?.effects?.status?.status === 'failure') {
       const { status } = res.effects;
       throw new RpcError(status.error ?? status.status, res);
@@ -422,7 +424,7 @@ export class TxProvider {
   //  * try to calculate estimated gas budget from dryRun API
   //  * @param tx
   //  */
-  // async getEstimatedGasBudget(tx: Transaction): Promise<number> {
+  // async getEstimatedGasBudget(tx: TransactionBlock): Promise<number> {
   //   const defaultGasBudget = getDefaultGasBudgetByKind(tx.kind);
   //   if (tx.kind !== 'bytes') {
   //     if (typeof tx.data?.gasBudget === 'number' && tx.data.gasBudget > 0) {
@@ -435,7 +437,7 @@ export class TxProvider {
   //
   //   let effects: TransactionEffects;
   //   try {
-  //     effects = await this.dryRunTransaction(tx);
+  //     effects = await this.dryRunTransactionBlock(tx);
   //     const RATIO = 1.5;
   //     const res = getTotalGasUsed(effects); // infer est budget from dryRun result
   //     // return estimated budget based on the response of dryRun

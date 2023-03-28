@@ -20,7 +20,7 @@ export interface TransactionsData<T> {
 
 export interface TransactionsResult<T> {
   transactions: T[];
-  nextCursor: string;
+  nextCursor: string | null;
 }
 
 export interface CoinBalanceChangeItem {

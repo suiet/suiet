@@ -1,26 +1,28 @@
 import {
+  IdentifierArray,
+  ReadonlyWalletAccount,
+  StandardConnectFeature,
+  StandardConnectMethod,
+  StandardDisconnectFeature,
+  StandardDisconnectMethod,
+  StandardEventsFeature,
+  StandardEventsListeners,
+  StandardEventsOnMethod,
   SUI_DEVNET_CHAIN,
   SUI_TESTNET_CHAIN,
-  type EventsFeature,
-  type ConnectFeature,
-  type IdentifierArray,
-  type SuiSignAndExecuteTransactionFeature,
-  type SuiSignAndExecuteTransactionInput,
-  type SuiSignAndExecuteTransactionMethod,
-  type SuiSignAndExecuteTransactionOutput,
-  type Wallet,
-  type EventsListeners,
-  type EventsOnMethod,
-  DisconnectFeature,
-  DisconnectMethod,
-  ReadonlyWalletAccount,
+  SuiSignAndExecuteTransactionBlockFeature,
+  SuiSignAndExecuteTransactionBlockInput,
+  SuiSignAndExecuteTransactionBlockMethod,
+  SuiSignAndExecuteTransactionBlockOutput,
+  SuiSignMessageFeature,
+  SuiSignMessageMethod,
+  SuiSignTransactionBlockFeature,
+  SuiSignTransactionBlockInput,
+  SuiSignTransactionBlockMethod,
+  SuiSignTransactionBlockOutput,
+  Wallet,
   WalletAccount,
 } from '@mysten/wallet-standard';
-import type {
-  ExpSignMessageFeature,
-  ExpSignMessageInput,
-  ExpSignMessageMethod,
-} from '@suiet/wallet-kit';
 import { LOGO_BASE64 } from '../constants/logo';
 import { WindowMsgStream } from '../../shared/msg-passing/window-msg-stream';
 import {
@@ -32,31 +34,31 @@ import {
 } from '../../shared';
 import { Permission } from '../../background/permission';
 import { Buffer } from 'buffer';
-import { ConnectMethod } from '@wallet-standard/features';
 import mitt, { Emitter } from 'mitt';
-import {
-  arrayToUint8array,
-  uint8arrayToArray,
-} from '../../shared/msg-passing/uint8array-passing';
+import { uint8arrayToArray } from '../../shared/msg-passing/uint8array-passing';
 import { AccountInfo } from '../../background/types';
 import { UserRejectionError } from '../../background/errors';
 
 type WalletEventsMap = {
-  [E in keyof EventsListeners]: Parameters<EventsListeners[E]>[0];
+  [E in keyof StandardEventsListeners]: Parameters<
+    StandardEventsListeners[E]
+  >[0];
 };
 
-type Features = ConnectFeature &
-  DisconnectFeature &
-  EventsFeature &
-  SuiSignAndExecuteTransactionFeature &
-  ExpSignMessageFeature;
+type Features = StandardConnectFeature &
+  StandardDisconnectFeature &
+  StandardEventsFeature &
+  SuiSignAndExecuteTransactionBlockFeature &
+  SuiSignTransactionBlockFeature &
+  SuiSignMessageFeature;
 
 enum Feature {
   STANDARD__CONNECT = 'standard:connect',
   STANDARD__DISCONNECT = 'standard:disconnect',
   STANDARD__EVENTS = 'standard:events',
-  SUI__SIGN_AND_EXECUTE_TRANSACTION = 'sui:signAndExecuteTransaction',
-  EXP__SIGN_MESSAGE = 'exp:signMessage',
+  SUI__SIGN_AND_EXECUTE_TRANSACTION_BLOCK = 'sui:signAndExecuteTransactionBlock',
+  SUI__SIGN_TRANSACTION_BLOCK = 'sui:signTransactionBlock',
+  SUI__SIGN_MESSAGE = 'sui:signMessage',
 }
 
 export class SuietWallet implements Wallet {
@@ -110,23 +112,27 @@ export class SuietWallet implements Wallet {
         version: '1.0.0',
         on: this.#on,
       },
-      [Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION]: {
-        version: '1.1.0',
-        signAndExecuteTransaction: this.#signAndExecuteTransaction,
+      [Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION_BLOCK]: {
+        version: '1.0.0',
+        signAndExecuteTransactionBlock: this.#signAndExecuteTransactionBlock,
       },
-      [Feature.EXP__SIGN_MESSAGE]: {
+      [Feature.SUI__SIGN_TRANSACTION_BLOCK]: {
+        version: '1.0.0',
+        signTransactionBlock: this.#signTransactionBlock,
+      },
+      [Feature.SUI__SIGN_MESSAGE]: {
         version: '1.0.0',
         signMessage: this.#signMessage,
       },
     };
   }
 
-  #on: EventsOnMethod = (event, listener) => {
+  #on: StandardEventsOnMethod = (event, listener) => {
     this.#events.on(event, listener);
     return () => this.#events.off(event, listener);
   };
 
-  #connect: ConnectMethod = async (input) => {
+  #connect: StandardConnectMethod = async (input) => {
     const isSuccess = await this.#request('dapp.connect', {
       permissions: [Permission.SUGGEST_TX, Permission.VIEW_ACCOUNT],
     });
@@ -155,51 +161,67 @@ export class SuietWallet implements Wallet {
       chains: [SUI_DEVNET_CHAIN, SUI_TESTNET_CHAIN],
       features: [
         Feature.STANDARD__CONNECT,
-        Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION,
+        Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION_BLOCK,
+        Feature.SUI__SIGN_TRANSACTION_BLOCK,
+        Feature.SUI__SIGN_MESSAGE,
       ],
     });
     this.#events.emit('change', { accounts: this.accounts });
     return { accounts: this.accounts, chains: [chain] };
   };
 
-  #disconnect: DisconnectMethod = async () => {
+  #disconnect: StandardDisconnectMethod = async () => {
     this.#activeAccount = null;
     this.#events.all.clear();
   };
 
-  #signAndExecuteTransaction: SuiSignAndExecuteTransactionMethod = async (
-    input
-  ) => {
-    const funcName = 'dapp.signAndExecuteTransaction';
+  #signTransactionBlock: SuiSignTransactionBlockMethod = async (input) => {
+    const funcName = 'dapp.signTransactionBlock';
     return await this.#request<
-      SuiSignAndExecuteTransactionInput,
-      SuiSignAndExecuteTransactionOutput
+      {
+        transactionBlock: string;
+        account: WalletAccount;
+        chain: string;
+      },
+      SuiSignTransactionBlockOutput
     >(funcName, {
-      transaction: input.transaction,
-      options: input.options,
+      ...input,
+      transactionBlock: input.transactionBlock.serialize(),
     });
   };
 
-  #signMessage: ExpSignMessageMethod = async (input: ExpSignMessageInput) => {
+  #signAndExecuteTransactionBlock: SuiSignAndExecuteTransactionBlockMethod =
+    async (input) => {
+      const funcName = 'dapp.signAndExecuteTransactionBlock';
+      return await this.#request<
+        {
+          transactionBlock: string;
+          account: WalletAccount;
+          chain: string;
+        },
+        SuiSignAndExecuteTransactionBlockOutput
+      >(funcName, {
+        ...input,
+        transactionBlock: input.transactionBlock.serialize(),
+      });
+    };
+
+  #signMessage: SuiSignMessageMethod = async (input) => {
     const funcName = 'dapp.signMessage';
     const encapInput = {
       ...input,
       message: uint8arrayToArray(input.message),
     };
-    const res = await this.#request<
+    return await this.#request<
       {
         message: number[];
         account: WalletAccount;
       },
       Promise<{
-        signature: number[];
-        signedMessage: number[];
+        messageBytes: string;
+        signature: string;
       }>
     >(funcName, encapInput);
-    return {
-      signature: arrayToUint8array(res.signature),
-      signedMessage: arrayToUint8array(res.signedMessage),
-    };
   };
 
   async #getAccounts() {

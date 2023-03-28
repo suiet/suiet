@@ -18,10 +18,10 @@ import { useMemo, useRef } from 'react';
 import { aggregateTxByTime } from './utils/aggregateTxByTime';
 import { TxItem } from './transactionDetail';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Typo from '../../components/Typo';
 
 function TransactionFlow({
   txHistoryList,
-  address,
   fetchMore,
   hasMore,
 }: {
@@ -45,14 +45,22 @@ function TransactionFlow({
       }),
     [txByDateMap]
   );
-  const loadMoreData = () => {
-    fetchMore();
-  };
 
   return (
-    <>
+    <div className={''}>
       <InfiniteScroll
+        className={'no-scrollbar'}
         dataLength={txHistoryList.length}
+        next={fetchMore}
+        hasMore={false}
+        height={390}
+        loader={<Skeleton className="p-3" />}
+        endMessage={
+          <Typo.Hints className={'text-center'}>
+            No more transactions
+          </Typo.Hints>
+        }
+        scrollThreshold={0.8}
         // refreshFunction={() => {
         //   client.refetchQueries({
         //     include: [QUERY_EVENTS],
@@ -79,10 +87,6 @@ function TransactionFlow({
         // releaseToRefreshContent={
         //   <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
         // }
-        next={loadMoreData}
-        hasMore={hasMore}
-        loader={<Skeleton className="p-3" />}
-        // endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
       >
         {days.map((day) => {
           return (
@@ -100,13 +104,13 @@ function TransactionFlow({
               <div className="transaction-time">{day}</div>
               <div>
                 {(txByDateMap.get(day) as TransactionForHistory[]).map(
-                  (item) => {
+                  (item, index) => {
                     const encodedTransactionDigest = encodeURIComponent(
                       item.digest
                     );
                     return (
                       <TransactionItem
-                        key={item.type + item.digest}
+                        key={item.type + item.digest + index}
                         type={formatTxType(item.type, item.kind, item.category)}
                         status={item.status}
                         category={item.category}
@@ -145,7 +149,7 @@ function TransactionFlow({
           );
         })}
       </InfiniteScroll>
-    </>
+    </div>
   );
 }
 

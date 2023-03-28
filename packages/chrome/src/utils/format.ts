@@ -40,20 +40,22 @@ export function formatCurrency(
     decimals?: number;
     withAbbr?: boolean;
   }
-) {
+): string {
   const { decimals = 0, withAbbr = true } = options ?? {};
-  if (amount <= 0) return '0';
-
   // handle bigint that exceeds safe integer range
-  if (typeof amount === 'bigint' && !Number.isSafeInteger(amount)) {
+  if (typeof amount === 'bigint' && !isSafeToConvertToNumber(amount)) {
     return formatCurrencyBigInt(BigInt(amount), {
       decimals,
       withAbbr,
     });
   }
   // else, convert to number for formatting logic
+  if (Number(amount) === 0) return '0';
+  if (Number(amount) < 0) {
+    return '-' + formatCurrency(-Number(amount), options);
+  }
   const _amount = Number(amount) / 10 ** decimals;
-  if (_amount < 1) {
+  if (_amount > 0 && _amount < 1) {
     return formatSmallCurrency(_amount);
   }
   return format(_amount, withAbbr);
@@ -145,10 +147,18 @@ function formatCurrencyBigInt(
     decimals?: number;
     withAbbr?: boolean;
   }
-) {
-  if (amount <= 0) return '0';
-  const { decimals = 9, withAbbr = true } = options ?? {};
+): string {
+  if (amount === 0n) return '0';
+  if (amount < 0n) return '-' + formatCurrencyBigInt(-amount, options);
 
+  const { decimals = 9, withAbbr = true } = options ?? {};
   const _amount = amount / 10n ** BigInt(decimals);
   return format(_amount, withAbbr);
+}
+
+function isSafeToConvertToNumber(bigintValue: string | bigint) {
+  const minValue = Number.MIN_SAFE_INTEGER; // -9007199254740991
+  const maxValue = Number.MAX_SAFE_INTEGER; // 9007199254740991
+
+  return bigintValue >= BigInt(minValue) && bigintValue <= BigInt(maxValue);
 }

@@ -10,11 +10,6 @@ export type SignedTx = {
   data: Uint8Array;
 };
 
-export type SignedMessage = {
-  signature: Uint8Array;
-  pubKey: Uint8Array;
-};
-
 export type CoinType = {
   object: Coin;
 };

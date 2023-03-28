@@ -7,11 +7,14 @@ import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
   ExecuteTransactionRequestType,
+  SignedMessage,
   SuiMoveNormalizedFunction,
-  SuiTransactionResponse,
-  Transaction,
+  SuiTransactionBlockResponse,
+  TransactionBlock,
+  SignedTransaction,
+  fromB64,
+  toB64,
 } from '@mysten/sui.js';
-import { SignedMessage } from '../vault/types';
 import { RpcError } from '../errors';
 import { createMintExampleNftMoveCall, ExampleNftMetadata } from '../utils/nft';
 import { type } from 'superstruct';
@@ -51,7 +54,7 @@ export type TransferObjectParams = {
 };
 
 export type GetEstimatedGasBudgetParams = TxEssentials & {
-  transaction: Transaction;
+  transactionBlock: TransactionBlock;
 };
 
 export type MintNftParams = {
@@ -105,7 +108,7 @@ export type GetNormalizedMoveFunctionParams = {
 export type SignMessageParams = {
   walletId: string;
   accountId: string;
-  message: Uint8Array | string;
+  message: Uint8Array;
   token: string;
 };
 
@@ -117,9 +120,14 @@ export interface TxEssentials {
 }
 
 export type SendAndExecuteTxParams<T> = {
-  transaction: T;
+  transactionBlock: T;
   context: TxEssentials;
   requestType?: ExecuteTransactionRequestType;
+};
+
+export type SendTxParams<T> = {
+  transactionBlock: T;
+  context: TxEssentials;
 };
 
 export type StakeCoinParams = {
@@ -144,7 +152,9 @@ export type UnStakeCoinParams = {
 };
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
-  transferCoin: (params: TransferCoinParams) => Promise<SuiTransactionResponse>;
+  transferCoin: (
+    params: TransferCoinParams
+  ) => Promise<SuiTransactionBlockResponse>;
   transferObject: (params: TransferObjectParams) => Promise<void>;
   // getTransactionHistory: (
   //   params: GetTxHistoryParams
@@ -161,9 +171,13 @@ export interface ITransactionApi {
 
   signMessage: (params: SignMessageParams) => Promise<SignedMessage>;
 
-  signAndExecuteTransaction: (
-    params: SendAndExecuteTxParams<Transaction>
-  ) => Promise<SuiTransactionResponse>;
+  signAndExecuteTransactionBlock: (
+    params: SendAndExecuteTxParams<TransactionBlock>
+  ) => Promise<SuiTransactionBlockResponse>;
+
+  signTransactionBlock: (
+    params: SendTxParams<TransactionBlock>
+  ) => Promise<SignedTransaction>;
 
   // getEstimatedGasBudget: (
   //   params: GetEstimatedGasBudgetParams
@@ -190,7 +204,7 @@ export class TransactionApi implements ITransactionApi {
 
   async transferCoin(
     params: TransferCoinParams
-  ): Promise<SuiTransactionResponse> {
+  ): Promise<SuiTransactionBlockResponse> {
     await validateToken(this.storage, params.token);
     const provider = new Provider(
       params.network.queryRpcUrl,
@@ -209,15 +223,16 @@ export class TransactionApi implements ITransactionApi {
       vault
       // params.network.payCoinGasBudget  // NOTE: let sdk auto-compute gas
     );
+    console.log('transferCoin response: ', res);
     if (!res) {
       throw new RpcError('no response');
     }
-    const statusResult = (res as any)?.effects?.effects?.status;
+    const statusResult = res?.effects?.status;
     if (!statusResult) {
       throw new RpcError('invalid transaction status response');
     }
     if (statusResult.status === 'failure') {
-      throw new RpcError(statusResult.error || 'Unknown transaction error');
+      throw new RpcError(statusResult.error ?? 'Unknown transaction error');
     }
     return res;
   }
@@ -331,20 +346,31 @@ export class TransactionApi implements ITransactionApi {
     }));
   }
 
+  // TODO: check signMessage with intent signMessage mechanism
   async signMessage(params: SignMessageParams) {
     const { walletId, accountId, message, token } = params;
     const vault = await this.prepareVault(walletId, accountId, token);
     const signedMsg = await vault.signMessage(message);
-    return signedMsg;
+    return {
+      signature: toB64(signedMsg.signature),
+      messageBytes: toB64(message),
+    };
   }
 
-  async signAndExecuteTransaction(params: SendAndExecuteTxParams<Transaction>) {
+  async signAndExecuteTransactionBlock(
+    params: SendAndExecuteTxParams<TransactionBlock>
+  ) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
-    return await provider.signAndExecuteTransaction(
-      params.transaction,
+    return await provider.signAndExecuteTransactionBlock(
+      params.transactionBlock,
       vault,
       params.requestType
     );
+  }
+
+  async signTransactionBlock(params: SendTxParams<TransactionBlock>) {
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    return await provider.signTransactionBlock(params.transactionBlock, vault);
   }
 
   // async getEstimatedGasBudget(
