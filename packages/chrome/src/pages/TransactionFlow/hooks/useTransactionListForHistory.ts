@@ -64,7 +64,8 @@ const GET_TX_LIST_GQL = gql`
 export function useTransactionListForHistory(address: string) {
   const [incomingNextCursor, setIncomingNextCursor] = useState<string | null>();
   const [outgoingNextCursor, setOutgoingNextCursor] = useState<string | null>();
-  const LIMIT = 50;
+  // const LIMIT = 2;
+  const LIMIT = null;
   const { data: incomingData, ...restForIncoming } = useQuery<
     TransactionsData<Omit<TransactionForHistory, 'type'>>,
     GetTransactionsParams
@@ -125,6 +126,7 @@ export function useTransactionListForHistory(address: string) {
     }
   }, [incomingData, outgoingData]);
 
+  const hasMore = incomingNextCursor || outgoingNextCursor;
   const refetch = useCallback(() => {
     restForIncoming.refetch();
     restForOutgoing.refetch();
@@ -163,6 +165,7 @@ export function useTransactionListForHistory(address: string) {
     error: restForIncoming.error ?? restForOutgoing.error,
     refetch,
     fetchMore,
+    hasMore,
   };
 }
 

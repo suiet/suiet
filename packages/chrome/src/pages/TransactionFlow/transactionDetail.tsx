@@ -124,7 +124,9 @@ function TransactionDetail() {
     //   </div>
     // ) : null;
   }
-
+  const iconType = ['received', 'sent'].includes(state.type)
+    ? state.type
+    : 'default';
   return (
     <div className="transaction-detail-container">
       <div className="transaction-detail-header">
@@ -140,7 +142,7 @@ function TransactionDetail() {
         <div
           className={classnames(
             'transaction-detail-icon',
-            state.type,
+            iconType,
             state.status
           )}
         ></div>
