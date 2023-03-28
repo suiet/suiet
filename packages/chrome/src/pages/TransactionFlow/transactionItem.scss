@@ -36,6 +36,10 @@
       background-image: url('./assets/receive.svg');
     }
 
+    &.moveCall {
+      background-image: url('./assets/move_call.svg');
+    }
+
     &.sent {
       background-image: url('./assets/send.svg');
     }

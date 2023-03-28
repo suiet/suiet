@@ -10,8 +10,7 @@ import commonStyles from '../common.module.scss';
 import { SendData } from '../types';
 import { ReactComponent as ViewIcon } from '../../../assets/icons/view.svg';
 import classNames from 'classnames';
-import { useTransactionListGql } from '../../../hooks/useTransactionList';
-import dayjs from 'dayjs';
+import useTransactionList from '../hooks/useTransactionList';
 
 interface AddressInputValues {
   address: string;
@@ -34,7 +33,7 @@ function AddressInputPage({
   });
   const addressState = getInputStateByFormState(form.formState, 'address');
   const formAddress = form.getValues().address;
-  const { getTransactionList, data, loading } = useTransactionListGql();
+  const { getTransactionList, data, loading } = useTransactionList();
   useWatch({ name: 'address', control: form.control });
   const disabled =
     addressState === 'error' ||

@@ -62,6 +62,10 @@
       }
     }
 
+    &.moveCall {
+      background-image: url('./assets/move_call.svg');
+    }
+
     &.airdrop {
       background-image: url('./assets/airdrop_detail.svg');
 

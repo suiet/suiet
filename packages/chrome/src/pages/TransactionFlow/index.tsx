@@ -6,76 +6,44 @@ import Empty from './Empty';
 import { useAccount } from '../../hooks/useAccount';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { ITransactionApi } from '@suiet/core/dist/api/txn';
 import dayjs from 'dayjs';
-import { TxnItem } from './transactionDetail';
-import useTransactionList from '../../hooks/useTransactionList';
 import Skeleton from 'react-loading-skeleton';
 import AppLayout from '../../layouts/AppLayout';
-
-type TxnHistroyEntry = Awaited<
-  ReturnType<ITransactionApi['getTransactionHistory']>
->[0];
-
-function normalizeHistory(history: TxnHistroyEntry[], address: string) {
-  const res: Record<string, TxnItem[]> = {};
-  const days = [];
-  for (let i = 0; i < history.length; i++) {
-    const item = history[i];
-    const finalItem: TxnItem = {
-      ...item,
-      type: address === item.from ? 'sent' : 'received',
-    };
-    // today
-    if (dayjs(item.timestamp_ms).startOf('d').isSame(dayjs().startOf('d'))) {
-      if (!res['Today']) {
-        res['Today'] = [finalItem];
-      } else {
-        res['Today'].push({
-          ...item,
-          type: address === item.from ? 'sent' : 'received',
-        });
-      }
-    } else if (
-      dayjs(item.timestamp_ms).startOf('w').isSame(dayjs().startOf('w'))
-    ) {
-      if (!res['Last Week']) {
-        res['Last Week'] = [finalItem];
-      } else {
-        res['Last Week'].push(finalItem);
-      }
-    } else {
-      const dt = dayjs(item.timestamp_ms).format('MM/YYYY');
-      if (!res[dt]) {
-        res[dt] = [finalItem];
-        days.push(dt);
-      } else {
-        res[dt].push(finalItem);
-      }
-    }
-  }
-  days.sort((a, b) => (dayjs(a).isAfter(dayjs(b)) ? -1 : 1));
-  if (res['Last Week']) days.unshift('Last Week');
-  if (res['Today']) days.unshift('Today');
-  return {
-    historyMap: res,
-    days,
-  };
-}
+import useTransactionListForHistory, {
+  TransactionForHistory,
+} from './hooks/useTransactionListForHistory';
+import { isNonEmptyArray } from '../../utils/check';
+import formatTxType from './utils/formatTxType';
+import { useMemo, useRef } from 'react';
+import { aggregateTxByTime } from './utils/aggregateTxByTime';
+import { TxItem } from './transactionDetail';
 
 function TransactionFlow({
-  history,
+  txHistoryList,
   address,
 }: {
-  history: TxnHistroyEntry[];
+  txHistoryList: TransactionForHistory[];
   address: string;
 }) {
   const navigate = useNavigate();
-  const { historyMap, days } = normalizeHistory(history, address);
+  const today = useRef(dayjs().valueOf());
+  const txByDateMap = useMemo(
+    () => aggregateTxByTime(txHistoryList, today.current),
+    [txHistoryList]
+  );
+  const days = useMemo(
+    () =>
+      Array.from(txByDateMap.keys()).sort((a, b) => {
+        if (a === 'Today') return -1;
+        if (a === 'Last Week') return -1;
+        return dayjs(b).valueOf() - dayjs(a).valueOf();
+      }),
+    [txByDateMap]
+  );
+
   return (
     <>
       {days.map((day) => {
-        const list = historyMap[day];
         return (
           <div
             key={day}
@@ -86,58 +54,45 @@ function TransactionFlow({
               'pb-2',
               'rounded-3xl',
               'bg-white'
-              // 'border-2',
-              // 'border-slate-100'
             )}
           >
             <div className="transaction-time">{day}</div>
             <div>
-              {list.map(
-                (
-                  {
-                    to,
-                    type,
-                    object,
-                    from,
-                    timestamp_ms: time,
-                    gasFee,
-                    txStatus,
-                    transactionDigest,
-                  },
-                  index
-                ) => {
-                  const encodedTransactionDigest =
-                    encodeURIComponent(transactionDigest);
-                  return (
-                    <TransactionItem
-                      key={index}
-                      from={from}
-                      to={to}
-                      object={object}
-                      type={type}
-                      status={txStatus}
-                      onClick={() => {
-                        navigate(
-                          `/transaction/detail/${encodedTransactionDigest}`,
-                          {
-                            state: {
-                              to,
-                              type,
-                              object,
-                              from,
-                              timestamp_ms: time,
-                              txStatus,
-                              transactionDigest,
-                              gasFee,
-                              hideAppLayout: true,
-                            },
-                          }
-                        );
-                      }}
-                    />
-                  );
-                }
-              )}
+              {(txByDateMap.get(day) as TransactionForHistory[]).map((item) => {
+                const encodedTransactionDigest = encodeURIComponent(
+                  item.digest
+                );
+                return (
+                  <TransactionItem
+                    key={item.type + item.digest}
+                    type={formatTxType(item.type, item.kind)}
+                    status={item.status}
+                    category={item.category}
+                    from={item.fromAddresses ?? []}
+                    to={item.toAddresses ?? []}
+                    coinBalanceChanges={item.coinBalanceChanges}
+                    onClick={() => {
+                      const state: TxItem = {
+                        category: item.category,
+                        coinBalanceChanges: item.coinBalanceChanges,
+                        digest: item.digest,
+                        gasFee: item.gasFee,
+                        status: item.status,
+                        timestamp: item.timestamp,
+                        from: item.fromAddresses ?? [],
+                        to: item.toAddresses ?? [],
+                        type: formatTxType(item.type, item.kind),
+                      };
+                      navigate(
+                        `/transaction/detail/${encodedTransactionDigest}`,
+                        {
+                          state,
+                        }
+                      );
+                    }}
+                  />
+                );
+              })}
             </div>
           </div>
         );
@@ -149,22 +104,20 @@ function TransactionFlow({
 function TransactionPage() {
   const context = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(context.accountId);
-  // const [history, setHistory] = useState<TxnHistroyEntry[] | null>(null);
-  const { history, isLoading } = useTransactionList(address, context.networkId);
-
+  const { data: transactions, loading } = useTransactionListForHistory(address);
   function renderContent() {
-    if (history === null || isLoading)
+    if (loading)
       return (
         <div className="m-4">
           <Skeleton className="w-full" height="200px" />
         </div>
       );
-    return !history?.length ? (
-      <Empty />
-    ) : (
+    return isNonEmptyArray(transactions) ? (
       <div className="bg-gray-50 w-full p-4 min-h-full">
-        <TransactionFlow history={history} address={address ?? ''} />
+        <TransactionFlow txHistoryList={transactions} address={address ?? ''} />
       </div>
+    ) : (
+      <Empty />
     );
   }
   return <AppLayout>{renderContent()}</AppLayout>;
