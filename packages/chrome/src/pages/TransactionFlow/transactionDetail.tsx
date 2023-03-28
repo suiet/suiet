@@ -1,45 +1,130 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import './transactionDetail.scss';
-import Button from '../../components/Button';
 import dayjs from 'dayjs';
 import classnames from 'classnames';
-import { formatCurrency, formatSUI } from '../../utils/format';
-import Address from '../../components/Address';
+import { formatSUI } from '../../utils/format';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
 import CopyIcon from '../../components/CopyIcon';
-import { TxObject, CoinObject, NftObject } from '@suiet/core/src/storage/types';
 import { ReactComponent as IconExternal } from '../../assets/icons/external.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-export interface TxnItem {
-  txStatus: 'success' | 'failure';
-  transactionDigest: string;
+import { CoinBalanceChangeItem } from '../../hooks/useTransactionList';
+import { TxItemDisplayType } from './TransactionItem';
+import { upperFirst } from 'lodash-es';
+import formatTotalCoinChange from './utils/formatTotalCoinChange';
+import renderAddress from './utils/renderAddress';
+import { isNonEmptyArray } from '../../utils/check';
+
+export interface TxItem {
+  type: TxItemDisplayType;
+  category: string;
+  coinBalanceChanges: CoinBalanceChangeItem[];
+  status: string;
+  from: string[];
+  to: string[];
+  timestamp: number;
   gasFee: number;
-  from: string;
-  to: string;
-  timestamp_ms: number | null;
-  object: TxObject;
-  type: 'sent' | 'received' | 'airdop';
+  digest: string;
 }
 
 function TransactionDetail() {
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as TxnItem;
-  const {
-    txStatus,
-    transactionDigest,
-    gasFee,
-    from,
-    to,
-    timestamp_ms: time,
-    object,
-    type,
-  } = state;
+  const state = location.state as TxItem;
+
   const { accountId, networkId } = useSelector(
     (state: RootState) => state.appContext
   );
+
+  function renderAddressesByType(type: 'From' | 'To', addresses: string[]) {
+    return (
+      isNonEmptyArray(addresses) && (
+        <div className="transaction-detail-item">
+          <span className="transaction-detail-item-key">{type}</span>
+          {renderAddress(addresses)}
+        </div>
+      )
+    );
+  }
+
+  function renderDigest(digest: string) {
+    return (
+      <div className="transaction-detail-item">
+        <span className="transaction-detail-item-key">Transaction ID</span>
+        <div
+          className="transaction-detail-item-tx flex items-center"
+          onClick={() => {
+            copy(digest);
+            message.success('Copied TX ID');
+          }}
+        >
+          <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap cursor-pointer">
+            {digest}
+          </span>
+          <CopyIcon
+            className={classnames('ml-[5px]', 'inline', 'whitespace-nowrap')}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  function renderGasFee(gasFee: number) {
+    return (
+      <div className="transaction-detail-item">
+        <span className="transaction-detail-item-key">Gas Fee</span>
+        <span>{formatSUI(gasFee)} SUI</span>
+      </div>
+    );
+  }
+
+  function renderTime(timestamp: number) {
+    return (
+      <div className="transaction-detail-item">
+        <span className="transaction-detail-item-key">Time</span>
+        <span>{dayjs(timestamp).format('YYYY.MM.DD HH:mm:ss')}</span>
+      </div>
+    );
+  }
+
+  function renderViewInExplorer(digest: string, networkId: string) {
+    return (
+      <div className="transaction-detail-item">
+        <a
+          target="_blank"
+          href={
+            `https://explorer.sui.io/transactions/` +
+            encodeURIComponent(digest) +
+            `?network=${networkId}`
+          }
+          className="m-auto"
+          rel="noreferrer"
+        >
+          View in explorer
+          <IconExternal className="inline w-[12px] h-[12px] stroke-gray-400"></IconExternal>
+        </a>
+      </div>
+    );
+  }
+
+  function renderTokenChanges(coinBalanceChanges: CoinBalanceChangeItem[]) {
+    return null;
+    // TODO: render token changes
+    // return state.category === 'tranfer_coin' ? (
+    //   <div className="transaction-detail-item">
+    //     <span className="transaction-detail-item-key">Token</span>
+    //     <span>
+    //       {formatCurrency(state.balance, {
+    //         decimals: 9,
+    //         withAbbr: false,
+    //       })}{' '}
+    //       {object.symbol}
+    //     </span>
+    //   </div>
+    // ) : null;
+  }
+
   return (
     <div className="transaction-detail-container">
       <div className="transaction-detail-header">
@@ -53,101 +138,31 @@ function TransactionDetail() {
       </div>
       <div className="transaction-detail-general-info">
         <div
-          className={classnames('transaction-detail-icon', type, txStatus)}
+          className={classnames(
+            'transaction-detail-icon',
+            state.type,
+            state.status
+          )}
         ></div>
-        <div className="transaction-detail-title">
-          {object.type === 'move_call'
-            ? 'MoveCall'
-            : type // insert a space before all caps
-                .replace(/([A-Z])/g, ' $1')
-                // uppercase the first character
-                .replace(/^./, function (str) {
-                  return str.toUpperCase();
-                })}
-        </div>
-        {object.type === 'coin' ? (
-          <div className={classnames('transaction-detail-amount', txStatus)}>
-            {txStatus === 'failure'
+        <div className="transaction-detail-title">{upperFirst(state.type)}</div>
+        {state.category === 'transfer_coin' ? (
+          <div
+            className={classnames('transaction-detail-amount', state.status)}
+          >
+            {state.status === 'failure'
               ? 'FAILED'
-              : type === 'sent'
-              ? `- ${formatCurrency(object.balance, {
-                  // TODO: specify decimals for different coins
-                  decimals: 9,
-                  withAbbr: false,
-                })} ${object.symbol}`
-              : `+ ${formatCurrency(object.balance, {
-                  decimals: 9,
-                  withAbbr: false,
-                })} ${object.symbol}`}
+              : formatTotalCoinChange(state.type, state.coinBalanceChanges)}
           </div>
         ) : null}
       </div>
       <div className="transaction-detail-item-container">
-        <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">Transaction ID</span>
-          <div
-            className="transaction-detail-item-tx flex items-center"
-            onClick={() => {
-              copy(transactionDigest);
-              message.success('Copied TX ID');
-            }}
-          >
-            <span className="text-ellipsis overflow-hidden max-w-[160px] whitespace-nowrap cursor-pointer">
-              {transactionDigest}{' '}
-            </span>
-            <CopyIcon
-              className={classnames('ml-[5px]', 'inline', 'whitespace-nowrap')}
-            />
-          </div>
-        </div>
-        <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">From</span>
-          <Address value={from}></Address>
-        </div>
-        <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">To</span>
-          <Address value={to}></Address>
-        </div>
-        {object.type === 'coin' ? (
-          <div className="transaction-detail-item">
-            <span className="transaction-detail-item-key">Token</span>
-            <span>
-              {/* TODO: specify decimals for different coins */}
-              {formatCurrency(object.balance, {
-                decimals: 9,
-                withAbbr: false,
-              })}{' '}
-              {object.symbol}
-            </span>
-          </div>
-        ) : null}
-        {object.type === 'coin' ? (
-          <div className="transaction-detail-item">
-            <span className="transaction-detail-item-key">Gas Fee</span>
-            <span>
-              {formatSUI(gasFee)} {object.symbol}
-            </span>
-          </div>
-        ) : null}
-        <div className="transaction-detail-item">
-          <span className="transaction-detail-item-key">Time</span>
-          <span>{dayjs(time).format('YYYY.MM.DD HH:mm:ss')}</span>
-        </div>
-        <div className="transaction-detail-item">
-          <a
-            target="_blank"
-            href={
-              `https://explorer.sui.io/transactions/` +
-              encodeURIComponent(transactionDigest) +
-              `?network=${networkId}`
-            }
-            className="m-auto"
-            rel="noreferrer"
-          >
-            View in explorer{' '}
-            <IconExternal className="inline w-[12px] h-[12px] stroke-gray-400"></IconExternal>
-          </a>
-        </div>
+        {renderDigest(state.digest)}
+        {renderAddressesByType('From', state.from)}
+        {renderAddressesByType('To', state.to)}
+        {renderTokenChanges(state.coinBalanceChanges)}
+        {renderGasFee(state.gasFee)}
+        {renderTime(state.timestamp)}
+        {renderViewInExplorer(state.digest, networkId)}
       </div>
     </div>
   );

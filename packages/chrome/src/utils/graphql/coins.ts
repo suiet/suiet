@@ -15,35 +15,3 @@ export const coinsGql = gql`
     }
   }
 `;
-
-export const transactionsGql = gql`
-  query Transactions(
-    $filter: TransactionsFilter
-    $cursor: TransactionDigest
-    $order: OrderDirection
-    $limit: Int
-  ) {
-    transactions(
-      filter: $filter
-      cursor: $cursor
-      order: $order
-      limit: $limit
-    ) {
-      transactions {
-        digest
-        category
-        status
-        gas {
-          computationCost
-          storageRebate
-          storageCost
-        }
-        gasFee
-        epoch
-        signature
-        timestamp
-      }
-      nextCursor
-    }
-  }
-`;
