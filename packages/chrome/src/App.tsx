@@ -38,6 +38,11 @@ function App() {
   const client = useMemo(
     () =>
       new ApolloClient({
+        defaultOptions: {
+          watchQuery: {
+            fetchPolicy: 'cache-first',
+          },
+        },
         cache: new InMemoryCache({
           typePolicies: {
             Query: {
