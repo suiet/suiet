@@ -300,6 +300,10 @@ export class TxProvider {
       transactionBlock: tx,
       options: {
         showEffects: true,
+        showEvents: true,
+        showBalanceChanges: true,
+        showInput: true,
+        showObjectChanges: true,
       },
       requestType,
     });
