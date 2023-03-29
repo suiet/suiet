@@ -83,6 +83,7 @@ export function useTransactionListForHistory(address: string) {
       },
       limit: LIMIT,
     },
+    skip: !address,
   });
 
   const { data: outgoingData, ...restForOutgoing } = useQuery<
@@ -95,6 +96,7 @@ export function useTransactionListForHistory(address: string) {
       },
       limit: LIMIT,
     },
+    skip: !address,
   });
 
   const txHistoryList = useMemo(() => {
@@ -127,7 +129,6 @@ export function useTransactionListForHistory(address: string) {
     }
     // descending order by timestamp
     res.sort((a, b) => b.timestamp - a.timestamp);
-    console.log('txList', res);
     return res;
   }, [incomingData, outgoingData]);
 
