@@ -14,19 +14,22 @@ import useTransactionListForHistory, {
 } from './hooks/useTransactionListForHistory';
 import { isNonEmptyArray } from '../../utils/check';
 import formatTxType from './utils/formatTxType';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { aggregateTxByTime } from './utils/aggregateTxByTime';
 import { TxItem } from './transactionDetail';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Typo from '../../components/Typo';
+import orderTimeList from './utils/orderTimeList';
 
 function TransactionFlow({
   txHistoryList,
+  refetch,
   fetchMore,
   hasMore,
 }: {
   txHistoryList: TransactionForHistory[];
   address: string;
+  refetch: () => void;
   fetchMore: () => void;
   hasMore: boolean;
 }) {
@@ -37,12 +40,7 @@ function TransactionFlow({
     [txHistoryList]
   );
   const days = useMemo(
-    () =>
-      Array.from(txByDateMap.keys()).sort((a, b) => {
-        if (a === 'Today') return -1;
-        if (a === 'Last Week') return -1;
-        return dayjs(b).valueOf() - dayjs(a).valueOf();
-      }),
+    () => orderTimeList(Array.from(txByDateMap.keys())),
     [txByDateMap]
   );
 
@@ -51,6 +49,11 @@ function TransactionFlow({
       <InfiniteScroll
         className={'no-scrollbar'}
         dataLength={txHistoryList.length}
+        pullDownToRefresh={true}
+        pullDownToRefreshContent={
+          <Typo.Hints className={'text-center my-1'}>Refreshing...</Typo.Hints>
+        }
+        refreshFunction={refetch}
         next={fetchMore}
         hasMore={false}
         height={390}
@@ -159,9 +162,21 @@ function TransactionPage() {
   const {
     data: transactions,
     loading,
+    refetch,
     fetchMore,
     hasMore,
   } = useTransactionListForHistory(address);
+
+  useEffect(() => {
+    if (!address) return;
+    const polling = setInterval(() => {
+      refetch();
+    }, 5 * 1000);
+    return () => {
+      clearInterval(polling);
+    };
+  }, [address]);
+
   function renderContent() {
     if (loading)
       return (
@@ -174,6 +189,7 @@ function TransactionPage() {
         <TransactionFlow
           txHistoryList={transactions}
           address={address ?? ''}
+          refetch={refetch}
           fetchMore={fetchMore}
           hasMore={hasMore}
         />
