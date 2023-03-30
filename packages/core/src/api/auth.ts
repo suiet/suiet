@@ -423,13 +423,17 @@ async function maybeFixDataConsistency(storage: Storage, token: string) {
         wallet.encryptedMnemonic
       );
       console.log('Vault.create', Date.now() - t);
-      if (accountData.address !== vault.getAddress()) {
+      if (
+        accountData.address !== vault.getAddress() ||
+        accountData.pubkey !== vault.getPublicKey()
+      ) {
         console.debug(
           `update account address from ${
             accountData.address
           } to ${vault.getAddress()}`
         );
         accountData.address = vault.getAddress();
+        accountData.pubkey = vault.getPublicKey();
         wallet.accounts[i] = {
           id: accountData.id,
           address: accountData.address,

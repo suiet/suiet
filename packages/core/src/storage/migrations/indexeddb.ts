@@ -1,7 +1,12 @@
 import { Account } from '../types';
 import { isNonEmptyArray } from '../../utils';
 import { StoreName } from '../constants';
-import SHA3 from 'sha3';
+import {
+  SIGNATURE_SCHEME_TO_FLAG,
+  SUI_ADDRESS_LENGTH,
+  normalizeSuiAddress,
+} from '@mysten/sui.js';
+import { blake2b } from '@noble/hashes/blake2b';
 
 export type MigrationMethod = (
   db: IDBDatabase,
@@ -151,11 +156,17 @@ const migrateFrom1To2: MigrationMethod = async (db, oldVersion, newVersion) => {
         );
         continue;
       }
-      const publicHash = new SHA3(256)
-        .update(Buffer.from(accountData.pubkey, 'hex'))
-        .digest();
-      accountData.pubkey =
-        '0x' + Buffer.from(publicHash.slice(0, 32)).toString('hex');
+      const pubkey = Uint8Array.from(
+        Buffer.from(accountData.pubkey.substring(2), 'hex')
+      );
+      const keyWithPrefix = new Uint8Array(32 + 1);
+      keyWithPrefix.set([SIGNATURE_SCHEME_TO_FLAG['ED25519']]);
+      keyWithPrefix.set(pubkey, 1);
+
+      const publicHash = blake2b(keyWithPrefix, { dkLen: 32 });
+      accountData.address = normalizeSuiAddress(
+        Buffer.from(publicHash.slice(0, SUI_ADDRESS_LENGTH * 2)).toString('hex')
+      );
       wallet.accounts[i] = {
         id: accountData.id,
         address: accountData.address,
