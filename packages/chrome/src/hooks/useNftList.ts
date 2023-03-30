@@ -38,7 +38,8 @@ export function useNftList(address: string) {
     variables: {
       address,
     },
-    // pollInterval: 2000,
+    pollInterval: 1000 * 5,
+    skip: !address,
   });
 
   return {
