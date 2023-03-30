@@ -1,7 +1,6 @@
 import NftList from '../NFTPage/NftList';
 import Typo from '../../components/Typo';
 import styles from './index.module.scss';
-import message from '../../components/message';
 import Button from '../../components/Button';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -9,17 +8,25 @@ import { useAccount } from '../../hooks/useAccount';
 import { useNftList } from '../../hooks/useNftList';
 import { isNonEmptyArray } from '../../utils/check';
 import Empty from './NftList/Empty';
-import { MintNftParams } from '@suiet/core';
+import {
+  getMintExampleNftTxBlock,
+  SendAndExecuteTxParams,
+  TxEssentials,
+} from '@suiet/core';
 import { sleep } from '../../utils/time';
 import AppLayout from '../../layouts/AppLayout';
 import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useApiClient } from '../../hooks/useApiClient';
 import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ReactComponent as GiftIcon } from '../../assets/icons/gift.svg';
-import { useMintNftCampaign } from './hooks/useMintNftCampaign';
+// import { useMintNftCampaign } from './hooks/useMintNftCampaign';
 import Message from '../../components/message';
+import {
+  useFeatureFlags,
+  useFeatureFlagsWithNetwork,
+} from '../../hooks/useFeatureFlags';
 
 function MainPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -29,46 +36,60 @@ function MainPage() {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(appContext.networkId);
   const [sendLoading, setSendLoading] = useState(false);
+  const featureFlags = useFeatureFlagsWithNetwork();
 
   const { balance, loading: balanceLoading } = useCoinBalance(
     CoinSymbol.SUI,
     address,
     appContext.networkId
   );
-  const mintNftCampaign = useMintNftCampaign();
+  // const mintNftCampaign = useMintNftCampaign();
 
-  async function mintSampleNFT() {
-    // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
+  const mintSampleNFT = useCallback(async () => {
     if (!network) throw new Error('require network selected');
-
+    if (!featureFlags || !featureFlags?.sample_nft_object_id) {
+      throw new Error('missing sample NFT packageId');
+    }
     if (balanceLoading || Number(balance) < 10000) {
-      message.error('Please ensure you have more than 0.00001 SUI to mint');
+      Message.error('Please ensure you have more than 0.00001 SUI to mint');
       return;
     }
-    setSendLoading(true);
-    try {
-      await apiClient.callFunc<OmitToken<MintNftParams>, undefined>(
-        'txn.mintExampleNft',
-        {
-          metadata: mintNftCampaign,
+    const tx = getMintExampleNftTxBlock(featureFlags.sample_nft_object_id);
+    await apiClient.callFunc<
+      SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
+      undefined
+    >(
+      'txn.signAndExecuteTransactionBlock',
+      {
+        transactionBlock: tx.serialize(),
+        context: {
           network,
           walletId: appContext.walletId,
           accountId: appContext.accountId,
         },
-        { withAuth: true }
-      );
-      message.success('Mint NFT succeeded');
+      },
+      { withAuth: true }
+    );
+  }, [featureFlags, appContext, balanceLoading, balance, network]);
+
+  const handleMintSampleNFT = useCallback(async () => {
+    // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
+    setSendLoading(true);
+    try {
+      await mintSampleNFT();
+      Message.success('Mint NFT succeeded');
     } catch (e: any) {
-      message.error(`Mint NFT failed: ${e?.message}`);
+      Message.error(`Mint NFT failed: ${e?.message}`);
     } finally {
       setSendLoading(false);
     }
-  }
+  }, [mintSampleNFT]);
 
   function renderContent() {
     if (!loading && !isNonEmptyArray(nftList))
       return (
         <Empty
+          mintSampleNFT={mintSampleNFT}
           onMintSuccess={async () => {
             // await refreshNftList();
             await sleep(1000);
@@ -91,7 +112,7 @@ function MainPage() {
             {network?.name !== 'mainnet' && network?.enableMintExampleNFT && (
               <Button
                 className="rounded-full w-fit"
-                onClick={mintSampleNFT}
+                onClick={handleMintSampleNFT}
                 loading={sendLoading}
               >
                 {!sendLoading && (

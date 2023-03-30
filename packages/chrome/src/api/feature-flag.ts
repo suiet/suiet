@@ -12,6 +12,7 @@ export interface FeatureFlagNetwork {
   enable_mint_example_nft: boolean;
   version_cache_timout_in_seconds: number;
   stake_gas_budget: number;
+  sample_nft_object_id: string;
 }
 export interface FeatureFlagRes {
   available_networks: string[];

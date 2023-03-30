@@ -1,57 +1,25 @@
 import Button from '../../../components/Button';
 import message from '../../../components/message';
-import { MintNftParams } from '@suiet/core';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useNetwork } from '../../../hooks/useNetwork';
-import { useAccount } from '../../../hooks/useAccount';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './empty.module.scss';
-import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
-import { useApiClient } from '../../../hooks/useApiClient';
-import { OmitToken } from '../../../types';
-import {
-  defaultNftMetadata,
-  useMintNftCampaign,
-} from '../hooks/useMintNftCampaign';
 
 export type EmptyProps = {
+  mintSampleNFT: () => Promise<void>;
   onMintSuccess: () => void;
 };
 
 export default function Empty(props: EmptyProps) {
-  const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const [sendLoading, setSendLoading] = useState(false);
-  const { address } = useAccount(appContext.accountId);
 
-  const { balance, loading: balanceLoading } = useCoinBalance(
-    CoinSymbol.SUI,
-    address,
-    appContext.networkId
-  );
-
-  async function mintSampleNFT() {
-    // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
-    if (!network) throw new Error('require network selected');
-
-    if (balanceLoading || Number(balance) < 10000) {
-      message.error('Please ensure you have more than 0.00001 SUI to mint');
-      return;
-    }
+  const handleMintSampleNFT = useCallback(async () => {
     setSendLoading(true);
     try {
-      await apiClient.callFunc<OmitToken<MintNftParams>, undefined>(
-        'txn.mintExampleNft',
-        {
-          metadata: defaultNftMetadata,
-          network,
-          walletId: appContext.walletId,
-          accountId: appContext.accountId,
-        },
-        { withAuth: true }
-      );
+      await props.mintSampleNFT();
       message.success('Mint NFT succeeded');
       props.onMintSuccess();
     } catch (e: any) {
@@ -59,7 +27,7 @@ export default function Empty(props: EmptyProps) {
     } finally {
       setSendLoading(false);
     }
-  }
+  }, [props.mintSampleNFT, props.onMintSuccess]);
 
   return (
     <div className="flex flex-col justify-center items-center mx-8">
@@ -80,7 +48,7 @@ export default function Empty(props: EmptyProps) {
         to get start your journey
         {network?.enableMintExampleNFT && (
           <Button
-            onClick={mintSampleNFT}
+            onClick={handleMintSampleNFT}
             loading={sendLoading}
             style={{ marginTop: '18px' }}
           >

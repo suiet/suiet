@@ -244,6 +244,11 @@ export class BackgroundApiProxy {
         // inject token to payload
         const token = this.auth.getToken();
         Object.assign(params, { token });
+        // FIXME: hack check for context params if the call is from wallet ext
+        // inject token to context
+        if (params.context) {
+          Object.assign(params.context, { token });
+        }
       } catch {
         throw new NoAuthError();
       }

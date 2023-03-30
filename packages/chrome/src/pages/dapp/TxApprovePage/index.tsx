@@ -99,10 +99,13 @@ const TxApprovePage = () => {
   }
 
   function renderMetadataForMoveCall(reqData: any) {
+    const [objectId, module, func] = reqData.target.split('::');
     return (
       <>
         <TxItem name={'Type'} value={'MoveCall'}></TxItem>
-        <TxItem name={'Target'} value={reqData.target}></TxItem>
+        <TxItem name={'ObjectId'} value={<Address value={objectId} />} />
+        <TxItem name={'Module'} value={module} />
+        <TxItem name={'Function'} value={func} />
         <TxItem
           name={'Arguments'}
           value={

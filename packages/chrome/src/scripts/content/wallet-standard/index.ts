@@ -1,5 +1,6 @@
 import {
   IdentifierArray,
+  IdentifierString,
   ReadonlyWalletAccount,
   StandardConnectFeature,
   StandardConnectMethod,
@@ -142,15 +143,13 @@ export class SuietWallet implements Wallet {
 
     // after connection permission approved
     const [account] = await this.#getAccounts();
-    // NOTE: hack implementation for getting current network when connected
-    // Still waiting for wallet-standard's progress
     const networkId = await this.#getActiveNetwork();
     const chain = `sui:${networkId}`;
     if (
       this.#activeAccount &&
       this.#activeAccount.address === account.address
     ) {
-      return { accounts: this.accounts, chains: [chain] };
+      return { accounts: this.accounts };
     }
 
     // remove prefix '00' of publicKey which is required by sui
@@ -158,7 +157,7 @@ export class SuietWallet implements Wallet {
     this.#activeAccount = new ReadonlyWalletAccount({
       address: account.address,
       publicKey: Buffer.from(pkWithoutPrefix, 'hex'),
-      chains: [SUI_DEVNET_CHAIN, SUI_TESTNET_CHAIN],
+      chains: [chain as IdentifierString],
       features: [
         Feature.STANDARD__CONNECT,
         Feature.SUI__SIGN_AND_EXECUTE_TRANSACTION_BLOCK,
@@ -167,7 +166,7 @@ export class SuietWallet implements Wallet {
       ],
     });
     this.#events.emit('change', { accounts: this.accounts });
-    return { accounts: this.accounts, chains: [chain] };
+    return { accounts: this.accounts };
   };
 
   #disconnect: StandardDisconnectMethod = async () => {

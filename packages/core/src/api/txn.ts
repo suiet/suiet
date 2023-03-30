@@ -12,12 +12,10 @@ import {
   SuiTransactionBlockResponse,
   TransactionBlock,
   SignedTransaction,
-  fromB64,
   toB64,
 } from '@mysten/sui.js';
 import { RpcError } from '../errors';
-import { createMintExampleNftMoveCall, ExampleNftMetadata } from '../utils/nft';
-import { type } from 'superstruct';
+import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -55,14 +53,6 @@ export type TransferObjectParams = {
 
 export type GetEstimatedGasBudgetParams = TxEssentials & {
   transactionBlock: TransactionBlock;
-};
-
-export type MintNftParams = {
-  network: Network;
-  walletId: string;
-  accountId: string;
-  token: string;
-  metadata: ExampleNftMetadata;
 };
 
 export type SerializedMoveCallParams = {
@@ -119,10 +109,11 @@ export interface TxEssentials {
   token: string;
 }
 
-export type SendAndExecuteTxParams<T> = {
+export type SendAndExecuteTxParams<T, E = TxEssentials> = {
+  context: E;
   transactionBlock: T;
-  context: TxEssentials;
   requestType?: ExecuteTransactionRequestType;
+  options?: SuiTransactionBlockResponseOptions;
 };
 
 export type SendTxParams<T> = {
@@ -358,13 +349,21 @@ export class TransactionApi implements ITransactionApi {
   }
 
   async signAndExecuteTransactionBlock(
-    params: SendAndExecuteTxParams<TransactionBlock>
+    params: SendAndExecuteTxParams<string | TransactionBlock>
   ) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
+    let tx: TransactionBlock;
+    if (typeof params.transactionBlock === 'string') {
+      // deserialize transaction block string
+      tx = TransactionBlock.from(params.transactionBlock);
+    } else {
+      tx = params.transactionBlock;
+    }
     return await provider.signAndExecuteTransactionBlock(
-      params.transactionBlock,
+      tx,
       vault,
-      params.requestType
+      params.requestType,
+      params.options
     );
   }
 
