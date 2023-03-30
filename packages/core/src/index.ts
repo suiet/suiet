@@ -19,4 +19,5 @@ export * from './api/auth';
 export * from './api/network';
 export * from './api/txn';
 export * from './provider';
+export * from './libs';
 export { validateWord, BIP32_ALL_WORDLISTS, BIP32_EN_WORDLIST } from './crypto';

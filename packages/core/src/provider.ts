@@ -22,23 +22,7 @@ import { JsonRpcClient } from './client';
 import { createKeypair } from './utils/vault';
 import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
-
-export const DEFAULT_GAS_BUDGET = 2000;
-
-export interface ExampleNftMetadata {
-  name: string;
-  desc: string;
-  imageUrl: string;
-}
-// use getter to avoid variable be modified somewhere
-export const createMintExampleNftMoveCall = (metadata: ExampleNftMetadata) => ({
-  packageObjectId: '0x2',
-  module: 'devnet_nft',
-  function: 'mint',
-  typeArguments: [],
-  arguments: [metadata?.name, metadata?.desc, metadata?.imageUrl],
-  gasBudget: DEFAULT_GAS_BUDGET,
-});
+import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 
 export class Provider {
   query: QueryProvider;
@@ -82,6 +66,8 @@ export class Provider {
       vault.getAddress(),
       objectId
     );
+    console.log('objectId', objectId);
+    console.log('object', object);
     if (!object) {
       throw new Error('No object to transfer');
     }
@@ -144,9 +130,14 @@ export class QueryProvider {
     address: string,
     objectId: string
   ): Promise<SuiObjectData | undefined> {
-    const resp = await this.provider.getObject({ id: objectId });
+    const resp = await this.provider.getObject({
+      id: objectId,
+      options: {
+        showOwner: true,
+      },
+    });
     const object = getSuiObjectData(resp);
-    if (object && object.owner === address) {
+    if (object && (object.owner as any)?.AddressOwner === address) {
       return object;
     }
     return undefined;
@@ -290,20 +281,28 @@ export class TxProvider {
   }
 
   public async signAndExecuteTransactionBlock(
-    tx: TransactionBlock,
+    transactionBlock: TransactionBlock,
     vault: Vault,
-    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
+    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution',
+    options?: SuiTransactionBlockResponseOptions
   ): Promise<SuiTransactionBlockResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
+    const {
+      showEffects = true,
+      showEvents = true,
+      showBalanceChanges = true,
+      showInput = true,
+      showObjectChanges = true,
+    } = options ?? {};
     return await signer.signAndExecuteTransactionBlock({
-      transactionBlock: tx,
+      transactionBlock,
       options: {
-        showEffects: true,
-        showEvents: true,
-        showBalanceChanges: true,
-        showInput: true,
-        showObjectChanges: true,
+        showEffects,
+        showEvents,
+        showBalanceChanges,
+        showInput,
+        showObjectChanges,
       },
       requestType,
     });
