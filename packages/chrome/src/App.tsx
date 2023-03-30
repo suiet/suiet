@@ -40,7 +40,8 @@ function App() {
       new ApolloClient({
         defaultOptions: {
           watchQuery: {
-            fetchPolicy: 'cache-first',
+            fetchPolicy: 'cache-and-network',
+            pollInterval: 1000 * 10,
           },
         },
         cache: new InMemoryCache({

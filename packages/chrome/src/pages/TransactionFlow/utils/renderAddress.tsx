@@ -8,24 +8,12 @@ export default function renderAddress(addresses: string[]) {
     if (addresses.length > 1) {
       return (
         <>
-          <Address
-            hideCopy={true}
-            className={classnames('ml-1')}
-            value={address}
-            disableCopy={true}
-          />
+          <Address className={classnames('ml-1')} value={address} />
           <span className="ml-1"> and {addresses.length - 1} more</span>
         </>
       );
     }
-    return (
-      <Address
-        hideCopy={true}
-        className={classnames('ml-1')}
-        value={address}
-        disableCopy={true}
-      ></Address>
-    );
+    return <Address className={classnames('ml-1')} value={address}></Address>;
   }
   return null;
 }
