@@ -2,7 +2,12 @@ import AppLayout from '../../layouts/AppLayout';
 import Button from '../../components/Button';
 import ValidatorSelector from '../../components/ValidatorSelector';
 import { useApiClient } from '../../hooks/useApiClient';
-import { StakeCoinParams, SUI_SYSTEM_STATE_OBJECT_ID } from '@suiet/core';
+import {
+  StakeCoinParams,
+  getMintExampleNftTxBlock,
+  SendAndExecuteTxParams,
+  TxEssentials,
+} from '@suiet/core';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useState, useEffect, useMemo } from 'react';
 import { RootState } from '../../store';
@@ -18,7 +23,7 @@ import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useEstimatedGasBudget } from '../../hooks/transaction/useEstimatedGasBudget';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
-import { SuiExecuteTransactionResponse } from '@mysten/sui.js';
+import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -77,18 +82,28 @@ export default function StackingPage() {
       setButtonLoading(true);
       if (!network) throw new Error('require network selected');
 
+      const tx = new TransactionBlock();
+      const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
+      tx.moveCall({
+        target: '0x3::sui_system::request_add_stake',
+        arguments: [
+          tx.object(SUI_SYSTEM_STATE_OBJECT_ID),
+          stakeCoin,
+          tx.pure(selectedValidator),
+        ],
+      });
       await apiClient.callFunc<
-        OmitToken<StakeCoinParams>,
-        SuiExecuteTransactionResponse
+        SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
+        undefined
       >(
-        'txn.stakeCoin',
+        'txn.signAndExecuteTransactionBlock',
         {
-          walletId,
-          accountId: appContext.accountId,
-          network,
-          amount: String(BigInt(amount * 1000000000)),
-          validator: selectedValidator ?? '',
-          gasBudgetForStake: gasBudget,
+          transactionBlock: tx.serialize(),
+          context: {
+            network,
+            walletId: appContext.walletId,
+            accountId: appContext.accountId,
+          },
         },
         { withAuth: true }
       );
@@ -100,6 +115,7 @@ export default function StackingPage() {
     } finally {
       setButtonLoading(false);
     }
+
     // const coinObjList = await this.txApi.getOwnedCoins({
     //   network,
     //   address: context.target.address,
