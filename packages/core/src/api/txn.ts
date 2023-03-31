@@ -13,6 +13,7 @@ import {
   TransactionBlock,
   SignedTransaction,
   toB64,
+  SUI_SYSTEM_STATE_OBJECT_ID,
 } from '@mysten/sui.js';
 import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
@@ -173,10 +174,8 @@ export interface ITransactionApi {
   // getEstimatedGasBudget: (
   //   params: GetEstimatedGasBudgetParams
   // ) => Promise<number>;
-  // stakeCoin: (
-  //   params: StakeCoinParams
-  // ) => Promise<SuiExecuteTransactionResponse>;
-  //
+  stakeCoin: (params: StakeCoinParams) => Promise<SuiTransactionBlockResponse>;
+
   // unStakeCoin: (
   //   params: UnStakeCoinParams
   // ) => Promise<SuiExecuteTransactionResponse>;
@@ -435,33 +434,45 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  // async stakeCoin(params: StakeCoinParams) {
-  //   const { network, amount, validator, gasBudgetForStake } = params;
-  //   const vault = await this.prepareVault(
-  //     params.walletId,
-  //     params.accountId,
-  //     params.token
-  //   );
-  //
-  //   const provider = new Provider(
-  //     network.queryRpcUrl,
-  //     network.txRpcUrl,
-  //     network.versionCacheTimoutInSeconds
-  //   );
-  //
-  //   const coins = await provider.query.getOwnedCoins(vault.getAddress());
-  //   console.log('coins', coins);
-  //
-  //   console.log(params);
-  //   return await provider.tx.stakeCoin(
-  //     coins,
-  //     BigInt(amount),
-  //     validator,
-  //     vault,
-  //     gasBudgetForStake
-  //   );
-  // }
-  //
+  async stakeCoin(params: StakeCoinParams) {
+    const { network, amount, validator, gasBudgetForStake } = params;
+    // const vault = await this.prepareVault(
+    //   params.walletId,
+    //   params.accountId,
+    //   params.token
+    // );
+
+    // const provider = new Provider(
+    //   network.queryRpcUrl,
+    //   network.txRpcUrl,
+    //   network.versionCacheTimoutInSeconds
+    // );
+
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    // const coins = await provider.query.getOwnedCoins(vault.getAddress());
+    // console.log('coins', coins);
+
+    // console.log(params);
+
+    const tx = new TransactionBlock();
+    const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
+    tx.moveCall({
+      target: '0x3::sui_system::request_add_stake',
+      arguments: [
+        tx.object(SUI_SYSTEM_STATE_OBJECT_ID),
+        stakeCoin,
+        tx.pure(validator),
+      ],
+    });
+
+    return await provider.signAndExecuteTransactionBlock(
+      tx,
+      vault
+      // params.requestType,
+      // params.options
+    );
+  }
+
   // async unStakeCoin(params: UnStakeCoinParams) {
   //   const {
   //     network,
@@ -472,7 +483,7 @@ export class TransactionApi implements ITransactionApi {
   //     delegation,
   //     stakedSuiId,
   //   } = params;
-  //
+
   //   //   const { network, coins, gasCoins, amount, validator, gasBudgetForStake } =
   //   //   params;
   //   const vault = await this.prepareVault(walletId, accountId, token);

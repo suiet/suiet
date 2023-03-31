@@ -6,6 +6,8 @@ export type Network = {
   versionCacheTimoutInSeconds: number;
   moveCallGasBudget?: number;
   stakeGasBudget?: number;
+  enableMintExampleNFT?: boolean;
+  enableStaking?: boolean;
 };
 
 export interface INetworkApi {
