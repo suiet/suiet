@@ -23,15 +23,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { ReactComponent as GiftIcon } from '../../assets/icons/gift.svg';
 // import { useMintNftCampaign } from './hooks/useMintNftCampaign';
 import Message from '../../components/message';
-import {
-  useFeatureFlags,
-  useFeatureFlagsWithNetwork,
-} from '../../hooks/useFeatureFlags';
+import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 
 function MainPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(appContext.accountId);
-  const { data: nftList, loading, error } = useNftList(address);
+  const {
+    data: nftList,
+    refetch: refetchNftList,
+    loading,
+    error,
+  } = useNftList(address, {
+    pollInterval: 5 * 1000,
+  });
 
   const apiClient = useApiClient();
   const { data: network } = useNetwork(appContext.networkId);
@@ -43,11 +47,10 @@ function MainPage() {
     address,
     appContext.networkId
   );
-  // const mintNftCampaign = useMintNftCampaign();
 
   const mintSampleNFT = useCallback(async () => {
     if (!network) throw new Error('require network selected');
-    if (!featureFlags || !featureFlags?.sample_nft_object_id) {
+    if (!featureFlags?.sample_nft_object_id) {
       throw new Error('missing sample NFT packageId');
     }
     if (balanceLoading || Number(balance) < 10000) {
@@ -70,7 +73,13 @@ function MainPage() {
       },
       { withAuth: true }
     );
-  }, [featureFlags, appContext, balanceLoading, balance, network]);
+  }, [
+    featureFlags?.sample_nft_object_id,
+    appContext,
+    balanceLoading,
+    balance,
+    network,
+  ]);
 
   const handleMintSampleNFT = useCallback(async () => {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
@@ -91,11 +100,8 @@ function MainPage() {
         <Empty
           mintSampleNFT={mintSampleNFT}
           onMintSuccess={async () => {
-            // await refreshNftList();
-            await sleep(1000);
-            // await refreshNftList();
-            await sleep(1000);
-            // await refreshNftList();
+            await sleep(2 * 1000);
+            await refetchNftList();
           }}
         />
       );

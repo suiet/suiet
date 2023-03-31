@@ -28,8 +28,14 @@ export type NftGqlDto = {
   description: string;
 };
 
-export function useNftList(address: string) {
-  const { data, error, loading } = useQuery<
+export function useNftList(
+  address: string,
+  options?: {
+    pollInterval?: number;
+  }
+) {
+  const { pollInterval } = options ?? {};
+  const { data, error, loading, ...rest } = useQuery<
     { nfts: NftGqlDto[] },
     {
       address: string;
@@ -38,7 +44,7 @@ export function useNftList(address: string) {
     variables: {
       address,
     },
-    pollInterval: 1000 * 5,
+    pollInterval,
     skip: !address,
   });
 
@@ -46,5 +52,6 @@ export function useNftList(address: string) {
     data: data?.nfts,
     error,
     loading,
+    ...rest,
   };
 }

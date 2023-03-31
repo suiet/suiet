@@ -1,11 +1,9 @@
 import { useQuery } from 'react-query';
-import { useApiClient } from '../useApiClient';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useNetwork } from '../useNetwork';
-import { GetEstimatedGasBudgetParams, Network } from '@suiet/core';
 import { TransactionBlock } from '@mysten/sui.js';
-import { useFeatureFlags } from '../useFeatureFlags';
+import { useFeatureFlagsWithNetwork } from '../useFeatureFlags';
 
 export function useEstimatedGasBudget(
   transactionBlock: TransactionBlock | undefined
@@ -13,10 +11,8 @@ export function useEstimatedGasBudget(
   // const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
-  const featureFlags = useFeatureFlags();
-  const specifiedGasBudget = featureFlags?.networks
-    ? featureFlags.networks[appContext.networkId]?.move_call_gas_budget
-    : 10000;
+  const featureFlags = useFeatureFlagsWithNetwork();
+  const specifiedGasBudget = featureFlags?.move_call_gas_budget ?? 10000;
 
   return useQuery({
     queryKey: [

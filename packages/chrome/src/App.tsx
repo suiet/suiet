@@ -35,28 +35,26 @@ function App() {
     };
   }, []);
 
-  const client = useMemo(
-    () =>
-      new ApolloClient({
-        defaultOptions: {
-          watchQuery: {
-            fetchPolicy: 'cache-and-network',
-            pollInterval: 1000 * 10,
-          },
+  const client = useMemo(() => {
+    return new ApolloClient({
+      uri: `https://${appContext.networkId}.suiet.app/query`,
+      defaultOptions: {
+        watchQuery: {
+          fetchPolicy: 'cache-first',
+          pollInterval: 1000 * 10,
         },
-        cache: new InMemoryCache({
-          typePolicies: {
-            Query: {
-              fields: {
-                ...fieldPolicyForTransactions(),
-              },
+      },
+      cache: new InMemoryCache({
+        typePolicies: {
+          Query: {
+            fields: {
+              ...fieldPolicyForTransactions(),
             },
           },
-        }),
-        uri: `https://${appContext.networkId}.suiet.app/query`,
+        },
       }),
-    [appContext.networkId]
-  );
+    });
+  }, [appContext.networkId]);
   return (
     <div className="app">
       <ErrorBoundary>

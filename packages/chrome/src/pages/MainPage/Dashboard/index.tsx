@@ -11,11 +11,9 @@ import Skeleton from 'react-loading-skeleton';
 import { formatSUI } from '../../../utils/format';
 import message from '../../../components/message';
 import { useState } from 'react';
-import { swrKeyWithNetwork, useNetwork } from '../../../hooks/useNetwork';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
-import { swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
-import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
+import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -71,14 +69,13 @@ function MainPage({ address, networkId }: DashboardProps) {
     address ?? '',
     networkId
   );
-  const { data: network } = useNetwork(networkId);
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
-  const featureFlags = useFeatureFlags();
-  const faucetApi = featureFlags?.networks
-    ? featureFlags.networks[networkId]?.faucet_api
-    : `https://faucet.${networkId}.sui.io/gas`;
+  const featureFlags = useFeatureFlagsWithNetwork();
+  const faucetApi =
+    featureFlags?.faucet_api ?? `https://faucet.${networkId}.sui.io/gas`;
+
   return (
     <div className={styles['main-content']}>
       <Banner />
