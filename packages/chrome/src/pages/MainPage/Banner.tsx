@@ -5,7 +5,10 @@ import { StorageKeys } from '../../store/enum';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import classnames from 'classnames';
-import { useFeatureFlags } from '../../hooks/useFeatureFlags';
+import {
+  useFeatureFlags,
+  useFeatureFlagsWithNetwork,
+} from '../../hooks/useFeatureFlags';
 import styles from './index.module.scss';
 
 enum BannerPriority {
@@ -67,10 +70,8 @@ function useDevnetWarningBanner(
 function useSuiUnderMaintenanceBanner(
   networkId: string
 ): BannerQueueItem | undefined {
-  const featureFlags = useFeatureFlags();
-  const flag = featureFlags?.networks
-    ? featureFlags.networks[networkId]?.on_maintenance
-    : false;
+  const featureFlags = useFeatureFlagsWithNetwork();
+  const flag = featureFlags?.on_maintenance ?? false;
 
   if (!flag) return undefined;
   return {

@@ -14,12 +14,12 @@ import { useNavigate } from 'react-router-dom';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-import { swrKeyWithNetwork, useNetwork } from '../../../hooks/useNetwork';
+import { useNetwork } from '../../../hooks/useNetwork';
 import { SUI_TYPE_ARG } from '@mysten/sui.js';
 import { OmitToken } from '../../../types';
 import { TransferCoinParams } from '@suiet/core';
-import { Coins, swrKey as swrKeyForUseCoins } from '../../../hooks/useCoins';
-import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
+import { Coins } from '../../../hooks/useCoins';
+import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import InputAmount from '../../../components/InputAmount';
 
 function SendConfirmItem({ name, value }: Record<string, string>) {
@@ -50,9 +50,8 @@ function SendConfirm({
   const navigate = useNavigate();
   const [sendLoading, setSendLoading] = useState(false);
   const decimals = coin?.metadata.decimals ?? 0;
-  const featureFlags = useFeatureFlags();
-  const gasFee =
-    featureFlags?.networks[appContext.networkId].pay_coin_gas_budget || 0;
+  const featureFlags = useFeatureFlagsWithNetwork();
+  const gasFee = featureFlags?.pay_coin_gas_budget ?? 0;
   const max = useMemo(() => {
     return Number(
       formatCurrency(balance * 10 ** decimals - gasFee, { decimals })

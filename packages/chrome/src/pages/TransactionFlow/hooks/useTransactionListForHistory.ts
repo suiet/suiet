@@ -1,4 +1,4 @@
-import { FieldPolicy, gql, useQuery } from '@apollo/client';
+import { FieldPolicy, gql, useLazyQuery, useQuery } from '@apollo/client';
 import {
   CoinBalanceChangeItem,
   GetTransactionsParams,
@@ -6,7 +6,6 @@ import {
   TransactionsResult,
 } from '../../../types/gql/transactions';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { isNonEmptyArray } from '../../../utils/check';
 
 export interface TransactionForHistory {
   type: 'incoming' | 'outgoing';
@@ -20,6 +19,11 @@ export interface TransactionForHistory {
   signature: string;
   timestamp: number;
   coinBalanceChanges: CoinBalanceChangeItem[];
+}
+
+export interface TransactionListForHistoryQueryOption {
+  limit?: number;
+  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only';
 }
 
 const GET_TX_LIST_GQL = gql`
@@ -63,50 +67,31 @@ const GET_TX_LIST_GQL = gql`
   }
 `;
 
-// const outgoingData = {
-//   transactions: {
-//     transactions: [],
-//     nextCursor: null,
-//   },
-// };
-export function useTransactionListForHistory(address: string) {
+function useTransactionListForHistoryInternal(params: {
+  address: string;
+  incomingData:
+    | TransactionsData<Omit<TransactionForHistory, 'type'>>
+    | undefined;
+  outgoingData:
+    | TransactionsData<Omit<TransactionForHistory, 'type'>>
+    | undefined;
+  restForIncoming: any;
+  restForOutgoing: any;
+  limit: number | undefined;
+}) {
+  const {
+    address,
+    incomingData,
+    outgoingData,
+    restForIncoming,
+    restForOutgoing,
+    limit,
+  } = params;
   const [incomingNextCursor, setIncomingNextCursor] = useState<string | null>();
   const [outgoingNextCursor, setOutgoingNextCursor] = useState<string | null>();
-  const LIMIT = null;
-  const { data: incomingData, ...restForIncoming } = useQuery<
-    TransactionsData<Omit<TransactionForHistory, 'type'>>,
-    GetTransactionsParams
-  >(GET_TX_LIST_GQL, {
-    variables: {
-      filter: {
-        toAddress: address,
-      },
-      limit: LIMIT,
-    },
-    skip: !address,
-  });
-
-  const { data: outgoingData, ...restForOutgoing } = useQuery<
-    TransactionsData<Omit<TransactionForHistory, 'type'>>,
-    GetTransactionsParams
-  >(GET_TX_LIST_GQL, {
-    variables: {
-      filter: {
-        fromAddress: address,
-      },
-      limit: LIMIT,
-    },
-    skip: !address,
-  });
-
   const txHistoryList = useMemo(() => {
     let res: TransactionForHistory[] = [];
     if (incomingData?.transactions?.transactions) {
-      console.log(
-        'incomingData transactions',
-        incomingData.transactions.transactions
-      );
-
       res = res.concat(
         incomingData.transactions.transactions.map((tx) => ({
           ...tx,
@@ -115,11 +100,6 @@ export function useTransactionListForHistory(address: string) {
       );
     }
     if (outgoingData?.transactions?.transactions) {
-      console.log(
-        'outgoingData transactions',
-        outgoingData.transactions.transactions
-      );
-
       res = res.concat(
         outgoingData.transactions.transactions.map((tx) => ({
           ...tx,
@@ -133,8 +113,6 @@ export function useTransactionListForHistory(address: string) {
   }, [incomingData, outgoingData]);
 
   useEffect(() => {
-    console.log('incomingData', incomingData);
-    console.log('outgoingData', outgoingData);
     if (incomingData?.transactions) {
       setIncomingNextCursor(incomingData.transactions.nextCursor);
     }
@@ -147,39 +125,148 @@ export function useTransactionListForHistory(address: string) {
   const refetch = useCallback(() => {
     restForIncoming.refetch();
     restForOutgoing.refetch();
-  }, [restForIncoming, restForOutgoing]);
+  }, [restForIncoming.refetch, restForOutgoing.refetch]);
 
   const fetchMore = useCallback(() => {
-    console.log('fetchMore');
     if (incomingNextCursor !== null) {
-      console.log('fetchMore incomingNextCursor', incomingNextCursor);
       restForIncoming.fetchMore({
         variables: {
           filter: { toAddress: address },
           cursor: incomingNextCursor,
-          limit: LIMIT,
+          limit,
         },
       });
     }
     if (outgoingNextCursor !== null) {
-      console.log('fetchMore outgoingNextCursor', outgoingNextCursor);
       restForOutgoing.fetchMore({
         variables: {
           filter: { toAddress: address },
           cursor: outgoingNextCursor,
-          limit: LIMIT,
+          limit,
         },
       });
     }
-  }, [
-    address,
-    restForIncoming,
-    incomingNextCursor,
-    restForOutgoing,
-    outgoingNextCursor,
-  ]);
+  }, [address, incomingNextCursor, outgoingNextCursor]);
 
   return {
+    data: txHistoryList,
+    fetchMore,
+    refetch,
+    hasMore,
+  };
+}
+
+export function useTransactionListForHistory(
+  address: string,
+  options?: TransactionListForHistoryQueryOption
+) {
+  const { limit, fetchPolicy } = options ?? {};
+  const { data: incomingData, ...restForIncoming } = useQuery<
+    TransactionsData<Omit<TransactionForHistory, 'type'>>,
+    GetTransactionsParams
+  >(GET_TX_LIST_GQL, {
+    variables: {
+      filter: {
+        toAddress: address,
+      },
+      limit,
+    },
+    fetchPolicy,
+    skip: !address,
+  });
+
+  const { data: outgoingData, ...restForOutgoing } = useQuery<
+    TransactionsData<Omit<TransactionForHistory, 'type'>>,
+    GetTransactionsParams
+  >(GET_TX_LIST_GQL, {
+    variables: {
+      filter: {
+        fromAddress: address,
+      },
+      limit,
+    },
+    fetchPolicy,
+    skip: !address,
+  });
+
+  const {
+    data: txHistoryList,
+    refetch,
+    fetchMore,
+    hasMore,
+  } = useTransactionListForHistoryInternal({
+    address,
+    incomingData,
+    outgoingData,
+    limit,
+    restForIncoming,
+    restForOutgoing,
+  });
+
+  return {
+    data: txHistoryList,
+    loading: restForIncoming.loading || restForOutgoing.loading,
+    error: restForIncoming.error ?? restForOutgoing.error,
+    refetch,
+    fetchMore,
+    hasMore,
+  };
+}
+
+export function useTransactionListForHistoryLazyQuery(
+  address: string,
+  options?: TransactionListForHistoryQueryOption
+) {
+  const { limit, fetchPolicy } = options ?? {};
+  const [queryIncomingData, { data: incomingData, ...restForIncoming }] =
+    useLazyQuery<
+      TransactionsData<Omit<TransactionForHistory, 'type'>>,
+      GetTransactionsParams
+    >(GET_TX_LIST_GQL, {
+      variables: {
+        filter: {
+          toAddress: address,
+        },
+        limit: limit,
+      },
+      fetchPolicy,
+    });
+
+  const [queryOutgoingData, { data: outgoingData, ...restForOutgoing }] =
+    useLazyQuery<
+      TransactionsData<Omit<TransactionForHistory, 'type'>>,
+      GetTransactionsParams
+    >(GET_TX_LIST_GQL, {
+      variables: {
+        filter: {
+          toAddress: address,
+        },
+        limit: limit,
+      },
+      fetchPolicy,
+    });
+
+  const {
+    data: txHistoryList,
+    refetch,
+    fetchMore,
+    hasMore,
+  } = useTransactionListForHistoryInternal({
+    address,
+    incomingData,
+    outgoingData,
+    limit,
+    restForIncoming,
+    restForOutgoing,
+  });
+
+  const query = () => {
+    queryIncomingData();
+    queryOutgoingData();
+  };
+
+  return {
+    query,
     data: txHistoryList,
     loading: restForIncoming.loading || restForOutgoing.loading,
     error: restForIncoming.error ?? restForOutgoing.error,
