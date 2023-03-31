@@ -49,14 +49,27 @@ const NftDetail = () => {
       />
       <div className={styles['container']}>
         <NftImg src={url} alt={name} className={styles['nft-img']} />
-        <div className="relative">
-          <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
-            {name}
-          </Typo.Title>
+        <div className="relative flex">
+          <div className="flex flex-col flex-grow">
+            <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
+              {name}
+            </Typo.Title>
+            <div className="flex">
+              <Typo.Small
+                className={classnames(styles['nft-tag'])}
+                onClick={() => {
+                  copy(id);
+                  message.success('Copied Object ID');
+                }}
+              >
+                {'ID: ' + addressEllipsis(id)}
+              </Typo.Small>
+            </div>
+          </div>
           {/* TODO: add hasPublicTransfer indicator in graphql  */}
           {hasPublicTransfer && (
             <div
-              className={styles['nft-send']}
+              className={classnames(styles['nft-send'], 'flex-grow-0')}
               onClick={() => {
                 navigate('/nft/send', {
                   state: {
@@ -74,17 +87,6 @@ const NftDetail = () => {
               Send
             </div>
           )}
-          <div className="flex">
-            <Typo.Small
-              className={classnames(styles['nft-tag'])}
-              onClick={() => {
-                copy(id);
-                message.success('Copied Object ID');
-              }}
-            >
-              {'ID: ' + addressEllipsis(id)}
-            </Typo.Small>
-          </div>
         </div>
 
         <section className={styles['nft-meta']}>
