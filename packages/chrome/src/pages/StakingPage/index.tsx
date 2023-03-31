@@ -83,7 +83,7 @@ export default function StackingPage() {
       if (!network) throw new Error('require network selected');
 
       const tx = new TransactionBlock();
-      const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
+      const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount * 1000_000_000)]);
       tx.moveCall({
         target: '0x3::sui_system::request_add_stake',
         arguments: [
