@@ -10,22 +10,14 @@ export function useCoinBalance(
   address: string,
   networkId: string = 'devnet'
 ) {
-  const [balance, setBalance] = useState<string>('0');
   const {
     data: coinsBalance,
     getBalance,
-    error,
     ...rest
   } = useCoins(address, networkId);
 
-  useEffect(() => {
-    if (!coinsBalance || !symbol) return;
-    setBalance(getBalance(symbol));
-  }, [coinsBalance, symbol, getBalance]);
-
   return {
-    balance,
-    error,
+    balance: getBalance(symbol),
     getBalance,
     ...rest,
   };

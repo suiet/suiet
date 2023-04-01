@@ -59,7 +59,7 @@ export function useCoins(address: string, networkId: string = 'devnet') {
   }
 
   const getBalance = useCallback(
-    (symbol: string): string => {
+    (symbol: string | null): string => {
       if (!symbol || !coinsBalanceMap) return '0';
       return coinsBalanceMap[symbol] ?? '0';
     },

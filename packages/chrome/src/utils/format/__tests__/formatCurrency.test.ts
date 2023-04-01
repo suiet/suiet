@@ -1,12 +1,4 @@
-import { addressEllipsis, formatCurrency } from '../format';
-
-describe('addressEllipsis', function () {
-  test('correct scenario', function () {
-    const suiAddress =
-      '0x0000000000000000000000000000000000000000000000000000000000000000';
-    expect(addressEllipsis(suiAddress)).toEqual('0x00000....0000');
-  });
-});
+import { formatCurrency } from '../formatCurrency';
 
 describe('formatCurrency with default decimal 0', () => {
   test('decimal 0 means amount * 10^0 = amount * 1', () => {
