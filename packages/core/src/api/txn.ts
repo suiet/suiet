@@ -14,6 +14,7 @@ import {
   SignedTransaction,
   toB64,
   SUI_SYSTEM_STATE_OBJECT_ID,
+  DryRunTransactionBlockResponse,
 } from '@mysten/sui.js';
 import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
@@ -52,10 +53,10 @@ export type TransferObjectParams = {
   token: string;
 };
 
-export type GetEstimatedGasBudgetParams = TxEssentials & {
-  transactionBlock: TransactionBlock;
+export type DryRunTXBParams<T, E = TxEssentials> = {
+  context: E;
+  transactionBlock: T;
 };
-
 export type SerializedMoveCallParams = {
   network: Network;
   walletId: string;
@@ -142,6 +143,7 @@ export type UnStakeCoinParams = {
   vault: Vault;
   gasBudgetForStake: number;
 };
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -351,37 +353,33 @@ export class TransactionApi implements ITransactionApi {
     params: SendAndExecuteTxParams<string | TransactionBlock>
   ) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
-    let tx: TransactionBlock;
-    if (typeof params.transactionBlock === 'string') {
-      // deserialize transaction block string
-      tx = TransactionBlock.from(params.transactionBlock);
-    } else {
-      tx = params.transactionBlock;
-    }
+    const txb = this.getTransactionBlock(params.transactionBlock);
     return await provider.signAndExecuteTransactionBlock(
-      tx,
+      txb,
       vault,
       params.requestType,
       params.options
     );
   }
 
-  async signTransactionBlock(params: SendTxParams<TransactionBlock>) {
+  async signTransactionBlock(params: SendTxParams<string | TransactionBlock>) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
-    return await provider.signTransactionBlock(params.transactionBlock, vault);
+    return await provider.signTransactionBlock(
+      this.getTransactionBlock(params.transactionBlock),
+      vault
+    );
   }
 
-  // async getEstimatedGasBudget(
-  //   params: GetEstimatedGasBudgetParams
-  // ): Promise<number> {
-  //   const { network } = params;
-  //   const provider = new Provider(
-  //     network.queryRpcUrl,
-  //     network.txRpcUrl,
-  //     params.network.versionCacheTimoutInSeconds
-  //   );
-  //   return await provider.getEstimatedGasBudget(params.transaction);
-  // }
+  async dryRunTransactionBlock(
+    params: DryRunTXBParams<string | TransactionBlock>
+  ): Promise<DryRunTransactionBlockResponse> {
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    const res = await provider.dryRunTransactionBlock(
+      this.getTransactionBlock(params.transactionBlock),
+      vault
+    );
+    return res;
+  }
 
   private async prepareVault(
     walletId: string,
@@ -471,6 +469,15 @@ export class TransactionApi implements ITransactionApi {
       // params.requestType,
       // params.options
     );
+  }
+
+  private getTransactionBlock(input: string | TransactionBlock) {
+    if (typeof input === 'string') {
+      // deserialize transaction block string
+      return TransactionBlock.from(input);
+    } else {
+      return input;
+    }
   }
 
   // async unStakeCoin(params: UnStakeCoinParams) {

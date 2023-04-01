@@ -20,7 +20,7 @@ import InputAmount from '../../components/InputAmount';
 import { formatCurrency } from '../../utils/format';
 import { useAccount } from '../../hooks/useAccount';
 import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
-import { useEstimatedGasBudget } from '../../hooks/transaction/useEstimatedGasBudget';
+import useEstimatedGasFee from '../../hooks/transaction/useEstimatedGasFee';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
 import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';

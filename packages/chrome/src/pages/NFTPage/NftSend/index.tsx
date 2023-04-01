@@ -16,8 +16,9 @@ import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
 import { formatSUI } from '../../../utils/format';
 import styles from './index.module.scss';
-import { useEstimatedGasBudget } from '../../../hooks/transaction/useEstimatedGasBudget';
+import useEstimatedGasFee from '../../../hooks/transaction/useEstimatedGasFee';
 import { useForm } from 'react-hook-form';
+import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 
 interface SendFormValues {
   address: string;
@@ -46,22 +47,7 @@ export default function SendNft() {
       address: '',
     },
   });
-
-  // FIXME: dryRun to get gas price
-  // const transaction: Transaction | undefined =
-  //   useMemo(() => {
-  //     // use mock addr only to dryRun and fetch precise gas price as gas budget
-  //     const mockAddr = '0x0000000000000000000000000000000000000000';
-  //     if (!isValidSuiAddress(mockAddr)) return undefined;
-  //     return {
-  //       kind: 'transferObject',
-  //       data: {
-  //         objectId: id,
-  //         recipient: mockAddr,
-  //       },
-  //     };
-  //   }, [id]);
-  const { data: estimatedGasBudget } = useEstimatedGasBudget({} as any);
+  const featureFlags = useFeatureFlagsWithNetwork();
 
   useEffect(() => {
     if (!id) throw new Error('id should be passed within location state');
@@ -131,9 +117,9 @@ export default function SendNft() {
           <AddressInput form={form} className={'mt-[6px]'} />
         </div>
         <div className={styles['gas-container']}>
-          <Typo.Title className={styles['gas']}>Estimated Gas Fee</Typo.Title>
+          <Typo.Title className={styles['gas']}>Gas Budget</Typo.Title>
           <Typo.Normal className={styles['gas-amount']}>
-            {formatSUI(estimatedGasBudget ?? 0)} SUI
+            {formatSUI(featureFlags?.move_call_gas_budget ?? 0)} SUI
           </Typo.Normal>
         </div>
         <div className={styles['btn-container']}>

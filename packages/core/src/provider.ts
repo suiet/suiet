@@ -15,6 +15,8 @@ import {
   PaginatedCoins,
   DryRunTransactionBlockResponse,
   SuiTransactionBlockResponse,
+  getTotalGasUsed,
+  is,
 } from '@mysten/sui.js';
 import { CoinObject, Nft, NftObject } from './object';
 import { Vault } from './vault/Vault';
@@ -23,6 +25,7 @@ import { createKeypair } from './utils/vault';
 import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
+import { bigint, number } from 'superstruct';
 
 export class Provider {
   query: QueryProvider;
@@ -414,40 +417,13 @@ export class TxProvider {
   ): Promise<DryRunTransactionBlockResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
-    const res = await signer.dryRunTransactionBlock({ transactionBlock: tx });
+    const res = await signer.dryRunTransactionBlock({
+      transactionBlock: tx,
+    });
     if (res?.effects?.status?.status === 'failure') {
       const { status } = res.effects;
       throw new RpcError(status.error ?? status.status, res);
     }
     return res;
   }
-
-  // TODO: add estimated gas budget calculation
-  // /**
-  //  * try to calculate estimated gas budget from dryRun API
-  //  * @param tx
-  //  */
-  // async getEstimatedGasBudget(tx: TransactionBlock): Promise<number> {
-  //   const defaultGasBudget = getDefaultGasBudgetByKind(tx.kind);
-  //   if (tx.kind !== 'bytes') {
-  //     if (typeof tx.data?.gasBudget === 'number' && tx.data.gasBudget > 0) {
-  //       // if already specified non-zero gasBudget, return it
-  //       return tx.data.gasBudget;
-  //     }
-  //     // else, assign a default budget
-  //     Object.assign(tx.data, { gasBudget: defaultGasBudget });
-  //   }
-  //
-  //   let effects: TransactionEffects;
-  //   try {
-  //     effects = await this.dryRunTransactionBlock(tx);
-  //     const RATIO = 1.5;
-  //     const res = getTotalGasUsed(effects); // infer est budget from dryRun result
-  //     // return estimated budget based on the response of dryRun
-  //     return is(res, number()) ? Math.ceil(res * RATIO) : DEFAULT_GAS_BUDGET;
-  //   } catch (e) {
-  //     // if failed, return default gas budget
-  //     return defaultGasBudget;
-  //   }
-  // }
 }
