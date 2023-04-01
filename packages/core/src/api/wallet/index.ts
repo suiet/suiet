@@ -5,6 +5,7 @@ import { Storage } from '../../storage/Storage';
 import { toAccountIdString, toAccountNameString } from '../account';
 import { Buffer } from 'buffer';
 import { whichAvatar } from './utils';
+import { prepareVault } from '../../utils/vault';
 
 export type CreateWalletParams = {
   token: string;
@@ -81,11 +82,12 @@ export class WalletApi implements IWalletApi {
     if (!wallet) {
       throw new Error('Wallet not exist');
     }
-    const mnemonic = crypto.decryptMnemonic(
-      Buffer.from(token, 'hex'),
-      wallet.encryptedMnemonic
-    );
-    return crypto.mnemonicToEntropy(mnemonic).toString('hex');
+    const account = await this.storage.getAccount(wallet.accounts[0].id);
+    if (!account) {
+      throw new Error('Account not exist');
+    }
+    const vault = await prepareVault(wallet, account, token);
+    return vault.hdKey.getPrivateKey().toString('hex');
   }
 
   async createWallet(params: CreateWalletParams): Promise<Wallet> {
