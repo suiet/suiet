@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useCoins } from './useCoins';
 
 export enum CoinSymbol {
@@ -8,7 +8,7 @@ export enum CoinSymbol {
 export function useCoinBalance(
   symbol: CoinSymbol | null = null, // if null, means only lazy get function is available
   address: string,
-  networkId: string = 'devnet'
+  networkId: string
 ) {
   const {
     data: coinsBalance,
@@ -16,8 +16,10 @@ export function useCoinBalance(
     ...rest
   } = useCoins(address, networkId);
 
+  const balance = useMemo(() => getBalance(symbol), [coinsBalance, symbol]);
+
   return {
-    balance: getBalance(symbol),
+    balance,
     getBalance,
     ...rest,
   };

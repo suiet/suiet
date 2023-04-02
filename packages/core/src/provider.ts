@@ -417,13 +417,21 @@ export class TxProvider {
   ): Promise<DryRunTransactionBlockResponse> {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
-    const res = await signer.dryRunTransactionBlock({
-      transactionBlock: tx,
-    });
-    if (res?.effects?.status?.status === 'failure') {
-      const { status } = res.effects;
-      throw new RpcError(status.error ?? status.status, res);
+    try {
+      const res = await signer.dryRunTransactionBlock({
+        transactionBlock: tx,
+      });
+      if (res?.effects?.status?.status === 'failure') {
+        const { status } = res.effects;
+        throw new RpcError(status.error ?? status.status, res);
+      }
+      return res;
+    } catch (e: any) {
+      if (e?.code || e?.cause) {
+        const { code, cause } = e;
+        throw new RpcError(cause, { code, cause });
+      }
+      throw e;
     }
-    return res;
   }
 }
