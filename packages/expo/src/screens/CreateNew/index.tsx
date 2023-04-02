@@ -128,9 +128,10 @@ export const CreateNew: React.FC<StackScreenProps<RootStackParamList, 'CreateNew
       const { generateMnemonic } = await import('@scure/bip39');
       const { wordlist } = await import('@scure/bip39/wordlists/english');
       const { Vault } = await import('@suiet/core/src/vault/Vault');
+      const { derivationHdPath } = await import('@suiet/core/src/crypto');
 
       const mnemonic = generateMnemonic(wordlist);
-      const vault = await Vault.fromMnemonic(mnemonic);
+      const vault = await Vault.fromMnemonic(derivationHdPath(0), mnemonic);
       const address = vault.getAddress();
 
       try {

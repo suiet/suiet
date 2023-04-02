@@ -90,6 +90,9 @@ export class QueryProvider {
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
+
+        // React Native doesn't support WebSockets, so we need to use the
+        websocketClient: {} as any,
       }
     );
     this.client = new JsonRpcClient(queryEndpoint);
@@ -237,6 +240,9 @@ export class TxProvider {
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
+
+        // React Native doesn't support WebSockets, so we need to use the
+        websocketClient: {} as any,
       }
     );
   }
