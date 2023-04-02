@@ -7,10 +7,7 @@ export default function formatTxType(
 ): TxItemDisplayType {
   if (category === 'transfer_coin') {
     if (type === 'incoming') return 'received';
-    if (type === 'outgoing') {
-      if (kind === 'Call') return 'moveCall';
-      return 'sent';
-    }
+    if (type === 'outgoing') return 'sent';
   }
 
   return kind as TxItemDisplayType;

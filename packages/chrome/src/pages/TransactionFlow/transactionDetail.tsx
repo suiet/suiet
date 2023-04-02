@@ -153,7 +153,7 @@ function TransactionDetail() {
           >
             {state.status === 'failure'
               ? 'FAILED'
-              : formatTotalCoinChange(state.type, state.coinBalanceChanges)}
+              : formatTotalCoinChange(state.coinBalanceChanges)}
           </div>
         ) : null}
       </div>

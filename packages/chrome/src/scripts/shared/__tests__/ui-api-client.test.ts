@@ -1,4 +1,4 @@
-import { errorToString } from '../ui-api-client';
+import errorToString from '../errorToString';
 
 describe('Res Error toString', function () {
   test('print error {code: number; msg: string}', () => {

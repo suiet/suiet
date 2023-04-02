@@ -3,7 +3,7 @@ import formatTotalCoinChange from '../formatTotalCoinChange';
 describe('format total coin change', function () {
   test('single coin', function () {
     expect(
-      formatTotalCoinChange('received', [
+      formatTotalCoinChange([
         {
           symbol: 'SUI',
           balance: '1000000000',
@@ -15,10 +15,22 @@ describe('format total coin change', function () {
     ).toEqual('+1 SUI');
 
     expect(
-      formatTotalCoinChange('sent', [
+      formatTotalCoinChange([
         {
           symbol: 'SUI',
-          balance: '1000000000',
+          balance: '+1000000000',
+          metadata: {
+            decimals: 9,
+          },
+        } as any,
+      ])
+    ).toEqual('+1 SUI');
+
+    expect(
+      formatTotalCoinChange([
+        {
+          symbol: 'SUI',
+          balance: '-1000000000',
           metadata: {
             decimals: 9,
           },
