@@ -22,6 +22,10 @@ export default function formatDryRunError(error: any): string {
         currentSUI
       )} SUI), the needed gas is ${formatSUI(neededSUI)} SUI`;
     }
+    if (/^.*object does not exist.*/i.test(error.message)) {
+      return 'Cannot find the contract, please check the package ID or current chain';
+    }
+    return error.message;
   }
   return 'Unknown error';
 }

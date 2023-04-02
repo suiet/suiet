@@ -36,6 +36,15 @@ describe('formatDryRunError', function () {
     );
   });
 
+  test('package id not exist in current chain', function () {
+    const error = {
+      message: 'Package object does not exist with ID',
+    };
+    expect(formatDryRunError(error)).toBe(
+      'Cannot find the contract, please check the package ID or current chain'
+    );
+  });
+
   test('unknown error', function () {
     const error = {
       message: 'blablabla',
