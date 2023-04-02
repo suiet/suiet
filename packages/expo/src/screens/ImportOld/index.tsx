@@ -65,11 +65,12 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
             }
 
             const { Vault } = await import('@suiet/core/src/vault/Vault');
+            const { derivationHdPath } = await import('@suiet/core/src/crypto');
 
             const mnemonic = textInputValue;
             let address: string;
             try {
-              const vault = await Vault.fromMnemonic(mnemonic);
+              const vault = await Vault.fromMnemonic(derivationHdPath(0), mnemonic);
               address = vault.getAddress();
             } catch (e: any) {
               Alert.alert('Error', 'Your recovery phrase is invalid.', [

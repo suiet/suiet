@@ -18,9 +18,10 @@ import Typography from '@/components/Typography';
 import { TokenAmountInput } from '@/screens/Swap';
 import { useMemo, useState } from 'react';
 
-import { COIN_TYPE_ARG_REGEX } from '@suiet/core/src/object';
+// import { COIN_TYPE_ARG_REGEX } from '@suiet/core/src/object';
 import { Provider } from '@suiet/core/src/provider';
 import { Vault } from '@suiet/core/src/vault/Vault';
+import { derivationHdPath } from '@suiet/core/src/crypto';
 import { addressEllipsis, formatCurrency } from '@/utils/format';
 import { useKeychain } from '@/hooks/useKeychain';
 import { Coin } from '@/utils/gql';
@@ -105,7 +106,9 @@ const InputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddr
   // {
   //   "address": "0xb914b4d42ffb417f4a760ea8e90c05fb69f8ec9c"
   // }
-  const [textInputValue, setTextInputValue] = React.useState<string>('0xa464793a21309149e53c1471e748e40d04b6ba17');
+  const [textInputValue, setTextInputValue] = React.useState<string>(
+    '0xc21498bda0aa97e51f4227271d0d6d75d4091c4c1d1804806fd6fd9bc306a899'
+  );
 
   const { width, height } = Dimensions.get('screen');
   const { top, bottom } = useSafeAreaInsets();
@@ -336,18 +339,18 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
                 await new Promise((resolve) => setTimeout(resolve, 500));
                 try {
                   const mnemonic = await loadMnemonic(selectedWallet);
-                  const [, coinType] = coin.type.match(COIN_TYPE_ARG_REGEX)!;
+                  // const [, coinType] = coin.type.match(COIN_TYPE_ARG_REGEX)!;
 
                   setButtonLoading(true);
                   // FIXME(hzy): wait for animation
                   await new Promise((resolve) => setTimeout(resolve, 500));
 
                   const res = await txProvider.transferCoin(
-                    coinType,
+                    coin.type,
                     BigInt(Math.ceil(parseFloat(amount!) * Math.pow(10, coin?.metadata.decimals || 0))),
                     route.params.address,
-                    await Vault.fromMnemonic(mnemonic),
-                    network?.pay_coin_gas_budget!
+                    await Vault.fromMnemonic(derivationHdPath(0), mnemonic)
+                    // network?.pay_coin_gas_budget!
                   );
 
                   const statusType = getExecutionStatusType(res);
@@ -381,6 +384,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
                     }
                   }
                 } catch (e: any) {
+                  console.log('Error', e);
                 } finally {
                   setButtonDisabled(false);
                   setButtonLoading(false);

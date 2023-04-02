@@ -7,6 +7,7 @@ import { useQuery } from '@apollo/client';
 import { Coin, GET_COINS } from '@/utils/gql';
 import { LoadingDots } from '@/components/Loading';
 import Typography from './Typography';
+import { Badge } from './Badge';
 
 const ListItem: React.FC<
   { backgroundColor: ColorValue; textColor: ColorValue; symbol: string; balance: string } & ViewProps
@@ -92,6 +93,10 @@ export const Coins: React.FC<{ address: string; onChooseCoin?: (coin: Coin) => v
         <LoadingDots />
       </View>
     );
+  }
+
+  if (error) {
+    return <Badge title="Failed to load coins" variant="error" />;
   }
 
   return (

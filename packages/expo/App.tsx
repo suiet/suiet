@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { Send } from '@/screens/Coin/components/Send';
 import { Header } from '@/screens/Coin/components/Header';
@@ -64,115 +65,127 @@ const RootStack = createStackNavigator<RootStackParamList>();
 function App() {
   const { isLoading: isWalletsLoading, isEmpty: isWalletsEmpty /* loadWallets */, wallets } = useWallets();
 
-  return (
-    <>
-      <StatusBar style="dark" translucent={true} />
-      <NavigationContainer>
-        <RootStack.Navigator initialRouteName={isWalletsEmpty ? 'Welcome' : 'Home'}>
-          <RootStack.Group>
-            <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-            <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
-            <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
-          </RootStack.Group>
-          <RootStack.Group
-            screenOptions={{
-              presentation: 'modal',
-              gestureDirection: 'vertical',
-              gestureEnabled: true,
-            }}
-          >
-            <RootStack.Screen
-              name="Send"
-              component={Send}
-              options={{
-                header: () => null,
-              }}
-            />
-            <RootStack.Screen
-              name="Receive"
-              component={Receive}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={'Receive'} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="Swap"
-              component={Swap}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={'Swap'} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="SelectToken"
-              component={SelectToken}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={'Select Token'} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="Settings"
-              component={Settings}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={''} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="CreateNew"
-              component={CreateNew}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="ImportOld"
-              component={ImportOld}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="SelectWallet"
-              component={SelectWallet}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={'Wallet List'} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
-            <RootStack.Screen
-              name="EditWallet"
-              component={EditWallet}
-              options={{
-                header: ({ navigation, route: { name } }) => (
-                  <Header title={''} onRightAction={() => navigation.goBack()} />
-                ),
-              }}
-            />
+  const featureFlags = useAutoLoadFeatureFlags();
+  const network = featureFlags?.networks?.[featureFlags.default_network];
 
-            <RootStack.Screen
-              name="ScanQRCode"
-              component={ScanQRCode}
-              options={{
-                title: 'Scan QR Code',
-                header: () => null,
+  const client = useMemo(() => {
+    return new ApolloClient({
+      uri: network?.graphql_url,
+      cache: new InMemoryCache(),
+    });
+  }, [network]);
+
+  return (
+    <ContextFeatureFlags.Provider value={featureFlags}>
+      <ApolloProvider client={client}>
+        <StatusBar style="dark" translucent={true} />
+        <NavigationContainer>
+          <RootStack.Navigator initialRouteName={isWalletsEmpty ? 'Welcome' : 'Home'}>
+            <RootStack.Group>
+              <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+              <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
+              <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
+            </RootStack.Group>
+            <RootStack.Group
+              screenOptions={{
+                presentation: 'modal',
+                gestureDirection: 'vertical',
+                gestureEnabled: true,
               }}
-            />
-          </RootStack.Group>
-        </RootStack.Navigator>
-      </NavigationContainer>
-    </>
+            >
+              <RootStack.Screen
+                name="Send"
+                component={Send}
+                options={{
+                  header: () => null,
+                }}
+              />
+              <RootStack.Screen
+                name="Receive"
+                component={Receive}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'Receive'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="Swap"
+                component={Swap}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'Swap'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="SelectToken"
+                component={SelectToken}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'Select Token'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="Settings"
+                component={Settings}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="CreateNew"
+                component={CreateNew}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="ImportOld"
+                component={ImportOld}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="SelectWallet"
+                component={SelectWallet}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'Wallet List'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="EditWallet"
+                component={EditWallet}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+
+              <RootStack.Screen
+                name="ScanQRCode"
+                component={ScanQRCode}
+                options={{
+                  title: 'Scan QR Code',
+                  header: () => null,
+                }}
+              />
+            </RootStack.Group>
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </ApolloProvider>
+    </ContextFeatureFlags.Provider>
   );
 }
 
@@ -191,44 +204,32 @@ function Root() {
     });
   }, []);
 
-  const featureFlags = useAutoLoadFeatureFlags();
-  const network = featureFlags?.networks?.[featureFlags.default_network];
-
-  const client = useMemo(() => {
-    return new ApolloClient({
-      uri: network?.graphql_url,
-      cache: new InMemoryCache(),
-    });
-  }, [network]);
-
   if (!isFontsLoaded || !isAndroidNavigationSet) {
     return null;
   }
 
   return (
-    <ContextFeatureFlags.Provider value={featureFlags}>
-      <ApolloProvider client={client}>
-        <Provider store={store}>
-          <PersistGate /* loading={<LoadingAvatars />} */ persistor={persistor}>
-            <App />
-            <Toast
-              topOffset={60}
-              config={{
-                success: ({ text1, isVisible, props }) => (
-                  <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
-                ),
-                info: ({ text1, isVisible, props }) => (
-                  <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
-                ),
-                error: ({ text1, isVisible, props }) => (
-                  <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
-                ),
-              }}
-            />
-          </PersistGate>
-        </Provider>
-      </ApolloProvider>
-    </ContextFeatureFlags.Provider>
+    <QueryClientProvider client={new QueryClient()}>
+      <Provider store={store}>
+        <PersistGate /* loading={<LoadingAvatars />} */ persistor={persistor}>
+          <App />
+          <Toast
+            topOffset={60}
+            config={{
+              success: ({ text1, isVisible, props }) => (
+                <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
+              ),
+              info: ({ text1, isVisible, props }) => (
+                <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
+              ),
+              error: ({ text1, isVisible, props }) => (
+                <AngularGradientToast key={text1!} isVisible={isVisible} text={text1!} {...props} />
+              ),
+            }}
+          />
+        </PersistGate>
+      </Provider>
+    </QueryClientProvider>
   );
 }
 
