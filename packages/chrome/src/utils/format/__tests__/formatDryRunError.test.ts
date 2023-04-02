@@ -41,7 +41,7 @@ describe('formatDryRunError', function () {
       message: 'Package object does not exist with ID',
     };
     expect(formatDryRunError(error)).toBe(
-      'Cannot find the contract, please check the package ID or current chain'
+      'We were unable to locate the packageID. Please try selecting a different network or reach out to the website owner to confirm the existence of the requested package.'
     );
   });
 

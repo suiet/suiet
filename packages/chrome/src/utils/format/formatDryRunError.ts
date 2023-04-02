@@ -23,7 +23,7 @@ export default function formatDryRunError(error: any): string {
       )} SUI), the needed gas is ${formatSUI(neededSUI)} SUI`;
     }
     if (/^.*object does not exist.*/i.test(error.message)) {
-      return 'Cannot find the contract, please check the package ID or current chain';
+      return 'We were unable to locate the packageID. Please try selecting a different network or reach out to the website owner to confirm the existence of the requested package.';
     }
     return error.message;
   }
