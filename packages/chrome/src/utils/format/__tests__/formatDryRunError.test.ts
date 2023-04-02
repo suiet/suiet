@@ -45,10 +45,14 @@ describe('formatDryRunError', function () {
     );
   });
 
-  test('unknown error', function () {
+  test('unrecognized error', function () {
     const error = {
       message: 'blablabla',
     };
-    expect(formatDryRunError(error)).toBe('Unknown error');
+    expect(formatDryRunError(error)).toBe('blablabla');
+  });
+
+  test('unknown error', function () {
+    expect(formatDryRunError(undefined)).toBe('Unknown error');
   });
 });

@@ -30,7 +30,7 @@ function TransactionItem(props: TransactionItemProps) {
         <div className={classnames('transaction-item-amount', type, status)}>
           {status === 'failure'
             ? 'Failed'
-            : formatTotalCoinChange(type, props.coinBalanceChanges)}
+            : formatTotalCoinChange(props.coinBalanceChanges)}
         </div>
       );
     }
