@@ -34,19 +34,16 @@ import {
   TransactionType,
 } from '@mysten/sui.js';
 import isMoveCall from '../utils/isMoveCall';
-import useEstimatedGasFee, {
-  getEstimatedGasFeeFromDryRunResult,
-} from '../../../hooks/transaction/useEstimatedGasFee';
 import { getGasBudgetFromTxb } from '../../../utils/getters';
-import useDryRunTransactionBlock from '../../../hooks/transaction/useDryRunTransactionBlock';
-import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import useMyAssetChangesFromDryRun from './hooks/useMyAssetChangesFromDryRun';
 import { useAccount } from '../../../hooks/useAccount';
+import formatDryRunError from '../../../utils/format/formatDryRunError';
 
 enum Mode {
   LOADING,
   INSUFFICIENT_SUI,
   NORMAL,
+  ERROR,
 }
 
 const CodeBlock: FC<{ value: Record<string, any> }> = (props) => {
@@ -103,16 +100,17 @@ const TxApprovePage = () => {
     balance,
     error: balanceError,
     isSuccess: isBalanceLoaded,
-  } = useCoinBalance(CoinSymbol.SUI, txReqData?.target.address ?? '');
+  } = useCoinBalance(
+    CoinSymbol.SUI,
+    txReqData?.target.address ?? '',
+    appContext.networkId
+  );
 
   const {
     data: { estimatedGasFee, coinBalanceChanges },
+    error: dryRunError,
     isSuccess: isDryRunSuccess,
   } = useMyAssetChangesFromDryRun(account?.address, transactionBlock);
-
-  useEffect(() => {
-    console.log('coinBalanceChanges', coinBalanceChanges);
-  }, [coinBalanceChanges]);
 
   const apiClient = useApiClient();
   async function emitApproval(approved: boolean, reason?: TxFailureReason) {
@@ -222,6 +220,15 @@ const TxApprovePage = () => {
 
   // page mode
   useEffect(() => {
+    if (balanceError) {
+      Message.error(balanceError.toString());
+      console.error(balanceError);
+      return;
+    }
+    if (dryRunError || balanceError) {
+      setMode(Mode.ERROR);
+      return;
+    }
     if (!isBalanceLoaded || !isDryRunSuccess) {
       setMode(Mode.LOADING);
       return;
@@ -233,12 +240,6 @@ const TxApprovePage = () => {
       console.error(err);
       return;
     }
-
-    if (balanceError) {
-      Message.error(balanceError.toString());
-      console.error(balanceError);
-      return;
-    }
     if (BigInt(balance) < BigInt(estimatedGasFee)) {
       setMode(Mode.INSUFFICIENT_SUI);
       return;
@@ -246,10 +247,11 @@ const TxApprovePage = () => {
     setMode(Mode.NORMAL);
   }, [
     balance,
+    estimatedGasFee,
     isBalanceLoaded,
     balanceError,
-    estimatedGasFee,
     isDryRunSuccess,
+    dryRunError,
   ]);
 
   if (!txReqData) return null;
@@ -298,7 +300,7 @@ const TxApprovePage = () => {
           </Tabs>
         </DappPopupLayout>
       );
-    case Mode.INSUFFICIENT_SUI:
+    case Mode.ERROR:
       return (
         <DappPopupLayout
           desc={'wants to make a transaction from'}
@@ -313,8 +315,8 @@ const TxApprovePage = () => {
             emitApproval(false, TxFailureReason.INSUFFICIENT_GAS);
           }}
         >
-          <Typo.Hints className={styles['insufficient-sui-hints']}>
-            You DO NOT have enough SUI
+          <Typo.Hints className={styles['dryrun-error']}>
+            {formatDryRunError(dryRunError)}
           </Typo.Hints>
         </DappPopupLayout>
       );

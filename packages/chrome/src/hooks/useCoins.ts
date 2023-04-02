@@ -14,7 +14,7 @@ export interface Coin {
 
 export const swrKey = 'fetchCoinsBalanceMap';
 
-export function useCoins(address: string, networkId: string = 'devnet') {
+export function useCoins(address: string, networkId: string) {
   const apiClient = useApiClient();
   const { data: network } = useNetwork(networkId);
   const {
@@ -29,7 +29,6 @@ export function useCoins(address: string, networkId: string = 'devnet') {
       refetchInterval: 5000,
     }
   );
-
   const coinsBalanceMap = useMemo(() => {
     const map: Record<string, string> = {};
     if (!coins) return {};
