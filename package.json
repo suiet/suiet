@@ -29,7 +29,9 @@
     "build": "run-s build:chrome",
     "dev:chrome": "npm run dev -w @suiet/chrome-ext",
     "build:chrome": "npm run build -w @suiet/chrome-ext",
+    "test:chrome": "npm run test -w @suiet/chrome-ext",
     "prettier": "prettier --write --ignore-unknown .",
+    "test": "run-p test:chrome",
     "lint": "eslint --ext=.js,.js,.tsx,.ts .",
     "lint:fix": "eslint --fix --ext=.js,.js,.tsx,.ts .",
     "prepare": "husky install"
