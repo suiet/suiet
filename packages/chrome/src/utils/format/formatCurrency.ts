@@ -71,7 +71,7 @@ function formatWithAbbr(
   if (typeof amount === 'bigint') {
     _amount = String(amount / (BigInt(measureUnit) / 1000n));
   } else {
-    _amount = String(Math.floor(amount / (measureUnit / 1000)));
+    _amount = String(Math.trunc(amount / (measureUnit / 1000)));
   }
   const showAmount = _amount.padEnd(4, '0');
   const result = Intl.NumberFormat('en-US').format(Number(showAmount));
@@ -126,7 +126,7 @@ function toFixed(num: number, fixed: number) {
 
   fixed = fixed || 0;
   fixed = Math.pow(10, fixed);
-  return getFullNum(Math.floor(num * fixed) / fixed);
+  return getFullNum(Math.trunc(num * fixed) / fixed);
 }
 
 // handle bigint that exceeds number type
