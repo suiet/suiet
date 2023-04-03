@@ -11,6 +11,9 @@ import { SendData } from '../types';
 import { ReactComponent as ViewIcon } from '../../../assets/icons/view.svg';
 import classNames from 'classnames';
 import useTransactionList from '../hooks/useTransactionList';
+import dayjs from 'dayjs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 
 interface AddressInputValues {
   address: string;
@@ -31,6 +34,7 @@ function AddressInputPage({
       address: state.address,
     },
   });
+  const { networkId } = useSelector((state: RootState) => state.appContext);
   const addressState = getInputStateByFormState(form.formState, 'address');
   const formAddress = form.getValues().address;
   const { getTransactionList, data, loading } = useTransactionList();
@@ -41,16 +45,17 @@ function AddressInputPage({
 
   let history = null;
   if (data) {
-    history = data.transactions;
+    history = data;
   }
 
   useEffect(() => {
     if (formAddress) {
       getTransactionList({
         variables: {
-          filter: {
-            fromAddress: formAddress,
-          },
+          fromAddress: formAddress,
+          toAddress: formAddress,
+          startTime: dayjs().subtract(7, 'd').valueOf(),
+          endTime: dayjs().valueOf(),
         },
       });
     }
@@ -79,11 +84,11 @@ function AddressInputPage({
             !disabled &&
             (history.length > 0 ? (
               <div className={styles['transaction-num']}>
-                {history?.length} transactions
+                {history?.length} transactions in a week
                 <div
                   onClick={() => {
                     window.open(
-                      `https://explorer.sui.io/address/${formAddress}`,
+                      `https://explorer.sui.io/address/${formAddress}?network=${networkId}`,
                       '_blank'
                     );
                   }}
@@ -101,7 +106,7 @@ function AddressInputPage({
               >
                 <div className={styles['warn-btn']}>Warn</div>
                 <div className={styles['warn-desc']}>
-                  No recent transiations
+                  No recent transactions
                 </div>
               </div>
             ))}
