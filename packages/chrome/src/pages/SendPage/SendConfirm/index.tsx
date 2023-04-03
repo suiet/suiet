@@ -51,7 +51,7 @@ function SendConfirm({
   const [sendLoading, setSendLoading] = useState(false);
   const decimals = coin?.metadata.decimals ?? 0;
   const featureFlags = useFeatureFlagsWithNetwork();
-  const gasFee = featureFlags?.pay_coin_gas_budget ?? 0;
+  const gasFee = featureFlags?.pay_coin_gas_budget ?? 2_000_000;
   const max = useMemo(() => {
     return Number(
       formatCurrency(balance * 10 ** decimals - gasFee, { decimals })

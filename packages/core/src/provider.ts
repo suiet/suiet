@@ -179,7 +179,7 @@ export class QueryProvider {
     while (hasNextPage) {
       const resp: any = await this.provider.getCoins({
         owner: address,
-        coinType: coinType,
+        coinType,
         cursor: nextCursor,
       });
       resp.data.forEach((item: any) => {

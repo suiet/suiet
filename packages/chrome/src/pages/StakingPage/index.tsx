@@ -8,6 +8,7 @@ import {
   SendAndExecuteTxParams,
   TxEssentials,
 } from '@suiet/core';
+import { formatCurrency } from '../../utils/format';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useState, useEffect, useMemo } from 'react';
 import { RootState } from '../../store';
@@ -17,13 +18,13 @@ import { GET_VALIDATORS } from '../../utils/graphql/query';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
 import InputAmount from '../../components/InputAmount';
-import { formatCurrency } from '../../utils/format';
 import { useAccount } from '../../hooks/useAccount';
 import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import useEstimatedGasFee from '../../hooks/transaction/useEstimatedGasFee';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
 import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
+import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -68,7 +69,8 @@ export default function StackingPage() {
     address ?? '',
     appContext.networkId
   );
-
+  const featureFlags = useFeatureFlagsWithNetwork();
+  const gasFee = featureFlags?.stake_gas_budget ?? 20_000_000;
   const max = useMemo(() => {
     // return Number(formatCurrency(Number(balance) - Number(estimatedGasBudget)));
     return (Number(balance) - 0) / 1000000000;
@@ -184,7 +186,12 @@ export default function StackingPage() {
             </div>
             <div className="flex flex-row items-center justify-between">
               <div className="text-zinc-700">Gas Fee</div>
-              <div className="text-zinc-400">0.000015 SUI</div>
+              <div className="text-zinc-400">
+                {formatCurrency(gasFee, {
+                  decimals: 9,
+                })}{' '}
+                SUI
+              </div>
             </div>
           </div>
         </div>
