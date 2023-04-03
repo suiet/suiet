@@ -77,7 +77,7 @@ export const AddressBadge: React.FC<AddressBadgeProps> = ({ address }) => {
 
   if (Array.isArray(transactions)) {
     if (transactions.length === 0) {
-      return <Badge title="No transiations in this address" variant="warning" />;
+      return <Badge title="No recent transactions" variant="warning" />;
     } else {
       const numberOfTransactions = `${transactions?.length || 0}${nextCursor ? '+' : ''}`;
 
