@@ -59,6 +59,24 @@ export class Provider {
     );
   }
 
+  async buildTransferCoinTx(
+    coinType: string,
+    amount: bigint,
+    recipient: string,
+    address: string
+  ) {
+    const coins = await this.query.getOwnedCoin(address, coinType);
+    if (coins.length === 0) {
+      throw new Error('No coin to transfer');
+    }
+    return await this.tx.buildTransferCoinTx(
+      coins,
+      coinType,
+      amount,
+      recipient
+    );
+  }
+
   async transferObject(
     objectId: string,
     recipient: string,
@@ -305,6 +323,36 @@ export class TxProvider {
     }
 
     return await this.signAndExecuteTransactionBlock(tx, vault);
+  }
+
+  public async buildTransferCoinTx(
+    coins: CoinObject[],
+    coinType: string, // such as 0x2::sui::SUI
+    amount: bigint,
+    recipient: string
+  ) {
+    const tx = new TransactionBlock();
+    const [primaryCoin, ...mergeCoins] = coins.filter(
+      (coin) => coin.type === coinType
+    );
+
+    if (coinType === SUI_TYPE_ARG) {
+      const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
+      tx.transferObjects([coin], tx.pure(recipient));
+    } else {
+      const primaryCoinInput = tx.object(primaryCoin.objectId);
+      if (mergeCoins.length) {
+        // TODO: This could just merge a subset of coins that meet the balance requirements instead of all of them.
+        tx.mergeCoins(
+          primaryCoinInput,
+          mergeCoins.map((coin) => tx.object(coin.objectId))
+        );
+      }
+      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(coins)]);
+      tx.transferObjects([coin], tx.pure(recipient));
+    }
+
+    return tx;
   }
 
   public async signAndExecuteTransactionBlock(
