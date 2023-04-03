@@ -234,6 +234,8 @@ export class AuthApi implements IAuthApi {
       throw new Error('Invalid password');
     }
 
+    await maybeFixDataConsistency(this.storage, token);
+
     newAuthKey = newAuthKey ?? generateClientId(24);
     const encryptedToken = crypto.encryptString(Buffer.from(newAuthKey), token);
 
