@@ -20,12 +20,10 @@ import {
 } from '@mysten/sui.js';
 import { CoinObject, Nft, NftObject } from './object';
 import { Vault } from './vault/Vault';
-import { JsonRpcClient } from './client';
 import { createKeypair } from './utils/vault';
 import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
-import { bigint, number } from 'superstruct';
 
 export class Provider {
   query: QueryProvider;
@@ -80,7 +78,6 @@ export class Provider {
 
 export class QueryProvider {
   provider: JsonRpcProvider;
-  client: JsonRpcClient;
 
   constructor(queryEndpoint: string, versionCacheTimeoutInSeconds: number) {
     this.provider = new JsonRpcProvider(
@@ -95,7 +92,6 @@ export class QueryProvider {
         websocketClient: {} as any,
       }
     );
-    this.client = new JsonRpcClient(queryEndpoint);
   }
 
   // public async getActiveValidators(): Promise<any> {
