@@ -229,6 +229,29 @@ export class TransactionApi implements ITransactionApi {
     return res;
   }
 
+  async buildTransferCoinTx(
+    params: TransferCoinParams
+  ): Promise<TransactionBlock> {
+    await validateToken(this.storage, params.token);
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const vault = await this.prepareVault(
+      params.walletId,
+      params.accountId,
+      params.token
+    );
+    const tx = await provider.buildTransferCoinTx(
+      params.coinType,
+      BigInt(params.amount),
+      params.recipient,
+      vault.getAddress()
+    );
+    return tx;
+  }
+
   async transferObject(params: TransferObjectParams): Promise<void> {
     await validateToken(this.storage, params.token);
     const provider = new Provider(
