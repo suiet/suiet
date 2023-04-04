@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
 
-const GET_NFT_LIST = gql`
+export const GET_NFT_LIST = gql`
   query GetNftList($address: Address!) {
     nfts(address: $address) {
       object {

@@ -5,7 +5,8 @@ import { RootState } from '../../../store';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { useCallback, useState } from 'react';
 import styles from './empty.module.scss';
-
+import { useQuery } from '@apollo/client';
+import { GET_NFT_LIST } from '../../../hooks/useNftList';
 export type EmptyProps = {
   mintSampleNFT: () => Promise<void>;
   onMintSuccess: () => void;
@@ -15,16 +16,16 @@ export default function Empty(props: EmptyProps) {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const [sendLoading, setSendLoading] = useState(false);
-
+  const { client } = useQuery(GET_NFT_LIST);
   const handleMintSampleNFT = useCallback(async () => {
     setSendLoading(true);
     try {
       await props.mintSampleNFT();
-      message.success('Mint NFT succeeded');
       props.onMintSuccess();
     } catch (e: any) {
       message.error(`Mint NFT failed: ${e?.message}`);
     } finally {
+      client.resetStore();
       setSendLoading(false);
     }
   }, [props.mintSampleNFT, props.onMintSuccess]);

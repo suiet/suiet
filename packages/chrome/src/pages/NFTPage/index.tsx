@@ -53,7 +53,7 @@ function MainPage() {
     if (!featureFlags?.sample_nft_object_id) {
       throw new Error('missing sample NFT packageId');
     }
-    if (balanceLoading || Number(balance) < 5 * 10 ** 8) {
+    if (balanceLoading || Number(balance) < 6 * 10 ** 8) {
       Message.error('Please ensure you have more than 0.6 SUI to mint');
       return;
     }
@@ -73,6 +73,7 @@ function MainPage() {
       },
       { withAuth: true }
     );
+    Message.success('Mint succeeded');
   }, [
     featureFlags?.sample_nft_object_id,
     appContext,
@@ -86,7 +87,6 @@ function MainPage() {
     setSendLoading(true);
     try {
       await mintSampleNFT();
-      Message.success('Mint NFT succeeded');
     } catch (e: any) {
       Message.error(`Mint NFT failed: ${e?.message}`);
     } finally {
