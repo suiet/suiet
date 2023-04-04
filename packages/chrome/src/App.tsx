@@ -12,6 +12,7 @@ import {
   ContextFeatureFlags,
   useAutoLoadFeatureFlags,
 } from './hooks/useFeatureFlags';
+import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { ApolloProvider, ApolloClient } from '@apollo/client';
@@ -36,6 +37,21 @@ function App() {
   }, []);
 
   const client = useMemo(() => {
+    const cache = new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            ...fieldPolicyForTransactions(),
+          },
+        },
+      },
+    });
+    // fixme: should await?
+    // await before instantiating ApolloClient, else queries might run before the cache is persisted
+    persistCache({
+      cache,
+      storage: new LocalStorageWrapper(window.localStorage),
+    });
     return new ApolloClient({
       uri: `https://${appContext.networkId}.suiet.app/query`,
       defaultOptions: {
@@ -44,15 +60,7 @@ function App() {
           pollInterval: 1000 * 10,
         },
       },
-      cache: new InMemoryCache({
-        typePolicies: {
-          Query: {
-            fields: {
-              ...fieldPolicyForTransactions(),
-            },
-          },
-        },
-      }),
+      cache,
     });
   }, [appContext.networkId]);
   return (
