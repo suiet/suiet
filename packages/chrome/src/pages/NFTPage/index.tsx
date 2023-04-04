@@ -53,8 +53,8 @@ function MainPage() {
     if (!featureFlags?.sample_nft_object_id) {
       throw new Error('missing sample NFT packageId');
     }
-    if (balanceLoading || Number(balance) < 10000) {
-      Message.error('Please ensure you have more than 0.00001 SUI to mint');
+    if (balanceLoading || Number(balance) < 5 * 10 ** 8) {
+      Message.error('Please ensure you have more than 0.6 SUI to mint');
       return;
     }
     const tx = getMintExampleNftTxBlock(featureFlags.sample_nft_object_id);
