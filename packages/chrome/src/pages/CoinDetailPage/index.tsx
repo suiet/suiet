@@ -170,7 +170,7 @@ export default function CoinDetailPage() {
       </div>
 
       <div className="mx-6 mt-6 mb-24">
-        {!loading ? (
+        {loading ? (
           <Skeleton className="w-24 h-4 inline-block"></Skeleton>
         ) : (
           <div className="text-zinc-400">
@@ -179,7 +179,7 @@ export default function CoinDetailPage() {
         )}
 
         <div className="flex flex-col mt-2">
-          {!loading ? (
+          {loading ? (
             <>
               <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
               <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
