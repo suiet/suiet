@@ -32,6 +32,7 @@
     "cbor-sync": "1.0.4",
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.2",
+    "crypto-hash": "^2.0.1",
     "dayjs": "^1.11.5",
     "detect-browser": "^5.3.0",
     "lodash-es": "^4.17.21",
