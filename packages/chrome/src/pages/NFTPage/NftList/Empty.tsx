@@ -12,6 +12,12 @@ export type EmptyProps = {
   onMintSuccess: () => void;
 };
 
+// - Company Name
+// - Company Description
+// - Web2 DNS/Trademark registrations owned w/ date of registration
+// - Link to websites
+// - Team + Contact Info
+
 export default function Empty(props: EmptyProps) {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
