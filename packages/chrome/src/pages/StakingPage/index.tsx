@@ -25,6 +25,7 @@ import message from '../../components/message';
 import { OmitToken } from '../../types';
 import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
+import Skeleton from 'react-loading-skeleton';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -151,12 +152,16 @@ export default function StackingPage() {
         title="Stake SUI"
       />
       <div className="px-2">
-        <ValidatorSelector
-          loading={loading}
-          validators={validators}
-          selectedValidator={selectedValidator}
-          setSelectedValidator={setSelectedValidator}
-        ></ValidatorSelector>
+        {loading ? (
+          <Skeleton className="w-full rounded-2xl h-12" />
+        ) : (
+          <ValidatorSelector
+            loading={loading}
+            validators={validators}
+            selectedValidator={selectedValidator}
+            setSelectedValidator={setSelectedValidator}
+          ></ValidatorSelector>
+        )}
       </div>
 
       <div className="px-6 text-3xl flex items-center gap-2 w-full max-w-[362px]">
@@ -185,7 +190,7 @@ export default function StackingPage() {
               </div>
             </div>
             <div className="flex flex-row items-center justify-between">
-              <div className="text-zinc-700">Gas Fee</div>
+              <div className="text-zinc-700">Gas Budget</div>
               <div className="text-zinc-400">
                 {formatCurrency(gasFee, {
                   decimals: 9,
