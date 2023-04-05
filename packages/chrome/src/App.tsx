@@ -88,11 +88,14 @@ function App() {
             },
           },
           cache,
-          link: createPersistedQueryLink({ sha256 }).concat(
-            new HttpLink({
-              uri: `https://${appContext.networkId}.suiet.app/query`,
-            })
-          ),
+          // link: createPersistedQueryLink({ sha256 }).concat(
+          //   new HttpLink({
+          //     uri: `https://${appContext.networkId}.suiet.app/query`,
+          //   })
+          // ),
+          link: new HttpLink({
+            uri: `https://${appContext.networkId}.suiet.app/query`,
+          }),
         })
       );
     }

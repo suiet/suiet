@@ -14,11 +14,14 @@ import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import IconToken from '../../../assets/icons/token.svg';
 import { formatCurrency } from '../../../utils/format';
 // import TokenItem from '../../../components/TokenItem';
-
+import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
 // export type TokenListProps = StyleExtendable;
 import { useNetwork } from '../../../hooks/useNetwork';
 import { Link, useNavigate } from 'react-router-dom';
 import Network from '../../SettingsPage/network';
+import { useQuery } from '@apollo/client';
+import { GET_DELEGATED_STAKES } from '../../../utils/graphql/query';
+
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
@@ -31,17 +34,37 @@ const TokenItem = (props: TokenItemProps) => {
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
+
+  const { address } = useAccount(appContext.accountId);
+  const { data: delegatedStakesResult, loading: stakesLoading } = useQuery(
+    GET_DELEGATED_STAKES,
+    {
+      variables: {
+        address,
+      },
+      skip: !address,
+    }
+  );
+  const delegatedStakes = delegatedStakesResult?.delegatedStakes;
+  const stakedBalance =
+    delegatedStakes?.reduce((accumulator, current) => {
+      const sum = current.stakes.reduce(
+        (stakesAccumulator, stake) => stakesAccumulator + stake.principal,
+        0
+      );
+      return accumulator + sum;
+    }, 0) ?? 0;
   return (
-    <div
+    <Link
       className={classnames(
         styles['token-item'],
+
+        // fixme: should not use symbol to determine coin
         props.symbol === 'SUI' ? styles['token-item-sui'] : null
       )}
+      to={'/coin/detail/' + props.symbol}
     >
-      <Link
-        className="flex w-full flex-row items-center justify-between"
-        to={'/coin/detail/' + props.symbol}
-      >
+      <div className="flex w-full flex-row items-center justify-between">
         <div className="flex">
           <TokenIcon
             icon={props.symbol === 'SUI' ? IconWaterDrop : IconToken}
@@ -59,18 +82,45 @@ const TokenItem = (props: TokenItemProps) => {
             >
               {props.symbol}
             </Typo.Normal>
-            <Typo.Small
-              className={classnames(
-                styles['token-amount'],
-                props.symbol === 'SUI' ? styles['token-amount-sui'] : null
+            <div className="flex gap-1">
+              <Typo.Small
+                className={classnames(
+                  styles['token-amount'],
+                  props.symbol === 'SUI' ? styles['token-amount-sui'] : null
+                )}
+              >
+                {/* TODO: pass decimals for each different coin */}
+                {formatCurrency(amount, { decimals: 9, withAbbr: false })}
+              </Typo.Small>
+
+              {props.symbol === 'SUI' && network?.enableStaking && (
+                <>
+                  <Typo.Small
+                    className={classnames('inline', styles['token-amount'])}
+                    style={{ color: 'rgba(0,0,0,0.3)' }}
+                  >
+                    +
+                  </Typo.Small>
+                  <Typo.Small
+                    className={classnames(
+                      'inline',
+                      styles['token-amount'],
+                      props.symbol === 'SUI' ? styles['token-amount'] : null
+                    )}
+                    style={{ color: '#0096FF' }}
+                  >
+                    {formatCurrency(stakedBalance, {
+                      decimals: 9,
+                      withAbbr: false,
+                    })}{' '}
+                    Staked
+                  </Typo.Small>
+                </>
               )}
-            >
-              {/* TODO: pass decimals for each different coin */}
-              {formatCurrency(amount, { decimals: 9, withAbbr: false })}
-            </Typo.Small>
+            </div>
           </div>
         </div>
-        {props.symbol === 'SUI' && network?.enableStaking && (
+        {/* {props.symbol === 'SUI' && network?.enableStaking && (
           <button
             className={styles['click-button']}
             onClick={(e) => {
@@ -82,9 +132,9 @@ const TokenItem = (props: TokenItemProps) => {
           >
             Stake
           </button>
-        )}
-      </Link>
-    </div>
+        )} */}
+      </div>
+    </Link>
   );
 };
 
