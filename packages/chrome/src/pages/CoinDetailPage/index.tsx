@@ -19,6 +19,7 @@ import { useQuery } from '@apollo/client';
 import { GET_DELEGATED_STAKES } from '../../utils/graphql/query';
 import Button from '../../components/Button';
 import Nav from '../../components/Nav';
+import Skeleton from 'react-loading-skeleton';
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
@@ -113,84 +114,112 @@ export default function CoinDetailPage() {
       </div>
 
       <div className="flex justify-center flex-col items-center">
-        <div className="mt-4">
-          <p className="inline text-3xl font-bold">
-            {formatSUI(Number(balance) + Number(stakedBalance))}
-          </p>{' '}
+        <div className="mt-4 flex items-center gap-2">
+          {loading ? (
+            <Skeleton className="w-12 h-6"></Skeleton>
+          ) : (
+            <p className="inline text-3xl font-bold">
+              {formatSUI(Number(balance) + Number(stakedBalance))}
+            </p>
+          )}
           <p className="inline text-3xl font-bold text-zinc-400">SUI</p>
         </div>
 
         <div className="">
-          <p className="inline text-2 text-zinc-400">
-            Earned {formatSUI(earnedBalance)} SUI{' '}
-          </p>
+          {loading ? (
+            <Skeleton className="w-10 h-6 mr-2"></Skeleton>
+          ) : (
+            <p className="inline text-2 text-zinc-400">
+              Earned {formatSUI(earnedBalance)} SUI{' '}
+            </p>
+          )}
         </div>
       </div>
 
       <div className="balance details flex mt-2 mx-6 justify-between">
         <div className="free-balance">
           <p className="text-zinc-400 font-normal">Avaliable</p>
+
           <div className="font-bold">{formatSUI(balance)} SUI</div>
         </div>
         <div className="staked-balance text-right">
           <p className="text-zinc-400 font-normal">Stake</p>
-          <div className="font-bold">{formatSUI(stakedBalance)} SUI</div>
+          {loading ? (
+            <Skeleton className="w-10 h-4 mb-2"></Skeleton>
+          ) : (
+            <div className="font-bold">{formatSUI(stakedBalance)} SUI</div>
+          )}
         </div>
       </div>
 
       <div className="w-full px-6 rounded-full overflow-hidden">
         <div className="w-full rounded-full mx-auto h-2 bg-gray-200 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-sky-300 transition-all duration-500 ease-in-out"
-            style={{
-              width: `${
-                (Number(balance) * 100) / (stakedBalance + Number(balance))
-              }%`,
-            }}
-          ></div>
+          {loading ? (
+            <Skeleton className="w-full h-full"></Skeleton>
+          ) : (
+            <div
+              className="h-full rounded-full bg-sky-300 transition-all duration-500 ease-in-out"
+              style={{
+                width: `${
+                  (Number(balance) * 100) / (stakedBalance + Number(balance))
+                }%`,
+              }}
+            ></div>
+          )}
         </div>
       </div>
 
       <div className="mx-6 mt-6 mb-24">
-        <div className="text-zinc-400">
-          Staking on {delegatedStakes?.length ?? 0} validators
-        </div>
+        {!loading ? (
+          <Skeleton className="w-24 h-4 inline-block"></Skeleton>
+        ) : (
+          <div className="text-zinc-400">
+            Staking on {delegatedStakes?.length ?? 0} validators
+          </div>
+        )}
 
         <div className="flex flex-col mt-2">
-          {delegatedStakes?.map((delegatedStake) => (
-            <div
-              className="flex justify-between items-center bg-sky-50 w-full rounded-2xl p-4 px-6 mb-2"
-              key={delegatedStake?.validator?.suiAddress}
-            >
-              <div className="flex gap-4 items-center">
-                <IconStakeFilled />
-                <div className="">
-                  <div className="font-bold">
-                    {delegatedStake?.validator?.name}
-                  </div>
-                  <div className="text-zinc-400 font-normal text-sm">
-                    {delegatedStake?.validator?.description.lenth === 0
-                      ? delegatedStake?.validator?.description
-                      : 'Current APY: ' +
-                        formatCurrency(delegatedStake?.validator?.apy, {
-                          decimals: 0,
-                        }) +
-                        '%'}
+          {!loading ? (
+            <>
+              <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
+              <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
+            </>
+          ) : (
+            delegatedStakes?.map((delegatedStake) => (
+              <div
+                className="flex justify-between items-center bg-sky-50 w-full rounded-2xl p-4 px-6 mb-2"
+                key={delegatedStake?.validator?.suiAddress}
+              >
+                <div className="flex gap-4 items-center">
+                  <IconStakeFilled />
+                  <div className="">
+                    <div className="font-bold">
+                      {delegatedStake?.validator?.name}
+                    </div>
+                    <div className="text-zinc-400 font-normal text-sm">
+                      {delegatedStake?.validator?.description.lenth === 0
+                        ? delegatedStake?.validator?.description
+                        : 'Current APY: ' +
+                          formatCurrency(delegatedStake?.validator?.apy, {
+                            decimals: 0,
+                          }) +
+                          '%'}
+                    </div>
                   </div>
                 </div>
+                <div className="font-medium">
+                  {formatSUI(
+                    delegatedStake.stakes.reduce(
+                      (stakesAccumulator, stake) =>
+                        stakesAccumulator + stake.principal,
+                      0
+                    )
+                  )}
+                  <div className="inline text-zinc-400 pl-1">SUI</div>{' '}
+                </div>
               </div>
-              <div className="font-medium">
-                {formatSUI(
-                  delegatedStake.stakes.reduce(
-                    (stakesAccumulator, stake) =>
-                      stakesAccumulator + stake.principal,
-                    0
-                  )
-                )}
-                <div className="inline text-zinc-400 pl-1">SUI</div>{' '}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
