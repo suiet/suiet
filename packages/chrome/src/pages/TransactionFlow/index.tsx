@@ -45,11 +45,11 @@ function TransactionFlow({
   return (
     <div className={''}>
       <InfiniteScroll
-        className={'no-scrollbar'}
+        className={classnames('no-scrollbar', 'py-4')}
         dataLength={txHistoryList.length}
         next={fetchMore}
         hasMore={false}
-        height={390}
+        // height={390}
         loader={<Skeleton className="p-3" />}
         endMessage={
           <Typo.Hints className={'text-center'}>
@@ -152,7 +152,7 @@ function TransactionPage() {
         </div>
       );
     return isNonEmptyArray(transactions) ? (
-      <div className="bg-gray-50 w-full p-4 min-h-full">
+      <div className="bg-gray-50 w-full px-4 min-h-full">
         <TransactionFlow
           txHistoryList={transactions}
           address={address ?? ''}
