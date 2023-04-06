@@ -6,6 +6,7 @@ import { Gray_100, Gray_500, Gray_900 } from '@styles/colors';
 import { SvgClockRewind, SvgCoins03, SvgGrid01 } from '@components/icons/svgs';
 
 import { Coin } from '@/screens/Coin';
+import { History } from '@/screens/History';
 import type { RootStackParamList } from '@/../App';
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -66,7 +67,7 @@ export const Home: React.FC = () => {
         />
         <Tab.Screen
           name="History"
-          component={HomeScreen}
+          component={History}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgClockRewind} />,

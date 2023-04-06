@@ -71,7 +71,7 @@ export const EditWallet: React.FC<StackScreenProps<RootStackParamList, 'EditWall
 
   return (
     <View style={{ flexDirection: 'column', flexGrow: 1, backgroundColor: 'white' }}>
-      <ScrollView style={{ paddingHorizontal: 24 }}>
+      <ScrollView style={{ paddingHorizontal: 24 }} overScrollMode="never">
         <View style={{ marginVertical: 24 }}>
           <Typography.Headline color="black" children="Edit" />
           <Typography.Headline color="black" children="Wallet" />

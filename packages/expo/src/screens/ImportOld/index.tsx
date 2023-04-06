@@ -26,7 +26,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
   return (
     <View style={{ flexDirection: 'column', flexGrow: 1, backgroundColor: 'white' }}>
       <KeyboardAvoidingView style={{ flexGrow: 1 }} behavior={'height'}>
-        <ScrollView style={{ paddingHorizontal: 24 }}>
+        <ScrollView style={{ paddingHorizontal: 24 }} overScrollMode="never">
           <View style={{ marginVertical: 24 }}>
             <Typography.Headline color="black" children="Input" />
             <Typography.Headline color="black" children="Recovery" />

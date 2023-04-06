@@ -6,8 +6,9 @@ import { formatCurrency } from '@/utils/format';
 import { useQuery } from '@apollo/client';
 import { Coin, GET_COINS } from '@/utils/gql';
 import { LoadingDots } from '@/components/Loading';
-import Typography from './Typography';
-import { Badge } from './Badge';
+import Typography from '@/components/Typography';
+import { Badge } from '@/components/Badge';
+import { useEffect } from 'react';
 
 const ListItem: React.FC<
   { backgroundColor: ColorValue; textColor: ColorValue; symbol: string; balance: string } & ViewProps
@@ -47,7 +48,7 @@ export const Coins: React.FC<{ address: string; onChooseCoin?: (coin: Coin) => v
   address,
   onChooseCoin,
 }) => {
-  const { loading, error, data } = useQuery<{
+  const { refetch, loading, error, data } = useQuery<{
     coins: Coin[];
   }>(GET_COINS, {
     variables: {
@@ -56,6 +57,16 @@ export const Coins: React.FC<{ address: string; onChooseCoin?: (coin: Coin) => v
     },
     fetchPolicy: 'no-cache',
   });
+
+  useEffect(() => {
+    if (!address) return;
+    const polling = setInterval(() => {
+      refetch();
+    }, 5 * 1000);
+    return () => {
+      clearInterval(polling);
+    };
+  }, [address]);
 
   const normalizedCoins = React.useMemo(() => {
     const defaultCoin = {
@@ -109,7 +120,9 @@ export const Coins: React.FC<{ address: string; onChooseCoin?: (coin: Coin) => v
             backgroundColor={backgroundColor}
             textColor={textColor}
             symbol={item.symbol}
-            balance={formatCurrency(item.balance, item.metadata?.decimals)}
+            balance={formatCurrency(item.balance, {
+              decimals: item.metadata?.decimals,
+            })}
           />
         );
         if (typeof onChooseCoin === 'function') {

@@ -92,7 +92,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
         />
       </View>
 
-      <ScrollView>
+      <ScrollView overScrollMode="never">
         {wallets.map((wallet) => (
           <React.Fragment key={wallet.address}>
             {selectedWallet === wallet.address ? (

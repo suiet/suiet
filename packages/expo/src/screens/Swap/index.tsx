@@ -197,6 +197,7 @@ export const Swap: React.FC<StackScreenProps<RootStackParamList, 'Swap'>> = ({ n
           scrollEnabled={true}
           style={{ paddingHorizontal: 24 }}
           contentContainerStyle={{ minHeight: height }}
+          overScrollMode="never"
         >
           <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', gap: 8 }}>
             <Typography.Subtitle children="Pay" color={Gray_900} />
