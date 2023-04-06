@@ -27,6 +27,7 @@ import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
 import { useApiClient } from '../../hooks/useApiClient';
 import { LoadingSpokes } from '../../components/Loading';
 import { useState } from 'react';
+import { object } from 'superstruct';
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const apiClient = useApiClient();
@@ -63,9 +64,9 @@ export default function CoinDetailPage() {
 
   async function UnstakeCoins(stakeObjectID: string) {
     try {
-      const loadingStatus = buttonLoading;
-      loadingStatus[stakeObjectID] = true;
-      setButtonLoading(loadingStatus);
+      setButtonLoading((prevButtonLoading) => {
+        return { ...prevButtonLoading, [stakeObjectID]: true };
+      });
 
       // TODO:
       // 1. get coins object
@@ -103,9 +104,9 @@ export default function CoinDetailPage() {
       // console.error(e);
       message.error(`Send transaction failed: ${e?.message}`);
     } finally {
-      const loadingStatus = buttonLoading;
-      loadingStatus[stakeObjectID] = false;
-      setButtonLoading(loadingStatus);
+      setButtonLoading((prevButtonLoading) => {
+        return { ...prevButtonLoading, [stakeObjectID]: false };
+      });
     }
 
     // const coinObjList = await this.txApi.getOwnedCoins({
@@ -270,14 +271,14 @@ export default function CoinDetailPage() {
                       onClick={async () =>
                         await UnstakeCoins(stake?.stakedSuiID)
                       }
-                      style={{
-                        // fixme: unhide when unstake is ready
-                        display: 'none',
-                      }}
+                      style={
+                        {
+                          // fixme: unhide when unstake is ready
+                          // display: 'none',
+                        }
+                      }
                     >
-                      {buttonLoading?.[
-                        delegatedStake?.validator?.stakedSuiID
-                      ] ? (
+                      {buttonLoading?.[stake?.stakedSuiID] ? (
                         <div className="px-5 py-1">
                           <LoadingSpokes
                             width="12px"

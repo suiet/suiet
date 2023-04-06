@@ -73,7 +73,7 @@ function App() {
       const newPersistor = new CachePersistor({
         cache,
         storage: new LocalStorageWrapper(window.localStorage),
-        debug: true,
+        // debug: true,
         trigger: 'write',
       });
       await newPersistor.restore();
@@ -84,7 +84,7 @@ function App() {
           defaultOptions: {
             watchQuery: {
               fetchPolicy: 'cache-first',
-              pollInterval: 1000 * 5,
+              pollInterval: 1000 * 1,
             },
           },
           cache,
