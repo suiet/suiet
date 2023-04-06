@@ -35,6 +35,7 @@ import Globe01 from '@untitled-ui/icons-react/build/esm/Globe01';
 import LockKeyholeCircle from '@untitled-ui/icons-react/build/esm/LockKeyholeCircle';
 import Lock01 from '@untitled-ui/icons-react/build/esm/Lock01';
 import RefreshCcw04 from '@untitled-ui/icons-react/build/esm/RefreshCcw04';
+import Plane from '@untitled-ui/icons-react/build/esm/Plane';
 
 export const SvgArrowDown = renderToXml(ArrowDown);
 export const SvgArrowUp = renderToXml(ArrowUp);
@@ -66,3 +67,4 @@ export const SvgGlobe01 = renderToXml(Globe01);
 export const SvgLockKeyholeCircle = renderToXml(LockKeyholeCircle);
 export const SvgLock01 = renderToXml(Lock01);
 export const SvgRefreshCcw04 = renderToXml(RefreshCcw04);
+export const SvgPlane = renderToXml(Plane);

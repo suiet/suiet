@@ -60,7 +60,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
   };
 
   return (
-    <ScrollView style={{ backgroundColor: '#fff', paddingHorizontal: 16 }}>
+    <ScrollView style={{ backgroundColor: '#fff', paddingHorizontal: 16 }} overScrollMode="never">
       {wallet && (
         <View style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
           <Image style={{ width: 64, height: 64 }} source={AVATARS[wallet.avatar]} />

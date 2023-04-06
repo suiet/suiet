@@ -84,7 +84,7 @@ const SelectCoin: React.FC<StackScreenProps<SendStackParamList, 'SendSelectCoin'
   }
 
   return (
-    <ScrollView style={{ paddingHorizontal: 24, backgroundColor: '#fff' }}>
+    <ScrollView style={{ paddingHorizontal: 24, backgroundColor: '#fff' }} overScrollMode="never">
       <View style={{ marginVertical: 24 }}>
         <Typography.Headline children="Choose" color="black" />
         <Typography.Headline children="Token" color="black" />
@@ -130,6 +130,7 @@ const InputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddr
           scrollEnabled={true}
           style={{ paddingHorizontal: 24 }}
           contentContainerStyle={{ minHeight: height }}
+          overScrollMode="never"
         >
           <SelectedCoin coin={route.params.coin} />
 
@@ -229,6 +230,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
         <ScrollView
           style={{ flexGrow: 1, flexDirection: 'column' }}
           contentContainerStyle={{ paddingHorizontal: 24, minHeight: '100%' }}
+          overScrollMode="never"
         >
           <SelectedCoin coin={coin} />
 

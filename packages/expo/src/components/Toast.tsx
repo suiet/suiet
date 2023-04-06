@@ -98,7 +98,7 @@ export const AngularGradientToast: React.FC<ToastProps> = ({ text, isVisible, ic
           width: '100%',
           borderRadius: 999,
           paddingVertical: 8,
-          paddingLeft: 8,
+          paddingLeft: icon ? 8 : 16,
           paddingRight: 16,
 
           flexDirection: 'row',

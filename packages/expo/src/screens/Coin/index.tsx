@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useState } from 'react';
 import * as React from 'react';
 import { SvgXml } from 'react-native-svg';
@@ -23,6 +23,8 @@ import { Coins } from '@/components/Coins';
 import { FAB } from '@/components/FAB';
 import { FontFamilys } from '@/hooks/useFonts';
 import Typography from '@/components/Typography';
+import { Airdrop } from '@/components/Airdrop';
+import Toast, { ToastProps } from 'react-native-toast-message';
 
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
@@ -62,6 +64,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
           }
         }}
         scrollEventThrottle={33}
+        overScrollMode="never"
       >
         <View style={{ paddingTop: 24 }}>
           <Image style={{ width: 64, height: 64 }} source={AVATARS[wallet.avatar]} />
@@ -97,10 +100,12 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         />
 
         <View style={{ display: 'flex', flexDirection: 'row', marginTop: 16, marginBottom: 16 }}>
+          <Airdrop recipient={selectedWallet} />
           {[
             {
               svg: SvgPlus,
               text: 'Buy',
+              disabled: true,
             },
             {
               svg: SvgArrowDown,
@@ -113,8 +118,9 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
             {
               svg: SvgSwitchHorizontal01,
               text: 'Swap',
+              disabled: true,
             },
-          ].map(({ svg, text: title }, index) => (
+          ].map(({ svg, text: title, disabled }, index) => (
             // <TouchableOpacity key={title} onPress={() => navigation.navigate(title as any)}>
             //   <View style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             //     <View style={{ backgroundColor: Gray_100, borderRadius: 9999 }}>
@@ -127,7 +133,19 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               key={title}
               style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
             >
-              <FAB svg={svg} onPress={() => navigation.navigate(title as any)} />
+              <FAB
+                svg={svg}
+                onPress={() => {
+                  if (disabled) {
+                    Toast.show({
+                      type: 'info',
+                      text1: 'This feature is WIP',
+                    });
+                  } else {
+                    navigation.navigate(title as any);
+                  }
+                }}
+              />
               <Typography.Comment children={title} color={Gray_500} />
             </View>
           ))}

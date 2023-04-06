@@ -14,7 +14,7 @@ export const SelectToken: React.FC<StackScreenProps<RootStackParamList, 'SelectT
   }
 
   return (
-    <ScrollView style={{ paddingHorizontal: 24, backgroundColor: '#fff' }}>
+    <ScrollView style={{ paddingHorizontal: 24, backgroundColor: '#fff' }} overScrollMode="never">
       <Coins
         address={selectedWallet}
         onChooseCoin={() => {

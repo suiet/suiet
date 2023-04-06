@@ -5,56 +5,85 @@ export function addressEllipsis(address: string) {
   return address.slice(0, 7) + '....' + address.slice(-4, address.length);
 }
 
-// format currency
+const MILLION = 1000000;
+const BILLION = 1000000000;
+const TRILLION = 1000000000000;
+
+export function formatSUI(
+  amount: number | string | bigint,
+  options?: {
+    withAbbr?: boolean;
+  }
+) {
+  return formatCurrency(
+    amount,
+    Object.assign(
+      {
+        decimals: 9,
+      },
+      options
+    )
+  );
+}
+
+// formatWithAbbr currency
 // less than 1M -> show original
 // [1M, 1B)  -> x.xxxM
 // [1B, Infinity)  -> x.xxxB
-export function formatCurrency(amount: number | string, decimals = 9) {
-  const MILLION = 1000000;
-  const BILLION = 1000000000;
-  const TRILLION = 1000000000000;
+export function formatCurrency(
+  amount: number | string | bigint,
+  options?: {
+    decimals?: number;
+    withAbbr?: boolean;
+  }
+): string {
+  const { decimals = 0, withAbbr = true } = options ?? {};
+  // handle bigint that exceeds safe integer range
+  if (typeof amount === 'bigint' && !isSafeToConvertToNumber(amount)) {
+    return formatCurrencyBigInt(BigInt(amount), {
+      decimals,
+      withAbbr,
+    });
+  }
+  // else, convert to number for formatting logic
+  if (Number(amount) === 0) return '0';
+  if (Number(amount) < 0) {
+    return '-' + formatCurrency(-Number(amount), options);
+  }
   const _amount = Number(amount) / 10 ** decimals;
-
-  if (_amount < 1) {
-    return formatSmallCurrency(amount);
+  if (_amount > 0 && _amount < 1) {
+    return formatSmallCurrency(_amount);
   }
-
-  if (_amount >= MILLION && _amount < BILLION) return format(_amount, MILLION, 'M');
-  if (_amount >= BILLION && _amount < TRILLION) return format(_amount, BILLION, 'B');
-  if (_amount >= TRILLION) return format(_amount, TRILLION, 'T');
-
-  function format(_amount: number, measureUnit: number, unitSymbol: string) {
-    const showAmount = String(Math.floor(_amount / (measureUnit / 1000))).padEnd(4, '0');
-    const result = Intl.NumberFormat('en-US').format(Number(showAmount));
-    return result.replace(',', '.') + unitSymbol;
-  }
-
-  return Intl.NumberFormat('en-US').format(_amount);
+  return format(_amount, withAbbr);
 }
 
-// // [1M, 1B)  -> x.xxxM
-export function fullyFormatCurrency(amount: number | string) {
-  if (Number(amount) < 1e9) {
-    return formatSmallCurrency(amount);
+function format(amount: number | bigint, showAbbr: boolean): string {
+  if (showAbbr) {
+    if (amount >= MILLION && amount < BILLION) return formatWithAbbr(amount, MILLION, 'M');
+    if (amount >= BILLION && amount < TRILLION) return formatWithAbbr(amount, BILLION, 'B');
+    if (amount >= TRILLION) return formatWithAbbr(amount, TRILLION, 'T');
   }
-  return parseFloat(String(Number(amount) / 1e9)).toLocaleString();
+
+  return Intl.NumberFormat('en-US').format(amount);
+}
+
+function formatWithAbbr(amount: number | bigint, measureUnit: number, abbrSymbol: string) {
+  let _amount: string;
+  if (typeof amount === 'bigint') {
+    _amount = String(amount / (BigInt(measureUnit) / 1000n));
+  } else {
+    _amount = String(Math.floor(amount / (measureUnit / 1000)));
+  }
+  const showAmount = _amount.padEnd(4, '0');
+  const result = Intl.NumberFormat('en-US').format(Number(showAmount));
+  return result.replace(',', '.') + abbrSymbol;
 }
 
 // when currency is lower than 1SUI
-function formatSmallCurrency(amount: number | string) {
-  const _amount = Number(amount) / 1e9;
+function formatSmallCurrency(amount: number) {
+  if (amount <= 0) return '0';
 
-  if (_amount <= 0) {
-    return '0';
-  }
-
-  // 0.000000001123123 -> 0.00000000112
-  // 0.01123123 -> 0.0112
-
-  // 0.0110000 -> 0.011
-  // 0.0100000 -> 0.01
-
-  const fixNum = Math.ceil(-Math.log10(_amount));
+  const fixNum = Math.ceil(-Math.log10(amount));
 
   let minimalDigits = 0;
   for (; Number(amount) % Math.pow(10, minimalDigits) === 0; ) {
@@ -66,7 +95,7 @@ function formatSmallCurrency(amount: number | string) {
     Number(amount) % Math.pow(10, 10 - (fixNum + 2)) === 0 &&
     Number(amount) % Math.pow(10, 10 - (fixNum + 1)) === 0
   ) {
-    return toFixed(_amount, fixNum);
+    return toFixed(amount, fixNum);
   }
 
   // if only last 1 digit is 0
@@ -74,29 +103,53 @@ function formatSmallCurrency(amount: number | string) {
     Number(amount) % Math.pow(10, 10 - (fixNum + 2)) === 0 &&
     Number(amount) % Math.pow(10, 10 - (fixNum + 1)) !== 0
   ) {
-    return toFixed(_amount, fixNum + 1);
+    return toFixed(amount, fixNum + 1);
   }
 
-  return toFixed(_amount, fixNum + 2);
+  return toFixed(amount, fixNum + 2);
 }
 
 function toFixed(num: number, fixed: number) {
+  function getFullNum(num: number) {
+    // if not num
+    if (isNaN(num)) {
+      return num.toString();
+    }
+
+    // parse string no need to transform
+    const str = '' + num;
+    if (!/e/i.test(str)) {
+      return num.toString();
+    }
+
+    return num.toFixed(18).replace(/\.?0+$/, '');
+  }
+
   fixed = fixed || 0;
   fixed = Math.pow(10, fixed);
   return getFullNum(Math.floor(num * fixed) / fixed);
 }
 
-function getFullNum(num: number) {
-  // if not num
-  if (isNaN(num)) {
-    return num.toString();
+// handle bigint that exceeds number type
+function formatCurrencyBigInt(
+  amount: bigint,
+  options?: {
+    decimals?: number;
+    withAbbr?: boolean;
   }
+): string {
+  if (amount === 0n) return '0';
+  if (amount < 0n) return '-' + formatCurrencyBigInt(-amount, options);
 
-  // parse string no need to transform
-  const str = '' + num;
-  if (!/e/i.test(str)) {
-    return num.toString();
-  }
+  const { decimals = 9, withAbbr = true } = options ?? {};
+  const _amount = amount / 10n ** BigInt(decimals);
+  return format(_amount, withAbbr);
+}
 
-  return num.toFixed(18).replace(/\.?0+$/, '');
+function isSafeToConvertToNumber(bigintValue: string | bigint) {
+  const minValue = Number.MIN_SAFE_INTEGER; // -9007199254740991
+  const maxValue = Number.MAX_SAFE_INTEGER; // 9007199254740991
+
+  // @ts-ignore
+  return bigintValue >= BigInt(minValue) && bigintValue <= BigInt(maxValue);
 }

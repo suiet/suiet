@@ -32,6 +32,7 @@ import { SelectToken } from '@/screens/SelectToken';
 import { ContextFeatureFlags, useAutoLoadFeatureFlags } from '@/hooks/useFeatureFlags';
 import { AngularGradientToast } from '@/components/Toast';
 import { Image } from 'react-native';
+import { fieldPolicyForTransactions } from '@/hooks/useTransactionListForHistory';
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -71,7 +72,15 @@ function App() {
   const client = useMemo(() => {
     return new ApolloClient({
       uri: network?.graphql_url,
-      cache: new InMemoryCache(),
+      cache: new InMemoryCache({
+        typePolicies: {
+          Query: {
+            fields: {
+              ...fieldPolicyForTransactions(),
+            },
+          },
+        },
+      }),
     });
   }, [network]);
 
