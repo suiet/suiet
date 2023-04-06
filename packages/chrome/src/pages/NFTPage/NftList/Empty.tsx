@@ -22,7 +22,9 @@ export default function Empty(props: EmptyProps) {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const [sendLoading, setSendLoading] = useState(false);
-  const { client } = useQuery(GET_NFT_LIST);
+  const { client } = useQuery(GET_NFT_LIST, {
+    skip: true,
+  });
   const handleMintSampleNFT = useCallback(async () => {
     setSendLoading(true);
     try {
