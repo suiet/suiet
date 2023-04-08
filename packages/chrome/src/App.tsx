@@ -5,18 +5,14 @@ import './styles/react-toastify.scss';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-tabs/style/react-tabs.css';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import message from './components/message';
 import { ToastContainer } from 'react-toastify';
 import {
   ContextFeatureFlags,
   useAutoLoadFeatureFlags,
 } from './hooks/useFeatureFlags';
-import {
-  persistCache,
-  LocalStorageWrapper,
-  CachePersistor,
-} from 'apollo3-cache-persist';
+import { CachePersistor, AsyncStorageWrapper } from 'apollo3-cache-persist';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import {
@@ -27,12 +23,94 @@ import {
 } from '@apollo/client';
 import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from './pages/TransactionFlow/hooks/useTransactionListForHistory';
-import { sha256 } from 'crypto-hash';
-import { createPersistedQueryLink } from '@apollo/client/link/persisted-queries';
-function App() {
-  const routes = useRoutes(routesConfig);
-  const featureFlags = useAutoLoadFeatureFlags();
-  const appContext = useSelector((state: RootState) => state.appContext);
+import { ChromeStorage } from './store/storage';
+
+enum CacheSyncStatus {
+  NOT_SYNCED,
+  SYNCING,
+  SYNCED,
+}
+
+function useCustomApolloClient(networkId: string) {
+  const cacheSyncStatus = useRef<number>(CacheSyncStatus.NOT_SYNCED);
+  const cacheInChromeStorage = useRef(
+    new AsyncStorageWrapper(new ChromeStorage())
+  );
+  const cachePersistor = useRef<CachePersistor<NormalizedCacheObject>>();
+  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
+
+  useEffect(() => {
+    if (cacheSyncStatus.current !== CacheSyncStatus.NOT_SYNCED) return;
+
+    async function initApolloClient() {
+      cacheSyncStatus.current = CacheSyncStatus.SYNCING;
+
+      const cache = new InMemoryCache({
+        typePolicies: {
+          Query: {
+            fields: {
+              ...fieldPolicyForTransactions(),
+            },
+          },
+        },
+      });
+      cachePersistor.current = new CachePersistor<NormalizedCacheObject>({
+        cache,
+        storage: cacheInChromeStorage.current,
+        trigger: false, // manually trigger persisting
+      });
+      // sync cache from chrome storage
+      await cachePersistor.current.restore();
+      // cachePersistor.current.getSize().then((size) => {
+      //   console.log('cache restore size: ', size);
+      // });
+
+      const newClient = new ApolloClient({
+        cache: cache,
+        link: new HttpLink({
+          uri: `https://${networkId}.suiet.app/query`,
+        }),
+        defaultOptions: {
+          watchQuery: {
+            initialFetchPolicy: 'cache-only',
+            nextFetchPolicy: 'cache-first',
+            pollInterval: 5 * 1000,
+          },
+        },
+      });
+      setClient(newClient);
+      cacheSyncStatus.current = CacheSyncStatus.SYNCED;
+    }
+
+    initApolloClient();
+  }, []);
+
+  useEffect(() => {
+    if (!client || !networkId) return; // sequentially set client after cache is ready
+
+    client.setLink(
+      new HttpLink({ uri: `https://${networkId}.suiet.app/query` })
+    );
+    client.resetStore(); // only reset memory cache
+  }, [networkId, client]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!cachePersistor.current) return;
+      // manually trigger persisting, avoid memory cache reset to clear storage cache
+      // then the next cold starting phase would be faster
+      cachePersistor.current.persist();
+    }, 5 * 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  return client;
+}
+
+function useRegisterHandleRejectionEvent() {
   useEffect(() => {
     const handleError = (event: PromiseRejectionEvent) => {
       console.error('catch unhandledrejection:', event);
@@ -46,77 +124,18 @@ function App() {
       window.removeEventListener('unhandledrejection', handleError);
     };
   }, []);
+}
 
-  const [persistor, setPersistor] =
-    useState<CachePersistor<NormalizedCacheObject>>();
-  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
-  useEffect(() => {
-    clearCache();
-    async function init() {
-      const cache = new InMemoryCache({
-        typePolicies: {
-          Query: {
-            fields: {
-              ...fieldPolicyForTransactions(),
-            },
-          },
-        },
-      });
-
-      // fixme: should await?
-      // await before instantiating ApolloClient, else queries might run before the cache is persisted
-      // await persistCache({
-      //   cache,
-      //   storage: new LocalStorageWrapper(window.localStorage),
-      // });
-
-      const newPersistor = new CachePersistor({
-        cache,
-        storage: new LocalStorageWrapper(window.localStorage),
-        // debug: true,
-        trigger: 'write',
-      });
-      await newPersistor.restore();
-      setPersistor(newPersistor);
-
-      setClient(
-        new ApolloClient({
-          defaultOptions: {
-            watchQuery: {
-              fetchPolicy: 'cache-first',
-              pollInterval: 1000 * 1,
-            },
-          },
-          cache,
-          // link: createPersistedQueryLink({ sha256 }).concat(
-          //   new HttpLink({
-          //     uri: `https://${appContext.networkId}.suiet.app/query`,
-          //   })
-          // ),
-          link: new HttpLink({
-            uri: `https://${appContext.networkId}.suiet.app/query`,
-          }),
-        })
-      );
-    }
-    init();
-  }, [appContext.networkId]);
-
-  const clearCache = useCallback(() => {
-    if (!persistor) {
-      return;
-    }
-    persistor.purge();
-  }, [persistor]);
-
-  const reload = useCallback(() => {
-    window.location.reload();
-  }, []);
+function App() {
+  const routes = useRoutes(routesConfig);
+  const featureFlags = useAutoLoadFeatureFlags();
+  const appContext = useSelector((state: RootState) => state.appContext);
+  const client = useCustomApolloClient(appContext.networkId);
+  useRegisterHandleRejectionEvent();
 
   if (!client) {
     return <h2>Initializing app...</h2>;
   }
-
   return (
     <div className="app">
       <ErrorBoundary>
