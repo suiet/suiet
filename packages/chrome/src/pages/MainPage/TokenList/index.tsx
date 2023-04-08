@@ -93,30 +93,33 @@ const TokenItem = (props: TokenItemProps) => {
                 {formatCurrency(amount, { decimals: 9, withAbbr: false })}
               </Typo.Small>
 
-              {props.symbol === 'SUI' && network?.enableStaking && (
-                <>
-                  <Typo.Small
-                    className={classnames('inline', styles['token-amount'])}
-                    style={{ color: 'rgba(0,0,0,0.3)' }}
-                  >
-                    +
-                  </Typo.Small>
-                  <Typo.Small
-                    className={classnames(
-                      'inline',
-                      styles['token-amount'],
-                      props.symbol === 'SUI' ? styles['token-amount'] : null
-                    )}
-                    style={{ color: '#0096FF' }}
-                  >
-                    {formatCurrency(stakedBalance, {
-                      decimals: 9,
-                      withAbbr: false,
-                    })}{' '}
-                    Staked
-                  </Typo.Small>
-                </>
-              )}
+              {props.symbol === 'SUI' &&
+                network?.enableStaking &&
+                stakedBalance > 0 && (
+                  <>
+                    <Typo.Small
+                      className={classnames('inline', styles['token-amount'])}
+                      style={{ color: 'rgba(0,0,0,0.3)' }}
+                    >
+                      +
+                    </Typo.Small>
+
+                    <Typo.Small
+                      className={classnames(
+                        'inline',
+                        styles['token-amount'],
+                        props.symbol === 'SUI' ? styles['token-amount'] : null
+                      )}
+                      style={{ color: '#0096FF' }}
+                    >
+                      {formatCurrency(stakedBalance, {
+                        decimals: 9,
+                        withAbbr: false,
+                      })}{' '}
+                      Staked
+                    </Typo.Small>
+                  </>
+                )}
             </div>
           </div>
         </div>

@@ -211,7 +211,7 @@ export default function CoinDetailPage() {
           <div className="font-bold">{formatSUI(balance)} SUI</div>
         </div>
         <div className="staked-balance text-right">
-          <p className="text-zinc-400 font-normal">Stake</p>
+          <p className="text-zinc-400 font-normal">Staked</p>
           {stakesLoading ? (
             <Skeleton className="w-10 h-4 mb-2"></Skeleton>
           ) : (
