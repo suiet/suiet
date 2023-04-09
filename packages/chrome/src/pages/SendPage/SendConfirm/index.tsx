@@ -21,6 +21,7 @@ import { TransferCoinParams } from '@suiet/core';
 import { Coins } from '../../../hooks/useCoins';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import InputAmount from '../../../components/InputAmount';
+import classNames from 'classnames';
 
 function SendConfirmItem({ name, value }: Record<string, string>) {
   return (
@@ -99,22 +100,18 @@ function SendConfirm({
   }
 
   return (
-    <>
-      <div>
+    <div className="h-[436px]">
+      <div className={classNames('flex', 'flex-col', 'h-full')}>
         <InputAmount
-          className="ml-[36px] h-[304px]"
+          className={classNames('ml-[36px]', 'grow')}
           onInput={onSubmit}
           max={max}
           initAmount={state.amount}
           symbol={symbol}
         />
-        <div className={styles['send-confirm-list']}>
+        <div className={classNames('flex-none', styles['send-confirm-list'])}>
           <SendConfirmItem name="To" value={addressEllipsis(state.address)} />
           <SendConfirmItem name="Gas Budget" value={formatSUI(gasFee)} />
-          <SendConfirmItem
-            name="Balance"
-            value={formatCurrency(remaining * 10 ** decimals, { decimals })}
-          />
         </div>
         <div className={commonStyles['next-step']}>
           <Button
@@ -130,7 +127,7 @@ function SendConfirm({
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

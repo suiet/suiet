@@ -1,7 +1,7 @@
 {
   "name": "@suiet/chrome-ext",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.5",
   "type": "module",
   "scripts": {
     "dev": "run-s build:dapp-api dev:ext",
