@@ -106,9 +106,8 @@ const InputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddr
   // {
   //   "address": "0xb914b4d42ffb417f4a760ea8e90c05fb69f8ec9c"
   // }
-  const [textInputValue, setTextInputValue] = React.useState<string>(
-    '0xc21498bda0aa97e51f4227271d0d6d75d4091c4c1d1804806fd6fd9bc306a899'
-  );
+  // '0xc21498bda0aa97e51f4227271d0d6d75d4091c4c1d1804806fd6fd9bc306a899'
+  const [textInputValue, setTextInputValue] = React.useState<string>();
 
   const { width, height } = Dimensions.get('screen');
   const { top, bottom } = useSafeAreaInsets();
@@ -151,7 +150,7 @@ const InputAddress: React.FC<StackScreenProps<SendStackParamList, 'SendInputAddr
 
           <View style={{ height: 16 }} />
 
-          <AddressBadge address={textInputValue} />
+          {textInputValue && <AddressBadge address={textInputValue} />}
         </ScrollView>
 
         <View style={{ height: 1, backgroundColor: Gray_100, width }} />
