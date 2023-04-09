@@ -11,14 +11,14 @@ import { useKeychain } from '@/hooks/useKeychain';
 import { useWallets } from '@/hooks/useWallets';
 import { TextInput } from '@/components/TextInput';
 import Typography from '@/components/Typography';
+import { LoadingDots } from '@/components/Loading';
 
 export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld'>> = ({ navigation }) => {
   const { width, height } = Dimensions.get('screen');
   const { top, bottom } = useSafeAreaInsets();
 
-  const [textInputValue, setTextInputValue] = useState<string>(
-    'crop steak carry welcome ask tomorrow grass polar page violin vibrant season'
-  );
+  const [buttonLoading, setButtonLoading] = useState<boolean>();
+  const [textInputValue, setTextInputValue] = useState<string>();
 
   const { saveMnemonic } = useKeychain();
   const { wallets, updateWallets, selectedWallet, updateSelectedWallet } = useWallets();
@@ -57,76 +57,97 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
 
       <View style={{ height: 1, backgroundColor: Gray_100, width }} />
       <View style={{ padding: 12 }}>
-        <Button
-          title="Confirm and Import"
-          onPress={async () => {
-            if (!textInputValue) {
-              return;
-            }
+        {buttonLoading ? (
+          <View
+            style={{
+              height: 48,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <LoadingDots />
+          </View>
+        ) : (
+          <Button
+            title="Confirm and Import"
+            onPress={async () => {
+              if (!textInputValue) {
+                return;
+              }
 
-            const { Vault } = await import('@suiet/core/src/vault/Vault');
-            const { derivationHdPath } = await import('@suiet/core/src/crypto');
+              setButtonLoading(true);
 
-            const mnemonic = textInputValue;
-            let address: string;
-            try {
-              const vault = await Vault.fromMnemonic(derivationHdPath(0), mnemonic);
-              address = vault.getAddress();
-            } catch (e: any) {
-              Alert.alert('Error', 'Your recovery phrase is invalid.', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    // navigation.goBack();
+              try {
+                // This timeout is to prevent the UI from freezing
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                const { Vault } = await import('@suiet/core/src/vault/Vault');
+                const { derivationHdPath } = await import('@suiet/core/src/crypto');
+
+                const mnemonic = textInputValue;
+                let address: string;
+                try {
+                  const vault = await Vault.fromMnemonic(derivationHdPath(0), mnemonic);
+                  address = vault.getAddress();
+                } catch (e: any) {
+                  Alert.alert('Error', 'Your recovery phrase is invalid.', [
+                    {
+                      text: 'OK',
+                      onPress: () => {
+                        // navigation.goBack();
+                      },
+                    },
+                  ]);
+                  return;
+                }
+
+                if (wallets.some((wallet) => wallet.address === address)) {
+                  Alert.alert('Error', 'This wallet already exists.', [
+                    {
+                      text: 'OK',
+                      onPress: () => {
+                        // navigation.goBack();
+                      },
+                    },
+                  ]);
+                  return;
+                }
+
+                try {
+                  await saveMnemonic(address, mnemonic);
+                } catch (e: any) {
+                  Alert.alert('Error', e.message, [
+                    {
+                      text: 'OK',
+                      onPress: () => {
+                        // navigation.goBack();
+                      },
+                    },
+                  ]);
+                  return;
+                }
+
+                updateWallets([
+                  ...wallets,
+                  {
+                    name: `Wallet ${wallets.length + 1}`,
+                    address,
+                    avatar: 0,
                   },
-                },
-              ]);
-              return;
-            }
+                ]);
+                if (typeof selectedWallet === 'undefined') {
+                  updateSelectedWallet(address);
+                }
 
-            if (wallets.some((wallet) => wallet.address === address)) {
-              Alert.alert('Error', 'This wallet already exists.', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    // navigation.goBack();
-                  },
-                },
-              ]);
-              return;
-            }
-
-            try {
-              await saveMnemonic(address, mnemonic);
-            } catch (e: any) {
-              Alert.alert('Error', e.message, [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    // navigation.goBack();
-                  },
-                },
-              ]);
-              return;
-            }
-
-            updateWallets([
-              ...wallets,
-              {
-                name: `Wallet ${wallets.length + 1}`,
-                address,
-                avatar: 0,
-              },
-            ]);
-            if (typeof selectedWallet === 'undefined') {
-              updateSelectedWallet(address);
-            }
-
-            navigation.popToTop();
-            navigation.replace('Home');
-          }}
-          disabled={!textInputValue}
-        />
+                navigation.popToTop();
+                navigation.replace('Home');
+              } finally {
+                setButtonLoading(false);
+              }
+            }}
+            disabled={!textInputValue}
+          />
+        )}
       </View>
 
       <View style={{ height: bottom - 8 }} />
