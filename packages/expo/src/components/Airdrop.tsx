@@ -62,7 +62,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
               // message.success('Airdrop succeeded');
               Toast.show({
                 type: 'success',
-                text1: 'Airdrop succeeded!',
+                text1: 'Faucet succeeded!',
                 visibilityTime: 6000,
                 props: {
                   beautifulBorder: true,
@@ -121,7 +121,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
             // message.error(err.message);
             Toast.show({
               type: 'error',
-              text1: `Failed to Airdrop: Unknown error`,
+              text1: `Failed to Faucet: Unknown error`,
               visibilityTime: 6000,
               props: {
                 icon: require('@assets/red_exclamation_mark.png'),
