@@ -15,7 +15,7 @@ import { useCoins } from '../../hooks/useCoins';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
-import { formatSUI, formatCurrency } from '../../utils/format';
+import { formatSUI, formatCurrency } from '@suiet/core';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
 import { useQuery } from '@apollo/client';

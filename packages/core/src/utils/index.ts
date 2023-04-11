@@ -4,3 +4,5 @@ export function has(obj: Object, key: string) {
 export function isNonEmptyArray(value: any): value is any[] {
   return Array.isArray(value) && value.length > 0;
 }
+
+export * from './format';

@@ -4,7 +4,6 @@ import { useApiClient } from './useApiClient';
 import { swrKeyWithNetwork, useNetwork } from './useNetwork';
 import { useLazyQuery } from '@apollo/client';
 import { coinsGql } from '../utils/graphql/coins';
-import { formatCurrency } from '../utils/format';
 import { useQuery } from 'react-query';
 
 export interface Coin {

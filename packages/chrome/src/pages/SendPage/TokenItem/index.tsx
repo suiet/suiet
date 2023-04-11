@@ -6,7 +6,7 @@ import styles from './index.module.scss';
 import { Extendable } from '../../../types';
 import TokenIcon from '../../../components/TokenIcon';
 import Typo from '../../../components/Typo';
-import { formatCurrency } from '../../../utils/format';
+import { formatCurrency } from '@suiet/core';
 
 type TokenItemProps = Extendable & {
   symbol: string;

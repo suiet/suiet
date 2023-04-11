@@ -5,7 +5,7 @@ import NftImg from '../../../components/NftImg';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import classnames from 'classnames';
-import { addressEllipsis } from '../../../utils/format';
+import { addressEllipsis } from '@suiet/core';
 import copy from 'copy-to-clipboard';
 import message from '../../../components/message';
 import CopyIcon from '../../../components/CopyIcon';

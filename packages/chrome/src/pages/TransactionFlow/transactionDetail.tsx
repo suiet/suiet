@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './transactionDetail.scss';
 import dayjs from 'dayjs';
 import classnames from 'classnames';
-import { formatSUI } from '../../utils/format';
+import { formatSUI } from '@suiet/core';
 import copy from 'copy-to-clipboard';
 import message from '../../components/message';
 import CopyIcon from '../../components/CopyIcon';
