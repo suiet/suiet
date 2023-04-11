@@ -1,6 +1,5 @@
 import { CoinBalanceChangeItem } from '../../../types/gql/transactions';
-import { formatCurrency } from '../../../utils/format';
-import { TxItemDisplayType } from '../TransactionItem';
+import { formatCurrency } from '@suiet/core';
 
 export default function formatTotalCoinChange(
   coinBalanceChanges: CoinBalanceChangeItem[]

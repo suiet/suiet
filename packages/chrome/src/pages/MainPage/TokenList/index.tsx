@@ -12,7 +12,7 @@ import Typo from '../../../components/Typo';
 import TokenIcon from '../../../components/TokenIcon';
 import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import IconToken from '../../../assets/icons/token.svg';
-import { formatCurrency } from '../../../utils/format';
+import { formatCurrency } from '@suiet/core';
 // import TokenItem from '../../../components/TokenItem';
 import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
 // export type TokenListProps = StyleExtendable;

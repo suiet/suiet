@@ -8,7 +8,7 @@ import {
   SendAndExecuteTxParams,
   TxEssentials,
 } from '@suiet/core';
-import { formatCurrency } from '../../utils/format';
+import { formatCurrency } from '@suiet/core';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useState, useEffect, useMemo } from 'react';
 import { RootState } from '../../store';

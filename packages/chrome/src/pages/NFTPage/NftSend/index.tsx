@@ -14,7 +14,7 @@ import { useApiClient } from '../../../hooks/useApiClient';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
-import { formatSUI } from '../../../utils/format';
+import { formatSUI } from '@suiet/core';
 import styles from './index.module.scss';
 import useEstimatedGasFee from '../../../hooks/transaction/useEstimatedGasFee';
 import { useForm } from 'react-hook-form';

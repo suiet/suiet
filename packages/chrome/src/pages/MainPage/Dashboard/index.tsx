@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import Address from '../../../components/Address';
 import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
-import { formatSUI } from '../../../utils/format';
+import { formatSUI } from '@suiet/core';
 import message from '../../../components/message';
 import { useState } from 'react';
 import { LoadingSpokes } from '../../../components/Loading';

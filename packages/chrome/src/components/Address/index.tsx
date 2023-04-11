@@ -4,7 +4,7 @@ import copy from 'copy-to-clipboard';
 import message from '../message';
 import { Extendable } from '../../types';
 import classnames from 'classnames';
-import { addressEllipsis } from '../../utils/format';
+import { addressEllipsis } from '@suiet/core';
 import { useSuinsName } from '../../hooks/useSuinsName';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';

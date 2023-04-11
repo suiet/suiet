@@ -4,11 +4,7 @@ import commonStyles from '../common.module.scss';
 import Typo from '../../../components/Typo';
 import { useMemo, useRef, useState } from 'react';
 import { SendData } from '../types';
-import {
-  addressEllipsis,
-  formatCurrency,
-  formatSUI,
-} from '../../../utils/format';
+import { addressEllipsis, formatCurrency, formatSUI } from '@suiet/core';
 import message from '../../../components/message';
 import { useNavigate } from 'react-router-dom';
 import { useApiClient } from '../../../hooks/useApiClient';

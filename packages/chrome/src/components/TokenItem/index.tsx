@@ -1,6 +1,6 @@
 import type { Extendable } from '../../types';
 import classnames from 'classnames';
-import { formatCurrency } from '../../utils/format';
+import { formatCurrency } from '@suiet/core';
 import TokenIcon from '../TokenIcon';
 import Typo from '../Typo';
 import IconWaterDrop from '../../assets/icons/waterdrop.svg';
