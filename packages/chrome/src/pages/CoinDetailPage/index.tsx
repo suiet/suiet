@@ -28,6 +28,7 @@ import { useApiClient } from '../../hooks/useApiClient';
 import { LoadingSpokes } from '../../components/Loading';
 import { useState } from 'react';
 import { object } from 'superstruct';
+import { createUnstakeTransaction } from '../StakingPage/utils';
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const apiClient = useApiClient();
@@ -75,14 +76,8 @@ export default function CoinDetailPage() {
       // setButtonLoading(true);
       if (!network) throw new Error('require network selected');
 
-      const tx = new TransactionBlock();
-      tx.moveCall({
-        target: '0x3::sui_system::request_withdraw_stake',
-        arguments: [
-          tx.object(SUI_SYSTEM_STATE_OBJECT_ID),
-          tx.object(stakeObjectID),
-        ],
-      });
+      const tx = createUnstakeTransaction(stakeObjectID);
+      // tx.setGasBudget(700_000_000);
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
         undefined
