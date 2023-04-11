@@ -72,8 +72,7 @@ function useCustomApolloClient(networkId: string) {
         }),
         defaultOptions: {
           watchQuery: {
-            initialFetchPolicy: 'cache-only',
-            nextFetchPolicy: 'cache-first',
+            fetchPolicy: 'cache-first',
             pollInterval: 5 * 1000,
           },
         },
