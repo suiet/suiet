@@ -26,6 +26,7 @@ import { OmitToken } from '../../types';
 import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import Skeleton from 'react-loading-skeleton';
+import { createStakeTransaction } from './utils';
 // import { get } from '@suiet/core';
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -33,8 +34,10 @@ export default function StackingPage() {
   const { data: network } = useNetwork(appContext.networkId);
   const { walletId } = useSelector((state: RootState) => state.appContext);
 
-  const [selectedValidator, setSelectedValidator] = useState(null);
-  const { loading, error, data } = useQuery(GET_VALIDATORS);
+  const [selectedValidator, setSelectedValidator] = useState<string>();
+  const { loading, error, data } = useQuery(GET_VALIDATORS, {
+    fetchPolicy: 'cache-and-network',
+  });
   const validators = data?.validators || [];
   useEffect(() => {
     setSelectedValidator(validators[0]?.suiAddress);
@@ -84,17 +87,12 @@ export default function StackingPage() {
       // 3. caculate amount
       setButtonLoading(true);
       if (!network) throw new Error('require network selected');
+      if (!selectedValidator) throw new Error('require validator selected');
 
-      const tx = new TransactionBlock();
-      const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount * 1000_000_000)]);
-      tx.moveCall({
-        target: '0x3::sui_system::request_add_stake',
-        arguments: [
-          tx.object(SUI_SYSTEM_STATE_OBJECT_ID),
-          stakeCoin,
-          tx.pure(selectedValidator),
-        ],
-      });
+      const tx = createStakeTransaction(
+        BigInt(amount * 1000_000_000),
+        selectedValidator
+      );
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
         undefined

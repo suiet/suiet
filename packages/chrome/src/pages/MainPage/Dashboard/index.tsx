@@ -163,7 +163,7 @@ function MainPage({ address, networkId }: DashboardProps) {
               <LoadingSpokes width={'12px'} height={'12px'} />
             </div>
           ) : (
-            'Airdrop'
+            'Faucet'
           )}
         </div>
         <ReceiveButton address={address} />
