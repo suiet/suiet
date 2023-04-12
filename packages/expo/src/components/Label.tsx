@@ -1,4 +1,4 @@
-import { Error_500, Gray_700, Warning_600, White_100 } from '@/styles/colors';
+import { Error_500, Gray_700, Green_600, Warning_600, White_100 } from '@/styles/colors';
 import { View, ViewProps } from 'react-native';
 import React from 'react';
 import { SvgXml } from 'react-native-svg';
@@ -6,7 +6,7 @@ import Typography from './Typography';
 
 export interface LabelProps {
   title: string;
-  variant?: 'warning' | 'error' | 'info';
+  variant?: 'warning' | 'error' | 'success' | 'info';
 
   rightIconSvg?: string;
 }
@@ -24,6 +24,10 @@ export const Label: React.FC<LabelProps & ViewProps> = ({ title, variant = 'info
     },
     error: {
       backgroundColor: Error_500,
+      textColor: White_100,
+    },
+    success: {
+      backgroundColor: Green_600,
       textColor: White_100,
     },
     info: {

@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import {
   setGenericPassword,
@@ -45,6 +45,29 @@ export function useRealKeychain() {
       });
 
       try {
+        await new Promise<void>((resolve, reject) => {
+          Alert.alert(
+            'Authenticate to continue',
+            "A accessing test is required to ensure your device's authentication is working properly",
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => {
+                  reject(new Error('Canncelled'));
+                },
+              },
+              {
+                text: 'OK',
+                isPreferred: true,
+                onPress: async () => {
+                  resolve();
+                },
+              },
+            ]
+          );
+        });
+
         const saved = await getGenericPassword({
           service,
           authenticationPrompt: {
@@ -102,12 +125,41 @@ export function useRealKeychain() {
     throw new Error('Failed to load your wallet from device');
   };
 
+  const wrapWithAlert =
+    (fn: any) =>
+    (...args: any[]) => {
+      return new Promise((resolve, reject) => {
+        Alert.alert('Authenticate to access your wallet', 'We need to access your wallet to continue', [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {
+              reject(new Error('Canncelled'));
+            },
+          },
+          {
+            text: 'OK',
+            isPreferred: true,
+            onPress: async () => {
+              fn(...args)
+                .then(resolve)
+                .catch(reject);
+            },
+          },
+        ]);
+      });
+    };
+
   return {
     isSupported,
     alertUnsupportedDevice,
 
     saveMnemonic,
-    loadMnemonic,
+    loadMnemonic: Platform.select({
+      ios: wrapWithAlert(loadMnemonic) as typeof loadMnemonic,
+      android: loadMnemonic,
+      default: loadMnemonic,
+    }),
   };
 }
 

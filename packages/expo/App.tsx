@@ -32,7 +32,16 @@ import { SelectToken } from '@/screens/SelectToken';
 import { ContextFeatureFlags, useAutoLoadFeatureFlags } from '@/hooks/useFeatureFlags';
 import { AngularGradientToast } from '@/components/Toast';
 import { Image } from 'react-native';
-import { fieldPolicyForTransactions } from '@/hooks/useTransactionListForHistory';
+import { TransactionForHistory, fieldPolicyForTransactions } from '@/hooks/useTransactionListForHistory';
+import { SelectNetwork } from '@/screens/SelectNetwork';
+import { TxDetail } from '@/screens/TxDetail';
+import { useNetwork } from '@/hooks/useNetwork';
+// import { InAppBrowser } from '@/screens/InAppBrowser';
+import { Security } from '@/screens/Security';
+import { SecurityWarning } from '@/screens/Security/SecurityWarning';
+import { SecurityShow } from '@/screens/Security/SecurityShow';
+import { NftDetail } from '@/screens/NftDetail';
+import { NftGqlDto } from '@/hooks/useNftList';
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -46,10 +55,16 @@ export type RootStackParamList = {
   };
   Coin: undefined;
   Nft: undefined;
-  History: undefined;
+  NftDetail: { nft: NftGqlDto };
+  Dapp: undefined;
+  TxHistory: undefined;
+  TxDetail: { tx: TransactionForHistory };
+  InAppBrowser: undefined;
 
   ScanQRCode: undefined;
   SelectWallet: undefined;
+
+  SelectNetwork: undefined;
 
   Home: undefined;
 
@@ -59,6 +74,10 @@ export type RootStackParamList = {
   SelectToken: undefined;
   Settings: undefined;
   EditWallet: undefined;
+
+  Security: undefined;
+  SecurityWarning: { next: 'Phrase' | 'PrivateKey' };
+  SecurityShow: { next: 'Phrase' | 'PrivateKey'; content: string };
 };
 
 const RootStack = createStackNavigator<RootStackParamList>();
@@ -67,8 +86,10 @@ function App() {
   const { isLoading: isWalletsLoading, isEmpty: isWalletsEmpty /* loadWallets */, wallets } = useWallets();
 
   const featureFlags = useAutoLoadFeatureFlags();
-  const network = featureFlags?.networks?.[featureFlags.default_network];
+  const { network, networkId } = useNetwork(featureFlags);
+  // const network = featureFlags?.networks?.[featureFlags.default_network];
 
+  console.log(network, networkId, featureFlags?.networks);
   const client = useMemo(() => {
     return new ApolloClient({
       uri: network?.graphql_url,
@@ -83,6 +104,16 @@ function App() {
       }),
     });
   }, [network]);
+
+  // this is added to avoid an selected network deleted from feature flags
+  {
+    const { networkId, updateNetworkId } = useNetwork();
+    useEffect(() => {
+      if (networkId && featureFlags && !featureFlags.available_networks.includes(networkId)) {
+        updateNetworkId(featureFlags.default_network);
+      }
+    }, [featureFlags, networkId, updateNetworkId]);
+  }
 
   return (
     <ContextFeatureFlags.Provider value={featureFlags}>
@@ -188,6 +219,78 @@ function App() {
                 options={{
                   title: 'Scan QR Code',
                   header: () => null,
+                }}
+              />
+
+              <RootStack.Screen
+                name="SelectNetwork"
+                component={SelectNetwork}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+
+              <RootStack.Screen
+                name="TxDetail"
+                component={TxDetail}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+
+              <RootStack.Screen
+                name="NftDetail"
+                component={NftDetail}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={'NFT Detail'} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+
+              {/* <RootStack.Screen
+                name="InAppBrowser"
+                component={InAppBrowser}
+                // options={{
+                //   header: ({ navigation, route: { name } }) => (
+                //     <Header title={''} onRightAction={() => navigation.goBack()} />
+                //   ),
+                // }}
+
+                options={{
+                  title: 'In App Browser',
+                }}
+              /> */}
+
+              <RootStack.Screen
+                name="Security"
+                component={Security}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="SecurityWarning"
+                component={SecurityWarning}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+              <RootStack.Screen
+                name="SecurityShow"
+                component={SecurityShow}
+                options={{
+                  header: ({ navigation, route: { name } }) => (
+                    <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
                 }}
               />
             </RootStack.Group>

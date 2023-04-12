@@ -6,12 +6,14 @@ export interface FeatureFlagNetwork {
   faucet_api: string;
   // mint_example_nft_gas_budget: number;
   // transfer_object_gas_budget: number;
+  move_call_gas_budget: number;
   enable_staking: boolean;
   enable_mint_example_nft: boolean;
   version_cache_timout_in_seconds: number;
   pay_coin_gas_budget: number;
   stake_gas_budget: number;
   graphql_url: string;
+  sample_nft_object_id: string;
 }
 export interface FeatureFlagRes {
   available_networks: string[];
@@ -46,6 +48,33 @@ export interface FeatureFlagRes {
 export async function getFeatureFlags(): Promise<FeatureFlagRes> {
   return await suietHttp({
     url: '/feature-flag',
+    method: 'get',
+  });
+}
+
+export interface DappCategory {
+  explorer_url: string;
+  full_node_url: string;
+  latest_sdk_version: string;
+  latest_sui_version: Record<string, string>;
+  on_maintenance: boolean;
+}
+export interface DappItem {
+  id: string;
+  name: string;
+  description: string;
+  link: string;
+  icon: string;
+  background_color: string;
+}
+
+export async function getDappList(): Promise<{
+  category: Record<string, DappCategory[]>;
+  featured: DappItem[];
+  popular: DappItem[];
+}> {
+  return await suietHttp({
+    url: '/apps',
     method: 'get',
   });
 }

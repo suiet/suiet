@@ -18,6 +18,15 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
   const [airdropLoading, setAirdropLoading] = useState(false);
 
   const handlePress = async () => {
+    if (!featureFlags) {
+      Toast.show({
+        type: 'info',
+        text1: `Still loading...`,
+        visibilityTime: 6000,
+      });
+      return;
+    }
+
     if (!faucetApi) {
       Toast.show({
         type: 'error',
