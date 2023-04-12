@@ -4,6 +4,8 @@ import {
   Error_700,
   Gray_100,
   Gray_700,
+  Green_100,
+  Green_700,
   Warning_100,
   Warning_50,
   Warning_500,
@@ -17,7 +19,7 @@ import Typography from './Typography';
 
 export interface BadgeProps {
   title: string;
-  variant?: 'warning' | 'error' | 'info';
+  variant?: 'warning' | 'error' | 'success' | 'info';
 
   leftLabel?: React.ReactNode;
   rightLabel?: React.ReactNode;
@@ -40,6 +42,11 @@ export const Badge: React.FC<BadgeProps> = ({ title, variant = 'info', leftLabel
       backgroundColor: Error_50,
       titleColor: Error_700,
       defaultTitle: 'Error',
+    },
+    success: {
+      backgroundColor: Green_100,
+      titleColor: Green_700,
+      defaultTitle: 'Success',
     },
     info: {
       backgroundColor: Gray_100,

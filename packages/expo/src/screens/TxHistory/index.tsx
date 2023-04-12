@@ -1,16 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import {
-  SafeAreaView,
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  StatusBar,
-  Image,
-  Dimensions,
-  TouchableOpacity,
-  TouchableHighlight,
-} from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View, FlatList, Image, TouchableHighlight } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import dayjs from 'dayjs';
 
@@ -25,13 +14,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AVATARS } from '@/utils/constants';
 import { Wallet } from '@/utils/wallet';
 import Typography from '@/components/Typography';
-import { Error_500, Gray_100, Gray_400, Gray_900, White_100 } from '@/styles/colors';
-import { groupBy, uniqBy, upperFirst, mapValues } from 'lodash-es';
+import { Gray_300, Gray_400, Gray_900, White_100 } from '@/styles/colors';
+import { groupBy, upperFirst, mapValues } from 'lodash-es';
 import { CoinIcon } from '@/components/CoinIcon';
 import { addressEllipsis, formatCurrency } from '@/utils/format';
 import { isNonEmptyArray } from '@suiet/core/src/utils';
 import { SvgArrowDown, SvgArrowUp } from '@/components/icons/svgs';
 import { Badge } from '@/components/Badge';
+import { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { RootStackParamList } from '@/../App';
 
 function formatTotalCoinChange(coinBalanceChanges: CoinBalanceChangeItem[]): string {
   return coinBalanceChanges
@@ -47,7 +38,7 @@ function formatTotalCoinChange(coinBalanceChanges: CoinBalanceChangeItem[]): str
     .join(', ');
 }
 
-function formatTxType(type: string, kind: string, category?: string): string {
+export function formatTxType(type: string, kind: string, category?: string): string {
   if (category === 'transfer_coin') {
     if (type === 'incoming') return 'received';
     if (type === 'outgoing') return 'sent';
@@ -92,7 +83,10 @@ const TypeItem: React.FC<{ title: string }> = ({ title }) => {
   );
 };
 
-const TransactionItem: React.FC<{ item: TransactionForHistory }> = ({ item }) => {
+const TransactionItem: React.FC<{
+  item: TransactionForHistory;
+  navigation: BottomTabNavigationProp<RootStackParamList, 'TxHistory'>;
+}> = ({ item, navigation }) => {
   const type = formatTxType(item.type, item.kind, item.category);
 
   function renderAddress(fromAddresses: string[] | null, toAddresses: string[] | null) {
@@ -121,6 +115,10 @@ const TransactionItem: React.FC<{ item: TransactionForHistory }> = ({ item }) =>
   }
 
   function renderAmount(item: TransactionForHistory) {
+    if (item.status === 'failure') {
+      return <Typography.Num color={Gray_300} children={'Failed'} />;
+    }
+
     let color = Gray_400;
     if (type === 'sent') {
       color = '#F04438';
@@ -142,6 +140,8 @@ const TransactionItem: React.FC<{ item: TransactionForHistory }> = ({ item }) =>
     <TouchableHighlight
       onPress={() => {
         console.log('onPress', item);
+
+        navigation.navigate('TxDetail', { tx: item });
       }}
     >
       <View style={{ paddingHorizontal: 24, backgroundColor: White_100, paddingVertical: 6 }}>
@@ -163,7 +163,10 @@ const TransactionItem: React.FC<{ item: TransactionForHistory }> = ({ item }) =>
   );
 };
 
-export const HistoryList: React.FC<{ address: string }> = ({ address }) => {
+export const HistoryList: React.FC<{
+  address: string;
+  navigation: BottomTabNavigationProp<RootStackParamList, 'TxHistory'>;
+}> = ({ address, navigation }) => {
   const {
     data: txHistoryList,
     loading,
@@ -186,28 +189,57 @@ export const HistoryList: React.FC<{ address: string }> = ({ address }) => {
     };
   }, [address]);
 
+  // const data = useMemo(() => {
+  //   const a = mapValues(
+  //     groupBy(txHistoryList, (tx) => formatTxDate(tx.timestamp)),
+  //     (txHistoryList) =>
+  //       mapValues(
+  //         groupBy(txHistoryList, (tx) => formatTxType(tx.type, tx.kind, tx.category)),
+  //         (v) => v // TODO: any other groupBy
+  //       )
+  //   );
+
+  //   // [key, sticky, JSX]
+  //   const items = [] as [string, boolean, JSX.Element][];
+  //   for (const date in a) {
+  //     items.push([date, true, <DateItem title={date} />]);
+  //     for (const type in a[date]) {
+  //       items.push([`${date}-${type}`, false, <TypeItem title={upperFirst(type)} />]);
+  //       for (const tx of a[date][type]) {
+  //         items.push([`${date}-${type}-${tx.digest}`, false, <TransactionItem item={tx} navigation={navigation} />]);
+  //       }
+  //       items.push([`${date}-${type}-separator`, false, <View style={{ height: 12 }} />]);
+  //     }
+  //     items.push([`${date}-separator`, false, <View style={{ height: 12 }} />]);
+  //   }
+
+  //   return items;
+  // }, [txHistoryList]);
+
   const data = useMemo(() => {
     const a = mapValues(
       groupBy(txHistoryList, (tx) => formatTxDate(tx.timestamp)),
-      (txHistoryList) =>
-        mapValues(
-          groupBy(txHistoryList, (tx) => formatTxType(tx.type, tx.kind, tx.category)),
-          (v) => v // TODO: any other groupBy
-        )
+      (txHistoryList) => txHistoryList
     );
 
     // [key, sticky, JSX]
     const items = [] as [string, boolean, JSX.Element][];
+
     for (const date in a) {
       items.push([date, true, <DateItem title={date} />]);
-      for (const type in a[date]) {
-        items.push([`${date}-${type}`, false, <TypeItem title={upperFirst(type)} />]);
-        for (const tx of a[date][type]) {
-          items.push([`${date}-${type}-${tx.digest}`, false, <TransactionItem item={tx} />]);
+      let prevTxType: string | undefined = undefined;
+      for (const tx of a[date]) {
+        const txType = formatTxType(tx.type, tx.kind, tx.category);
+        if (txType !== prevTxType) {
+          items.push([`${date}-${txType}-${tx.digest}-type`, false, <TypeItem title={upperFirst(txType)} />]);
+          prevTxType = txType;
         }
-        items.push([`${date}-${type}-separator`, false, <View style={{ height: 12 }} />]);
+        items.push([`${date}-${txType}-${tx.digest}`, false, <TransactionItem item={tx} navigation={navigation} />]);
+        // if (txType !== prevTxType) {
+        //   items.push([`${date}-${txType}-separator`, false, <View style={{ height: 12 }} />]);
+        // }
       }
-      items.push([`${date}-separator`, false, <View style={{ height: 12 }} />]);
+      items.push([`${date}-separator`, false, <View style={{ height: 18 }} />]);
     }
 
     return items;
@@ -231,7 +263,11 @@ export const HistoryList: React.FC<{ address: string }> = ({ address }) => {
   }
 
   if (error) {
-    return <Badge title="Failed to load transcation history" variant="error" />;
+    return (
+      <View style={{ paddingHorizontal: 24 }}>
+        <Badge title="Failed to load transcation history" variant="error" />
+      </View>
+    );
   }
 
   return (
@@ -271,7 +307,7 @@ export const HistoryList: React.FC<{ address: string }> = ({ address }) => {
   );
 };
 
-export const History: React.FC = () => {
+export const TxHistory: React.FC<BottomTabScreenProps<RootStackParamList, 'TxHistory'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
 
   const { selectedWallet, wallets } = useWallets();
@@ -292,7 +328,7 @@ export const History: React.FC = () => {
         <Typography.Subtitle color={Gray_900} children={'History'} />
       </View>
 
-      <HistoryList address={selectedWallet} />
+      <HistoryList address={selectedWallet} navigation={navigation} />
     </View>
   );
 };

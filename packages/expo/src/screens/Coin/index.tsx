@@ -8,7 +8,7 @@ import {
   SvgArrowUp,
   SvgSwitchHorizontal01,
   SvgChevronDown,
-  SvgScan,
+  // SvgScan,
   SvgSettings02,
 } from '@components/icons/svgs';
 import { Gray_100, Gray_400, Gray_500, Gray_700, Gray_900 } from '@styles/colors';
@@ -25,6 +25,7 @@ import { FontFamilys } from '@/hooks/useFonts';
 import Typography from '@/components/Typography';
 import { Airdrop } from '@/components/Airdrop';
 import Toast, { ToastProps } from 'react-native-toast-message';
+import { Nfts } from '@/components/Nfts';
 
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
@@ -102,24 +103,26 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         <View style={{ display: 'flex', flexDirection: 'row', marginTop: 16, marginBottom: 16 }}>
           <Airdrop recipient={selectedWallet} />
           {[
-            {
-              svg: SvgPlus,
-              text: 'Buy',
-              disabled: true,
-            },
+            // {
+            //   svg: SvgPlus,
+            //   text: 'Buy',
+            //   disabled: true,
+            // },
             {
               svg: SvgArrowDown,
               text: 'Receive',
+              disabled: false,
             },
             {
               svg: SvgArrowUp,
               text: 'Send',
+              disabled: false,
             },
-            {
-              svg: SvgSwitchHorizontal01,
-              text: 'Swap',
-              disabled: true,
-            },
+            // {
+            //   svg: SvgSwitchHorizontal01,
+            //   text: 'Swap',
+            //   disabled: true,
+            // },
           ].map(({ svg, text: title, disabled }, index) => (
             // <TouchableOpacity key={title} onPress={() => navigation.navigate(title as any)}>
             //   <View style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -139,7 +142,8 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
                   if (disabled) {
                     Toast.show({
                       type: 'info',
-                      text1: 'This feature is WIP',
+                      text1: `This feature is WIP`,
+                      visibilityTime: 3000,
                     });
                   } else {
                     navigation.navigate(title as any);
@@ -151,13 +155,25 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
           ))}
         </View>
 
-        <View>
+        <View style={{ gap: 8, paddingBottom: 24 }}>
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-            <Typography.Subtitle children="Tokens" color={Gray_900} />
+            <Typography.Subtitle children="Tokens" color={Gray_900} style={{ marginLeft: 4 }} />
             {/* <Text style={{ color: Gray_400 }}>See all</Text>
             <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml> */}
           </View>
           <Coins address={selectedWallet} />
+
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Typography.Subtitle children="NFTs" color={Gray_900} style={{ marginLeft: 4 }} />
+            {/* <Text style={{ color: Gray_400 }}>See all</Text>
+            <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml> */}
+          </View>
+          <Nfts
+            address={selectedWallet}
+            onChoose={(nft) => {
+              navigation.navigate('NftDetail', { nft });
+            }}
+          />
         </View>
       </ScrollView>
 
@@ -196,13 +212,9 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgScan} />
-        </TouchableOpacity>
-        {/* <TouchableOpacityModal modalContent={<Settings />} modalProps={{ title: '' }}>
-          <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgSetting} />
-        </TouchableOpacityModal> */}
-
+        </TouchableOpacity> */}
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
           <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgSettings02} />
         </TouchableOpacity>

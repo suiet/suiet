@@ -39,7 +39,7 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
             value={textInputValue}
             onChangeText={setTextInputValue}
             style={{
-              minHeight: 168,
+              minHeight: 96,
             }}
             placeholder="Input recovery phrase of old wallet"
           />

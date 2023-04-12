@@ -1,5 +1,8 @@
 import { FontFamilys } from '@/hooks/useFonts';
 import {
+  Error_100,
+  Error_50,
+  Error_700,
   Gray_100,
   Gray_200,
   Gray_500,
@@ -28,7 +31,7 @@ export const Button: React.FC<
     title: string;
     innerStyle?: ViewStyle;
     textStyle?: TextStyle;
-    type?: 'Primary' | 'Secondary';
+    type?: 'Primary' | 'Secondary' | 'Error';
   }
 > = ({ onPress, scaleTo = 1, disabled, innerStyle, textStyle, title, type = 'Primary' }) => {
   const colors =
@@ -39,6 +42,14 @@ export const Button: React.FC<
           backgroundColorDisabled: Gray_200,
           textColor: '#FFFFFF',
           textColorPressed: '#FFFFFF',
+        }
+      : type === 'Error'
+      ? {
+          backgroundColor: Error_50,
+          backgroundColorPressed: Error_100,
+          backgroundColorDisabled: Gray_200,
+          textColor: Error_700,
+          textColorPressed: Error_700,
         }
       : {
           backgroundColor: Gray_100,
