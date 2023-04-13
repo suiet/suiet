@@ -95,7 +95,7 @@ const Title: React.FC<TextProps & ColorProps> = ({ style, color, ...props }) => 
 const Subtitle: React.FC<TextProps & ColorProps> = ({ style, color, ...props }) => {
   return (
     <Text
-      style={[{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 16, lineHeight: 24 }, style, { color }]}
+      style={[{ fontFamily: FontFamilys.WorkSans_700Bold, fontSize: 18, lineHeight: 24 }, style, { color }]}
       {...props}
     />
   );

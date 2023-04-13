@@ -108,8 +108,7 @@ function useTransactionListForHistoryInternal(params: {
   const { address, incomingData, outgoingData, restForIncoming, restForOutgoing, limit } = params;
   const [incomingNextCursor, setIncomingNextCursor] = useState<string | null>();
   const [outgoingNextCursor, setOutgoingNextCursor] = useState<string | null>();
-
-  const txHistoryList = (() => {
+  const txHistoryList = useMemo(() => {
     let res: TransactionForHistory[] = [];
     if (incomingData?.transactions?.transactions) {
       res = res.concat(
@@ -130,7 +129,7 @@ function useTransactionListForHistoryInternal(params: {
     // descending order by timestamp
     res.sort((a, b) => b.timestamp - a.timestamp);
     return res;
-  })();
+  }, [incomingData, outgoingData]);
 
   useEffect(() => {
     if (incomingData?.transactions) {
@@ -142,13 +141,12 @@ function useTransactionListForHistoryInternal(params: {
   }, [incomingData, outgoingData]);
 
   const hasMore = !!incomingNextCursor || !!outgoingNextCursor;
-
   const refetch = useCallback(() => {
     restForIncoming.refetch();
     restForOutgoing.refetch();
   }, [restForIncoming.refetch, restForOutgoing.refetch]);
 
-  const fetchMore = () => {
+  const fetchMore = useCallback(() => {
     if (incomingNextCursor !== null) {
       restForIncoming.fetchMore({
         variables: {
@@ -167,7 +165,7 @@ function useTransactionListForHistoryInternal(params: {
         },
       });
     }
-  };
+  }, [address, incomingNextCursor, outgoingNextCursor]);
 
   return {
     data: txHistoryList,

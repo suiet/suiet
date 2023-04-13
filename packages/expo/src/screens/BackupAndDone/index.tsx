@@ -8,6 +8,7 @@ import { useWallets } from '@/hooks/useWallets';
 import { FontFamilys } from '@/hooks/useFonts';
 import Typography from '@/components/Typography';
 import { White_100 } from '@/styles/colors';
+import { Mnemonic } from '@/components/Mnemonic';
 
 export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'BackupAndDone'>> = ({
   route,
@@ -34,20 +35,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
         <Typography.Body children="Copy and save your recovery phrase." color={`rgba(255,255,255,0.7)`} />
       </View>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-        {route.params?.mnemonic?.split(' ').map((word, item) => {
-          return (
-            <View key={item} style={{ width: '33.3%', flexDirection: 'row', paddingVertical: 8, gap: 8 }}>
-              <Typography.Mono
-                children={item + 1}
-                color={`rgba(255,255,255,0.5)`}
-                style={{ width: 20, textAlign: 'right' }}
-              />
-              <Typography.MonoBold children={word} color={`rgba(255,255,255,1)`} />
-            </View>
-          );
-        })}
-      </View>
+      <Mnemonic mnemonic={route.params.mnemonic} dark={true} />
 
       <View style={{ flexGrow: 1 }} />
 

@@ -6,25 +6,11 @@ import { Gray_100, Gray_500, Gray_900 } from '@styles/colors';
 import { SvgClockRewind, SvgCoins03, SvgGrid01 } from '@components/icons/svgs';
 
 import { Coin } from '@/screens/Coin';
-import { History } from '@/screens/History';
+import { Dapp } from '@/screens/Dapp';
+import { TxHistory } from '@/screens/TxHistory';
 import type { RootStackParamList } from '@/../App';
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
-
-function HomeScreen() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
-}
 
 const TabBarIcon: React.FC<{ focused: boolean; iconSvg: string }> = ({ focused, iconSvg }) => {
   return (
@@ -58,16 +44,16 @@ export const Home: React.FC = () => {
           }}
         />
         <Tab.Screen
-          name="Nft"
-          component={HomeScreen}
+          name="Dapp"
+          component={Dapp}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgGrid01} />,
           }}
         />
         <Tab.Screen
-          name="History"
-          component={History}
+          name="TxHistory"
+          component={TxHistory}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} iconSvg={SvgClockRewind} />,

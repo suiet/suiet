@@ -13,7 +13,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "ac.oasis.Suiet",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "This app will optionally use Face ID or Touch ID to save wallets"
+        "NSFaceIDUsageDescription": "This app will use Face ID or Touch ID to save wallets"
       }
     },
     "android": {

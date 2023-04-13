@@ -1,6 +1,7 @@
 import {
   SvgChevronRight,
   SvgGlobe01,
+  SvgLinkExternal01,
   SvgLock01,
   SvgLockKeyholeCircle,
   SvgRefreshCcw04,
@@ -19,6 +20,7 @@ import {
   TouchableHighlightProps,
   Image,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import type { RootStackParamList } from '@/../App';
@@ -29,8 +31,10 @@ import { Address } from '@/components/Address';
 import { getAllGenericPasswordServices, resetGenericPassword } from 'react-native-keychain';
 import { Alert } from 'react-native';
 import Typography from '@/components/Typography';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settings'>> = ({ navigation }) => {
+  const { bottom } = useSafeAreaInsets();
   const { wallet } = useWallets();
 
   const renderItem = (
@@ -53,7 +57,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
         >
           <SvgXml style={{ marginRight: 16 }} width={24} height={24} xml={iconSvgLeft} color={iconSvgLeftColor} />
           <Typography.Label color={Gray_900} children={title} style={{ flexGrow: 1 }} />
-          {iconSvgRight && <SvgXml width={24} height={24} color={Gray_400} xml={iconSvgRight} />}
+          {iconSvgRight && <SvgXml width={20} height={20} color={Gray_400} xml={iconSvgRight} />}
         </View>
       </TouchableHighlight>
     );
@@ -96,6 +100,10 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
                 onPress: () => {
                   if (item === 'Wallet') {
                     navigation.navigate('EditWallet');
+                  } else if (item === 'Network') {
+                    navigation.navigate('SelectNetwork');
+                  } else if (item === 'Security') {
+                    navigation.navigate('Security');
                   }
                 },
               },
@@ -154,6 +162,13 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
                         },
                       },
                     ]);
+                  } else if (item === 'Lock') {
+                    const { default: Toast } = await import('react-native-toast-message');
+                    Toast.show({
+                      type: 'info',
+                      text1: 'This feature is WIP',
+                      visibilityTime: 3000,
+                    });
                   }
                 },
               },
@@ -178,12 +193,32 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
       >
         {[
           [SvgGithub, 'Developer'],
-          [SvgDiscord, 'Discord'],
           [SvgTwitter, 'Twitter'],
+          [SvgDiscord, 'Discord'],
         ].map(([svg, item]) => (
-          <Fragment key={item}>{renderItem(item, {}, svg, undefined, undefined)}</Fragment>
+          <Fragment key={item}>
+            {renderItem(
+              item,
+              {
+                onPress: () => {
+                  if (item === 'Developer') {
+                    Linking.openURL('https://github.com/suiet');
+                  } else if (item === 'Twitter') {
+                    Linking.openURL('https://twitter.com/suiet_wallet');
+                  } else if (item === 'Discord') {
+                    Linking.openURL('https://discord.gg/XQspMzXNXu');
+                  }
+                },
+              },
+              svg,
+              undefined,
+              SvgLinkExternal01
+            )}
+          </Fragment>
         ))}
       </View>
+
+      <View style={{ height: bottom }} />
     </ScrollView>
   );
 };
