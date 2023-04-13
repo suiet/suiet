@@ -135,6 +135,7 @@ export const CreateNew: React.FC<StackScreenProps<RootStackParamList, 'CreateNew
       const address = vault.getAddress();
 
       try {
+        // await new Promise((resolve) => setTimeout(resolve, 10000));
         await saveMnemonic(address, mnemonic);
         navigation.replace('BackupAndDone', { address, mnemonic });
         return;
@@ -152,7 +153,7 @@ export const CreateNew: React.FC<StackScreenProps<RootStackParamList, 'CreateNew
     return () => {
       clearTimeout(id);
     };
-  });
+  }, []);
 
   return (
     <View

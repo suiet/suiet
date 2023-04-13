@@ -6,6 +6,7 @@
   "build": {
     "development": {
       "developmentClient": true,
+      "prebuildCommand": "prebuild --skip-dependency-update=react-native",
       "distribution": "internal",
       "ios": {
         "resourceClass": "m-medium"
@@ -13,6 +14,7 @@
       "credentialsSource": "local"
     },
     "preview": {
+      "prebuildCommand": "prebuild --skip-dependency-update=react-native",
       "distribution": "internal",
       "ios": {
         "resourceClass": "m-medium"
@@ -20,10 +22,10 @@
       "credentialsSource": "local"
     },
     "production": {
+      "prebuildCommand": "prebuild --skip-dependency-update=react-native",
       "ios": {
         "resourceClass": "m-medium"
-      },
-      "credentialsSource": "local"
+      }
     }
   },
   "submit": {

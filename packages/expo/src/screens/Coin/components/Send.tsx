@@ -70,7 +70,7 @@ const SelectedCoin: React.FC<{ coin: Coin }> = ({ coin }) => {
         <Typography.Label children={coin.symbol} color={Primary_900} />
       </View>
       <View style={{ flexGrow: 0, flexShrink: 0 }}>
-        <Typography.Num children={formatCurrency(coin.balance)} color={Primary_900} />
+        <Typography.Num children={formatCurrency(coin.balance, { decimals: 9 })} color={Primary_900} />
       </View>
     </View>
   );
@@ -358,7 +358,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
                   const statusError = getExecutionStatusError(res);
 
                   if (statusType === 'success') {
-                    navigation.navigate('History');
+                    navigation.navigate('TxHistory');
                     Toast.show({
                       type: 'success',
                       text1: 'Send successfully!',
