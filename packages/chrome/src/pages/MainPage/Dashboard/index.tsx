@@ -114,7 +114,7 @@ function MainPage({ address, networkId }: DashboardProps) {
                 fetch(faucetApi, options)
                   .then(async (response) => {
                     if (response.ok) {
-                      message.success('Airdrop succeeded');
+                      message.success('Faucet succeeded');
                       return await response.json();
                     } else {
                       const text = await response.text();

@@ -30,7 +30,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
     if (!faucetApi) {
       Toast.show({
         type: 'error',
-        text1: `Failed to Airdrop: Unknown error`,
+        text1: `Failed to get faucet: Unknown error`,
         visibilityTime: 6000,
         props: {
           icon: require('@assets/red_exclamation_mark.png'),
@@ -86,7 +86,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
                 // message.error(json.error);
                 Toast.show({
                   type: 'error',
-                  text1: `Failed to Airdrop: ${json.error}`,
+                  text1: `Failed to get faucet: ${json.error}`,
                   visibilityTime: 6000,
                   props: {
                     icon: require('@assets/red_exclamation_mark.png'),
@@ -107,7 +107,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
                   // message.error('Sui network is not available, please try again in a few hours');
                   Toast.show({
                     type: 'error',
-                    text1: `Failed to Airdrop: Unknown error`,
+                    text1: `Failed to get faucet: Unknown error`,
                     visibilityTime: 6000,
                     props: {
                       icon: require('@assets/red_exclamation_mark.png'),
@@ -175,7 +175,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
       ) : (
         <FAB svg={SvgCoins03} onPress={handlePress} />
       )}
-      <Typography.Comment children={'Airdrop'} color={Gray_500} />
+      <Typography.Comment children={'Faucet'} color={Gray_500} />
     </View>
   );
 };
