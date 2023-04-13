@@ -233,7 +233,13 @@ export class DappBgApi {
 
     const connectionCtx = await this._prepareConnectionContext(payload.context);
 
-    const { transactionBlock: serializedTxBlock, requestType } = payload.params;
+    const {
+      transactionBlock: serializedTxBlock,
+      requestType,
+      options,
+    } = payload.params;
+    console.log('requestType from dapp', requestType);
+    console.log('options from dapp', options);
     const transactionBlock = TransactionBlock.from(serializedTxBlock);
 
     const network = await this._getNetwork(connectionCtx.networkId);
@@ -258,6 +264,7 @@ export class DappBgApi {
       transactionBlock,
       context: txContext,
       requestType,
+      options,
     });
     return response;
   }
