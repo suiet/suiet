@@ -3,7 +3,7 @@ import {
   AuthApi,
   getStorage,
   NetworkApi,
-  Storage,
+  IStorage,
   TransactionApi,
   WalletApi,
 } from '@suiet/core';
@@ -22,7 +22,7 @@ interface RootApi {
 }
 
 export interface BackgroundApiContext {
-  storage: Storage;
+  storage: IStorage;
   broadcast: (msg: any) => void;
 }
 
@@ -31,7 +31,7 @@ export interface BackgroundApiContext {
  */
 export class BackgroundApiProxy {
   private readonly ports: chrome.runtime.Port[] = [];
-  private storage: Storage;
+  private storage: IStorage;
   private serviceProxyCache: Record<string, any>;
 
   private root: RootApi;

@@ -2,7 +2,7 @@ import { TxnHistoryEntry } from '../storage/types';
 import { Network } from './network';
 import { Provider, QueryProvider, TxProvider } from '../provider';
 import { validateToken } from '../utils/token';
-import { Storage } from '../storage/Storage';
+import { IStorage } from '../storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
@@ -184,9 +184,9 @@ export interface ITransactionApi {
 }
 
 export class TransactionApi implements ITransactionApi {
-  storage: Storage;
+  storage: IStorage;
 
-  constructor(storage: Storage) {
+  constructor(storage: IStorage) {
     this.storage = storage;
   }
 
