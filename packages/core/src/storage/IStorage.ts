@@ -1,8 +1,6 @@
 import { Account, Wallet, GlobalMeta } from './types';
-import { platform } from '../utils/platform';
-import { IndexedDBStorage } from './indexeddb';
 
-export interface Storage {
+export default interface IStorage {
   getWallets: () => Promise<Wallet[]>;
   getWallet: (id: string) => Promise<Wallet | null>;
 
@@ -31,11 +29,4 @@ export interface Storage {
   updateMetaAndWallets: (meta: GlobalMeta, wallets: Wallet[]) => Promise<void>;
 
   reset: () => Promise<void>;
-}
-
-export function getStorage(): Storage | undefined {
-  if (platform.isBrowser || platform.isisExtBackgroundServiceWork) {
-    return new IndexedDBStorage();
-  }
-  return undefined;
 }

@@ -1,5 +1,5 @@
 import { Account, GlobalMeta, Wallet } from './types';
-import { Storage } from './Storage';
+import IStorage from './IStorage';
 import indexeddbMigrations, { MigrationMethod } from './migrations/indexeddb';
 import {
   DATA_VERSION,
@@ -9,7 +9,7 @@ import {
   StoreName,
 } from './constants';
 
-export class IndexedDBStorage implements Storage {
+export class IndexedDBStorage implements IStorage {
   private readonly connection: Promise<IDBDatabase>;
 
   constructor() {

@@ -1,7 +1,7 @@
 import { validateToken } from '../utils/token';
 import * as crypto from '../crypto';
 import { Vault } from '../vault/Vault';
-import { Storage } from '../storage/Storage';
+import { IStorage } from '../storage';
 import { isNonEmptyArray } from '../utils';
 
 export interface Account {
@@ -37,9 +37,9 @@ export interface GetAddressParams {
 }
 
 export class AccountApi implements IAccountApi {
-  storage: Storage;
+  storage: IStorage;
 
-  constructor(storage: Storage) {
+  constructor(storage: IStorage) {
     this.storage = storage;
   }
 

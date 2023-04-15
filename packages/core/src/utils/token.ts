@@ -1,8 +1,8 @@
 import * as crypto from '../crypto';
-import { Storage } from '../storage/Storage';
+import { IStorage } from '../storage';
 import { Buffer } from 'buffer';
 
-export async function validateToken(storage: Storage, token: string) {
+export async function validateToken(storage: IStorage, token: string) {
   const meta = await storage.loadMeta();
   if (!meta) {
     throw new Error('Meta not initialized');

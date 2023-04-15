@@ -1,5 +1,5 @@
 import * as crypto from '../crypto';
-import { Storage } from '../storage/Storage';
+import { IStorage } from '../storage';
 import { Buffer } from 'buffer';
 import { DATA_VERSION } from '../storage/constants';
 import { generateClientId } from '../utils/clientId';
@@ -23,10 +23,10 @@ export interface IAuthApi {
 }
 
 export class AuthApi implements IAuthApi {
-  storage: Storage;
+  storage: IStorage;
   private readonly session: Session;
 
-  constructor(storage: Storage) {
+  constructor(storage: IStorage) {
     this.storage = storage;
     this.session = new Session();
   }
@@ -395,7 +395,7 @@ export class AuthApi implements IAuthApi {
   }
 }
 
-async function maybeFixDataConsistency(storage: Storage, token: string) {
+async function maybeFixDataConsistency(storage: IStorage, token: string) {
   const walletListThatNeedsUpgrade = [];
   const accountListThatNeedsUpgrade = [];
   const wallets = await storage.getWallets();
