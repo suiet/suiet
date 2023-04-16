@@ -2,14 +2,14 @@ import {
   AccountApi,
   AuthApi,
   getStorage,
-  NetworkApi,
   IStorage,
+  NetworkApi,
   TransactionApi,
   WalletApi,
 } from '@suiet/core';
 import { fromEventPattern } from 'rxjs';
 import { CallFuncOption, resData } from '../shared';
-import { processPortMessage } from './utils/transmission';
+import { normalizeMessageToParams } from './utils/transmission';
 import { log, logError } from './utils/log';
 import { has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
@@ -43,17 +43,23 @@ export class BackgroundApiProxy {
   private dapp: DappBgApi;
 
   constructor() {
-    this.initServices();
+    this.registerServices();
   }
 
+  /**
+   * listen to messages from a chrome port,
+   * proxy the function call to the actual method
+   * @param port
+   */
   public listen(port: chrome.runtime.Port) {
-    log('set up listener for port', port);
+    log('set up listener for port: ', port.name);
     this.ports.push(port);
     const subscription = this.setUpFuncCallProxy(port);
+
     port.onDisconnect.addListener(() => {
-      log('unsubscribe port', port.name);
       subscription.unsubscribe();
       const index = this.ports.findIndex((p) => p === port);
+      log(`unsubscribe port ${port.name} and index: ${index}`);
       this.ports.splice(index, 1);
     });
   }
@@ -61,34 +67,32 @@ export class BackgroundApiProxy {
   private context(): BackgroundApiContext {
     return {
       storage: this.storage,
-      broadcast: (msg: any) => {
-        console.log('broadcast', this.ports, msg);
-        if (!msg) return;
-        this.ports.forEach((port) => {
-          port.postMessage(msg);
-        });
-      },
+      broadcast: this.broadcast,
     };
   }
 
-  private initServices() {
+  /**
+   * register services for clients to call
+   * @private
+   */
+  private registerServices() {
     this.serviceProxyCache = {};
-    const storage = this.getStorage();
-    this.storage = storage;
+    this.storage = this.getStorage();
+
     this.wallet = this.registerProxyService<WalletApi>(
-      new WalletApi(storage),
+      new WalletApi(this.storage),
       'wallet'
     );
     this.account = this.registerProxyService<AccountApi>(
-      new AccountApi(storage),
+      new AccountApi(this.storage),
       'account'
     );
     this.auth = this.registerProxyService<AuthApi>(
-      new AuthApi(storage),
+      new AuthApi(this.storage),
       'auth'
     );
     this.txn = this.registerProxyService<TransactionApi>(
-      new TransactionApi(storage),
+      new TransactionApi(this.storage),
       'txn'
     );
     this.network = this.registerProxyService<NetworkApi>(
@@ -108,19 +112,19 @@ export class BackgroundApiProxy {
     this.root = this.registerProxyService<RootApi>(
       ((ctx: any) => ({
         clearToken: async () => {
-          const meta = await storage.loadMeta();
+          const meta = await this.storage.loadMeta();
           if (!meta) return;
 
           try {
-            await storage.clearMeta();
+            await this.storage.clearMeta();
           } catch (e) {
             console.error(e);
             throw new Error('Clear meta failed');
           }
         },
         resetAppData: async () => {
-          await storage.reset();
-          ctx.initServices();
+          await this.storage.reset();
+          ctx.registerServices();
         },
       }))(this),
       'root'
@@ -128,17 +132,19 @@ export class BackgroundApiProxy {
     log('initServices finished', this.serviceProxyCache);
   }
 
+  /**
+   * set up a server-like listener to handle the function call via the port
+   * @param port
+   * @private
+   */
   private setUpFuncCallProxy(port: chrome.runtime.Port) {
     // create msg source from chrome port to be subscribed
     const portObservable = fromEventPattern(
       (h) => port.onMessage.addListener(h),
       (h) => port.onMessage.removeListener(h),
-      (msg) => {
-        return processPortMessage(msg);
-      }
+      (msg) => normalizeMessageToParams(msg)
     );
 
-    // set up server-like listening model
     return portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
       const { id, service, func, payload, options } = callFuncData;
@@ -155,17 +161,19 @@ export class BackgroundApiProxy {
         error = this.detectError(e); // generate error response
         log(`respond(${reqMeta}) failed`, error);
 
+        // ignore logs like authentication
         if (
           e instanceof NoAuthError ||
           (e as BizError)?.code === ErrorCode.NO_AUTH // compatible with core's error
         ) {
-          // ignore this log
+          // ignore logs
         } else {
           logError(e);
         }
       }
 
       try {
+        // send response to the client via port
         port.postMessage(resData(id, error, data));
       } catch (e) {
         log(`postMessage(${reqMeta}) failed`, { e, data });
@@ -207,12 +215,17 @@ export class BackgroundApiProxy {
     };
   }
 
-  // register methods of all the services into the cache
-  // setup service object proxy to check the method if existed
+  /**
+   * register methods of all the services into the cache
+   * setup service object proxy to check the method if existed
+   * @param service
+   * @param svcName
+   * @private
+   */
   private registerProxyService<T = any>(service: Object, svcName: string) {
+    // readonly service proxy
     const serviceProxy = new Proxy(service, {
       get: (target, prop) => {
-        if (typeof prop !== 'string') return (target as any)[prop];
         return (target as any)[prop];
       },
     });
@@ -239,6 +252,9 @@ export class BackgroundApiProxy {
       );
     }
     const params = payload;
+
+    // inject token to params
+
     if (options && options?.withAuth === true) {
       try {
         // inject token to payload
@@ -256,11 +272,28 @@ export class BackgroundApiProxy {
     return await (service[funcName](params) as Promise<T>);
   }
 
+  /**
+   * get storage instance based on the runtime platform
+   * @private
+   */
   private getStorage() {
     const storage = getStorage();
     if (!storage) {
       throw new Error('Platform not supported');
     }
     return storage;
+  }
+
+  /**
+   * broadcast msg to all ports
+   * @param msg
+   * @private
+   */
+  private broadcast(msg: any): void {
+    console.log('broadcast', this.ports, msg);
+    if (!msg) return;
+    this.ports.forEach((port) => {
+      port.postMessage(msg);
+    });
   }
 }
