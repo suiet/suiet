@@ -3,15 +3,10 @@ import {
   PortMessageNotObjectError,
 } from '../errors';
 import { CallFuncData, CallFuncOption } from '../../shared';
+import { has } from 'lodash-es';
 
-export function processPortMessage(input: unknown): CallFuncData {
+export function normalizeMessageToParams(input: unknown): CallFuncData {
   if (input === null || typeof input !== 'object') {
-    throw new PortMessageNotObjectError();
-  }
-  let inputParams;
-  try {
-    inputParams = input;
-  } catch {
     throw new PortMessageNotObjectError();
   }
 
@@ -24,9 +19,14 @@ export function processPortMessage(input: unknown): CallFuncData {
       throw new InvalidPortMessageDataError(
         'funcName should follow the naming, eg. serviceA.funcB'
       );
-    if (!Object.prototype.hasOwnProperty.call(result, 'payload'))
+    if (!has(result, 'payload'))
       throw new InvalidPortMessageDataError('payload is required');
   }
+
+  /**
+   * normalize the input data to CallFuncData
+   * @param params
+   */
   function transformToCallFuncData(params: {
     id: string;
     funcName: string;
@@ -34,7 +34,7 @@ export function processPortMessage(input: unknown): CallFuncData {
     options?: CallFuncOption;
   }) {
     let [service, func] = params.funcName.split('.');
-    // if funcName be like just `func`, means called root func
+    // if funcName be like just `func`, meaning to call a func of root service
     if (!func) {
       func = service;
       service = 'root';
@@ -48,6 +48,6 @@ export function processPortMessage(input: unknown): CallFuncData {
     };
   }
 
-  checkStructure(inputParams);
-  return transformToCallFuncData(inputParams as any);
+  checkStructure(input);
+  return transformToCallFuncData(input as any);
 }

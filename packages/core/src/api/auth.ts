@@ -459,6 +459,9 @@ async function maybeFixDataConsistency(storage: IStorage, token: string) {
   }
 }
 
+/**
+ * Session memory storage for sensitive data
+ */
 class Session {
   private token: string | undefined;
 

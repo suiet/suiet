@@ -1,4 +1,9 @@
-import { processPortMessage } from '../utils/transmission';
+import { normalizeMessageToParams } from '../utils/transmission';
+
+jest.mock('lodash-es', () => ({
+  has: (obj: Object, val: string) =>
+    Object.prototype.hasOwnProperty.call(obj, val),
+}));
 
 describe('Port message process', function () {
   test('parse params', () => {
@@ -12,7 +17,7 @@ describe('Port message process', function () {
         withAuth: true,
       },
     };
-    expect(processPortMessage(input)).toEqual({
+    expect(normalizeMessageToParams(input)).toEqual({
       id: '1',
       service: 'serviceA',
       func: 'funcB',
@@ -26,7 +31,7 @@ describe('Port message process', function () {
   });
   test('process funcName can be just func, which means call the root method', () => {
     expect(
-      processPortMessage({
+      normalizeMessageToParams({
         id: '1',
         funcName: 'funcC',
         payload: null,
@@ -47,22 +52,24 @@ describe('Port message process', function () {
   test('ensure input is a Json string that can be de-serialize to object', () => {
     const expectErrorMsg = 'port message must be an object';
     expect(() =>
-      processPortMessage({
+      normalizeMessageToParams({
         id: '1',
         funcName: 'serviceA.funcB',
         payload: {},
       })
     ).not.toThrow();
-    expect(() => processPortMessage(undefined as any)).toThrow(expectErrorMsg);
-
-    // if input is not de-serializable, throw
-    expect(() => processPortMessage(`{id: '1', funcName: errrrrrorr!`)).toThrow(
+    expect(() => normalizeMessageToParams(undefined as any)).toThrow(
       expectErrorMsg
     );
 
+    // if input is not de-serializable, throw
+    expect(() =>
+      normalizeMessageToParams(`{id: '1', funcName: errrrrrorr!`)
+    ).toThrow(expectErrorMsg);
+
     // if object is not the required structure, throw error
     expect(() =>
-      processPortMessage({
+      normalizeMessageToParams({
         id: undefined,
         funcName: undefined,
       })
