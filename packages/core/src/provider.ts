@@ -17,6 +17,8 @@ import {
   SuiTransactionBlockResponse,
   getTotalGasUsed,
   is,
+  RPCError as SuiRpcError,
+  RPCValidationError as SuiRpcValidationError,
 } from '@mysten/sui.js';
 import { CoinObject, Nft, NftObject } from './object';
 import { Vault } from './vault/Vault';
@@ -300,17 +302,33 @@ export class TxProvider {
       showInput = true,
       showObjectChanges = true,
     } = options ?? {};
-    return await signer.signAndExecuteTransactionBlock({
-      transactionBlock,
-      options: {
-        showEffects,
-        showEvents,
-        showBalanceChanges,
-        showInput,
-        showObjectChanges,
-      },
-      requestType,
-    });
+    try {
+      return await signer.signAndExecuteTransactionBlock({
+        transactionBlock,
+        options: {
+          showEffects,
+          showEvents,
+          showBalanceChanges,
+          showInput,
+          showObjectChanges,
+        },
+        requestType,
+      });
+    } catch (e) {
+      if (e instanceof SuiRpcError) {
+        throw new RpcError((e?.cause as any)?.message ?? e.message, {
+          code: e.code,
+          data: e.data,
+          cause: e.cause,
+        });
+      }
+      if (e instanceof SuiRpcValidationError) {
+        throw new RpcError(e.message, {
+          result: e.result,
+        });
+      }
+      throw e;
+    }
   }
 
   public async signTransactionBlock(
