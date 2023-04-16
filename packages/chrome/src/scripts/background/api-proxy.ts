@@ -161,7 +161,7 @@ export class BackgroundApiProxy {
         ) {
           // ignore this log
         } else {
-          logError(e);
+          logError(error.msg);
         }
       }
 
@@ -185,13 +185,15 @@ export class BackgroundApiProxy {
     if (e instanceof BizError || has(e, 'code')) {
       return {
         code: e.code,
-        msg: e.message,
+        msg: e.toString(),
+        details: e.details,
       };
     }
     if (e?.name === 'RpcError') {
       return {
         code: ErrorCode.RPC_ERROR,
-        msg: e.message,
+        msg: e.toString(),
+        details: e.details,
       };
     }
     // 502 Bad gateway, response is html
