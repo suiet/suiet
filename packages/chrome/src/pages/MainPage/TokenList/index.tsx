@@ -54,15 +54,22 @@ const TokenItem = (props: TokenItemProps) => {
       );
       return accumulator + sum;
     }, 0) ?? 0;
+
+  function handleClick() {
+    // TODO: support other coins for detail page
+    if (props.symbol === 'SUI') {
+      navigate(`/coin/detail/${props.symbol}`);
+    }
+  }
   return (
-    <Link
+    <div
       className={classnames(
         styles['token-item'],
-
         // fixme: should not use symbol to determine coin
-        props.symbol === 'SUI' ? styles['token-item-sui'] : null
+        props.symbol === 'SUI' ? styles['token-item-sui'] : null,
+        { 'cursor-pointer': props.symbol === 'SUI' }
       )}
-      to={'/coin/detail/' + props.symbol}
+      onClick={handleClick}
     >
       <div className="flex w-full flex-row items-center justify-between">
         <div className="flex">
@@ -137,7 +144,7 @@ const TokenItem = (props: TokenItemProps) => {
           </button>
         )} */}
       </div>
-    </Link>
+    </div>
   );
 };
 
