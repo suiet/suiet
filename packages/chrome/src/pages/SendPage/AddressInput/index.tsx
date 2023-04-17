@@ -31,7 +31,7 @@ function AddressInputPage({
   const form = useForm<AddressInputValues>({
     mode: 'onChange',
     defaultValues: {
-      address: state.address,
+      address: state.recipientAddress,
     },
   });
   const { networkId } = useSelector((state: RootState) => state.appContext);
@@ -41,7 +41,7 @@ function AddressInputPage({
   useWatch({ name: 'address', control: form.control });
   const disabled =
     addressState === 'error' ||
-    (state.address === '' && addressState === 'default');
+    (state.recipientAddress === '' && addressState === 'default');
 
   let history = null;
   if (data) {

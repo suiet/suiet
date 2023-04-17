@@ -163,6 +163,8 @@ export class QueryProvider {
           objectId: item.coinObjectId,
           symbol: CoinAPI.getCoinSymbol(item.coinType),
           balance: BigInt(item.balance),
+          lockedUntilEpoch: item.lockedUntilEpoch,
+          previousTransaction: item.previousTransaction,
         });
       });
       hasNextPage = resp.hasNextPage;
@@ -184,12 +186,14 @@ export class QueryProvider {
         coinType,
         cursor: nextCursor,
       });
-      resp.data.forEach((item: any) => {
+      resp.data.forEach((item: CoinStruct) => {
         coins.push({
           type: item.coinType,
           objectId: item.coinObjectId,
           symbol: CoinAPI.getCoinSymbol(item.coinType),
           balance: BigInt(item.balance),
+          lockedUntilEpoch: item.lockedUntilEpoch,
+          previousTransaction: item.previousTransaction,
         });
       });
       hasNextPage = resp.hasNextPage;
@@ -225,6 +229,22 @@ export class QueryProvider {
       function: functionName,
     });
   }
+}
+
+function handleSuiRpcError(e: unknown): never {
+  if (e instanceof SuiRpcError) {
+    throw new RpcError((e?.cause as any)?.message ?? e.message, {
+      code: e.code,
+      data: e.data,
+      cause: e.cause,
+    });
+  }
+  if (e instanceof SuiRpcValidationError) {
+    throw new RpcError(e.message, {
+      result: e.result,
+    });
+  }
+  throw e;
 }
 
 export class TxProvider {
@@ -315,19 +335,7 @@ export class TxProvider {
         requestType,
       });
     } catch (e) {
-      if (e instanceof SuiRpcError) {
-        throw new RpcError((e?.cause as any)?.message ?? e.message, {
-          code: e.code,
-          data: e.data,
-          cause: e.cause,
-        });
-      }
-      if (e instanceof SuiRpcValidationError) {
-        throw new RpcError(e.message, {
-          result: e.result,
-        });
-      }
-      throw e;
+      handleSuiRpcError(e);
     }
   }
 
@@ -443,13 +451,7 @@ export class TxProvider {
         transactionBlock: tx,
       });
     } catch (e: any) {
-      if (e?.cause) {
-        throw new RpcError(e.cause, e);
-      }
-      if (e?.code) {
-        throw new RpcError(e.code, e);
-      }
-      throw e;
+      handleSuiRpcError(e);
     }
     if (res?.effects?.status?.status === 'failure') {
       const { status } = res.effects;
