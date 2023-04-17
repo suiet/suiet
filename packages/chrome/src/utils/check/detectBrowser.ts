@@ -1,14 +1,10 @@
-import { detect, BrowserInfo } from 'detect-browser';
-
-export function isNonEmptyArray(value: any): boolean {
-  return Array.isArray(value) && value.length > 0;
-}
+import { BrowserInfo, detect } from 'detect-browser';
 
 export type BrowserDetector = BrowserInfo & {
   isWindows: () => boolean;
   isLinux: () => boolean;
 };
-export function detectBrowser(): BrowserDetector {
+export default function detectBrowser(): BrowserDetector {
   const info = detect() as BrowserInfo;
   console.log('window info', info);
   return {

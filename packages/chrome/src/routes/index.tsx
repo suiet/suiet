@@ -91,7 +91,7 @@ const routesConfig: RouteObject[] = [
         ],
       },
       {
-        path: 'coin/detail/:symbol',
+        path: 'coin/detail/:coinType',
         element: withSus(<CoinDetailPage />),
       },
       {

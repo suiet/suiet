@@ -25,7 +25,7 @@
     "typescript": "^4.8.2"
   },
   "scripts": {
-    "start": "run-s dev:chrome",
+    "start": "npm run dev:chrome",
     "build": "run-s build:chrome",
     "dev:chrome": "npm run dev -w @suiet/chrome-ext",
     "build:chrome": "npm run build -w @suiet/chrome-ext",

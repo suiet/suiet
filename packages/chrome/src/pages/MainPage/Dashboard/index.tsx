@@ -6,7 +6,6 @@ import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
 import Address from '../../../components/Address';
-import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
 import { formatSUI } from '@suiet/core';
 import message from '../../../components/message';
@@ -14,6 +13,7 @@ import { useState } from 'react';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
+import useSuiBalance from '../../../hooks/coin/useSuiBalance';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -64,11 +64,7 @@ export type DashboardProps = {
 };
 
 function MainPage({ address, networkId }: DashboardProps) {
-  const { balance, loading: balanceLoading } = useCoinBalance(
-    CoinSymbol.SUI,
-    address ?? '',
-    networkId
-  );
+  const { data: suiBalance, loading: balanceLoading } = useSuiBalance(address);
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
@@ -83,7 +79,7 @@ function MainPage({ address, networkId }: DashboardProps) {
         {balanceLoading ? (
           <Skeleton width={'140px'} height={'36px'} />
         ) : (
-          formatSUI(balance)
+          formatSUI(suiBalance.balance)
         )}
         <span className={styles['balance-unit']}>SUI</span>
       </div>
