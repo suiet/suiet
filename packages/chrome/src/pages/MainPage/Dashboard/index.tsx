@@ -9,7 +9,7 @@ import Address from '../../../components/Address';
 import Skeleton from 'react-loading-skeleton';
 import { formatSUI } from '@suiet/core';
 import message from '../../../components/message';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
@@ -64,7 +64,11 @@ export type DashboardProps = {
 };
 
 function MainPage({ address, networkId }: DashboardProps) {
-  const { data: suiBalance, loading: balanceLoading } = useSuiBalance(address);
+  const {
+    data: suiBalance,
+    loading: isBalanceLoading,
+    error: balanceError,
+  } = useSuiBalance(address);
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
@@ -72,11 +76,16 @@ function MainPage({ address, networkId }: DashboardProps) {
   const faucetApi =
     featureFlags?.faucet_api ?? `https://faucet.${networkId}.sui.io/gas`;
 
+  useEffect(() => {
+    if (!balanceError) return;
+    message.error('Fetch balance failed: ' + balanceError.message);
+  }, [balanceError]);
+
   return (
     <div className={styles['main-content']}>
       <Banner />
       <div className={styles['balance']}>
-        {balanceLoading ? (
+        {isBalanceLoading || balanceError ? (
           <Skeleton width={'140px'} height={'36px'} />
         ) : (
           formatSUI(suiBalance.balance)
