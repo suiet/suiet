@@ -150,7 +150,11 @@ const TokenItem = (props: TokenItemProps) => {
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(appContext.accountId);
-  const { data: coins } = useCoins(address);
+  const {
+    data: coins,
+    loading: isLoading,
+    error: coinsError,
+  } = useCoins(address);
   const coinsWithSuiOnTop = useMemo(() => {
     if (!isNonEmptyArray(coins)) return [DEFAULT_SUI_COIN];
 
@@ -164,6 +168,7 @@ const TokenList = (props: TokenListProps) => {
     return result;
   }, [coins]);
 
+  if (isLoading || coinsError) return null;
   return (
     <div className={classnames(props.className)} style={props.style}>
       {coinsWithSuiOnTop.map((coin) => {
