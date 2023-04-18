@@ -6,6 +6,7 @@ import {
   JsonRpcProvider,
   fromSerializedSignature,
   messageWithIntent,
+  fromB64,
 } from '@mysten/sui.js';
 import { TxProvider } from '../src/provider';
 import { blake2b } from '@noble/hashes/blake2b';
@@ -32,8 +33,9 @@ describe('signMessage', () => {
     const signature = fromSerializedSignature(signedMsg.signature);
     const message = messageWithIntent(
       IntentScope.PersonalMessage,
-      new TextEncoder().encode('hello world')
+      fromB64(signedMsg.messageBytes)
     );
+
     expect(
       tweetnacl.sign.detached.verify(
         blake2b(message, { dkLen: 32 }),
