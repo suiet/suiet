@@ -157,6 +157,7 @@ export class DappBgApi {
     const connectionContext = await this._prepareConnectionContext(
       payload.context
     );
+    const network = await this._getNetwork(connectionContext.networkId);
     const signReq = await this.signManager.createSignRequest(
       {
         data: payload.params.message,
@@ -204,12 +205,15 @@ export class DappBgApi {
       throw new UserRejectionError();
     }
 
-    const token = this.authApi.getToken();
-    const result = await this.txApi.signMessage({
-      token,
-      message: arrayToUint8array(payload.params.message),
+    const txContext = {
+      token: this.authApi.getToken(),
+      network,
       walletId: connectionContext.target.walletId,
       accountId: connectionContext.target.accountId,
+    };
+    const result = await this.txApi.signMessage({
+      context: txContext,
+      message: arrayToUint8array(payload.params.message),
     });
     return result;
   }

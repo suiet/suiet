@@ -37,7 +37,7 @@ export class Provider {
     versionCacheTimoutInSeconds: number
   ) {
     this.query = new QueryProvider(queryEndpoint, versionCacheTimoutInSeconds);
-    this.tx = new TxProvider(txEndpoint, versionCacheTimoutInSeconds);
+    this.tx = TxProvider.create(txEndpoint, versionCacheTimoutInSeconds);
   }
 
   async transferCoin(
@@ -268,8 +268,12 @@ function handleSuiRpcError(e: unknown): never {
 export class TxProvider {
   provider: JsonRpcProvider;
 
-  constructor(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
-    this.provider = new JsonRpcProvider(
+  constructor(provider: JsonRpcProvider) {
+    this.provider = provider;
+  }
+
+  static create(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
+    const provider = new JsonRpcProvider(
       new Connection({ fullnode: txEndpoint }),
       {
         skipDataValidation: true,
@@ -281,6 +285,7 @@ export class TxProvider {
         websocketClient: {} as any,
       }
     );
+    return new TxProvider(provider);
   }
 
   async transferObject(
@@ -394,6 +399,12 @@ export class TxProvider {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
     return await signer.signTransactionBlock({ transactionBlock: tx });
+  }
+
+  public async signMessage(message: Uint8Array, vault: Vault) {
+    const keypair = createKeypair(vault);
+    const signer = new RawSigner(keypair, this.provider);
+    return await signer.signMessage({ message });
   }
 
   // public async stakeCoin(
