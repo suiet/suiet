@@ -58,32 +58,4 @@ export class Vault {
     const pubKey = this.hdKey.getPublicHexString();
     return pubKey;
   }
-
-  public async signTransaction(unsigned: UnsignedTx): Promise<SignedTx> {
-    const signature = await this.hdKey.sign(Buffer.from(unsigned.data));
-    const pubKey = await this.hdKey.getPublicKey();
-    return {
-      data: unsigned.data,
-      signature,
-      pubKey,
-    };
-  }
-
-  public async signMessage(
-    message: Uint8Array
-  ): Promise<{ signature: Buffer; pubKey: Buffer }> {
-    function Uint8ArrayToBuffer(bytes: Uint8Array) {
-      const buffer = Buffer.alloc(bytes.byteLength);
-      for (let i = 0; i < buffer.length; ++i) {
-        buffer[i] = bytes[i];
-      }
-      return buffer;
-    }
-    const signature = await this.hdKey.sign(Uint8ArrayToBuffer(message));
-    const pubKey = await this.hdKey.getPublicKey();
-    return {
-      signature,
-      pubKey,
-    };
-  }
 }

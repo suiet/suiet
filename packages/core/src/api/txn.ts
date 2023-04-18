@@ -15,9 +15,11 @@ import {
   toB64,
   SUI_SYSTEM_STATE_OBJECT_ID,
   DryRunTransactionBlockResponse,
+  RawSigner,
 } from '@mysten/sui.js';
 import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
+import { createKeypair } from '../utils/vault';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -97,11 +99,9 @@ export type GetNormalizedMoveFunctionParams = {
   functionName: string;
 };
 
-export type SignMessageParams = {
-  walletId: string;
-  accountId: string;
+export type SignMessageParams<E = TxEssentials> = {
+  context: E;
   message: Uint8Array;
-  token: string;
 };
 
 export interface TxEssentials {
@@ -123,7 +123,8 @@ export type SendTxParams<T> = {
   context: TxEssentials;
 };
 
-export type StakeCoinParams = {
+export type StakeCoinParams<E = TxEssentials> = {
+  context: E;
   walletId: string;
   accountId: string;
   token: string;
@@ -361,15 +362,9 @@ export class TransactionApi implements ITransactionApi {
     }));
   }
 
-  // TODO: check signMessage with intent signMessage mechanism
   async signMessage(params: SignMessageParams) {
-    const { walletId, accountId, message, token } = params;
-    const vault = await this.prepareVault(walletId, accountId, token);
-    const signedMsg = await vault.signMessage(message);
-    return {
-      signature: toB64(signedMsg.signature),
-      messageBytes: toB64(message),
-    };
+    const { provider, vault } = await this.prepareTxEssentials(params.context);
+    return await provider.signMessage(params.message, vault);
   }
 
   async signAndExecuteTransactionBlock(
@@ -427,7 +422,7 @@ export class TransactionApi implements ITransactionApi {
 
   private async prepareTxEssentials(context: TxEssentials) {
     await validateToken(this.storage, context.token);
-    const provider = new TxProvider(
+    const provider = TxProvider.create(
       context.network.queryRpcUrl,
       context.network.versionCacheTimoutInSeconds
     );
