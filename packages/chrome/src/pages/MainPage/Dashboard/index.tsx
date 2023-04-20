@@ -100,8 +100,7 @@ function MainPage({ address, networkId }: DashboardProps) {
             target={'_blank'}
             rel={'noreferrer'}
             href={
-              `https://api.suiet.app/api/${networkId}/service/buy-crypto/` +
-              address
+              `https://api.suiet.app/${networkId}/service/buy-crypto/` + address
             }
           >
             Buy
