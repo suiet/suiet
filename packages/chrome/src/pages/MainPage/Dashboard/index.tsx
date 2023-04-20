@@ -94,83 +94,94 @@ function MainPage({ address, networkId }: DashboardProps) {
       </div>
       <Address value={address} className={styles['address']} />
       <div className={styles['operations']}>
-        <div
-          className={classnames(styles['operations-item'], styles['airdrop'], {
-            [styles['operations-item-loading']]: airdropLoading,
-          })}
-          onClick={() => {
-            const d = new Date();
-            if (!airdropLoading) {
-              if (d.getTime() - airdropTime <= 5000) {
-                message.error('Please wait 5 seconds');
-              } else {
-                const options = {
-                  method: 'POST',
-                  headers: {
-                    'content-type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    FixedAmountRequest: {
-                      recipient: address,
+        {featureFlags?.enable_buy_crypto && (
+          <a
+            className={classnames(styles['operations-item'])}
+            target={'_blank'}
+            rel={'noreferrer'}
+            href={
+              `https://api.suiet.app/api/${networkId}/service/buy-crypto/` +
+              address
+            }
+          >
+            Buy
+          </a>
+        )}
+        {networkId !== 'mainnet' && (
+          <div
+            className={classnames(
+              styles['operations-item'],
+              styles['airdrop'],
+              {
+                [styles['operations-item-loading']]: airdropLoading,
+              }
+            )}
+            onClick={() => {
+              const d = new Date();
+              if (!airdropLoading) {
+                if (d.getTime() - airdropTime <= 5000) {
+                  message.error('Please wait 5 seconds');
+                } else {
+                  const options = {
+                    method: 'POST',
+                    headers: {
+                      'content-type': 'application/json',
                     },
-                  }),
-                };
-                setAirdropLoading(true);
-                fetch(faucetApi, options)
-                  .then(async (response) => {
-                    if (response.ok) {
-                      message.success('Faucet succeeded');
-                      return await response.json();
-                    } else {
-                      const text = await response.text();
-                      try {
-                        const json = JSON.parse(text);
-                        message.error(json.error);
-                      } catch (e) {
-                        if (text.includes('rate limited')) {
-                          message.error(
-                            'You have been rate limited, please try again 6 hours later'
-                          );
-                        } else {
-                          message.error(
-                            'Sui network is not available, please try again in a few hours'
-                          );
+                    body: JSON.stringify({
+                      FixedAmountRequest: {
+                        recipient: address,
+                      },
+                    }),
+                  };
+                  setAirdropLoading(true);
+                  fetch(faucetApi, options)
+                    .then(async (response) => {
+                      if (response.ok) {
+                        message.success('Faucet succeeded');
+                        return await response.json();
+                      } else {
+                        const text = await response.text();
+                        try {
+                          const json = JSON.parse(text);
+                          message.error(json.error);
+                        } catch (e) {
+                          if (text.includes('rate limited')) {
+                            message.error(
+                              'You have been rate limited, please try again 6 hours later'
+                            );
+                          } else {
+                            message.error(
+                              'Sui network is not available, please try again in a few hours'
+                            );
+                          }
                         }
                       }
-                    }
-                  })
-                  // .then((response) => {
-                  //   console.log('response:', response);
-                  //   if (response) {
-                  //     message.error(response.error);
-                  //   } else {
-                  //     message.success('Airdrop succeeded');
-                  //   }
-                  // })
-                  .catch((err) => {
-                    console.log('error:', err);
-                    message.error(err.message);
-                  })
-                  .finally(() => {
-                    // TODO: global refetch for coin
-                    // setTimeout(() => {
-                    //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
-                    // }, 1000);
-                    setAirdropTime(d.getTime());
-                    setAirdropLoading(false);
-                  });
+                    })
+                    .catch((err) => {
+                      console.log('error:', err);
+                      message.error(err.message);
+                    })
+                    .finally(() => {
+                      // TODO: global refetch for coin
+                      // setTimeout(() => {
+                      //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
+                      // }, 1000);
+                      setAirdropTime(d.getTime());
+                      setAirdropLoading(false);
+                    });
+                }
               }
-            }
-          }}
-        >
-          {airdropLoading ? (
-            <div>
-              <LoadingSpokes width={'12px'} height={'12px'} />
-            </div>
-          ) : (
-            'Faucet'
-          )}
-        </div>
+            }}
+          >
+            {airdropLoading ? (
+              <div>
+                <LoadingSpokes width={'12px'} height={'12px'} />
+              </div>
+            ) : (
+              'Faucet'
+            )}
+          </div>
+        )}
         <ReceiveButton address={address} />
         <Link to={'/send'}>
           <div
