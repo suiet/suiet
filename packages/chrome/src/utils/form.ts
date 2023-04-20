@@ -1,6 +1,9 @@
 import { FormState } from 'react-hook-form';
 import { InputState } from '../components/Input';
 import { RegisterOptions } from 'react-hook-form/dist/types/validator';
+import { zxcvbn, zxcvbnOptions } from '@zxcvbn-ts/core';
+import zxcvbnCommonPackage from '@zxcvbn-ts/language-common';
+import zxcvbnEnPackage from '@zxcvbn-ts/language-en';
 
 export function getPasswordValidation(
   params: {
@@ -10,7 +13,25 @@ export function getPasswordValidation(
   return {
     required: 'Password should not be empty',
     validate: (val: string) => {
-      if (val.length < 6) return 'Password should be longer than 6';
+      const options = {
+        translations: zxcvbnEnPackage.translations,
+        graphs: zxcvbnCommonPackage.adjacencyGraphs,
+        dictionary: {
+          ...zxcvbnCommonPackage.dictionary,
+          ...zxcvbnEnPackage.dictionary,
+        },
+      };
+      zxcvbnOptions.setOptions(options);
+
+      const strethDetectResult = zxcvbn(val);
+      if (strethDetectResult.score < 3) {
+        return strethDetectResult.feedback.warning.length > 0
+          ? strethDetectResult.feedback.warning
+          : 'password is too weak';
+      }
+      console.log(strethDetectResult);
+
+      if (val.length < 8) return 'Password should be longer than 8';
       if (params?.previousPassword && val !== params.previousPassword) {
         return 'passwords are not the same, please retry';
       }
@@ -23,7 +44,7 @@ export function getConfirmPasswordValidation() {
   return {
     required: 'Password should not be empty',
     validate: (val: string) => {
-      return val.length < 6 ? 'Password should be longer than 6' : true;
+      return val.length < 8 ? 'Password should be longer than 8' : true;
     },
   };
 }
