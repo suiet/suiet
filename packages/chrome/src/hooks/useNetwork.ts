@@ -47,6 +47,7 @@ export function useNetwork(networkId: string) {
         currentNetworkConfig.version_cache_timout_in_seconds,
       stakeGasBudget: currentNetworkConfig.stake_gas_budget,
       enableStaking: currentNetworkConfig.enable_staking,
+      enableBuyCrypto: currentNetworkConfig.enable_buy_crypto,
       enableMintExampleNFT: currentNetworkConfig.enable_mint_example_nft,
       moveCallGasBudget: currentNetworkConfig.move_call_gas_budget,
       payCoinGasBudget: currentNetworkConfig.pay_coin_gas_budget,

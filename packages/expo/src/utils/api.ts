@@ -8,6 +8,7 @@ export interface FeatureFlagNetwork {
   // transfer_object_gas_budget: number;
   move_call_gas_budget: number;
   enable_staking: boolean;
+  enable_buy_crypto: boolean;
   enable_mint_example_nft: boolean;
   version_cache_timout_in_seconds: number;
   pay_coin_gas_budget: number;
