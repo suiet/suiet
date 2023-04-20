@@ -29,7 +29,6 @@ export function getPasswordValidation(
           ? strethDetectResult.feedback.warning
           : 'password is too weak';
       }
-      console.log(strethDetectResult);
 
       if (val.length < 8) return 'Password should be longer than 8';
       if (params?.previousPassword && val !== params.previousPassword) {
