@@ -588,6 +588,7 @@ export class DappBgApi {
         currentNetworkConfig.version_cache_timout_in_seconds,
       stakeGasBudget: currentNetworkConfig.stake_gas_budget,
       enableStaking: currentNetworkConfig.enable_staking,
+      enableBuyCrypto: currentNetworkConfig.enable_buy_crypto,
       enableMintExampleNFT: currentNetworkConfig.enable_mint_example_nft,
     };
     return overrideData;
