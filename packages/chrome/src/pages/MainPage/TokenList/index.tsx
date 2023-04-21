@@ -19,7 +19,9 @@ import { GET_DELEGATED_STAKES } from '../../../utils/graphql/query';
 import useCoins from '../../../hooks/coin/useCoins';
 import { SUI_TYPE_ARG } from '@mysten/sui.js';
 import { DEFAULT_SUI_COIN } from '../../../constants/coin';
-
+import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
+import { ReactComponent as UnverifiedIcon } from '../../../assets/icons/unverified.svg';
+import Tooltip from '../../../components/Tooltip';
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
@@ -27,10 +29,11 @@ type TokenItemProps = Extendable & {
   symbol: string;
   balance: string;
   decimals: number;
+  isVerified: boolean;
 };
 
 const TokenItem = (props: TokenItemProps) => {
-  const { balance = '0', decimals = 0 } = props;
+  const { balance = '0', decimals = 0, isVerified = false } = props;
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
@@ -80,14 +83,28 @@ const TokenItem = (props: TokenItemProps) => {
             className={isSUI ? '' : styles['icon-wrap-default']}
           />
           <div className={'flex flex-col ml-[32px]'}>
-            <Typo.Normal
-              className={classnames(
-                styles['token-name'],
-                isSUI ? styles['token-name-sui'] : null
+            <div className="flex items-center gap-1">
+              <Tooltip message={props.type}>
+                <Typo.Normal
+                  className={classnames(
+                    styles['token-name'],
+                    isSUI ? styles['token-name-sui'] : null
+                  )}
+                >
+                  {props.symbol}
+                </Typo.Normal>
+              </Tooltip>
+              {isVerified ? (
+                <Tooltip message={'Verified'}>
+                  <VerifiedIcon width={14} height={14} />
+                </Tooltip>
+              ) : (
+                <Tooltip message={'Unverified token, please be cautious'}>
+                  <UnverifiedIcon width={14} height={14} />
+                </Tooltip>
               )}
-            >
-              {props.symbol}
-            </Typo.Normal>
+            </div>
+
             <div className="flex gap-1">
               <Typo.Small
                 className={classnames(
@@ -96,7 +113,7 @@ const TokenItem = (props: TokenItemProps) => {
                 )}
               >
                 {formatCurrency(balance, {
-                  decimals: decimals,
+                  decimals,
                   withAbbr: false,
                 })}
               </Typo.Small>
@@ -179,6 +196,7 @@ const TokenList = (props: TokenListProps) => {
             symbol={coin.symbol}
             balance={coin.balance}
             decimals={coin.decimals}
+            isVerified={coin.isVerified}
           />
         );
       })}

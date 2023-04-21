@@ -160,6 +160,7 @@ const SendPage = () => {
                     decimals={coin.decimals}
                     verified={coin.isVerified}
                     selected={sendData.coinType === coin.type}
+                    isVerified={coin.isVerified}
                     onClick={(coinType) => {
                       setSelectedCoin(coin);
                       setSendData((prev) => ({
