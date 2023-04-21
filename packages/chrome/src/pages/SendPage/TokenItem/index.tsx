@@ -13,6 +13,7 @@ type TokenItemProps = Extendable & {
   symbol: string;
   type: string;
   balance: string;
+  isVerified: boolean;
   decimals: number;
   iconUrl?: string;
   onClick?: (coinType: string) => void;
@@ -34,7 +35,7 @@ const TokenItem = (props: TokenItemProps) => {
     decimals,
     onClick,
     selected,
-    verified,
+    isVerified,
   } = props;
 
   let tokenIcon = TokenIconUrl[symbol] || TokenIconUrl.DEFAULT;
@@ -52,7 +53,7 @@ const TokenItem = (props: TokenItemProps) => {
         onClick && styles['clickable']
       )}
       onClick={() => {
-        onClick && onClick(coinType);
+        onClick?.(coinType);
       }}
     >
       <div className="flex items-center">
@@ -71,7 +72,7 @@ const TokenItem = (props: TokenItemProps) => {
             >
               {symbol}
             </Typo.Normal>
-            {verified && <VerifiedIcon className="ml-[4px]" />}
+            {isVerified && <VerifiedIcon className="ml-[4px]" />}
           </div>
 
           <Typo.Small
