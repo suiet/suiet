@@ -26,6 +26,7 @@ import { createKeypair } from './utils/vault';
 import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
+import { createTransferCoinTxb } from './utils/txb-factory';
 
 export class Provider {
   query: QueryProvider;
@@ -59,7 +60,7 @@ export class Provider {
     );
   }
 
-  async buildTransferCoinTx(
+  async getTransferCoinTxb(
     coinType: string,
     amount: bigint,
     recipient: string,
@@ -69,12 +70,7 @@ export class Provider {
     if (coins.length === 0) {
       throw new Error('No coin to transfer');
     }
-    return await this.tx.buildTransferCoinTx(
-      coins,
-      coinType,
-      amount,
-      recipient
-    );
+    return createTransferCoinTxb(coins, coinType, amount, recipient);
   }
 
   async transferObject(
@@ -87,8 +83,6 @@ export class Provider {
       vault.getAddress(),
       objectId
     );
-    console.log('objectId', objectId);
-    console.log('object', object);
     if (!object) {
       throw new Error('No object to transfer');
     }
@@ -119,7 +113,22 @@ export class QueryProvider {
   //   return systemState.activeValidators;
   // }
 
-  public async getOwnedObjects(address: string): Promise<SuiObjectData[]> {
+  public async getOwnedObjects(
+    address: string,
+    options?: {
+      showType?: boolean;
+      showDisplay?: boolean;
+      showContent?: boolean;
+      showOwner?: boolean;
+    }
+  ): Promise<SuiObjectData[]> {
+    const {
+      showType = true,
+      showDisplay = true,
+      showContent = true,
+      showOwner = true,
+    } = options ?? {};
+
     let hasNextPage = true;
     let nextCursor = null;
     const objects: SuiObjectData[] = [];
@@ -128,10 +137,10 @@ export class QueryProvider {
         owner: address,
         cursor: nextCursor,
         options: {
-          showType: true,
-          showDisplay: true,
-          showContent: true,
-          showOwner: true,
+          showType: showType,
+          showDisplay: showDisplay,
+          showContent: showContent,
+          showOwner: showOwner,
         },
       });
       const suiObjectResponses = resp.data as SuiObjectResponse[];
@@ -183,6 +192,7 @@ export class QueryProvider {
           balance: BigInt(item.balance),
           lockedUntilEpoch: item.lockedUntilEpoch,
           previousTransaction: item.previousTransaction,
+          object: item,
         });
       });
       hasNextPage = resp.hasNextPage;
@@ -198,6 +208,9 @@ export class QueryProvider {
     const coins: CoinObject[] = [];
     let hasNextPage = true;
     let nextCursor = null;
+
+    // TODO: potential performance issue if there are too many coins
+    // solution: add an amount parameter to determine how many coin objects should be fetch
     while (hasNextPage) {
       const resp: any = await this.provider.getCoins({
         owner: address,
@@ -212,6 +225,7 @@ export class QueryProvider {
           balance: BigInt(item.balance),
           lockedUntilEpoch: item.lockedUntilEpoch,
           previousTransaction: item.previousTransaction,
+          object: item,
         });
       });
       hasNextPage = resp.hasNextPage;
@@ -306,58 +320,8 @@ export class TxProvider {
     recipient: string,
     vault: Vault
   ) {
-    const tx = new TransactionBlock();
-    const [primaryCoin, ...mergeCoins] = coins.filter(
-      (coin) => coin.type === coinType
-    );
-
-    if (coinType === SUI_TYPE_ARG) {
-      const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
-      tx.transferObjects([coin], tx.pure(recipient));
-    } else {
-      const primaryCoinInput = tx.object(primaryCoin.objectId);
-      if (mergeCoins.length) {
-        // TODO: This could just merge a subset of coins that meet the balance requirements instead of all of them.
-        tx.mergeCoins(
-          primaryCoinInput,
-          mergeCoins.map((coin) => tx.object(coin.objectId))
-        );
-      }
-      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(amount)]);
-      tx.transferObjects([coin], tx.pure(recipient));
-    }
-
-    return await this.signAndExecuteTransactionBlock(tx, vault);
-  }
-
-  public async buildTransferCoinTx(
-    coins: CoinObject[],
-    coinType: string, // such as 0x2::sui::SUI
-    amount: bigint,
-    recipient: string
-  ) {
-    const tx = new TransactionBlock();
-    const [primaryCoin, ...mergeCoins] = coins.filter(
-      (coin) => coin.type === coinType
-    );
-
-    if (coinType === SUI_TYPE_ARG) {
-      const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
-      tx.transferObjects([coin], tx.pure(recipient));
-    } else {
-      const primaryCoinInput = tx.object(primaryCoin.objectId);
-      if (mergeCoins.length) {
-        // TODO: This could just merge a subset of coins that meet the balance requirements instead of all of them.
-        tx.mergeCoins(
-          primaryCoinInput,
-          mergeCoins.map((coin) => tx.object(coin.objectId))
-        );
-      }
-      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(coins)]);
-      tx.transferObjects([coin], tx.pure(recipient));
-    }
-
-    return tx;
+    const txb = createTransferCoinTxb(coins, coinType, amount, recipient);
+    return await this.signAndExecuteTransactionBlock(txb, vault);
   }
 
   public async signAndExecuteTransactionBlock(
