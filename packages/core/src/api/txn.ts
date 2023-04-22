@@ -1,4 +1,3 @@
-import { TxnHistoryEntry } from '../storage/types';
 import { Network } from './network';
 import { Provider, QueryProvider, TxProvider } from '../provider';
 import { validateToken } from '../utils/token';
@@ -6,20 +5,18 @@ import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
+  DryRunTransactionBlockResponse,
   ExecuteTransactionRequestType,
   SignedMessage,
+  SignedTransaction,
+  SUI_SYSTEM_STATE_OBJECT_ID,
   SuiMoveNormalizedFunction,
   SuiTransactionBlockResponse,
   TransactionBlock,
-  SignedTransaction,
-  toB64,
-  SUI_SYSTEM_STATE_OBJECT_ID,
-  DryRunTransactionBlockResponse,
-  RawSigner,
 } from '@mysten/sui.js';
 import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
-import { createKeypair } from '../utils/vault';
+import { getTransactionBlock } from '../utils/txb-factory';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -216,7 +213,6 @@ export class TransactionApi implements ITransactionApi {
       vault
       // params.network.payCoinGasBudget  // NOTE: let sdk auto-compute gas
     );
-    console.log('transferCoin response: ', res);
     if (!res) {
       throw new RpcError('no response');
     }
@@ -230,9 +226,13 @@ export class TransactionApi implements ITransactionApi {
     return res;
   }
 
-  async buildTransferCoinTx(
+  /**
+   * Return a serialized transaction block for transferring coin
+   * @param params
+   */
+  async getSerializedTransferCoinTxb(
     params: TransferCoinParams
-  ): Promise<TransactionBlock> {
+  ): Promise<string> {
     await validateToken(this.storage, params.token);
     const provider = new Provider(
       params.network.queryRpcUrl,
@@ -244,13 +244,14 @@ export class TransactionApi implements ITransactionApi {
       params.accountId,
       params.token
     );
-    const tx = await provider.buildTransferCoinTx(
+    const txb = await provider.getTransferCoinTxb(
       params.coinType,
       BigInt(params.amount),
       params.recipient,
       vault.getAddress()
     );
-    return tx;
+    // for bypassing the chrome messaging
+    return txb.serialize();
   }
 
   async transferObject(params: TransferObjectParams): Promise<void> {
@@ -371,7 +372,7 @@ export class TransactionApi implements ITransactionApi {
     params: SendAndExecuteTxParams<string | TransactionBlock>
   ) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
-    const txb = this.getTransactionBlock(params.transactionBlock);
+    const txb = getTransactionBlock(params.transactionBlock);
     return await provider.signAndExecuteTransactionBlock(
       txb,
       vault,
@@ -383,7 +384,7 @@ export class TransactionApi implements ITransactionApi {
   async signTransactionBlock(params: SendTxParams<string | TransactionBlock>) {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
     return await provider.signTransactionBlock(
-      this.getTransactionBlock(params.transactionBlock),
+      getTransactionBlock(params.transactionBlock),
       vault
     );
   }
@@ -393,7 +394,7 @@ export class TransactionApi implements ITransactionApi {
   ): Promise<DryRunTransactionBlockResponse> {
     const { provider, vault } = await this.prepareTxEssentials(params.context);
     const res = await provider.dryRunTransactionBlock(
-      this.getTransactionBlock(params.transactionBlock),
+      getTransactionBlock(params.transactionBlock),
       vault
     );
     return res;
@@ -487,15 +488,6 @@ export class TransactionApi implements ITransactionApi {
       // params.requestType,
       // params.options
     );
-  }
-
-  private getTransactionBlock(input: string | TransactionBlock) {
-    if (typeof input === 'string') {
-      // deserialize transaction block string
-      return TransactionBlock.from(input);
-    } else {
-      return input;
-    }
   }
 
   // async unStakeCoin(params: UnStakeCoinParams) {
