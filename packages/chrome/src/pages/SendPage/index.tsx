@@ -96,23 +96,27 @@ const SendPage = () => {
       coinAmount = String(BigInt(coinAmountWithDecimals) * BigInt(precision));
     }
 
+    const txEssentials = {
+      network,
+      walletId: walletId,
+      accountId: accountId,
+    };
+
     const serializedTxb = await apiClient.callFunc<
-      OmitToken<TransferCoinParams>,
+      TransferCoinParams<OmitToken<TxEssentials>>,
       string
     >(
       'txn.getSerializedTransferCoinTxb',
       {
-        network,
         coinType: sendData.coinType,
         amount: coinAmount,
         recipient: sendData.recipientAddress,
-        walletId: walletId,
-        accountId: accountId,
+        context: txEssentials,
       },
       { withAuth: true }
     );
-    const txb = getTransactionBlock(serializedTxb);
 
+    const txb = getTransactionBlock(serializedTxb);
     try {
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
@@ -120,12 +124,8 @@ const SendPage = () => {
       >(
         'txn.signAndExecuteTransactionBlock',
         {
-          context: {
-            network,
-            walletId: walletId,
-            accountId: accountId,
-          },
           transactionBlock: txb.serialize(),
+          context: txEssentials,
         },
         {
           withAuth: true,
