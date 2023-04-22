@@ -12,22 +12,21 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddressInputPage from './AddressInput';
 import SendConfirm from './SendConfirm';
 import Skeleton from 'react-loading-skeleton';
-import useCoins, { CoinDto } from '../../hooks/coin/useCoins';
-import {
-  isNonEmptyArray,
-  SendAndExecuteTxParams,
-  TransferCoinParams,
-  TxEssentials,
-} from '@suiet/core';
+import { CoinDto } from '../../hooks/coin/useCoins';
+import { SendAndExecuteTxParams, TxEssentials } from '@suiet/core';
 import { DEFAULT_SUI_COIN } from '../../constants/coin';
 import { SendData } from './types';
-import { compareCoinAmount, isSafeConvertToNumber } from '../../utils/check';
+import { compareCoinAmount } from '../../utils/check';
 import message from '../../components/message';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useApiClient } from '../../hooks/useApiClient';
 import { OmitToken } from '../../types';
 import useSuiBalance from '../../hooks/coin/useSuiBalance';
 import { getTransactionBlock } from '@suiet/core/src/utils/txb-factory';
+import createTransferCoinTxb from './utils/createTransferCoinTxb';
+import useGasBudgetForTransferCoin from './hooks/useGasBudgetForTranferCoin';
+import calculateSendCoinAmount from './utils/calculateSendCoinAmount';
+import useCoinsWithSuiOnTop from './hooks/useCoinsWithSuiOnTop';
 
 enum Mode {
   symbol,
@@ -35,88 +34,54 @@ enum Mode {
   confirm,
 }
 
-function useCoinsWithSuiOnTop(address: string) {
-  const { data: coins, ...rest } = useCoins(address);
-  const coinsWithSuiOnTop = useMemo(() => {
-    if (isNonEmptyArray(coins)) {
-      const suiCoin = coins.find((coin) => coin.symbol === 'SUI');
-      const otherCoins = coins.filter((coin) => coin.symbol !== 'SUI');
-      return [suiCoin, ...otherCoins] as CoinDto[];
-    } else {
-      return [DEFAULT_SUI_COIN];
-    }
-  }, [coins]);
-
-  return { data: coinsWithSuiOnTop, ...rest };
-}
-
 const SendPage = () => {
-  const apiClient = useApiClient();
-  const navigate = useNavigate();
   const { accountId, walletId, networkId } = useSelector(
     (state: RootState) => state.appContext
   );
   const { data: network } = useNetwork(networkId);
+
+  const apiClient = useApiClient();
+  const navigate = useNavigate();
   const { address } = useAccount(accountId);
   const { data: suiBalance } = useSuiBalance(address);
+  const { data: coinsWithSuiOnTop, loading: coinsLoading } =
+    useCoinsWithSuiOnTop(address);
 
-  const [selectedCoin, setSelectedCoin] = useState<CoinDto>(DEFAULT_SUI_COIN);
   const [mode, setMode] = useState(Mode.symbol);
+  const [selectedCoin, setSelectedCoin] = useState<CoinDto>(DEFAULT_SUI_COIN);
   const [sendData, setSendData] = useState<SendData>({
     recipientAddress: '',
     coinType: '',
     coinAmountWithDecimals: '0',
   });
 
-  const { data: coinsWithSuiOnTop, loading: coinsLoading } =
-    useCoinsWithSuiOnTop(address);
-
-  useEffect(() => {
-    if (coinsWithSuiOnTop.length === 0) return;
-    if (selectedCoin === DEFAULT_SUI_COIN) {
-      const firstCoin = coinsWithSuiOnTop[0];
-      setSendData((prev) => ({
-        ...prev,
-        coinType: firstCoin.type,
-      }));
-      setSelectedCoin(firstCoin);
-    }
-  }, [coinsWithSuiOnTop]);
+  const { data: gasBudget } = useGasBudgetForTransferCoin({
+    coinType: sendData.coinType,
+    recipient: sendData.recipientAddress,
+    network,
+    walletId,
+    accountId,
+  });
 
   const submitTransaction = useCallback(async () => {
-    // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
-    if (!network) throw new Error('require network selected');
+    if (!sendData.recipientAddress || !sendData.coinType) return;
+    if (!network) throw new Error('network is undefined');
 
-    const { coinAmountWithDecimals } = sendData;
-    let coinAmount: string;
-    const precision = 10 ** selectedCoin.decimals;
-    if (isSafeConvertToNumber(coinAmountWithDecimals)) {
-      coinAmount = String(+coinAmountWithDecimals * precision);
-    } else {
-      coinAmount = String(BigInt(coinAmountWithDecimals) * BigInt(precision));
-    }
-
-    const txEssentials = {
+    const txEssentials: OmitToken<TxEssentials> = {
       network,
-      walletId: walletId,
-      accountId: accountId,
+      walletId,
+      accountId,
     };
-
-    const serializedTxb = await apiClient.callFunc<
-      TransferCoinParams<OmitToken<TxEssentials>>,
-      string
-    >(
-      'txn.getSerializedTransferCoinTxb',
-      {
-        coinType: sendData.coinType,
-        amount: coinAmount,
-        recipient: sendData.recipientAddress,
-        context: txEssentials,
-      },
-      { withAuth: true }
-    );
-
+    const serializedTxb = await createTransferCoinTxb({
+      apiClient,
+      context: txEssentials,
+      coinType: sendData.coinType,
+      recipient: sendData.recipientAddress,
+      amount: calculateSendCoinAmount(sendData, selectedCoin),
+    });
     const txb = getTransactionBlock(serializedTxb);
+    txb.setGasBudget(gasBudget); // set gas budget which is based on estimated gas fee
+
     try {
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
@@ -131,18 +96,25 @@ const SendPage = () => {
           withAuth: true,
         }
       );
-
       message.success('Send transaction succeeded');
-      // // TODO: refetch
-      // // setTimeout(() => {
-      // //   refetch(swrKeyWithNetwork(swrKeyForUseCoins, network));
-      // // }, 1000);
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);
       message.error(`Send transaction failed: ${e?.message}`);
     }
-  }, [selectedCoin, sendData, network, walletId, accountId]);
+  }, [gasBudget, sendData, selectedCoin]);
+
+  useEffect(() => {
+    if (coinsWithSuiOnTop.length === 0) return;
+    if (selectedCoin === DEFAULT_SUI_COIN) {
+      const firstCoin = coinsWithSuiOnTop[0];
+      setSendData((prev) => ({
+        ...prev,
+        coinType: firstCoin.type,
+      }));
+      setSelectedCoin(firstCoin);
+    }
+  }, [coinsWithSuiOnTop]);
 
   return (
     <>
@@ -241,6 +213,7 @@ const SendPage = () => {
           state={sendData}
           selectedCoin={selectedCoin}
           suiBalance={suiBalance.balance}
+          gasBudget={gasBudget}
           onInputCoinAmountWithDecimals={(amountWithDecimals) => {
             setSendData((prev) => {
               return {
