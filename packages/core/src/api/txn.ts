@@ -33,14 +33,11 @@ export type CoinPackageIdPair = {
   packageId: string;
 };
 
-export type TransferCoinParams = {
+export type TransferCoinParams<E = TxEssentials> = {
+  context: E;
   coinType: string;
   amount: string;
   recipient: string;
-  network: Network;
-  walletId: string;
-  accountId: string;
-  token: string;
 };
 
 export type TransferObjectParams = {
@@ -195,16 +192,17 @@ export class TransactionApi implements ITransactionApi {
   async transferCoin(
     params: TransferCoinParams
   ): Promise<SuiTransactionBlockResponse> {
-    await validateToken(this.storage, params.token);
+    const { context } = params;
+    await validateToken(this.storage, context.token);
     const provider = new Provider(
-      params.network.queryRpcUrl,
-      params.network.txRpcUrl,
-      params.network.versionCacheTimoutInSeconds
+      context.network.queryRpcUrl,
+      context.network.txRpcUrl,
+      context.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
-      params.walletId,
-      params.accountId,
-      params.token
+      context.walletId,
+      context.accountId,
+      context.token
     );
     const res = await provider.transferCoin(
       params.coinType,
@@ -233,16 +231,17 @@ export class TransactionApi implements ITransactionApi {
   async getSerializedTransferCoinTxb(
     params: TransferCoinParams
   ): Promise<string> {
-    await validateToken(this.storage, params.token);
+    const { context } = params;
+    await validateToken(this.storage, context.token);
     const provider = new Provider(
-      params.network.queryRpcUrl,
-      params.network.txRpcUrl,
-      params.network.versionCacheTimoutInSeconds
+      context.network.queryRpcUrl,
+      context.network.txRpcUrl,
+      context.network.versionCacheTimoutInSeconds
     );
     const vault = await this.prepareVault(
-      params.walletId,
-      params.accountId,
-      params.token
+      context.walletId,
+      context.accountId,
+      context.token
     );
     const txb = await provider.getTransferCoinTxb(
       params.coinType,
