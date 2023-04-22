@@ -13,7 +13,12 @@ import AddressInputPage from './AddressInput';
 import SendConfirm from './SendConfirm';
 import Skeleton from 'react-loading-skeleton';
 import useCoins, { CoinDto } from '../../hooks/coin/useCoins';
-import { isNonEmptyArray, TransferCoinParams } from '@suiet/core';
+import {
+  isNonEmptyArray,
+  SendAndExecuteTxParams,
+  TransferCoinParams,
+  TxEssentials,
+} from '@suiet/core';
 import { DEFAULT_SUI_COIN } from '../../constants/coin';
 import { SendData } from './types';
 import { compareCoinAmount, isSafeConvertToNumber } from '../../utils/check';
@@ -22,6 +27,7 @@ import { useNetwork } from '../../hooks/useNetwork';
 import { useApiClient } from '../../hooks/useApiClient';
 import { OmitToken } from '../../types';
 import useSuiBalance from '../../hooks/coin/useSuiBalance';
+import { getTransactionBlock } from '@suiet/core/src/utils/txb-factory';
 
 enum Mode {
   symbol,
@@ -90,24 +96,47 @@ const SendPage = () => {
       coinAmount = String(BigInt(coinAmountWithDecimals) * BigInt(precision));
     }
 
+    const serializedTxb = await apiClient.callFunc<
+      OmitToken<TransferCoinParams>,
+      string
+    >(
+      'txn.getSerializedTransferCoinTxb',
+      {
+        network,
+        coinType: sendData.coinType,
+        amount: coinAmount,
+        recipient: sendData.recipientAddress,
+        walletId: walletId,
+        accountId: accountId,
+      },
+      { withAuth: true }
+    );
+    const txb = getTransactionBlock(serializedTxb);
+
     try {
-      await apiClient.callFunc<OmitToken<TransferCoinParams>, undefined>(
-        'txn.transferCoin',
+      await apiClient.callFunc<
+        SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
+        void
+      >(
+        'txn.signAndExecuteTransactionBlock',
         {
-          network,
-          coinType: sendData.coinType,
-          amount: coinAmount,
-          recipient: sendData.recipientAddress,
-          walletId: walletId,
-          accountId: accountId,
+          context: {
+            network,
+            walletId: walletId,
+            accountId: accountId,
+          },
+          transactionBlock: txb.serialize(),
         },
-        { withAuth: true }
+        {
+          withAuth: true,
+        }
       );
+
       message.success('Send transaction succeeded');
-      // TODO: refetch
-      // setTimeout(() => {
-      //   refetch(swrKeyWithNetwork(swrKeyForUseCoins, network));
-      // }, 1000);
+      // // TODO: refetch
+      // // setTimeout(() => {
+      // //   refetch(swrKeyWithNetwork(swrKeyForUseCoins, network));
+      // // }, 1000);
       navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);
