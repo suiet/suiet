@@ -1,8 +1,8 @@
 import {
   DryRunTransactionBlockResponse,
-  getTotalGasUsed,
   is,
   TransactionBlock,
+  getTotalGasUsedUpperBound,
 } from '@mysten/sui.js';
 import { useFeatureFlagsWithNetwork } from '../useFeatureFlags';
 
@@ -13,9 +13,9 @@ export function getEstimatedGasFeeFromDryRunResult(
   dryRunRes: DryRunTransactionBlockResponse | undefined,
   fallback: bigint = 0n
 ) {
-  if (!dryRunRes) return;
+  if (!dryRunRes) return fallback;
   try {
-    const res = getTotalGasUsed(dryRunRes.effects); // infer est budget from dryRun result
+    const res = getTotalGasUsedUpperBound(dryRunRes.effects); // infer est budget from dryRun result
     // return estimated budget based on the response of dryRun
     return is(res, bigint()) ? res : fallback;
   } catch (e) {
@@ -26,9 +26,15 @@ export function getEstimatedGasFeeFromDryRunResult(
 export default function useEstimatedGasFee(
   transactionBlock: TransactionBlock | undefined
 ) {
-  const { data, ...rest } = useDryRunTransactionBlock(transactionBlock);
   const featureFlags = useFeatureFlagsWithNetwork();
-  const fallbackGasFee = BigInt(featureFlags?.move_call_gas_budget ?? 10000);
+  const fallbackGasFee = BigInt(
+    featureFlags?.move_call_gas_budget ?? 1_000_000_000
+  );
+
+  const txb = new TransactionBlock(transactionBlock);
+  txb.setGasBudget(1_000_000_000);
+
+  const { data, ...rest } = useDryRunTransactionBlock(txb);
   return {
     data: getEstimatedGasFeeFromDryRunResult(data, fallbackGasFee),
     ...rest,

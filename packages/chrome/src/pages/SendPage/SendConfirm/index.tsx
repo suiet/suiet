@@ -28,18 +28,18 @@ function SendConfirm({
   state,
   selectedCoin,
   suiBalance,
+  gasBudget,
   onInputCoinAmountWithDecimals,
   onSubmit,
 }: {
   state: SendData;
   selectedCoin: CoinDto;
   suiBalance: string;
+  gasBudget: number;
   onInputCoinAmountWithDecimals: (coinAmountWithDecimals: string) => void;
   onSubmit: () => Promise<void>;
 }) {
   const [sendLoading, setSendLoading] = useState(false);
-  const featureFlags = useFeatureFlagsWithNetwork();
-  const gasBudget = featureFlags?.pay_coin_gas_budget ?? 2_000_000;
 
   // the max amount of coin that can be sent = the total balance - remaining gas budget
   const maxCoinAmountWithDecimals = useMemo(() => {
