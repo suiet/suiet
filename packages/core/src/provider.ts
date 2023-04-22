@@ -323,7 +323,7 @@ export class TxProvider {
           mergeCoins.map((coin) => tx.object(coin.objectId))
         );
       }
-      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(coins)]);
+      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(amount)]);
       tx.transferObjects([coin], tx.pure(recipient));
     }
 
