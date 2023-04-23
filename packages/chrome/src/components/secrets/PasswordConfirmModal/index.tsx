@@ -2,10 +2,7 @@ import { Extendable } from '../../../types';
 import Modal from '../../Modal';
 import Button from '../../Button';
 import FormControl from '../../form/FormControl';
-import {
-  getInputStateByFormState,
-  getPasswordValidation,
-} from '../../../utils/form';
+import { getInputStateByFormState } from '../../../utils/form';
 import Input from '../../Input';
 import Form from '../../form/Form';
 import { useForm } from 'react-hook-form';
@@ -117,23 +114,6 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
             }
           />
         </div>
-        {/* <Alert type={'warning'} className={'mt-[32px]'}>
-          {props.actionDesc}
-        </Alert> */}
-        {/* <div className={'mt-[16px]'}>
-          <Form form={form} onSubmit={handleSubmit}>
-            <FormControl
-              name={'password'}
-              registerOptions={getPasswordValidation()}
-            >
-              <Input
-                state={getInputStateByFormState(form.formState, 'password')}
-                type={'password'}
-                placeholder={'Please enter password'}
-              />
-            </FormControl>
-          </Form>
-        </div> */}
 
         <div
           className={classnames(
@@ -145,10 +125,7 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
           )}
         >
           <Form form={form} onSubmit={handleSubmit}>
-            <FormControl
-              name={'password'}
-              registerOptions={getPasswordValidation()}
-            >
+            <FormControl name={'password'}>
               <Input
                 state={getInputStateByFormState(form.formState, 'password')}
                 type={'password'}
