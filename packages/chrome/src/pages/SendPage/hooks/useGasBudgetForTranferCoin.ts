@@ -6,11 +6,15 @@ import { dryRunTransactionBlock } from '../../../hooks/transaction/useDryRunTran
 import { getEstimatedGasFeeFromDryRunResult } from '../../../hooks/transaction/useEstimatedGasFee';
 import createTransferCoinTxb from '../utils/createTransferCoinTxb';
 import { useApiClient } from '../../../hooks/useApiClient';
-import { DEFAULT_GAS_BUDGET, MAX_GAS_BUDGET } from '../../../constants';
+import { DEFAULT_GAS_BUDGET } from '../../../constants';
 
-function calculateGasBudget(estimatedGasFee: bigint, defaultGasBudget: number) {
+function calculateGasBudget(
+  estimatedGasFee: bigint,
+  defaultGasBudget: number,
+  gasFeeRatio = 1
+) {
   if (estimatedGasFee > 0n) {
-    return Number(estimatedGasFee);
+    return Math.ceil(Number(estimatedGasFee) * gasFeeRatio);
   }
   return defaultGasBudget;
 }
@@ -21,6 +25,7 @@ export default function useGasBudgetForTransferCoin(params: {
   network: Network | undefined;
   walletId: string;
   accountId: string;
+  gasFeeRatio?: number;
 }) {
   const apiClient = useApiClient();
   const [estimatedGasFee, setEstimatedGasFee] = useState<bigint>(0n);
@@ -28,8 +33,12 @@ export default function useGasBudgetForTransferCoin(params: {
   const defaultGasBudget =
     featureFlags?.pay_coin_gas_budget ?? DEFAULT_GAS_BUDGET;
   const gasBudget = useMemo(() => {
-    return calculateGasBudget(estimatedGasFee, defaultGasBudget);
-  }, [estimatedGasFee]);
+    return calculateGasBudget(
+      estimatedGasFee,
+      defaultGasBudget,
+      params.gasFeeRatio
+    );
+  }, [estimatedGasFee, params.gasFeeRatio]);
 
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +61,7 @@ export default function useGasBudgetForTransferCoin(params: {
       coinType: params.coinType,
       amount: '1', // placeholder for dry run
     });
-    txb.setGasBudget(MAX_GAS_BUDGET);
+    txb.setGasBudget(DEFAULT_GAS_BUDGET);
 
     setLoading(true);
     try {
