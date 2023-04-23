@@ -5,7 +5,6 @@ import Typo from '../../../components/Typo';
 import { useMemo, useState } from 'react';
 import { SendData } from '../types';
 import { addressEllipsis, formatCurrency, formatSUI } from '@suiet/core';
-import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import InputAmount from '../../../components/InputAmount';
 import classNames from 'classnames';
 import { CoinDto } from '../../../hooks/coin/useCoins';
@@ -44,13 +43,11 @@ function SendConfirm({
   // the max amount of coin that can be sent = the total balance - remaining gas budget
   const maxCoinAmountWithDecimals = useMemo(() => {
     const ratio = 10 ** selectedCoin.decimals;
-    const remainingForGasBudget = gasBudget * 2;
-
     if (isSafeConvertToNumber(selectedCoin.balance)) {
       let res = Number(selectedCoin.balance);
 
       if (isSuiToken(selectedCoin.type)) {
-        res -= remainingForGasBudget;
+        res -= gasBudget;
       }
       res = res < 0 ? 0 : res;
       return String(res / ratio);
@@ -58,11 +55,11 @@ function SendConfirm({
       let res = BigInt(selectedCoin.balance);
 
       if (isSuiToken(selectedCoin.type)) {
-        res -= BigInt(remainingForGasBudget);
+        res -= BigInt(gasBudget);
       }
       return String(res / BigInt(ratio));
     }
-  }, [selectedCoin]);
+  }, [selectedCoin, gasBudget]);
   const isCoinAmountValid = useMemo(() => {
     const { coinAmountWithDecimals } = state;
     try {
