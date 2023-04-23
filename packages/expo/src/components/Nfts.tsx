@@ -68,7 +68,7 @@ export const MintNft: React.FC = () => {
     if (!network) {
       return;
     }
-    return new TxProvider(network?.full_node_url, network?.version_cache_timout_in_seconds);
+    return TxProvider.create(network?.full_node_url, network?.version_cache_timout_in_seconds);
   }, []);
 
   const handleMint = async () => {

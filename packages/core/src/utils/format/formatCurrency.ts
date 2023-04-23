@@ -1,3 +1,5 @@
+import isFloat from '@suiet/chrome-ext/src/utils/check/isFloat';
+
 const MILLION = 1000000;
 const BILLION = 1000000000;
 const TRILLION = 1000000000000;
@@ -32,12 +34,13 @@ export function formatCurrency(
 ): string {
   const { decimals = 0, withAbbr = true } = options ?? {};
   // handle bigint that exceeds safe integer range
-  if (typeof amount === 'bigint' && !isSafeToConvertToNumber(amount)) {
+  if (!isSafeConvertToNumber(amount)) {
     return formatCurrencyBigInt(BigInt(amount), {
       decimals,
       withAbbr,
     });
   }
+
   // else, convert to number for formatting logic
   if (Number(amount) === 0) return '0';
   if (Number(amount) < 0) {
@@ -145,9 +148,10 @@ function formatCurrencyBigInt(
   return format(_amount, withAbbr);
 }
 
-function isSafeToConvertToNumber(bigintValue: string | bigint) {
-  const minValue = Number.MIN_SAFE_INTEGER; // -9007199254740991
-  const maxValue = Number.MAX_SAFE_INTEGER; // 9007199254740991
-
-  return bigintValue >= BigInt(minValue) && bigintValue <= BigInt(maxValue);
+function isSafeConvertToNumber(value: string | bigint | number) {
+  let num = Number(value);
+  if (isFloat(num)) {
+    num = Math.ceil(num);
+  }
+  return Number.isSafeInteger(num);
 }

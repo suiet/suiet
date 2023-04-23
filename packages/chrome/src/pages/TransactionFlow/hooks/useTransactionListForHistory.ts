@@ -281,6 +281,7 @@ export function fieldPolicyForTransactions(): {
     TransactionsResult<Omit<TransactionForHistory, 'type'>>
   >;
 } {
+  // TODO: check pagination
   return {
     // transactions: {
     //   keyArgs: ['filter'],

@@ -23,7 +23,7 @@ export class BizError extends Error {
   }
 
   toString() {
-    return `[${this.name}:${this.code}]: ${this.message}`;
+    return `${this.message} | (${this.name}:${this.code})`;
   }
 }
 

@@ -7,13 +7,16 @@ import { Extendable } from '../../../types';
 import TokenIcon from '../../../components/TokenIcon';
 import Typo from '../../../components/Typo';
 import { formatCurrency } from '@suiet/core';
+import { isSuiToken } from '../../../utils/check';
 
 type TokenItemProps = Extendable & {
   symbol: string;
-  amount?: number | string;
+  type: string;
+  balance: string;
+  isVerified: boolean;
+  decimals: number;
   iconUrl?: string;
-  decimals?: number;
-  onClick?: (symbol: string) => void;
+  onClick?: (coinType: string) => void;
   selected?: boolean;
   verified?: boolean;
 };
@@ -25,58 +28,60 @@ const TokenIconUrl: Record<string, string> = {
 
 const TokenItem = (props: TokenItemProps) => {
   const {
-    amount = 0,
+    balance = 0,
+    type: coinType,
     symbol,
     iconUrl,
     decimals,
     onClick,
     selected,
-    verified,
+    isVerified,
   } = props;
 
   let tokenIcon = TokenIconUrl[symbol] || TokenIconUrl.DEFAULT;
   if (iconUrl) {
     tokenIcon = iconUrl;
   }
+  const isSUI = isSuiToken(coinType);
 
   return (
     <div
       className={classnames(
         styles['token-item'],
-        symbol === 'SUI' ? styles['token-item-sui'] : null,
+        isSUI ? styles['token-item-sui'] : null,
         selected && styles['selected'],
         onClick && styles['clickable']
       )}
       onClick={() => {
-        onClick && onClick(symbol);
+        onClick?.(coinType);
       }}
     >
       <div className="flex items-center">
         <TokenIcon
           icon={tokenIcon}
           alt="water-drop"
-          className={props.symbol === 'SUI' ? '' : styles['icon-wrap-default']}
+          className={isSUI ? '' : styles['icon-wrap-default']}
         />
         <div className={'flex flex-col ml-[13px]'}>
           <div className="flex items-center">
             <Typo.Normal
               className={classnames(
                 styles['token-name'],
-                props.symbol === 'SUI' ? styles['token-name-sui'] : null
+                isSUI ? styles['token-name-sui'] : null
               )}
             >
               {symbol}
             </Typo.Normal>
-            {verified && <VerifiedIcon className="ml-[4px]" />}
+            {isVerified && <VerifiedIcon className="ml-[4px]" />}
           </div>
 
           <Typo.Small
             className={classnames(
               styles['token-amount'],
-              props.symbol === 'SUI' ? styles['token-amount-sui'] : null
+              isSUI ? styles['token-amount-sui'] : null
             )}
           >
-            {`${formatCurrency(amount, { decimals })} ${symbol}`}
+            {`${formatCurrency(balance, { decimals })} ${symbol}`}
           </Typo.Small>
         </div>
       </div>

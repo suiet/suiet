@@ -72,10 +72,7 @@ const LockPage = () => {
     >
       <section className={'mt-[50px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormControl
-            name={'password'}
-            registerOptions={getPasswordValidation()}
-          >
+          <FormControl name={'password'}>
             <Input
               state={getInputStateByFormState(form.formState, 'password')}
               type={'password'}

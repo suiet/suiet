@@ -20,6 +20,7 @@ import { TxItem } from './transactionDetail';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Typo from '../../components/Typo';
 import orderTimeList from './utils/orderTimeList';
+import message from '../../components/message';
 
 function TransactionFlow({
   txHistoryList,
@@ -129,10 +130,16 @@ function TransactionPage() {
   const {
     data: transactions,
     loading,
+    error: fetchTxError,
     refetch,
     fetchMore,
     hasMore,
   } = useTransactionListForHistory(address);
+
+  useEffect(() => {
+    if (!fetchTxError) return;
+    message.error('Fetch tx history failed: ' + fetchTxError.message);
+  }, [fetchTxError]);
 
   useEffect(() => {
     if (!address) return;
@@ -145,7 +152,7 @@ function TransactionPage() {
   }, [address]);
 
   function renderContent() {
-    if (loading)
+    if (loading || fetchTxError)
       return (
         <div className="m-4">
           <Skeleton className="w-full" height="200px" />

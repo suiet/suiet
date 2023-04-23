@@ -15,15 +15,14 @@ import {
 } from '@suiet/core';
 import { sleep } from '../../utils/time';
 import AppLayout from '../../layouts/AppLayout';
-import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
 import { useApiClient } from '../../hooks/useApiClient';
 import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useCallback, useEffect, useState } from 'react';
 import { ReactComponent as GiftIcon } from '../../assets/icons/gift.svg';
-// import { useMintNftCampaign } from './hooks/useMintNftCampaign';
 import Message from '../../components/message';
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
+import useSuiBalance from '../../hooks/coin/useSuiBalance';
 
 function MainPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -42,18 +41,14 @@ function MainPage() {
   const [sendLoading, setSendLoading] = useState(false);
   const featureFlags = useFeatureFlagsWithNetwork();
 
-  const { balance, loading: balanceLoading } = useCoinBalance(
-    CoinSymbol.SUI,
-    address,
-    appContext.networkId
-  );
+  const { data: suiBalance, loading: balanceLoading } = useSuiBalance(address);
 
   const mintSampleNFT = useCallback(async () => {
     if (!network) throw new Error('require network selected');
     if (!featureFlags?.sample_nft_object_id) {
       throw new Error('missing sample NFT packageId');
     }
-    if (balanceLoading || Number(balance) < 6 * 10 ** 8) {
+    if (balanceLoading || Number(suiBalance.balance) < 6 * 10 ** 8) {
       Message.error('Please ensure you have more than 0.6 SUI to mint');
       return;
     }
@@ -78,7 +73,7 @@ function MainPage() {
     featureFlags?.sample_nft_object_id,
     appContext,
     balanceLoading,
-    balance,
+    suiBalance,
     network,
   ]);
 

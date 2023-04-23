@@ -3,8 +3,7 @@ import type { StyleExtendable } from '../../../types';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
-import { Coin, useCoins } from '../../../hooks/useCoins';
-import { isNonEmptyArray } from '../../../utils/check';
+import { isNonEmptyArray, isSuiToken } from '../../../utils/check';
 import { useMemo } from 'react';
 import { Extendable } from '../../../types';
 import styles from './index.module.scss';
@@ -13,24 +12,28 @@ import TokenIcon from '../../../components/TokenIcon';
 import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import IconToken from '../../../assets/icons/token.svg';
 import { formatCurrency } from '@suiet/core';
-// import TokenItem from '../../../components/TokenItem';
-import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
-// export type TokenListProps = StyleExtendable;
 import { useNetwork } from '../../../hooks/useNetwork';
-import { Link, useNavigate } from 'react-router-dom';
-import Network from '../../SettingsPage/network';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { GET_DELEGATED_STAKES } from '../../../utils/graphql/query';
-
+import useCoins from '../../../hooks/coin/useCoins';
+import { SUI_TYPE_ARG } from '@mysten/sui.js';
+import { DEFAULT_SUI_COIN } from '../../../constants/coin';
+import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
+import { ReactComponent as UnverifiedIcon } from '../../../assets/icons/unverified.svg';
+import Tooltip from '../../../components/Tooltip';
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
+  type: string;
   symbol: string;
-  amount?: number | string;
+  balance: string;
+  decimals: number;
+  isVerified: boolean;
 };
 
 const TokenItem = (props: TokenItemProps) => {
-  const { amount = 0 } = props;
+  const { balance = '0', decimals = 0, isVerified = false } = props;
   const navigate = useNavigate();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
@@ -54,76 +57,95 @@ const TokenItem = (props: TokenItemProps) => {
       );
       return accumulator + sum;
     }, 0) ?? 0;
+  const isSUI = isSuiToken(props.type);
+
+  function handleClick() {
+    // TODO: support other coins for detail page
+    if (isSUI) {
+      navigate(`/coin/detail/${props.type}`);
+    }
+  }
   return (
-    <Link
+    <div
       className={classnames(
         styles['token-item'],
-
-        // fixme: should not use symbol to determine coin
-        props.symbol === 'SUI' ? styles['token-item-sui'] : null
+        isSUI ? styles['token-item-sui'] : null,
+        { 'cursor-pointer': isSUI }
       )}
-      to={'/coin/detail/' + props.symbol}
+      onClick={handleClick}
     >
       <div className="flex w-full flex-row items-center justify-between">
         <div className="flex">
           <TokenIcon
-            icon={props.symbol === 'SUI' ? IconWaterDrop : IconToken}
+            icon={isSUI ? IconWaterDrop : IconToken}
             alt="water-drop"
-            className={
-              props.symbol === 'SUI' ? '' : styles['icon-wrap-default']
-            }
+            className={isSUI ? '' : styles['icon-wrap-default']}
           />
           <div className={'flex flex-col ml-[32px]'}>
-            <Typo.Normal
-              className={classnames(
-                styles['token-name'],
-                props.symbol === 'SUI' ? styles['token-name-sui'] : null
+            <div className="flex items-center gap-1">
+              <Tooltip message={props.type}>
+                <Typo.Normal
+                  className={classnames(
+                    styles['token-name'],
+                    isSUI ? styles['token-name-sui'] : null
+                  )}
+                >
+                  {props.symbol}
+                </Typo.Normal>
+              </Tooltip>
+              {isVerified ? (
+                <Tooltip message={'Verified'}>
+                  <VerifiedIcon width={14} height={14} />
+                </Tooltip>
+              ) : (
+                <Tooltip message={'Unverified token, please be cautious'}>
+                  <UnverifiedIcon width={14} height={14} />
+                </Tooltip>
               )}
-            >
-              {props.symbol}
-            </Typo.Normal>
+            </div>
+
             <div className="flex gap-1">
               <Typo.Small
                 className={classnames(
                   styles['token-amount'],
-                  props.symbol === 'SUI' ? styles['token-amount-sui'] : null
+                  isSUI ? styles['token-amount-sui'] : null
                 )}
               >
-                {/* TODO: pass decimals for each different coin */}
-                {formatCurrency(amount, { decimals: 9, withAbbr: false })}
+                {formatCurrency(balance, {
+                  decimals,
+                  withAbbr: false,
+                })}
               </Typo.Small>
 
-              {props.symbol === 'SUI' &&
-                network?.enableStaking &&
-                stakedBalance > 0 && (
-                  <>
-                    <Typo.Small
-                      className={classnames('inline', styles['token-amount'])}
-                      style={{ color: 'rgba(0,0,0,0.3)' }}
-                    >
-                      +
-                    </Typo.Small>
+              {isSUI && network?.enableStaking && stakedBalance > 0 && (
+                <>
+                  <Typo.Small
+                    className={classnames('inline', styles['token-amount'])}
+                    style={{ color: 'rgba(0,0,0,0.3)' }}
+                  >
+                    +
+                  </Typo.Small>
 
-                    <Typo.Small
-                      className={classnames(
-                        'inline',
-                        styles['token-amount'],
-                        props.symbol === 'SUI' ? styles['token-amount'] : null
-                      )}
-                      style={{ color: '#0096FF' }}
-                    >
-                      {formatCurrency(stakedBalance, {
-                        decimals: 9,
-                        withAbbr: false,
-                      })}{' '}
-                      Staked
-                    </Typo.Small>
-                  </>
-                )}
+                  <Typo.Small
+                    className={classnames(
+                      'inline',
+                      styles['token-amount'],
+                      isSUI ? styles['token-amount'] : null
+                    )}
+                    style={{ color: '#0096FF' }}
+                  >
+                    {formatCurrency(stakedBalance, {
+                      decimals: 9,
+                      withAbbr: false,
+                    })}{' '}
+                    Staked
+                  </Typo.Small>
+                </>
+              )}
             </div>
           </div>
         </div>
-        {/* {props.symbol === 'SUI' && network?.enableStaking && (
+        {/* {props.type === SUI_TYPE_ARG && network?.enableStaking && (
           <button
             className={styles['click-button']}
             onClick={(e) => {
@@ -137,19 +159,23 @@ const TokenItem = (props: TokenItemProps) => {
           </button>
         )} */}
       </div>
-    </Link>
+    </div>
   );
 };
 
 const TokenList = (props: TokenListProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { address } = useAccount(appContext.accountId);
-  const { data: coins } = useCoins(address, appContext.networkId);
+  const {
+    data: coins,
+    loading: isLoading,
+    error: coinsError,
+  } = useCoins(address);
   const coinsWithSuiOnTop = useMemo(() => {
-    if (!isNonEmptyArray(coins)) return [];
+    if (!isNonEmptyArray(coins)) return [DEFAULT_SUI_COIN];
 
-    const result = coins as Coin[];
-    const suiCoinIndex = result.findIndex((item) => item.symbol === 'SUI');
+    const result = coins;
+    const suiCoinIndex = result.findIndex((item) => item.type === SUI_TYPE_ARG);
     if (suiCoinIndex !== -1) {
       const suiCoin = result[suiCoinIndex];
       result.splice(suiCoinIndex, 1);
@@ -158,21 +184,18 @@ const TokenList = (props: TokenListProps) => {
     return result;
   }, [coins]);
 
-  if (!isNonEmptyArray(coinsWithSuiOnTop)) {
-    return (
-      <div className={classnames(props.className)} style={props.style}>
-        <TokenItem key={'SUI'} symbol={'SUI'} amount={0} />
-      </div>
-    );
-  }
+  if (isLoading || coinsError) return null;
   return (
     <div className={classnames(props.className)} style={props.style}>
       {coinsWithSuiOnTop.map((coin) => {
         return (
           <TokenItem
-            key={coin.symbol}
+            key={coin.type}
+            type={coin.type}
             symbol={coin.symbol}
-            amount={coin.balance}
+            balance={coin.balance}
+            decimals={coin.decimals}
+            isVerified={coin.isVerified}
           />
         );
       })}

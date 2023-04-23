@@ -6,14 +6,14 @@ import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
 import Address from '../../../components/Address';
-import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import Skeleton from 'react-loading-skeleton';
 import { formatSUI } from '@suiet/core';
 import message from '../../../components/message';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
+import useSuiBalance from '../../../hooks/coin/useSuiBalance';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -64,11 +64,11 @@ export type DashboardProps = {
 };
 
 function MainPage({ address, networkId }: DashboardProps) {
-  const { balance, loading: balanceLoading } = useCoinBalance(
-    CoinSymbol.SUI,
-    address ?? '',
-    networkId
-  );
+  const {
+    data: suiBalance,
+    loading: isBalanceLoading,
+    error: balanceError,
+  } = useSuiBalance(address);
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
@@ -76,96 +76,111 @@ function MainPage({ address, networkId }: DashboardProps) {
   const faucetApi =
     featureFlags?.faucet_api ?? `https://faucet.${networkId}.sui.io/gas`;
 
+  useEffect(() => {
+    if (!balanceError) return;
+    message.error('Fetch balance failed: ' + balanceError.message);
+  }, [balanceError]);
+
   return (
     <div className={styles['main-content']}>
       <Banner />
       <div className={styles['balance']}>
-        {balanceLoading ? (
+        {isBalanceLoading || balanceError ? (
           <Skeleton width={'140px'} height={'36px'} />
         ) : (
-          formatSUI(balance)
+          formatSUI(suiBalance.balance)
         )}
         <span className={styles['balance-unit']}>SUI</span>
       </div>
       <Address value={address} className={styles['address']} />
       <div className={styles['operations']}>
-        <div
-          className={classnames(styles['operations-item'], styles['airdrop'], {
-            [styles['operations-item-loading']]: airdropLoading,
-          })}
-          onClick={() => {
-            const d = new Date();
-            if (!airdropLoading) {
-              if (d.getTime() - airdropTime <= 5000) {
-                message.error('Please wait 5 seconds');
-              } else {
-                const options = {
-                  method: 'POST',
-                  headers: {
-                    'content-type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    FixedAmountRequest: {
-                      recipient: address,
+        {featureFlags?.enable_buy_crypto && (
+          <a
+            className={classnames(styles['operations-item'])}
+            target={'_blank'}
+            rel={'noreferrer'}
+            href={
+              `https://api.suiet.app/${networkId}/service/buy-crypto/` + address
+            }
+          >
+            Buy
+          </a>
+        )}
+        {networkId !== 'mainnet' && (
+          <div
+            className={classnames(
+              styles['operations-item'],
+              styles['airdrop'],
+              {
+                [styles['operations-item-loading']]: airdropLoading,
+              }
+            )}
+            onClick={() => {
+              const d = new Date();
+              if (!airdropLoading) {
+                if (d.getTime() - airdropTime <= 5000) {
+                  message.error('Please wait 5 seconds');
+                } else {
+                  const options = {
+                    method: 'POST',
+                    headers: {
+                      'content-type': 'application/json',
                     },
-                  }),
-                };
-                setAirdropLoading(true);
-                fetch(faucetApi, options)
-                  .then(async (response) => {
-                    if (response.ok) {
-                      message.success('Faucet succeeded');
-                      return await response.json();
-                    } else {
-                      const text = await response.text();
-                      try {
-                        const json = JSON.parse(text);
-                        message.error(json.error);
-                      } catch (e) {
-                        if (text.includes('rate limited')) {
-                          message.error(
-                            'You have been rate limited, please try again 6 hours later'
-                          );
-                        } else {
-                          message.error(
-                            'Sui network is not available, please try again in a few hours'
-                          );
+                    body: JSON.stringify({
+                      FixedAmountRequest: {
+                        recipient: address,
+                      },
+                    }),
+                  };
+                  setAirdropLoading(true);
+                  fetch(faucetApi, options)
+                    .then(async (response) => {
+                      if (response.ok) {
+                        message.success('Faucet succeeded');
+                        return await response.json();
+                      } else {
+                        const text = await response.text();
+                        try {
+                          const json = JSON.parse(text);
+                          message.error(json.error);
+                        } catch (e) {
+                          if (text.includes('rate limited')) {
+                            message.error(
+                              'You have been rate limited, please try again 6 hours later'
+                            );
+                          } else {
+                            message.error(
+                              'Sui network is not available, please try again in a few hours'
+                            );
+                          }
                         }
                       }
-                    }
-                  })
-                  // .then((response) => {
-                  //   console.log('response:', response);
-                  //   if (response) {
-                  //     message.error(response.error);
-                  //   } else {
-                  //     message.success('Airdrop succeeded');
-                  //   }
-                  // })
-                  .catch((err) => {
-                    console.log('error:', err);
-                    message.error(err.message);
-                  })
-                  .finally(() => {
-                    // TODO: global refetch for coin
-                    // setTimeout(() => {
-                    //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
-                    // }, 1000);
-                    setAirdropTime(d.getTime());
-                    setAirdropLoading(false);
-                  });
+                    })
+                    .catch((err) => {
+                      console.log('error:', err);
+                      message.error(err.message);
+                    })
+                    .finally(() => {
+                      // TODO: global refetch for coin
+                      // setTimeout(() => {
+                      //   mutate(swrKeyWithNetwork(swrKeyForUseCoins, network));
+                      // }, 1000);
+                      setAirdropTime(d.getTime());
+                      setAirdropLoading(false);
+                    });
+                }
               }
-            }
-          }}
-        >
-          {airdropLoading ? (
-            <div>
-              <LoadingSpokes width={'12px'} height={'12px'} />
-            </div>
-          ) : (
-            'Faucet'
-          )}
-        </div>
+            }}
+          >
+            {airdropLoading ? (
+              <div>
+                <LoadingSpokes width={'12px'} height={'12px'} />
+              </div>
+            ) : (
+              'Faucet'
+            )}
+          </div>
+        )}
         <ReceiveButton address={address} />
         <Link to={'/send'}>
           <div

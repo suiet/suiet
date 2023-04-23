@@ -15,6 +15,7 @@ type TokenItemProps = Extendable & {
   decimals?: number;
   onClick?: (symbol: string) => void;
   selected?: boolean;
+  isVerified: boolean;
 };
 
 const TokenIconUrl: Record<string, string> = {
@@ -30,6 +31,7 @@ const TokenItem = (props: TokenItemProps) => {
     decimals = 0,
     onClick,
     selected,
+    isVerified,
   } = props;
 
   let tokenIcon = TokenIconUrl[symbol] || TokenIconUrl.DEFAULT;

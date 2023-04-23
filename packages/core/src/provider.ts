@@ -17,6 +17,8 @@ import {
   SuiTransactionBlockResponse,
   getTotalGasUsed,
   is,
+  RPCError as SuiRpcError,
+  RPCValidationError as SuiRpcValidationError,
 } from '@mysten/sui.js';
 import { CoinObject, Nft, NftObject } from './object';
 import { Vault } from './vault/Vault';
@@ -24,6 +26,7 @@ import { createKeypair } from './utils/vault';
 import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
+import { createTransferCoinTxb } from './utils/txb-factory';
 
 export class Provider {
   query: QueryProvider;
@@ -35,7 +38,7 @@ export class Provider {
     versionCacheTimoutInSeconds: number
   ) {
     this.query = new QueryProvider(queryEndpoint, versionCacheTimoutInSeconds);
-    this.tx = new TxProvider(txEndpoint, versionCacheTimoutInSeconds);
+    this.tx = TxProvider.create(txEndpoint, versionCacheTimoutInSeconds);
   }
 
   async transferCoin(
@@ -57,6 +60,19 @@ export class Provider {
     );
   }
 
+  async getTransferCoinTxb(
+    coinType: string,
+    amount: bigint,
+    recipient: string,
+    address: string
+  ) {
+    const coins = await this.query.getOwnedCoin(address, coinType);
+    if (coins.length === 0) {
+      throw new Error('No coin to transfer');
+    }
+    return createTransferCoinTxb(coins, coinType, amount, recipient);
+  }
+
   async transferObject(
     objectId: string,
     recipient: string,
@@ -67,8 +83,6 @@ export class Provider {
       vault.getAddress(),
       objectId
     );
-    console.log('objectId', objectId);
-    console.log('object', object);
     if (!object) {
       throw new Error('No object to transfer');
     }
@@ -99,7 +113,22 @@ export class QueryProvider {
   //   return systemState.activeValidators;
   // }
 
-  public async getOwnedObjects(address: string): Promise<SuiObjectData[]> {
+  public async getOwnedObjects(
+    address: string,
+    options?: {
+      showType?: boolean;
+      showDisplay?: boolean;
+      showContent?: boolean;
+      showOwner?: boolean;
+    }
+  ): Promise<SuiObjectData[]> {
+    const {
+      showType = true,
+      showDisplay = true,
+      showContent = true,
+      showOwner = true,
+    } = options ?? {};
+
     let hasNextPage = true;
     let nextCursor = null;
     const objects: SuiObjectData[] = [];
@@ -108,10 +137,10 @@ export class QueryProvider {
         owner: address,
         cursor: nextCursor,
         options: {
-          showType: true,
-          showDisplay: true,
-          showContent: true,
-          showOwner: true,
+          showType: showType,
+          showDisplay: showDisplay,
+          showContent: showContent,
+          showOwner: showOwner,
         },
       });
       const suiObjectResponses = resp.data as SuiObjectResponse[];
@@ -161,6 +190,9 @@ export class QueryProvider {
           objectId: item.coinObjectId,
           symbol: CoinAPI.getCoinSymbol(item.coinType),
           balance: BigInt(item.balance),
+          lockedUntilEpoch: item.lockedUntilEpoch,
+          previousTransaction: item.previousTransaction,
+          object: item,
         });
       });
       hasNextPage = resp.hasNextPage;
@@ -176,18 +208,24 @@ export class QueryProvider {
     const coins: CoinObject[] = [];
     let hasNextPage = true;
     let nextCursor = null;
+
+    // TODO: potential performance issue if there are too many coins
+    // solution: add an amount parameter to determine how many coin objects should be fetch
     while (hasNextPage) {
       const resp: any = await this.provider.getCoins({
         owner: address,
         coinType,
         cursor: nextCursor,
       });
-      resp.data.forEach((item: any) => {
+      resp.data.forEach((item: CoinStruct) => {
         coins.push({
           type: item.coinType,
           objectId: item.coinObjectId,
           symbol: CoinAPI.getCoinSymbol(item.coinType),
           balance: BigInt(item.balance),
+          lockedUntilEpoch: item.lockedUntilEpoch,
+          previousTransaction: item.previousTransaction,
+          object: item,
         });
       });
       hasNextPage = resp.hasNextPage;
@@ -225,11 +263,31 @@ export class QueryProvider {
   }
 }
 
+function handleSuiRpcError(e: unknown): never {
+  if (e instanceof SuiRpcError) {
+    throw new RpcError((e?.cause as any)?.message ?? e.message, {
+      code: e.code,
+      data: e.data,
+      cause: e.cause,
+    });
+  }
+  if (e instanceof SuiRpcValidationError) {
+    throw new RpcError(e.message, {
+      result: e.result,
+    });
+  }
+  throw e;
+}
+
 export class TxProvider {
   provider: JsonRpcProvider;
 
-  constructor(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
-    this.provider = new JsonRpcProvider(
+  constructor(provider: JsonRpcProvider) {
+    this.provider = provider;
+  }
+
+  static create(txEndpoint: string, versionCacheTimeoutInSeconds: number) {
+    const provider = new JsonRpcProvider(
       new Connection({ fullnode: txEndpoint }),
       {
         skipDataValidation: true,
@@ -241,6 +299,7 @@ export class TxProvider {
         websocketClient: {} as any,
       }
     );
+    return new TxProvider(provider);
   }
 
   async transferObject(
@@ -261,28 +320,8 @@ export class TxProvider {
     recipient: string,
     vault: Vault
   ) {
-    const tx = new TransactionBlock();
-    const [primaryCoin, ...mergeCoins] = coins.filter(
-      (coin) => coin.type === coinType
-    );
-
-    if (coinType === SUI_TYPE_ARG) {
-      const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
-      tx.transferObjects([coin], tx.pure(recipient));
-    } else {
-      const primaryCoinInput = tx.object(primaryCoin.objectId);
-      if (mergeCoins.length) {
-        // TODO: This could just merge a subset of coins that meet the balance requirements instead of all of them.
-        tx.mergeCoins(
-          primaryCoinInput,
-          mergeCoins.map((coin) => tx.object(coin.objectId))
-        );
-      }
-      const coin = tx.splitCoins(primaryCoinInput, [tx.pure(coins)]);
-      tx.transferObjects([coin], tx.pure(recipient));
-    }
-
-    return await this.signAndExecuteTransactionBlock(tx, vault);
+    const txb = createTransferCoinTxb(coins, coinType, amount, recipient);
+    return await this.signAndExecuteTransactionBlock(txb, vault);
   }
 
   public async signAndExecuteTransactionBlock(
@@ -300,17 +339,21 @@ export class TxProvider {
       showInput = true,
       showObjectChanges = true,
     } = options ?? {};
-    return await signer.signAndExecuteTransactionBlock({
-      transactionBlock,
-      options: {
-        showEffects,
-        showEvents,
-        showBalanceChanges,
-        showInput,
-        showObjectChanges,
-      },
-      requestType,
-    });
+    try {
+      return await signer.signAndExecuteTransactionBlock({
+        transactionBlock,
+        options: {
+          showEffects,
+          showEvents,
+          showBalanceChanges,
+          showInput,
+          showObjectChanges,
+        },
+        requestType,
+      });
+    } catch (e) {
+      handleSuiRpcError(e);
+    }
   }
 
   public async signTransactionBlock(
@@ -320,6 +363,12 @@ export class TxProvider {
     const keypair = createKeypair(vault);
     const signer = new RawSigner(keypair, this.provider);
     return await signer.signTransactionBlock({ transactionBlock: tx });
+  }
+
+  public async signMessage(message: Uint8Array, vault: Vault) {
+    const keypair = createKeypair(vault);
+    const signer = new RawSigner(keypair, this.provider);
+    return await signer.signMessage({ message });
   }
 
   // public async stakeCoin(
@@ -425,13 +474,7 @@ export class TxProvider {
         transactionBlock: tx,
       });
     } catch (e: any) {
-      if (e?.cause) {
-        throw new RpcError(e.cause, e);
-      }
-      if (e?.code) {
-        throw new RpcError(e.code, e);
-      }
-      throw e;
+      handleSuiRpcError(e);
     }
     if (res?.effects?.status?.status === 'failure') {
       const { status } = res.effects;

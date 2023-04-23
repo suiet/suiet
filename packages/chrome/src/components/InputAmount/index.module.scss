@@ -13,6 +13,7 @@
     color: #dcdfea;
     white-space: nowrap;
     height: 100%;
+
     .fit & {
       color: #404968;
     }
@@ -24,20 +25,19 @@
 
   &-name {
     margin-left: 8px;
-    height: 40px;
   }
 
   &-amount {
     // position: absolute;
     // top: 0;
-    width: 160px;
+    max-width: 140px;
     outline: none;
     resize: none;
 
     margin: auto;
+
     &-box {
       position: relative;
-      margin: auto;
     }
 
     &-placeholder {

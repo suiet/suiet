@@ -18,8 +18,6 @@ import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import Address from '../../../components/Address';
 import DappPopupLayout from '../../../layouts/DappPopupLayout';
 import { isNonEmptyArray } from '../../../utils/check';
-import classnames from 'classnames';
-import { CoinSymbol, useCoinBalance } from '../../../hooks/useCoinBalance';
 import { formatCurrency, formatGasBudget, formatSUI } from '@suiet/core';
 import { isUndefined } from 'lodash-es';
 import { LoadingSpin } from '../../../components/Loading';
@@ -34,6 +32,7 @@ import { getGasBudgetFromTxb } from '../../../utils/getters';
 import useMyAssetChangesFromDryRun from './hooks/useMyAssetChangesFromDryRun';
 import { useAccount } from '../../../hooks/useAccount';
 import { formatDryRunError } from '@suiet/core';
+import useSuiBalance from '../../../hooks/coin/useSuiBalance';
 
 enum Mode {
   LOADING,
@@ -93,14 +92,10 @@ const TxApprovePage = () => {
   }, [transactionBlock]);
 
   const {
-    balance,
-    error: balanceError,
-    isSuccess: isBalanceLoaded,
-  } = useCoinBalance(
-    CoinSymbol.SUI,
-    txReqData?.target.address ?? '',
-    appContext.networkId
-  );
+    data: suiBalance,
+    error: suiBalanceError,
+    loading: suiBalanceLoading,
+  } = useSuiBalance(txReqData?.target.address ?? '');
 
   const {
     data: { estimatedGasFee, coinBalanceChanges },
@@ -216,36 +211,36 @@ const TxApprovePage = () => {
 
   // page mode
   useEffect(() => {
-    if (balanceError) {
-      Message.error(balanceError.toString());
-      console.error(balanceError);
+    if (suiBalanceError) {
+      Message.error(suiBalanceError.toString());
+      console.error(suiBalanceError);
       return;
     }
-    if (dryRunError || balanceError) {
+    if (dryRunError || suiBalanceError) {
       setMode(Mode.ERROR);
       return;
     }
-    if (!isBalanceLoaded || !isDryRunSuccess) {
+    if (suiBalanceLoading || !isDryRunSuccess) {
       setMode(Mode.LOADING);
       return;
     }
-    if (isUndefined(balance) || isUndefined(estimatedGasFee)) {
+    if (isUndefined(suiBalance) || isUndefined(estimatedGasFee)) {
       const err =
-        'Data Error: balance or estimated gas fee can not be undefined';
+        'Data Error: suiBalance or estimated gas fee can not be undefined';
       Message.error(err);
       console.error(err);
       return;
     }
-    if (BigInt(balance) < BigInt(estimatedGasFee)) {
+    if (BigInt(suiBalance.balance) < BigInt(estimatedGasFee)) {
       setMode(Mode.INSUFFICIENT_SUI);
       return;
     }
     setMode(Mode.NORMAL);
   }, [
-    balance,
+    suiBalance,
     estimatedGasFee,
-    isBalanceLoaded,
-    balanceError,
+    suiBalanceLoading,
+    suiBalanceError,
     isDryRunSuccess,
     dryRunError,
   ]);
