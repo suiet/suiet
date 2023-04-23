@@ -52,10 +52,7 @@ const SavePassword = (props: SavePasswordProps) => {
               <Typo.Small className={styles['control-label']}>
                 Old Password
               </Typo.Small>
-              <FormControl
-                name={'oldpassword'}
-                registerOptions={getPasswordValidation()}
-              >
+              <FormControl name={'oldpassword'}>
                 <Input
                   type={'password'}
                   state={getInputStateByFormState(
