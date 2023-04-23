@@ -1,12 +1,20 @@
-import { SuiMoveObject, Coin as CoinAPI, SuiAddress } from '@mysten/sui.js';
+import {
+  SuiMoveObject,
+  Coin as CoinAPI,
+  SuiAddress,
+  CoinStruct,
+} from '@mysten/sui.js';
 
 const DEFAULT_GAS_BUDGET_FOR_PAY = 150;
 
 export type CoinObject = {
-  type: string;
   objectId: string;
+  type: string;
   symbol: string;
   balance: bigint;
+  lockedUntilEpoch: number | null;
+  previousTransaction: string;
+  object: CoinStruct; // raw data
 };
 
 export type NftObject = {

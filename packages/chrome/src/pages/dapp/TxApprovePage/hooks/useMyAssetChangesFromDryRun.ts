@@ -5,15 +5,16 @@ import {
   DryRunTransactionBlockResponse,
   TransactionBlock,
 } from '@mysten/sui.js';
+import { DEFAULT_GAS_BUDGET } from '../../../../constants';
 
 function getBalanceChangesFromDryRunResult(
   dryRunResult: DryRunTransactionBlockResponse | undefined,
-  addressOwnder?: string
+  addressOwner?: string
 ) {
   if (!dryRunResult) return;
   const balanceChanges = dryRunResult.balanceChanges.filter((item) => {
-    return addressOwnder
-      ? (item.owner as any)?.AddressOwner === addressOwnder
+    return addressOwner
+      ? (item.owner as any)?.AddressOwner === addressOwner
       : true;
   });
   return balanceChanges;
@@ -24,7 +25,9 @@ export default function useMyAssetChangesFromDryRun(
   transactionBlock: TransactionBlock | undefined
 ) {
   const featureFlags = useFeatureFlagsWithNetwork();
-  const fallbackGasFee = BigInt(featureFlags?.move_call_gas_budget ?? 10000);
+  const fallbackGasFee = BigInt(
+    featureFlags?.move_call_gas_budget ?? DEFAULT_GAS_BUDGET
+  );
   const { data: dryRunResult, ...rest } =
     useDryRunTransactionBlock(transactionBlock);
   const estimatedGasFee = getEstimatedGasFeeFromDryRunResult(

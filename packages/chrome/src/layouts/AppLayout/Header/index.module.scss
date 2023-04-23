@@ -45,7 +45,7 @@
 .net {
   position: absolute;
   right: 16px;
-  width: 56px;
+  width: 60px;
   height: 22px;
   border-radius: 16px;
   display: flex;
@@ -57,9 +57,14 @@
   background: $orange-100;
   color: $orange-600;
   cursor: pointer;
-
+  padding: auto 4px;
   &-testnet {
     background: $yellow-100;
     color: $yellow-600;
+  }
+
+  &-mainnet {
+    background: $green-100;
+    color: $green-600;
   }
 }

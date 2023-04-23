@@ -17,6 +17,8 @@ import { ReactComponent as IconDevnetSelected } from '../../assets/icons/devnet-
 import { ReactComponent as IconDevnetUnselected } from '../../assets/icons/devnet-unselected.svg';
 import { ReactComponent as IconTestnetSelected } from '../../assets/icons/testnet-selected.svg';
 import { ReactComponent as IconTestnetUnselected } from '../../assets/icons/testnet-unselected.svg';
+import { ReactComponent as IconMainnetSelected } from '../../assets/icons/mainnet-selected.svg';
+import { ReactComponent as IconMainnetUnselected } from '../../assets/icons/mainnet-unselected.svg';
 // import { ReactComponent as IconMainnet } from '../../assets/icons/mainnet.svg';
 import { RootState } from '../../store';
 import { useFeatureFlags } from '../../hooks/useFeatureFlags';
@@ -33,11 +35,11 @@ const networks: Record<
     };
   }
 > = {
-  devnet: {
-    name: 'Devnet',
+  mainnet: {
+    name: 'Mainnet',
     icon: {
-      selected: <IconDevnetSelected />,
-      unselected: <IconDevnetUnselected />,
+      selected: <IconTestnetSelected />,
+      unselected: <IconTestnetUnselected />,
     },
   },
   testnet: {
@@ -45,6 +47,14 @@ const networks: Record<
     icon: {
       selected: <IconTestnetSelected />,
       unselected: <IconTestnetUnselected />,
+    },
+  },
+
+  devnet: {
+    name: 'Devnet',
+    icon: {
+      selected: <IconDevnetSelected />,
+      unselected: <IconDevnetUnselected />,
     },
   },
 };
@@ -65,8 +75,9 @@ function Network() {
       return ['devnet'];
     }
     const orderMap: Record<string, number> = {
-      devnet: 1,
+      mainnet: 1,
       testnet: 2,
+      devnet: 3,
     };
 
     // reorder network options

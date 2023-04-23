@@ -271,7 +271,7 @@ export class SuietWallet implements Wallet {
   #checkError(resData: ResData, func: string) {
     if (resData.error) {
       const errMsg = resData.error?.msg ?? 'Unknown Error';
-      console.error(suietSay(`${func} failed`), errMsg);
+      // console.error(suietSay(`${func} failed`), errMsg);
       throw new Error(errMsg);
     }
   }
@@ -279,7 +279,7 @@ export class SuietWallet implements Wallet {
   #checkDataIsNull(resData: ResData, func: string) {
     if (resData.data === null) {
       const errMsg = 'Response data is null';
-      console.error(suietSay(`${func} failed`), errMsg);
+      // console.error(suietSay(`${func} failed`), errMsg);
       throw new Error(errMsg);
     }
   }

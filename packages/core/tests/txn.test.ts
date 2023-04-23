@@ -1,6 +1,15 @@
 import { Vault } from '../src/vault/Vault';
 import * as crypto from '../src/crypto';
 import * as tweetnacl from 'tweetnacl';
+import {
+  IntentScope,
+  JsonRpcProvider,
+  fromSerializedSignature,
+  messageWithIntent,
+  fromB64,
+} from '@mysten/sui.js';
+import { TxProvider } from '../src/provider';
+import { blake2b } from '@noble/hashes/blake2b';
 
 test('generateMnemonic', async () => {
   const mnemonic = crypto.generateMnemonic();
@@ -16,15 +25,22 @@ describe('signMessage', () => {
       crypto.derivationHdPath(0),
       MNEMONIC
     );
-    const signedMsg = await vault.signMessage(
-      new TextEncoder().encode('hello world')
+    const provider = new TxProvider(new JsonRpcProvider());
+    const signedMsg = await provider.signMessage(
+      new TextEncoder().encode('hello world'),
+      vault
     );
-    expect(vault.hdKey.getPublicKey().length).toEqual(32);
+    const signature = fromSerializedSignature(signedMsg.signature);
+    const message = messageWithIntent(
+      IntentScope.PersonalMessage,
+      fromB64(signedMsg.messageBytes)
+    );
+
     expect(
       tweetnacl.sign.detached.verify(
-        Buffer.from('hello world'),
-        Buffer.from(signedMsg.signature),
-        vault.hdKey.getPublicKey()
+        blake2b(message, { dkLen: 32 }),
+        signature.signature,
+        signature.pubKey.toBytes()
       )
     ).toBeTruthy();
   });

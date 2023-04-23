@@ -7,8 +7,8 @@ import {
   getMintExampleNftTxBlock,
   SendAndExecuteTxParams,
   TxEssentials,
+  formatSUI,
 } from '@suiet/core';
-import { formatCurrency } from '@suiet/core';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useState, useEffect, useMemo } from 'react';
 import { RootState } from '../../store';
@@ -19,15 +19,12 @@ import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
 import InputAmount from '../../components/InputAmount';
 import { useAccount } from '../../hooks/useAccount';
-import { CoinSymbol, useCoinBalance } from '../../hooks/useCoinBalance';
-import useEstimatedGasFee from '../../hooks/transaction/useEstimatedGasFee';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
-import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import Skeleton from 'react-loading-skeleton';
 import { createStakeTransaction } from './utils';
-// import { get } from '@suiet/core';
+import useSuiBalance from '../../hooks/coin/useSuiBalance';
 export default function StackingPage() {
   const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -68,17 +65,16 @@ export default function StackingPage() {
   //     },
   //   });
   const { address } = useAccount(appContext.accountId);
-  const { balance, loading: balanceLoading } = useCoinBalance(
-    CoinSymbol.SUI,
-    address ?? '',
-    appContext.networkId
+  const { data: suiBalance, loading: balanceLoading } = useSuiBalance(
+    address ?? ''
   );
   const featureFlags = useFeatureFlagsWithNetwork();
   const gasFee = featureFlags?.stake_gas_budget ?? 20_000_000;
   const max = useMemo(() => {
     // return Number(formatCurrency(Number(balance) - Number(estimatedGasBudget)));
-    return (Number(balance) - 0) / 1000000000;
-  }, [balance]);
+    return Number(suiBalance.balance) / 1_000_000_000;
+  }, [suiBalance]);
+
   async function StakeCoins() {
     try {
       // TODO:
@@ -90,7 +86,7 @@ export default function StackingPage() {
       if (!selectedValidator) throw new Error('require validator selected');
 
       const tx = createStakeTransaction(
-        BigInt(amount * 1000_000_000),
+        BigInt(amount * 1_000_000_000),
         selectedValidator
       );
       await apiClient.callFunc<
@@ -189,12 +185,7 @@ export default function StackingPage() {
             </div>
             <div className="flex flex-row items-center justify-between">
               <div className="text-zinc-700">Gas Budget</div>
-              <div className="text-zinc-400">
-                {formatCurrency(gasFee, {
-                  decimals: 9,
-                })}{' '}
-                SUI
-              </div>
+              <div className="text-zinc-400">{formatSUI(gasFee)} SUI</div>
             </div>
           </div>
         </div>

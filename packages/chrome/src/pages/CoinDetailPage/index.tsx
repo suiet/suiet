@@ -1,7 +1,6 @@
-import AppLayout from '../../layouts/AppLayout';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { useWallet } from '../../hooks/useWallet';
 import Avatar from '../../components/Avatar';
@@ -11,44 +10,33 @@ import styles from './index.module.scss';
 import TokenIcon from '../../components/TokenIcon';
 import { SendAndExecuteTxParams, TxEssentials } from '@suiet/core';
 import classNames from 'classnames';
-import { useCoins } from '../../hooks/useCoins';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
 import { formatSUI, formatCurrency } from '@suiet/core';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
-import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
 import { useQuery } from '@apollo/client';
 import { GET_DELEGATED_STAKES } from '../../utils/graphql/query';
 import Button from '../../components/Button';
 import Nav from '../../components/Nav';
 import Skeleton from 'react-loading-skeleton';
-import { TransactionBlock, SUI_SYSTEM_STATE_OBJECT_ID } from '@mysten/sui.js';
 import { useApiClient } from '../../hooks/useApiClient';
 import { LoadingSpokes } from '../../components/Loading';
 import { useState } from 'react';
-import { object } from 'superstruct';
 import { createUnstakeTransaction } from '../StakingPage/utils';
+import useCoins from '../../hooks/coin/useCoins';
+import { isSuiToken } from '../../utils/check';
+
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const apiClient = useApiClient();
   const { data: network } = useNetwork(appContext.networkId);
-  const params = useParams();
-  const symbol = params['symbol'];
-  const { context } = useSelector((state: RootState) => ({
-    context: state.appContext,
-  }));
+  const routeParams = useParams();
+  const coinType = routeParams['coinType'];
   const navigate = useNavigate();
   const { address } = useAccount(appContext.accountId);
-  const dispatch = useDispatch<AppDispatch>();
-  const { data: wallet } = useWallet(context.walletId);
+  const { data: wallet } = useWallet(appContext.walletId);
   const [buttonLoading, setButtonLoading] = useState<KeyValueObject>({});
-  const {
-    data: coinsBalance,
-    getBalance,
-    error,
-  } = useCoins(address, appContext.networkId);
-
   const { data: delegatedStakesResult, loading: stakesLoading } = useQuery(
     GET_DELEGATED_STAKES,
     {
@@ -58,6 +46,27 @@ export default function CoinDetailPage() {
       skip: !address,
     }
   );
+  const delegatedStakes = delegatedStakesResult?.delegatedStakes;
+  const stakedBalance =
+    delegatedStakes?.reduce((accumulator, current) => {
+      const sum = current.stakes.reduce(
+        (stakesAccumulator, stake) => stakesAccumulator + stake.principal,
+        0
+      );
+      return accumulator + sum;
+    }, 0) ?? 0;
+  const earnedBalance =
+    delegatedStakes?.reduce((accumulator, current) => {
+      const sum = current.stakes.reduce(
+        (stakesAccumulator, stake) => stakesAccumulator + stake.earned,
+        0
+      );
+      return accumulator + sum;
+    }, 0) ?? 0;
+
+  const { getCoinBalance } = useCoins(address);
+  const balance = coinType ? getCoinBalance(coinType).balance : '0';
+  const isSUI = isSuiToken(coinType);
 
   type KeyValueObject = {
     [key: string]: boolean;
@@ -103,37 +112,7 @@ export default function CoinDetailPage() {
         return { ...prevButtonLoading, [stakeObjectID]: false };
       });
     }
-
-    // const coinObjList = await this.txApi.getOwnedCoins({
-    //   network,
-    //   address: context.target.address,
-    // });
-    // const suiToPayList = coinObjList.filter(
-    //   (obj) =>
-    //     obj.symbol === CoinSymbol.SUI && tx.data.inputCoins.includes(obj.id)
-    // );
-    // console.log('stake');
   }
-  // [{"__typename":"DelegatedStake","stakes":[{"__typename":"Stake","status":"Pending","principal":0,"stakeActiveEpoch":1,"stakedSuiID":null,"stakeRequestEpoch":407}],"validator":{"__typename":"Validator","suiAddress":"0xba39e145d3d85fa14b80523d7eef49bf22d0031e","name":"validator-3","imageURL":"","epoch":407,"description":""}},{"__typename":"DelegatedStake","stakes":[{"__typename":"Stake","status":"Pending","principal":0,"stakeActiveEpoch":1,"stakedSuiID":null,"stakeRequestEpoch":407}],"validator":{"__typename":"Validator","suiAddress":"0x92c6ca2c92f32e781ab9831474fd83cd4e63c195","name":"validator-1","imageURL":"","epoch":407,"description":""}}]0x762a64b9eb541bbcee9db68334c5881cb1629bf5
-
-  const delegatedStakes = delegatedStakesResult?.delegatedStakes;
-  const stakedBalance =
-    delegatedStakes?.reduce((accumulator, current) => {
-      const sum = current.stakes.reduce(
-        (stakesAccumulator, stake) => stakesAccumulator + stake.principal,
-        0
-      );
-      return accumulator + sum;
-    }, 0) ?? 0;
-  const earnedBalance =
-    delegatedStakes?.reduce((accumulator, current) => {
-      const sum = current.stakes.reduce(
-        (stakesAccumulator, stake) => stakesAccumulator + stake.earned,
-        0
-      );
-      return accumulator + sum;
-    }, 0) ?? 0;
-  const balance = symbol ? getBalance(symbol) : 0;
 
   return (
     <div>
@@ -164,13 +143,13 @@ export default function CoinDetailPage() {
             model={wallet?.avatar}
           />
           <TokenIcon
-            icon={symbol === 'SUI' ? IconWaterDrop : IconToken}
+            icon={isSUI ? IconWaterDrop : IconToken}
             alt="water-drop"
             size="large"
             className={classNames(
               'border-2 border-white',
               'w-[64px] h-[64px]',
-              symbol === 'SUI' ? '' : styles['icon-wrap-default']
+              isSUI ? '' : styles['icon-wrap-default']
             )}
           />
         </div>
