@@ -7,10 +7,15 @@ export default function formatInputCoinAmount(
   let res = numStr.trim() ?? '';
 
   // disallow negative number
-  if (!Number.isNaN(+res) && Number(res) < 0) return '0';
+  if (!Number.isNaN(+res) && Number(res) < 0) {
+    return '0';
+  }
 
+  const reg = RegExp(`^0\.[0]{0,${decimals}}$`);
   // allow pending decimal inputs
-  if (res === '0.') return res;
+  if (RegExp(`^0\\.[0]{0,${decimals}}$`).test(res)) {
+    return res;
+  }
 
   // remove all non-digit and non-dot
   res = res.replace(/[^\d.]/g, '');

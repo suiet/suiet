@@ -11,6 +11,7 @@ describe('formatInputNumber', function () {
 
   test('pending inputs', function () {
     expect(formatInputCoinAmount('0.')).toBe('0.');
+    expect(formatInputCoinAmount('0.00')).toBe('0.00');
     expect(formatInputCoinAmount('1.')).toBe('1.');
   });
 
