@@ -69,7 +69,6 @@ const TokenItem = (props: TokenItemProps) => {
     <div
       className={classnames(
         styles['token-item'],
-        // fixme: should not use symbol to determine coin
         isSUI ? styles['token-item-sui'] : null,
         { 'cursor-pointer': isSUI }
       )}
