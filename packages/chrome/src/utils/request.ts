@@ -23,12 +23,14 @@ suietHttp.interceptors.response.use((res) => {
   return res.data.data;
 });
 
-export function envUrl(url: string, networkId: string = 'devnet') {
+export function envUrl(url: string, networkId: string) {
   let _url = url;
   if (_url.startsWith('/')) {
     _url = _url.slice(1);
   }
-  if (networkId === 'mainnet') return `/${_url}`;
-  if (networkId === 'testnet') return `/testnet/${_url}`;
-  else return `/devnet/${_url}`;
+  let _networkId = networkId;
+  if (!['mainnet', 'testnet', 'devnet'].includes(networkId)) {
+    _networkId = 'testnet';
+  }
+  return `/${_networkId}/${_url}`;
 }
