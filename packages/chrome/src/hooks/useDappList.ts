@@ -16,7 +16,9 @@ export function useDappList() {
     data: resData,
     error,
     ...rest
-  } = useQuery(['fetchDappList', networkId], fetchDappList);
+  } = useQuery(['fetchDappList', networkId], fetchDappList, {
+    staleTime: 60 * 1000,
+  });
 
   const category: Map<string, DappItem[]> = useMemo(() => {
     if (!resData) return new Map();
