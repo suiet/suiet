@@ -55,6 +55,9 @@ export enum ApprovalType {
 
 const approvalSubject: Subject<Approval> = new Subject<Approval>();
 
+/**
+ * DappBgApi is the background api for dapp
+ */
 export class DappBgApi {
   private readonly ctx: BackgroundApiContext;
   chromeStorage: ChromeStorage;
@@ -110,6 +113,8 @@ export class DappBgApi {
     );
   }
 
+  // FIXME: could be a security issue!
+  //  need to verify the origin of the request (only allow our popup window)
   // get callback from ui extension
   public async callbackApproval(payload: Approval) {
     if (!payload) {
@@ -140,6 +145,7 @@ export class DappBgApi {
   }
 
   // TODO: verify permission for wanted account
+  // FIXME: Validate message intent must be personal message!
   public async signMessage(
     payload: DappMessage<{ message: number[]; account: WalletAccount }>
   ): Promise<{
@@ -323,6 +329,9 @@ export class DappBgApi {
    * @param payload
    */
   public async getAccounts(payload: DappMessage<{}>) {
+    await this._permissionGuard(payload.context.origin, [
+      Permission.VIEW_ACCOUNT,
+    ]);
     const result = await this._getAccounts(payload);
     return result.map((ac: Account) => ac.address);
   }

@@ -25,10 +25,15 @@ export class WindowMsgStream {
       window,
       'message'
     ).pipe(
-      filter(
-        (message) =>
-          message.source === window && message.data?.target === this.source
-      ),
+      filter((message) => {
+        {
+          console.log('[WindowMsgStream] filter', message);
+          // FIXME: any security issues?
+          return (
+            message.source === window && message.data?.target === this.source
+          );
+        }
+      }),
       map((event) => event.data)
     );
   }
@@ -41,7 +46,11 @@ export class WindowMsgStream {
       payload,
     };
     // console.log('[WindowMsgStream] postMessage', msg);
-    window.postMessage(msg);
+
+    // NOTE: We cannot specify the target origin for the content script, so have to broadcast to all windows
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#using_window.postmessage_in_extensions_non-standard
+    // TODO: Can we prevent the message being blocked by other extensions?
+    window.postMessage(msg, '*');
     return await lastValueFrom(
       this.msgObservable.pipe(
         filter((windowMsg) => {

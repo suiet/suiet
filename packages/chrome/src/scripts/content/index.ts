@@ -14,6 +14,7 @@ function injectDappInterface() {
 }
 
 function isMsgFromSuietContext(event: MessageEvent<any>) {
+  // FIXME: validate event.origin from already handshaked list!!
   return (
     event.source === window &&
     event.data?.target === WindowMsgTarget.SUIET_CONTENT
@@ -44,6 +45,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   // port msg from background - content script proxy -> window msg to dapp
   port.onMessage.addListener((msg) => {
     // console.log('[content] before port sends data to window', msg);
+    // FIXME: Specify target origin of the target web page!!
     window.postMessage({
       target: WindowMsgTarget.DAPP,
       payload: msg,
@@ -60,6 +62,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
       const { payload: trueData } = event.data;
       const message = {
         id: trueData.id,
+        // FIXME: Sanitize data for only allowed function calls!!!
         funcName: trueData.funcName,
         payload: {
           params: trueData.payload,
@@ -75,6 +78,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
     }
   };
 
+  // TODO: eavesdrop risk on window message?
   window.addEventListener('message', passMessageToPort);
   return port;
 }
@@ -90,6 +94,7 @@ function legacyHandShakeAndWaveListener() {
   windowMsgStream.subscribe(async (windowMsg) => {
     if (isDappHandShakeRequest(windowMsg)) {
       // do nothing but respond
+      // TODO: record handshake origin for later validation
       await windowMsgStream.post({
         id: windowMsg.payload.id,
         error: null,
@@ -98,6 +103,7 @@ function legacyHandShakeAndWaveListener() {
     }
     if (isDappHandWaveRequest(windowMsg)) {
       // do nothing but respond
+      // TODO: remove handshake origin from record
       await windowMsgStream.post({
         id: windowMsg.payload.id,
         error: null,
