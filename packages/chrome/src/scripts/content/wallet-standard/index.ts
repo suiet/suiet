@@ -134,6 +134,7 @@ export class SuietWallet implements Wallet {
   };
 
   #connect: StandardConnectMethod = async (input) => {
+    // FIXME: call handshake api for origin validation
     const isSuccess = await this.#request('dapp.connect', {
       permissions: [Permission.SUGGEST_TX, Permission.VIEW_ACCOUNT],
     });

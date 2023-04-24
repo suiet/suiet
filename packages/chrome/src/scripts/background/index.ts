@@ -12,10 +12,13 @@ class ApiBridgeConnection {
 
   connect() {
     const handleConnect = (port: chrome.runtime.Port) => {
+      // console.log('handleConnect port.name', port.name);
       if (port.name === this.portName) {
         this.bgApiProxy.listen(port);
       }
     };
+    // once the client side calls chrome.runtime.connect,
+    // the background script will receive a port
     chrome.runtime.onConnect.addListener(handleConnect);
   }
 }

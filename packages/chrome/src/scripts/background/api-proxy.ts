@@ -54,13 +54,21 @@ export class BackgroundApiProxy {
   public listen(port: chrome.runtime.Port) {
     log('set up listener for port: ', port.name);
     this.ports.push(port);
+    // log('this.ports after adding', this.ports);
     const subscription = this.setUpFuncCallProxy(port);
 
+    // Triggers when:
+    // - No listeners at the other end
+    // - The tab containing the port is unloaded (for example, if the tab is navigated).
+    // - The frame where connect() was called has unloaded.
+    // - All frames that received the port (via runtime.onConnect) have unloaded.
+    // - runtime.Port.disconnect() is called by the other end.
     port.onDisconnect.addListener(() => {
       subscription.unsubscribe();
       const index = this.ports.findIndex((p) => p === port);
       log(`unsubscribe port ${port.name} and index: ${index}`);
       this.ports.splice(index, 1);
+      // log('this.ports after removal', this.ports);
     });
   }
 
@@ -145,6 +153,8 @@ export class BackgroundApiProxy {
       (msg) => normalizeMessageToParams(msg)
     );
 
+    // subscribe to the port msg source
+    // return the unsubscribe function
     return portObservable.subscribe(async (callFuncData) => {
       // proxy func-call msg to real method
       const { id, service, func, payload, options } = callFuncData;
