@@ -1,4 +1,5 @@
-import { suietHttp } from '../utils/request';
+import { envUrl, suietHttp } from '../utils/request';
+import { SuietApiOptions } from './types';
 
 export interface DappCategory {
   explorer_url: string;
@@ -16,13 +17,13 @@ export interface DappItem {
   background_color: string;
 }
 
-export async function getDappList(): Promise<{
+export async function getDappList(opts: SuietApiOptions): Promise<{
   category: Record<string, DappCategory[]>;
   featured: DappItem[];
   popular: DappItem[];
 }> {
   return await suietHttp({
-    url: '/apps',
+    url: envUrl('/apps', opts.networkId),
     method: 'get',
   });
 }
