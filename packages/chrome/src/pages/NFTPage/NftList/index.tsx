@@ -20,6 +20,8 @@ export interface NftMeta {
   previousTransaction: string | undefined;
   url: string;
   objectType: string;
+  thumbnailUrl: string | null;
+  expiresAt: number | null;
   hasPublicTransfer: boolean;
 }
 
@@ -37,6 +39,8 @@ const NftItem = (props: NftItemProps) => {
     description = 'No Description',
     previousTransaction = '',
     objectType = '',
+    thumbnailUrl,
+    expiresAt,
     url = '',
     hasPublicTransfer = false,
   } = props;
@@ -50,6 +54,8 @@ const NftItem = (props: NftItemProps) => {
           description,
           previousTransaction,
           objectType,
+          thumbnailUrl,
+          expiresAt,
           url,
           hasPublicTransfer,
         });
@@ -58,7 +64,7 @@ const NftItem = (props: NftItemProps) => {
       {loading ? (
         <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
       ) : (
-        <NftImg src={nftImgUrl(url)} alt={name} />
+        <NftImg src={url} thumbnailUrl={thumbnailUrl} alt={name} />
       )}
       <div className={classnames('w-full', 'mt-2')}>
         {loading ? (
@@ -124,6 +130,8 @@ const NftList = (props: NftListProps) => {
             name={nft.name}
             url={nft.url}
             description={nft.description}
+            thumbnailUrl={nft.thumbnailUrl}
+            expiresAt={nft.expiresAt}
             previousTransaction={nft.object.previousTransaction}
             objectType={nft.object.type}
             hasPublicTransfer={nft.object.hasPublicTransfer}

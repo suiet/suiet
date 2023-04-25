@@ -48,7 +48,7 @@ function MainPage() {
     if (!featureFlags?.sample_nft_object_id) {
       throw new Error('missing sample NFT packageId');
     }
-    if (balanceLoading || Number(suiBalance.balance) < 6 * 10 ** 8) {
+    if (balanceLoading || BigInt(suiBalance.balance) < 6 * 10 ** 8) {
       Message.error('Please ensure you have more than 0.6 SUI to mint');
       return;
     }
