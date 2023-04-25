@@ -1,4 +1,4 @@
-import { SUI_TYPE_ARG } from '@mysten/sui.js';
+import { isSuiToken } from '@suiet/chrome-ext/src/utils/check';
 
 /**
  * Calculate max coin amount based on coin type
@@ -13,10 +13,18 @@ export default function maxCoinAmount(
     gasBudget?: string;
   }
 ) {
+  if (amount.includes('.')) {
+    throw new Error('amount should be an integer string, without decimal');
+  }
+  if (amount.startsWith('-')) {
+    throw new Error('amount should be a positive integer string');
+  }
   const { gasBudget = '0' } = opts ?? {};
   // only SUI should be subtracted by gasBudget
-  if (coinType === SUI_TYPE_ARG && BigInt(gasBudget) > 0) {
-    return String(BigInt(amount) - BigInt(gasBudget));
+  if (isSuiToken(coinType) && BigInt(gasBudget) > 0) {
+    const max = BigInt(amount) - BigInt(gasBudget);
+    if (max <= 0n) return '0';
+    return String(max);
   }
   return amount;
 }

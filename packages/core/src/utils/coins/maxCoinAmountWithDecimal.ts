@@ -1,6 +1,5 @@
 import maxCoinAmount from './maxCoinAmount';
 import { isSafeConvertToNumber } from '../check';
-import { compareCoinAmount } from '@suiet/chrome-ext/src/utils/check';
 
 /**
  * Calculate max coin amount based on coin type
@@ -18,10 +17,9 @@ export default function maxCoinAmountWithDecimal(
   }
 ) {
   const maxAmount = maxCoinAmount(coinType, amount, opts);
+  if (maxAmount === '0') return '0';
+
   const decimalMultiplier = 10 ** decimals;
-  if (compareCoinAmount(maxAmount, decimalMultiplier) < 0) {
-    return '0';
-  }
   if (isSafeConvertToNumber(maxAmount)) {
     const res = Number(maxAmount) / decimalMultiplier;
     // js will convert 0.0000001 to 1e-7, so we need to convert it back

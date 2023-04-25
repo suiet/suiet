@@ -63,6 +63,10 @@ function SendConfirm({
     return isCoinAmountValid(coinAmountWithDecimals, maxAmount);
   }, [state, maxAmount]);
 
+  console.log('selectedCoin', selectedCoin);
+  console.log('maxAmount', maxAmount);
+  console.log('isInputValid', isInputValid);
+
   return (
     <div className="h-[436px]">
       <div className={classNames('flex', 'flex-col', 'h-full')}>

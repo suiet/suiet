@@ -11,6 +11,15 @@ describe('calculate max coin amount with decimal', function () {
         gasBudget: '100000000',
       })
     ).toBe('0.9');
+
+    expect(
+      maxCoinAmountWithDecimal('0x2::sui::SUI', '1000000000', 9, {
+        gasBudget: '999999999',
+      })
+    ).toBe('0.000000001');
+  });
+
+  test('test with other type of coin', function () {
     expect(
       maxCoinAmountWithDecimal('0xwhatever::other::type', '1000000000', 9, {
         gasBudget: '999999999',
@@ -18,10 +27,10 @@ describe('calculate max coin amount with decimal', function () {
     ).toBe('1');
 
     expect(
-      maxCoinAmountWithDecimal('0x2::sui::SUI', '1000000000', 9, {
+      maxCoinAmountWithDecimal('0xwhatever::other::type', '100000000', 9, {
         gasBudget: '999999999',
       })
-    ).toBe('0.000000001');
+    ).toBe('0.1');
   });
 
   test('if amount is less than gasBudget, return 0', function () {
