@@ -25,6 +25,7 @@ import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import Skeleton from 'react-loading-skeleton';
 import { createStakeTransaction } from './utils';
 import useSuiBalance from '../../hooks/coin/useSuiBalance';
+import { bigint } from 'superstruct';
 export default function StackingPage() {
   const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -46,7 +47,7 @@ export default function StackingPage() {
     }
     return false;
   });
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState('0');
   const [buttonLoading, setButtonLoading] = useState(false);
   // const { data: estimatedGasBudget, isSuccess: isBudgetLoaded } =
   //   useEstimatedGasBudget({
@@ -72,7 +73,7 @@ export default function StackingPage() {
   const gasFee = featureFlags?.stake_gas_budget ?? 20_000_000;
   const max = useMemo(() => {
     // return Number(formatCurrency(Number(balance) - Number(estimatedGasBudget)));
-    return Number(suiBalance.balance) / 1_000_000_000;
+    return suiBalance.balance;
   }, [suiBalance]);
 
   async function StakeCoins() {
@@ -85,10 +86,7 @@ export default function StackingPage() {
       if (!network) throw new Error('require network selected');
       if (!selectedValidator) throw new Error('require validator selected');
 
-      const tx = createStakeTransaction(
-        BigInt(amount * 1_000_000_000),
-        selectedValidator
-      );
+      const tx = createStakeTransaction(BigInt(amount), selectedValidator);
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
         undefined
@@ -161,9 +159,12 @@ export default function StackingPage() {
       <div className="px-6 text-3xl flex items-center gap-2 w-full max-w-[362px]">
         <InputAmount
           className="h-48"
-          onInput={setAmount}
-          max={max}
-          symbol={'SUI'}
+          onInput={(value) => {
+            setAmount(BigInt(Number(value) * 10 ** suiBalance.decimals));
+          }}
+          maxCoinAmount={max}
+          decimals={suiBalance.decimals}
+          coinSymbol={'SUI'}
         ></InputAmount>
         {/* <div className="font-bold text-zinc-300">SUI</div>
         <button className="text-lg py-1 px-3 bg-zinc-100 text-zinc-500 hover:bg-zinc-200 transition font-medium rounded-2xl">
