@@ -104,13 +104,24 @@ function PasswordSetting() {
   const navigate = useNavigate();
 
   async function handleSetPassword(password: string, oldPassword?: string) {
-    await apiClient.callFunc<UpdatePasswordParams, undefined>(
-      'auth.updatePassword',
-      {
-        oldPassword: oldPassword ?? '',
-        newPassword: password,
+    try {
+      await apiClient.callFunc<UpdatePasswordParams, undefined>(
+        'auth.updatePassword',
+        {
+          oldPassword: oldPassword ?? '',
+          newPassword: password,
+        }
+      );
+    } catch (e: any) {
+      if (e?.message.includes('Invalid password')) {
+        message.error('The old password is incorrect');
+      } else {
+        message.error('Update password failed');
       }
-    );
+      console.error(e);
+      return;
+    }
+
     message.success('Update password succeeded');
     navigate('..');
   }
