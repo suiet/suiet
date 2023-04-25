@@ -11,7 +11,9 @@ export const GET_NFT_LIST = gql`
       }
       name
       description
+      thumbnailUrl
       url
+      expiresAt
     }
   }
 `;
@@ -25,6 +27,8 @@ export type NftGqlDto = {
   };
   name: string;
   url: string;
+  thumbnailUrl: string | null;
+  expiresAt: number | null;
   description: string;
 };
 
