@@ -160,7 +160,7 @@ export default function StackingPage() {
         <InputAmount
           className="h-48"
           onInput={(value) => {
-            setAmount(BigInt(Number(value) * 10 ** suiBalance.decimals));
+            setAmount(Number(Number(value) * 10 ** suiBalance.decimals));
           }}
           maxCoinAmount={max}
           decimals={suiBalance.decimals}
