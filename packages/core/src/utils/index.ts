@@ -6,3 +6,4 @@ export function isNonEmptyArray(value: any): value is any[] {
 }
 
 export * from './format';
+export * from './coins';
