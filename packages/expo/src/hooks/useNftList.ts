@@ -10,6 +10,8 @@ export const GET_NFT_LIST = gql`
         hasPublicTransfer
       }
       name
+      thumbnailUrl
+      expiresAt
       description
       url
     }

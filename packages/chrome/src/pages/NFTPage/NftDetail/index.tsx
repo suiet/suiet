@@ -22,6 +22,8 @@ const NftDetail = () => {
     description = '',
     previousTransaction = '',
     objectType = '',
+    thumbnailUrl,
+    expiresAt,
     url = '',
     hasPublicTransfer = false,
   } = location.state || ({} as any);
@@ -48,7 +50,12 @@ const NftDetail = () => {
         }}
       />
       <div className={styles['container']}>
-        <NftImg src={url} alt={name} className={styles['nft-img']} />
+        <NftImg
+          src={url}
+          thumbnailUrl={thumbnailUrl}
+          alt={name}
+          className={styles['nft-img']}
+        />
         <div className="relative flex">
           <div className="flex flex-col flex-grow">
             <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
@@ -77,6 +84,8 @@ const NftDetail = () => {
                     name,
                     description,
                     previousTransaction,
+                    thumbnailUrl,
+                    expiresAt,
                     objectType,
                     url,
                     hasPublicTransfer,

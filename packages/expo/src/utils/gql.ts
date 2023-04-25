@@ -32,6 +32,8 @@ export const GET_COINS = gql`
       name
       description
       url
+      thumbnailUrl
+      expiresAt
       collection {
         description
         url
