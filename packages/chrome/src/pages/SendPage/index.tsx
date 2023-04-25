@@ -73,15 +73,16 @@ const SendPage = () => {
       walletId,
       accountId,
     };
+    const coinAmount = calculateCoinAmount(
+      sendData.coinAmountWithDecimals,
+      selectedCoin.decimals
+    );
     const serializedTxb = await createTransferCoinTxb({
       apiClient,
       context: txEssentials,
       coinType: sendData.coinType,
       recipient: sendData.recipientAddress,
-      amount: calculateCoinAmount(
-        sendData.coinAmountWithDecimals,
-        selectedCoin.decimals
-      ),
+      amount: coinAmount,
     });
     const txb = getTransactionBlock(serializedTxb);
     txb.setGasBudget(gasBudget); // set gas budget which is based on estimated gas fee
@@ -216,7 +217,7 @@ const SendPage = () => {
           state={sendData}
           selectedCoin={selectedCoin}
           suiBalance={suiBalance.balance}
-          gasBudget={gasBudget}
+          gasBudget={String(gasBudget)}
           onInputCoinAmountWithDecimals={(amountWithDecimals) => {
             setSendData((prev) => {
               return {
