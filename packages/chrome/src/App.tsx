@@ -66,7 +66,7 @@ function useCustomApolloClient(networkId: string) {
       // });
 
       const newClient = new ApolloClient({
-        cache: cache,
+        cache,
         link: new HttpLink({
           uri: `https://${networkId}.suiet.app/query`,
         }),
