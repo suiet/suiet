@@ -11,7 +11,7 @@
     "credentials": "echo \"$EXPO_CREDENTIALS\" | base64 -D | tar xzvf -"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.5",
+    "@apollo/client": "3.7.5",
     "@expo-google-fonts/barlow-semi-condensed": "0.2.3",
     "@expo-google-fonts/inter": "0.2.3",
     "@expo-google-fonts/roboto-mono": "0.2.3",
@@ -21,7 +21,7 @@
     "@react-navigation/native": "6.1.1",
     "@react-navigation/native-stack": "6.9.7",
     "@react-navigation/stack": "6.3.16",
-    "@reduxjs/toolkit": "^1.8.5",
+    "@reduxjs/toolkit": "1.8.5",
     "@scure/bip39": "1.1.1",
     "@untitled-ui/icons-react": "0.1.1",
     "axios": "1.3.4",
@@ -62,16 +62,16 @@
     "react-native-svg": "13.4.0",
     "react-native-toast-message": "2.1.6",
     "react-native-webview": "11.26.0",
-    "react-query": "^3.39.3",
+    "react-query": "3.39.3",
     "react-redux": "8.0.5",
-    "redux-persist": "^6.0.0",
+    "redux-persist": "6.0.0",
     "text-encoding": "0.7.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
+    "@babel/core": "7.12.9",
     "@types/gl-react-expo": "3.16.3",
     "@types/lodash-es": "4.17.7",
     "@types/react-native": "~0.71.3",
-    "typescript": "^4.9.4"
+    "typescript": "4.9.4"
   }
 }
