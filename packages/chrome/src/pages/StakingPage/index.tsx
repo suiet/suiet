@@ -87,16 +87,6 @@ export default function StackingPage() {
     return isCoinAmountValid(amount, maxAmount);
   }, [amount, maxAmount]);
 
-  const showTipOnce = useRef(false);
-  useEffect(() => {
-    if (!suiBalance || showTipOnce.current) return;
-
-    if (compareCoinAmount(suiBalance.balance, gasBudget) < 0) {
-      Message.info('Current balance is not enough to pay the gas fee');
-      showTipOnce.current = true;
-    }
-  }, [suiBalance]);
-
   async function StakeCoins() {
     try {
       // TODO:
