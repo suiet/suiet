@@ -1,6 +1,6 @@
 import { Network } from './network';
 import { Provider, QueryProvider, TxProvider } from '../provider';
-import { validateToken } from '../utils/token';
+import { validateAccount } from '../utils/token';
 import { Storage } from '../storage/Storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
@@ -193,7 +193,12 @@ export class TransactionApi implements ITransactionApi {
     params: TransferCoinParams
   ): Promise<SuiTransactionBlockResponse> {
     const { context } = params;
-    await validateToken(this.storage, context.token);
+    await validateAccount({
+      walletId: context.walletId,
+      accountId: context.accountId,
+      storage: this.storage,
+      token: context.token,
+    });
     const provider = new Provider(
       context.network.queryRpcUrl,
       context.network.txRpcUrl,
@@ -232,7 +237,12 @@ export class TransactionApi implements ITransactionApi {
     params: TransferCoinParams
   ): Promise<string> {
     const { context } = params;
-    await validateToken(this.storage, context.token);
+    await validateAccount({
+      walletId: context.walletId,
+      accountId: context.accountId,
+      storage: this.storage,
+      token: context.token,
+    });
     const provider = new Provider(
       context.network.queryRpcUrl,
       context.network.txRpcUrl,
@@ -254,7 +264,12 @@ export class TransactionApi implements ITransactionApi {
   }
 
   async transferObject(params: TransferObjectParams): Promise<void> {
-    await validateToken(this.storage, params.token);
+    await validateAccount({
+      walletId: params.walletId,
+      accountId: params.accountId,
+      storage: this.storage,
+      token: params.token,
+    });
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
@@ -421,7 +436,12 @@ export class TransactionApi implements ITransactionApi {
   }
 
   private async prepareTxEssentials(context: TxEssentials) {
-    await validateToken(this.storage, context.token);
+    await validateAccount({
+      walletId: context.walletId,
+      accountId: context.accountId,
+      storage: this.storage,
+      token: context.token,
+    });
     const provider = TxProvider.create(
       context.network.queryRpcUrl,
       context.network.versionCacheTimoutInSeconds
