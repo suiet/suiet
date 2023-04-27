@@ -9,6 +9,7 @@ import {
   Network,
   NetworkApi,
   TransactionApi,
+  validateToken,
 } from '@suiet/core';
 import { isNonEmptyArray } from '../../../utils/check';
 import { ALL_PERMISSIONS, Permission, PermissionManager } from '../permission';
@@ -113,10 +114,13 @@ export class DappBgApi {
     );
   }
 
-  // FIXME: could be a security issue!
-  //  need to verify the origin of the request (only allow our popup window)
-  // get callback from ui extension
+  // Get callback from ui extension
+  // Not: it's an important public function to approve transactions
+  // The calls have to come from UI, should NEVER open to content script
   public async callbackApproval(payload: Approval) {
+    // only requests from UI have the correct token
+    await validateToken(this.ctx.storage, payload.token);
+
     if (!payload) {
       throw new Error('params result should not be empty');
     }

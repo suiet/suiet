@@ -108,13 +108,19 @@ const TxApprovePage = () => {
     if (!txReqData) return;
     try {
       setSubmitLoading(true);
-      await apiClient.callFunc('dapp.callbackApproval', {
-        approved,
-        reason: reason ?? null,
-        id: txReqData.id,
-        type: ApprovalType.TRANSACTION,
-        updatedAt: new Date().toISOString(),
-      });
+      await apiClient.callFunc(
+        'dapp.callbackApproval',
+        {
+          approved,
+          reason: reason ?? null,
+          id: txReqData.id,
+          type: ApprovalType.TRANSACTION,
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          withAuth: true,
+        }
+      );
     } finally {
       setSubmitLoading(false);
     }

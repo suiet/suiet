@@ -34,6 +34,7 @@ export interface Approval {
   approved: boolean;
   reason: string;
   updatedAt: string;
+  token: string;
 }
 export interface AccountInfo {
   address: string;
