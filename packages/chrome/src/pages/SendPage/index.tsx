@@ -25,7 +25,7 @@ import useSuiBalance from '../../hooks/coin/useSuiBalance';
 import { getTransactionBlock } from '@suiet/core/src/utils/txb-factory';
 import createTransferCoinTxb from './utils/createTransferCoinTxb';
 import useGasBudgetForTransferCoin from './hooks/useGasBudgetForTranferCoin';
-import calculateSendCoinAmount from './utils/calculateSendCoinAmount';
+import { calculateCoinAmount } from '@suiet/core';
 import useCoinsWithSuiOnTop from './hooks/useCoinsWithSuiOnTop';
 
 enum Mode {
@@ -73,12 +73,16 @@ const SendPage = () => {
       walletId,
       accountId,
     };
+    const coinAmount = calculateCoinAmount(
+      sendData.coinAmountWithDecimals,
+      selectedCoin.decimals
+    );
     const serializedTxb = await createTransferCoinTxb({
       apiClient,
       context: txEssentials,
       coinType: sendData.coinType,
       recipient: sendData.recipientAddress,
-      amount: calculateSendCoinAmount(sendData, selectedCoin),
+      amount: coinAmount,
     });
     const txb = getTransactionBlock(serializedTxb);
     txb.setGasBudget(gasBudget); // set gas budget which is based on estimated gas fee
@@ -213,7 +217,7 @@ const SendPage = () => {
           state={sendData}
           selectedCoin={selectedCoin}
           suiBalance={suiBalance.balance}
-          gasBudget={gasBudget}
+          gasBudget={String(gasBudget)}
           onInputCoinAmountWithDecimals={(amountWithDecimals) => {
             setSendData((prev) => {
               return {

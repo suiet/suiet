@@ -2,13 +2,14 @@ import classnames from 'classnames';
 import IconWaterDrop from '../../../assets/icons/waterdrop.svg';
 import IconToken from '../../../assets/icons/token.svg';
 import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
+import { ReactComponent as UnverifiedIcon } from '../../../assets/icons/unverified.svg';
 import styles from './index.module.scss';
 import { Extendable } from '../../../types';
 import TokenIcon from '../../../components/TokenIcon';
 import Typo from '../../../components/Typo';
 import { formatCurrency } from '@suiet/core';
 import { isSuiToken } from '../../../utils/check';
-
+import Tooltip from '../../../components/Tooltip';
 type TokenItemProps = Extendable & {
   symbol: string;
   type: string;
@@ -72,7 +73,19 @@ const TokenItem = (props: TokenItemProps) => {
             >
               {symbol}
             </Typo.Normal>
-            {isVerified && <VerifiedIcon className="ml-[4px]" />}
+            {isVerified ? (
+              <Tooltip message={'Verified'}>
+                <VerifiedIcon className="ml-1" width={14} height={14} />
+              </Tooltip>
+            ) : (
+              <Tooltip
+                message={
+                  'Unverified: proceed with caution and research before use'
+                }
+              >
+                <UnverifiedIcon className="ml-1" width={14} height={14} />
+              </Tooltip>
+            )}
           </div>
 
           <Typo.Small
