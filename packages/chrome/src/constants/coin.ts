@@ -9,4 +9,4 @@ export const DEFAULT_SUI_COIN: CoinDto = {
   isVerified: true,
 };
 
-export const DEFAULT_GAS_BUDGET = 3_000_000;
+export const DEFAULT_GAS_BUDGET = 20_000_000;

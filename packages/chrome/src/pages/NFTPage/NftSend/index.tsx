@@ -1,4 +1,4 @@
-import { TransferObjectParams } from '@suiet/core';
+import { TransferObjectParams, formatSUI } from '@suiet/core';
 import classNames from 'classnames';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -14,7 +14,6 @@ import { useApiClient } from '../../../hooks/useApiClient';
 import { useNetwork } from '../../../hooks/useNetwork';
 import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
-import { formatSUI } from '@suiet/core';
 import styles from './index.module.scss';
 import useEstimatedGasFee from '../../../hooks/transaction/useEstimatedGasFee';
 import { useForm } from 'react-hook-form';
@@ -38,6 +37,8 @@ export default function SendNft() {
     previousTransaction = '',
     objectType = '',
     url = '',
+    thumbnailUrl,
+    expiresAt,
     hasPublicTransfer = false,
   } = location.state || ({} as any);
 
@@ -93,6 +94,8 @@ export default function SendNft() {
               previousTransaction,
               objectType,
               url,
+              thumbnailUrl,
+              expiresAt,
               hasPublicTransfer,
             },
           });
@@ -103,7 +106,12 @@ export default function SendNft() {
         <div className={styles['description']}>Send your NFT to others</div>
       </div>
       <div className={classNames(styles['nft-bg'], 'flex')}>
-        <NftImg src={url} alt={name} className={styles['nft-img']} />
+        <NftImg
+          src={url}
+          thumbnailUrl={thumbnailUrl}
+          alt={name}
+          className={styles['nft-img']}
+        />
         <div className={styles['nft-content']}>
           <Typo.Title className={styles['nft-name']}>{name}</Typo.Title>
           <Typo.Normal className={styles['nft-desc']}>

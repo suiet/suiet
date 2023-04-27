@@ -102,7 +102,7 @@ export default function CoinDetailPage() {
         },
         { withAuth: true }
       );
-      message.success('Stake SUI succeeded');
+      message.success('Unstake SUI succeeded');
       navigate('/transaction/flow');
     } catch (e: any) {
       // console.error(e);
@@ -161,7 +161,7 @@ export default function CoinDetailPage() {
             <Skeleton className="w-12 h-6"></Skeleton>
           ) : (
             <p className="inline text-3xl font-bold">
-              {formatSUI(Number(balance) + Number(stakedBalance))}
+              {formatSUI(BigInt(balance) + BigInt(stakedBalance))}
             </p>
           )}
           <p className="inline text-3xl font-bold text-zinc-400">SUI</p>

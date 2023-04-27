@@ -11,7 +11,6 @@ export default function formatInputCoinAmount(
     return '0';
   }
 
-  const reg = RegExp(`^0\.[0]{0,${decimals}}$`);
   // allow pending decimal inputs
   if (RegExp(`^0\\.[0]{0,${decimals}}$`).test(res)) {
     return res;

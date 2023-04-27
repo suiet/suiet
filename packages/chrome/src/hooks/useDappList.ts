@@ -1,14 +1,24 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { DappItem, getDappList } from '../api/dapps';
 import { isNonEmptyArray } from '../utils/check';
 import { useQuery } from 'react-query';
+import { useSelector } from 'react-redux';
 
 export function useDappList() {
+  const { networkId } = useSelector((state: any) => state.appContext);
+  const fetchDappList = useCallback(async () => {
+    return await getDappList({
+      networkId,
+    });
+  }, [networkId]);
+
   const {
     data: resData,
     error,
     ...rest
-  } = useQuery(['fetchDappList'], fetchDappList);
+  } = useQuery(['fetchDappList', networkId], fetchDappList, {
+    staleTime: 60 * 1000,
+  });
 
   const category: Map<string, DappItem[]> = useMemo(() => {
     if (!resData) return new Map();
@@ -33,10 +43,6 @@ export function useDappList() {
     if (!resData) return [];
     return resData.popular;
   }, [resData]);
-
-  async function fetchDappList() {
-    return await getDappList();
-  }
 
   return {
     category,

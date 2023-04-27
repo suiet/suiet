@@ -98,7 +98,11 @@ const TokenItem = (props: TokenItemProps) => {
                   <VerifiedIcon width={14} height={14} />
                 </Tooltip>
               ) : (
-                <Tooltip message={'Unverified token, please be cautious'}>
+                <Tooltip
+                  message={
+                    'Unverified: proceed with caution and research before use'
+                  }
+                >
                   <UnverifiedIcon width={14} height={14} />
                 </Tooltip>
               )}

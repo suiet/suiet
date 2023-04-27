@@ -7,6 +7,8 @@ import { getEstimatedGasFeeFromDryRunResult } from '../../../hooks/transaction/u
 import createTransferCoinTxb from '../utils/createTransferCoinTxb';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { DEFAULT_GAS_BUDGET } from '../../../constants';
+import Message from '../../../components/message';
+import formatDryRunError from '@suiet/core/src/utils/format/formatDryRunError';
 
 function calculateGasBudget(
   estimatedGasFee: bigint,
@@ -32,6 +34,7 @@ export default function useGasBudgetForTransferCoin(params: {
   const featureFlags = useFeatureFlagsWithNetwork();
   const defaultGasBudget =
     featureFlags?.pay_coin_gas_budget ?? DEFAULT_GAS_BUDGET;
+
   const gasBudget = useMemo(() => {
     return calculateGasBudget(
       estimatedGasFee,
@@ -76,6 +79,12 @@ export default function useGasBudgetForTransferCoin(params: {
       });
       let result = getEstimatedGasFeeFromDryRunResult(dryRunRes);
       setEstimatedGasFee(result);
+    } catch (e: any) {
+      const formattedErrMsg = formatDryRunError(e);
+      if (formattedErrMsg.includes('needed gas')) {
+        Message.info('Current balance is not enough to pay the gas fee');
+      }
+      setEstimatedGasFee(0n);
     } finally {
       setLoading(false);
     }
