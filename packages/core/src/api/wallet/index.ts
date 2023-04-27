@@ -46,8 +46,13 @@ export interface IWalletApi {
   revealPrivate: (params: RevealPrivateKeyParams) => Promise<string>;
 
   createWallet: (params: CreateWalletParams) => Promise<Wallet>;
-  getWallets: () => Promise<Wallet[]>;
-  getWallet: (walletId: string) => Promise<Wallet | null>;
+  getWallets: (opts?: { withMnemonic?: boolean }) => Promise<Wallet[]>;
+  getWallet: (
+    walletId: string,
+    opts?: {
+      withMnemonic?: boolean;
+    }
+  ) => Promise<Wallet | null>;
   updateWallet: (params: UpdateWalletParams) => Promise<void>;
   deleteWallet: (walletId: string, token: string) => Promise<void>;
 }
@@ -146,12 +151,35 @@ export class WalletApi implements IWalletApi {
     return wallet;
   }
 
-  async getWallets(): Promise<Wallet[]> {
-    return await this.storage.getWallets();
+  async getWallets(opts?: { withMnemonic?: boolean }): Promise<Wallet[]> {
+    const { withMnemonic = false } = opts ?? {};
+    const wallets = await this.storage.getWallets();
+    if (!withMnemonic) {
+      wallets.forEach((wallet) => {
+        if (wallet.encryptedMnemonic) {
+          Reflect.deleteProperty(wallet, 'encryptedMnemonic');
+        }
+      });
+    }
+    return wallets;
   }
 
-  async getWallet(walletId: string): Promise<Wallet | null> {
-    return await this.storage.getWallet(walletId);
+  async getWallet(
+    walletId: string,
+    opts?: {
+      withMnemonic?: boolean;
+    }
+  ): Promise<Wallet | null> {
+    const { withMnemonic = false } = opts ?? {};
+    const walletData = await this.storage.getWallet(walletId);
+    if (!walletData) {
+      return null;
+    }
+    // TODO: we don't need to reveal the decrypt mnemonic here.
+    if (!withMnemonic && walletData.encryptedMnemonic) {
+      Reflect.deleteProperty(walletData, 'encryptedMnemonic');
+    }
+    return walletData;
   }
 
   async updateWallet(params: UpdateWalletParams) {

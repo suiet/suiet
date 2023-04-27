@@ -26,10 +26,6 @@ export class MockStorage {
       name: 'test',
       accounts: [],
       nextAccountId: 2,
-      encryptedMnemonic: {
-        encryptedHex: '',
-        saltHex: '',
-      },
     });
   }
 
@@ -63,26 +59,18 @@ export class MockWallet {
     password: string,
     storage: Storage
   ): Promise<any> {
-    const encryptedMnemonic = {
-      encryptedHex: '',
-      saltHex: '',
-    };
     const walletId = 1;
     const wallet = {
       id: 'wallet-' + walletId,
       name: 'name-' + walletId,
       nextAccountId: 0,
-      encryptedMnemonic,
       accounts: [],
     };
     return new MockWallet(storage, wallet);
   }
 }
 
-export function decryptMnemonic(
-  password: string,
-  encryptedMnemonic: any
-): string {
+export function decryptMnemonic(password: string): string {
   return mockMnemonic1;
 }
 
