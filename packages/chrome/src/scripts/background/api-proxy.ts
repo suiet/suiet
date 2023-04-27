@@ -11,7 +11,7 @@ import { fromEventPattern } from 'rxjs';
 import { CallFuncOption, PortName, resData } from '../shared';
 import { normalizeMessageToParams } from './utils/transmission';
 import { log, logError } from './utils/log';
-import { has } from 'lodash-es';
+import { cloneDeep, has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
 import { BizError, ErrorCode, NoAuthError } from './errors';
 
@@ -161,7 +161,7 @@ export class BackgroundApiProxy {
       let error: null | { code: number; msg: string } = null;
       let data: null | any = null;
       const reqMeta = `id: ${id}, method: ${service}.${func}`;
-      log(`request(${reqMeta})`, callFuncData);
+      log(`request(${reqMeta})`, cloneDeep(callFuncData));
       try {
         const startTime = Date.now();
         data = await this.#callBackgroundMethod(
