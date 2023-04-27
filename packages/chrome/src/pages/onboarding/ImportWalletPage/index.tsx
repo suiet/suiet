@@ -18,12 +18,14 @@ import { useApiClient } from '../../../hooks/useApiClient';
 import { Account, CreateWalletParams, Wallet } from '@suiet/core';
 import { sleep } from '../../../utils/time';
 import { OmitToken } from '../../../types';
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
 
 const ImportWallet = () => {
   const apiClient = useApiClient();
   const [step, setStep] = useState(1);
   const [secret, setSecret] = useState('');
   const dispatch = useDispatch<AppDispatch>();
+  const featureFlags = useFeatureFlags();
   const navigate = useNavigate();
   const pageEntry = usePageEntry();
 
@@ -71,7 +73,7 @@ const ImportWallet = () => {
   async function handleSetPassword(password: string) {
     await apiClient.callFunc<string, undefined>('auth.initPassword', password);
     await createWalletAndAccount(secret);
-    await dispatch(updateNetworkId('devnet'));
+    await dispatch(updateNetworkId(featureFlags?.default_network ?? 'devnet'));
     await dispatch(updateInitialized(true));
     message.success('Wallet Created!');
     navigate('/');

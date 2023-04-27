@@ -23,6 +23,7 @@ import Nav from '../../../components/Nav';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { sleep } from '../../../utils/time';
 import { OmitToken } from '../../../types';
+import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
@@ -31,6 +32,7 @@ const CreateNewWallet = () => {
   const dispatch = useDispatch<AppDispatch>();
   const pageEntry = usePageEntry();
   const apiClient = useApiClient();
+  const featureFlags = useFeatureFlags();
 
   async function createWalletAndAccount() {
     const wallet = await apiClient.callFunc<
@@ -62,7 +64,7 @@ const CreateNewWallet = () => {
 
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
-    await dispatch(updateNetworkId('devnet'));
+    await dispatch(updateNetworkId(featureFlags?.default_network ?? 'devnet'));
     await dispatch(updateInitialized(true));
   }
 
