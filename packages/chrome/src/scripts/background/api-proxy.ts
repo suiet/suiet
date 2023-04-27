@@ -8,7 +8,7 @@ import {
   WalletApi,
 } from '@suiet/core';
 import { fromEventPattern } from 'rxjs';
-import { CallFuncOption, resData } from '../shared';
+import { CallFuncOption, PortName, resData } from '../shared';
 import { normalizeMessageToParams } from './utils/transmission';
 import { log, logError } from './utils/log';
 import { has } from 'lodash-es';
@@ -165,6 +165,7 @@ export class BackgroundApiProxy {
       try {
         const startTime = Date.now();
         data = await this.#callBackgroundMethod(
+          port.name,
           service,
           func,
           payload,
@@ -253,7 +254,17 @@ export class BackgroundApiProxy {
     return serviceProxy as T;
   }
 
+  /**
+   * Call method of the services
+   * @param portName
+   * @param serviceName
+   * @param funcName
+   * @param payload
+   * @param options
+   * @private
+   */
   async #callBackgroundMethod<T = any>(
+    portName: string,
     serviceName: string,
     funcName: string,
     payload: any,
@@ -270,9 +281,12 @@ export class BackgroundApiProxy {
     }
     const params = payload;
 
-    // inject token to params
-
-    if (options && options?.withAuth === true) {
+    // inject token to params only for Suiet UI
+    if (
+      portName === PortName.SUIET_UI_BACKGROUND &&
+      options &&
+      options?.withAuth === true
+    ) {
       try {
         // inject token to payload
         const token = this.#auth.getToken();
