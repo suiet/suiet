@@ -117,11 +117,10 @@ export class DappBgApi {
   //  need to verify the origin of the request (only allow our popup window)
   // get callback from ui extension
   public async callbackApproval(payload: Approval) {
-    console.log('callbackApproval is triggered', payload);
-    // if (!payload) {
-    //   throw new Error('params result should not be empty');
-    // }
-    // approvalSubject.next(payload); // send data to event listener so that the connect function can go on
+    if (!payload) {
+      throw new Error('params result should not be empty');
+    }
+    approvalSubject.next(payload); // send data to event listener so that the connect function can go on
   }
 
   public async getAccountsInfo(
