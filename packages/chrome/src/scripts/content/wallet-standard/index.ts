@@ -73,7 +73,8 @@ export class SuietWallet implements Wallet {
     this.#events = mitt();
     this.#winMsgStream = new WindowMsgStream(
       WindowMsgTarget.DAPP,
-      WindowMsgTarget.SUIET_CONTENT
+      WindowMsgTarget.SUIET_CONTENT,
+      window.origin // only talk to the current origin
     );
     this.#subscribeEventFromBackend(this.#winMsgStream);
   }
