@@ -19,7 +19,7 @@ export async function validateToken(storage: IStorage, token: string) {
 export type ValidateAccountParams = {
   walletId: string;
   accountId: string;
-  storage: Storage;
+  storage: IStorage;
   token: string;
 };
 
