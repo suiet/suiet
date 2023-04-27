@@ -33,11 +33,20 @@ function isIgnoreMsg(event: MessageEvent<any>) {
   );
 }
 
+function validateInputData(eventData: WindowMsg) {
+  return true;
+}
+
 /**
  * Set up proxy between in-page window message and chrome ext port
  * @param siteMetadata
  */
 function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
+  const windowMsgStream = new WindowMsgStream(
+    WindowMsgTarget.SUIET_CONTENT,
+    WindowMsgTarget.DAPP,
+    siteMetadata.origin
+  );
   const port = chrome.runtime.connect({
     name: PortName.SUIET_CONTENT_BACKGROUND,
   });
@@ -45,72 +54,40 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   // port msg from background - content script proxy -> window msg to dapp
   port.onMessage.addListener((msg) => {
     // console.log('[content] before port sends data to window', msg);
-    // FIXME: Specify target origin of the target web page!!
-    window.postMessage({
-      target: WindowMsgTarget.DAPP,
-      payload: msg,
-    });
+    windowMsgStream.post(msg);
   });
 
   // window msg from dapp - content script proxy -> port msg to ext background
-  const passMessageToPort = (event: MessageEvent) => {
-    if (isMsgFromSuietContext(event) && !isIgnoreMsg(event)) {
-      // console.log(
-      //   '[content] received data from window postMessage',
-      //   event.data
-      // );
-      const { payload: trueData } = event.data;
-      const message = {
-        id: trueData.id,
-        // FIXME: Sanitize data for only allowed function calls!!!
-        funcName: trueData.funcName,
-        payload: {
-          params: trueData.payload,
-          context: {
-            origin: event.origin,
-            name: siteMetadata.name,
-            favicon: siteMetadata.icon,
-          },
-        },
-      };
-      // console.log('[content]  before port postMessage', message);
-      port.postMessage(message);
+  const passMessageToPort = (eventData: WindowMsg) => {
+    // console.log(
+    //   '[content] received data from window postMessage',
+    //   event.data
+    // );
+    // FIXME: Sanitize data for only allowed function calls!!!
+    if (!validateInputData(eventData)) {
+      console.warn('[SUIET_CONTENT] received invalid data from window');
+      return;
     }
+
+    const { payload: trueData } = eventData;
+    const message = {
+      id: trueData.id,
+      funcName: trueData.funcName,
+      payload: {
+        params: trueData.payload,
+        context: {
+          origin: siteMetadata.origin,
+          name: siteMetadata.name,
+          favicon: siteMetadata.icon,
+        },
+      },
+    };
+    // console.log('[content]  before port postMessage', message);
+    port.postMessage(message);
   };
 
-  // TODO: eavesdrop risk on window message?
-  window.addEventListener('message', passMessageToPort);
+  windowMsgStream.subscribe(passMessageToPort);
   return port;
-}
-
-/**
- * @deprecated abandon lazy setup in order to keep service-worker alive
- */
-function legacyHandShakeAndWaveListener() {
-  const windowMsgStream = new WindowMsgStream(
-    WindowMsgTarget.SUIET_CONTENT,
-    WindowMsgTarget.DAPP
-  );
-  windowMsgStream.subscribe(async (windowMsg) => {
-    if (isDappHandShakeRequest(windowMsg)) {
-      // do nothing but respond
-      // TODO: record handshake origin for later validation
-      await windowMsgStream.post({
-        id: windowMsg.payload.id,
-        error: null,
-        data: null,
-      });
-    }
-    if (isDappHandWaveRequest(windowMsg)) {
-      // do nothing but respond
-      // TODO: remove handshake origin from record
-      await windowMsgStream.post({
-        id: windowMsg.payload.id,
-        error: null,
-        data: null,
-      });
-    }
-  });
 }
 
 /**
@@ -133,5 +110,4 @@ keepServiceWorkerAlive();
 (async function main() {
   const siteMetadata = await getSiteMetadata();
   setupMessageProxy(siteMetadata);
-  legacyHandShakeAndWaveListener();
 })();

@@ -1,6 +1,7 @@
 export type SiteMetadata = {
   name: string;
   icon: string | null;
+  origin: string;
 };
 
 /**
@@ -11,6 +12,7 @@ export async function getSiteMetadata(): Promise<SiteMetadata> {
   return {
     name: getSiteName(window),
     icon: await getSiteIcon(window),
+    origin: window.origin,
   };
 }
 
