@@ -60,14 +60,14 @@ const approvalSubject: Subject<Approval> = new Subject<Approval>();
  */
 export class DappBgApi {
   private readonly ctx: BackgroundApiContext;
-  chromeStorage: ChromeStorage;
-  permManager: PermissionManager;
-  txManager: TxRequestManager;
-  signManager: SignRequestManager;
-  txApi: TransactionApi;
-  accountApi: AccountApi;
-  networkApi: NetworkApi;
-  authApi: AuthApi;
+  private readonly chromeStorage: ChromeStorage;
+  private readonly permManager: PermissionManager;
+  private readonly txManager: TxRequestManager;
+  private readonly signManager: SignRequestManager;
+  private readonly txApi: TransactionApi;
+  private readonly accountApi: AccountApi;
+  private readonly networkApi: NetworkApi;
+  private readonly authApi: AuthApi;
   featureFlags: FeatureFlagRes | undefined;
 
   constructor(
