@@ -30,20 +30,20 @@ export interface BackgroundApiContext {
  * Proxy the port message function call to the actual method
  */
 export class BackgroundApiProxy {
-  private readonly ports: chrome.runtime.Port[] = [];
-  private storage: IStorage;
-  private serviceProxyCache: Record<string, any>;
+  readonly #ports: chrome.runtime.Port[] = [];
+  #storage: IStorage;
+  #serviceProxyCache: Record<string, any>;
 
-  private root: RootApi;
-  private wallet: WalletApi;
-  private account: AccountApi;
-  private auth: AuthApi;
-  private txn: TransactionApi;
-  private network: NetworkApi;
-  private dapp: DappBgApi;
+  #root: RootApi;
+  #wallet: WalletApi;
+  #account: AccountApi;
+  #auth: AuthApi;
+  #txn: TransactionApi;
+  #network: NetworkApi;
+  #dapp: DappBgApi;
 
   constructor() {
-    this.registerServices();
+    this.#registerServices();
   }
 
   /**
@@ -53,9 +53,9 @@ export class BackgroundApiProxy {
    */
   public listen(port: chrome.runtime.Port) {
     log('set up listener for port: ', port.name);
-    this.ports.push(port);
+    this.#ports.push(port);
     // log('this.ports after adding', this.ports);
-    const subscription = this.setUpFuncCallProxy(port);
+    const subscription = this.#setUpFuncCallProxy(port);
 
     // Triggers when:
     // - No listeners at the other end
@@ -65,17 +65,17 @@ export class BackgroundApiProxy {
     // - runtime.Port.disconnect() is called by the other end.
     port.onDisconnect.addListener(() => {
       subscription.unsubscribe();
-      const index = this.ports.findIndex((p) => p === port);
+      const index = this.#ports.findIndex((p) => p === port);
       log(`unsubscribe port ${port.name} and index: ${index}`);
-      this.ports.splice(index, 1);
+      this.#ports.splice(index, 1);
       // log('this.ports after removal', this.ports);
     });
   }
 
-  private context(): BackgroundApiContext {
+  get #context(): BackgroundApiContext {
     return {
-      storage: this.storage,
-      broadcast: this.broadcast,
+      storage: this.#storage,
+      broadcast: this.#broadcast,
     };
   }
 
@@ -83,61 +83,61 @@ export class BackgroundApiProxy {
    * register services for clients to call
    * @private
    */
-  private registerServices() {
-    this.serviceProxyCache = {};
-    this.storage = this.getStorage();
+  #registerServices() {
+    this.#serviceProxyCache = {};
+    this.#storage = this.#getStorage();
 
-    this.wallet = this.registerProxyService<WalletApi>(
-      new WalletApi(this.storage),
+    this.#wallet = this.#registerProxyService<WalletApi>(
+      new WalletApi(this.#storage),
       'wallet'
     );
-    this.account = this.registerProxyService<AccountApi>(
-      new AccountApi(this.storage),
+    this.#account = this.#registerProxyService<AccountApi>(
+      new AccountApi(this.#storage),
       'account'
     );
-    this.auth = this.registerProxyService<AuthApi>(
-      new AuthApi(this.storage),
+    this.#auth = this.#registerProxyService<AuthApi>(
+      new AuthApi(this.#storage),
       'auth'
     );
-    this.txn = this.registerProxyService<TransactionApi>(
-      new TransactionApi(this.storage),
+    this.#txn = this.#registerProxyService<TransactionApi>(
+      new TransactionApi(this.#storage),
       'txn'
     );
-    this.network = this.registerProxyService<NetworkApi>(
+    this.#network = this.#registerProxyService<NetworkApi>(
       new NetworkApi(),
       'network'
     );
-    this.dapp = this.registerProxyService<DappBgApi>(
+    this.#dapp = this.#registerProxyService<DappBgApi>(
       new DappBgApi(
-        this.context(),
-        this.txn,
-        this.network,
-        this.auth,
-        this.account
+        this.#context,
+        this.#txn,
+        this.#network,
+        this.#auth,
+        this.#account
       ),
       'dapp'
     );
-    this.root = this.registerProxyService<RootApi>(
+    this.#root = this.#registerProxyService<RootApi>(
       ((ctx: any) => ({
         clearToken: async () => {
-          const meta = await this.storage.loadMeta();
+          const meta = await this.#storage.loadMeta();
           if (!meta) return;
 
           try {
-            await this.storage.clearMeta();
+            await this.#storage.clearMeta();
           } catch (e) {
             console.error(e);
             throw new Error('Clear meta failed');
           }
         },
         resetAppData: async () => {
-          await this.storage.reset();
-          ctx.registerServices();
+          await this.#storage.reset();
+          ctx.#registerServices();
         },
       }))(this),
       'root'
     );
-    log('initServices finished', this.serviceProxyCache);
+    log('initServices finished', this.#serviceProxyCache);
   }
 
   /**
@@ -145,7 +145,7 @@ export class BackgroundApiProxy {
    * @param port
    * @private
    */
-  private setUpFuncCallProxy(port: chrome.runtime.Port) {
+  #setUpFuncCallProxy(port: chrome.runtime.Port) {
     // create msg source from chrome port to be subscribed
     const portObservable = fromEventPattern(
       (h) => port.onMessage.addListener(h),
@@ -164,11 +164,16 @@ export class BackgroundApiProxy {
       log(`request(${reqMeta})`, callFuncData);
       try {
         const startTime = Date.now();
-        data = await this.callBackgroundMethod(service, func, payload, options);
+        data = await this.#callBackgroundMethod(
+          service,
+          func,
+          payload,
+          options
+        );
         const duration = Date.now() - startTime;
         log(`respond(${reqMeta}) succeeded (${duration}ms)`, data);
       } catch (e) {
-        error = this.detectError(e); // generate error response
+        error = this.#detectError(e); // generate error response
         log(`respond(${reqMeta}) failed`, error);
 
         // ignore logs like authentication
@@ -199,7 +204,7 @@ export class BackgroundApiProxy {
     });
   }
 
-  private detectError(e: any) {
+  #detectError(e: any) {
     if (e instanceof BizError || has(e, 'code')) {
       return {
         code: e.code,
@@ -234,30 +239,30 @@ export class BackgroundApiProxy {
    * @param svcName
    * @private
    */
-  private registerProxyService<T = any>(service: Object, svcName: string) {
+  #registerProxyService<T = any>(service: Object, svcName: string) {
     // readonly service proxy
     const serviceProxy = new Proxy(service, {
       get: (target, prop) => {
         return (target as any)[prop];
       },
     });
-    if (!has(this.serviceProxyCache, svcName)) {
+    if (!has(this.#serviceProxyCache, svcName)) {
       // register service into the service cache
-      this.serviceProxyCache[svcName] = serviceProxy;
+      this.#serviceProxyCache[svcName] = serviceProxy;
     }
     return serviceProxy as T;
   }
 
-  private async callBackgroundMethod<T = any>(
+  async #callBackgroundMethod<T = any>(
     serviceName: string,
     funcName: string,
     payload: any,
     options?: CallFuncOption
   ) {
-    if (!has(this.serviceProxyCache, serviceName)) {
+    if (!has(this.#serviceProxyCache, serviceName)) {
       throw new Error(`service (${serviceName}) not exist`);
     }
-    const service = this.serviceProxyCache[serviceName];
+    const service = this.#serviceProxyCache[serviceName];
     if (typeof service[funcName] !== 'function') {
       throw new Error(
         `method ${funcName} not exist in service (${serviceName})`
@@ -270,7 +275,7 @@ export class BackgroundApiProxy {
     if (options && options?.withAuth === true) {
       try {
         // inject token to payload
-        const token = this.auth.getToken();
+        const token = this.#auth.getToken();
         Object.assign(params, { token });
         // FIXME: hack check for context params if the call is from wallet ext
         // inject token to context
@@ -288,7 +293,7 @@ export class BackgroundApiProxy {
    * get storage instance based on the runtime platform
    * @private
    */
-  private getStorage() {
+  #getStorage() {
     const storage = getStorage();
     if (!storage) {
       throw new Error('Platform not supported');
@@ -301,10 +306,10 @@ export class BackgroundApiProxy {
    * @param msg
    * @private
    */
-  private broadcast(msg: any): void {
-    console.log('broadcast', this.ports, msg);
+  #broadcast(msg: any): void {
+    console.log('broadcast', this.#ports, msg);
     if (!msg) return;
-    this.ports.forEach((port) => {
+    this.#ports.forEach((port) => {
       port.postMessage(msg);
     });
   }
