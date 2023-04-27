@@ -1,5 +1,4 @@
 import { PortName, WindowMsg, WindowMsgTarget } from '../shared';
-import { has } from 'lodash-es';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
 import { getSiteMetadata, SiteMetadata } from './utils';
 import { validateExternalWindowMsg } from './utils';
@@ -12,30 +11,6 @@ function injectDappInterface() {
   const container = document.head || document.documentElement;
   container.insertBefore(script, container.firstElementChild);
   container.removeChild(script);
-}
-
-function isMsgFromSuietContext(event: MessageEvent<any>) {
-  // FIXME: validate event.origin from already handshaked list!!
-  return (
-    event.source === window &&
-    event.data?.target === WindowMsgTarget.SUIET_CONTENT
-  );
-}
-
-function isDappHandShakeRequest(msg: WindowMsg) {
-  return has(msg, 'payload') && msg.payload.funcName === 'handshake';
-}
-function isDappHandWaveRequest(msg: WindowMsg) {
-  return has(msg, 'payload') && msg.payload.funcName === 'handwave';
-}
-function isIgnoreMsg(event: MessageEvent<any>) {
-  return (
-    isDappHandShakeRequest(event.data) || isDappHandWaveRequest(event.data)
-  );
-}
-
-function validateInputData(eventData: WindowMsg) {
-  return true;
 }
 
 /**
