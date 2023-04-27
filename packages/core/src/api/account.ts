@@ -1,4 +1,4 @@
-import { validateToken } from '../utils/token';
+import { validateAccount, validateToken } from '../utils/token';
 import * as crypto from '../crypto';
 import { Vault } from '../vault/Vault';
 import { IStorage } from '../storage';
@@ -84,7 +84,12 @@ export class AccountApi implements IAccountApi {
     meta: { name?: string | undefined },
     token: string
   ): Promise<void> {
-    await validateToken(this.storage, token);
+    await validateAccount({
+      walletId,
+      accountId,
+      storage: this.storage,
+      token,
+    });
     const account = await this.storage.getAccount(accountId);
     if (!account) {
       throw new Error('Account not exist');
