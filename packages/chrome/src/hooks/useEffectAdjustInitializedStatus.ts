@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
 import { useApiClient } from './useApiClient';
+import { useFeatureFlags } from './useFeatureFlags';
 
 /**
  * Detect indexeddb and redux state, make adjustment if there exists any mismatch
@@ -20,6 +21,7 @@ import { useApiClient } from './useApiClient';
 export function useEffectAdjustInitializedStatus(appContext: AppContextState) {
   const dispatch = useDispatch<AppDispatch>();
   const apiClient = useApiClient();
+  const featureFlags = useFeatureFlags();
 
   async function adjustInitializedStatus() {
     const wallets = await apiClient.callFunc<null, Wallet[]>(
@@ -47,12 +49,14 @@ export function useEffectAdjustInitializedStatus(appContext: AppContextState) {
     const [firstAccount] = firstWallet.accounts;
     // if wallet data is correct, but context data is not, re-initialize app
     if (!appContext.initialized) {
-      console.log('wallets detected, re-initialize app');
+      // console.log('wallets detected, re-initialize app');
       // if db has data but context is incorrect, then update
       await dispatch(updateInitialized(true));
       await dispatch(updateWalletId(firstWallet.id));
       await dispatch(updateAccountId(firstAccount.id));
-      await dispatch(updateNetworkId('devnet'));
+      await dispatch(
+        updateNetworkId(featureFlags?.default_network ?? 'devnet')
+      );
     }
   }
 
