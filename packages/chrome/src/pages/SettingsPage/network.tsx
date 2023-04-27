@@ -102,9 +102,6 @@ function Network() {
     }
 
     await dispatch(updateNetworkId(network));
-    await apiClient.callFunc('dapp.notifyNetworkSwitch', {
-      networkId: network,
-    });
     // avoid toast flashing after navigation
     setTimeout(() => {
       message.success(`Switched to ${network}`);

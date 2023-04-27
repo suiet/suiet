@@ -23,15 +23,14 @@ interface RootApi {
 
 export interface BackgroundApiContext {
   storage: IStorage;
-  broadcast: (msg: any) => void;
 }
 
 /**
  * Proxy the port message function call to the actual method
  */
 export class BackgroundApiProxy {
+  protected storage: IStorage;
   readonly #ports: chrome.runtime.Port[] = [];
-  #storage: IStorage;
   #serviceProxyCache: Record<string, any>;
 
   #root: RootApi;
@@ -74,8 +73,7 @@ export class BackgroundApiProxy {
 
   get #context(): BackgroundApiContext {
     return {
-      storage: this.#storage,
-      broadcast: this.#broadcast,
+      storage: this.storage,
     };
   }
 
@@ -85,22 +83,22 @@ export class BackgroundApiProxy {
    */
   #registerServices() {
     this.#serviceProxyCache = {};
-    this.#storage = this.#getStorage();
+    this.storage = this.#getStorage();
 
     this.#wallet = this.#registerProxyService<WalletApi>(
-      new WalletApi(this.#storage),
+      new WalletApi(this.storage),
       'wallet'
     );
     this.#account = this.#registerProxyService<AccountApi>(
-      new AccountApi(this.#storage),
+      new AccountApi(this.storage),
       'account'
     );
     this.#auth = this.#registerProxyService<AuthApi>(
-      new AuthApi(this.#storage),
+      new AuthApi(this.storage),
       'auth'
     );
     this.#txn = this.#registerProxyService<TransactionApi>(
-      new TransactionApi(this.#storage),
+      new TransactionApi(this.storage),
       'txn'
     );
     this.#network = this.#registerProxyService<NetworkApi>(
@@ -120,18 +118,18 @@ export class BackgroundApiProxy {
     this.#root = this.#registerProxyService<RootApi>(
       ((ctx: any) => ({
         clearToken: async () => {
-          const meta = await this.#storage.loadMeta();
+          const meta = await this.storage.loadMeta();
           if (!meta) return;
 
           try {
-            await this.#storage.clearMeta();
+            await this.storage.clearMeta();
           } catch (e) {
             console.error(e);
             throw new Error('Clear meta failed');
           }
         },
         resetAppData: async () => {
-          await this.#storage.reset();
+          await this.storage.reset();
           ctx.#registerServices();
         },
       }))(this),
@@ -313,18 +311,5 @@ export class BackgroundApiProxy {
       throw new Error('Platform not supported');
     }
     return storage;
-  }
-
-  /**
-   * broadcast msg to all ports
-   * @param msg
-   * @private
-   */
-  #broadcast(msg: any): void {
-    console.log('broadcast', this.#ports, msg);
-    if (!msg) return;
-    this.#ports.forEach((port) => {
-      port.postMessage(msg);
-    });
   }
 }
