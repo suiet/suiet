@@ -340,17 +340,6 @@ export class DappBgApi {
     return result.map((ac: Account) => ac.address);
   }
 
-  // called from ui
-  public async notifyNetworkSwitch(payload: { networkId: string }) {
-    const { networkId } = payload;
-    if (!networkId) return;
-
-    this.ctx.broadcast({
-      id: BackendEventId.NETWORK_SWITCH,
-      networkId,
-    });
-  }
-
   private async promptForTxApproval(
     params: {
       txData: any;
