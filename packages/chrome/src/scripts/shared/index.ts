@@ -49,7 +49,7 @@ export interface BackgroundResData<T = any> {
 }
 
 export enum WindowMsgTarget {
-  DAPP = 'DAPP',
+  DAPP = 'DAPP_WITH_SUIET',
   SUIET_CONTENT = 'SUIET_CONTENT',
 }
 
