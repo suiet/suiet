@@ -2,6 +2,7 @@ import { PortName, WindowMsg, WindowMsgTarget } from '../shared';
 import { has } from 'lodash-es';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
 import { getSiteMetadata, SiteMetadata } from './utils';
+import { validateExternalWindowMsg } from './utils';
 
 function injectDappInterface() {
   const script = document.createElement('script');
@@ -59,13 +60,14 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
 
   // window msg from dapp - content script proxy -> port msg to ext background
   const passMessageToPort = (eventData: WindowMsg) => {
-    // console.log(
-    //   '[content] received data from window postMessage',
-    //   event.data
-    // );
-    // FIXME: Sanitize data for only allowed function calls!!!
-    if (!validateInputData(eventData)) {
-      console.warn('[SUIET_CONTENT] received invalid data from window');
+    // console.log('[content] received data from window postMessage', eventData);
+
+    try {
+      validateExternalWindowMsg(eventData);
+    } catch (e) {
+      console.warn(
+        `[${WindowMsgTarget.SUIET_CONTENT}] rejects an invalid request from window message`
+      );
       return;
     }
 
