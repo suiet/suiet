@@ -37,13 +37,13 @@ function createTransferCustomCoinTxb(
 
 /**
  * Create a transaction block for transferring a type of coin.
- * @param allOwnedCoins All coins owned by the sender.
+ * @param ownedCoins coins owned by the sender.
  * @param coinType The type of coin to transfer.
  * @param amount The amount of coins to transfer.
  * @param recipient The recipient of the coins.
  */
 export default function createTransferCoinTxb(
-  allOwnedCoins: CoinObject[],
+  ownedCoins: CoinObject[],
   coinType: string, // such as 0x2::sui::SUI
   amount: bigint,
   recipient: string
@@ -51,11 +51,6 @@ export default function createTransferCoinTxb(
   if (coinType === SUI_TYPE_ARG) {
     return createTransferSuiCoinTxb(amount, recipient);
   } else {
-    return createTransferCustomCoinTxb(
-      allOwnedCoins,
-      coinType,
-      amount,
-      recipient
-    );
+    return createTransferCustomCoinTxb(ownedCoins, coinType, amount, recipient);
   }
 }
