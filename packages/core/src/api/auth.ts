@@ -5,6 +5,7 @@ import { DATA_VERSION } from '../storage/constants';
 import { generateClientId } from '../utils/clientId';
 import { Vault } from '../vault/Vault';
 import { MetadataMissingError, NoAuthError } from '../errors';
+import { type } from 'superstruct';
 
 export type UpdatePasswordParams = {
   oldPassword: string;
@@ -463,21 +464,42 @@ async function maybeFixDataConsistency(storage: IStorage, token: string) {
  * Session memory storage for sensitive data
  */
 class Session {
-  private token: string | undefined;
+  #DEFAULT_EXPIRATION = 1000 * 60 * 60 * 4; // 4 hrs
+  #token: string | undefined;
+  #expiration: number; // unit: ms
+  #lastUpdate: number;
 
-  constructor() {
-    this.token = undefined;
+  constructor(opts?: { expiration?: number }) {
+    const { expiration = this.#DEFAULT_EXPIRATION } = opts || {};
+    this.#token = undefined;
+    this.setExpiration(expiration);
   }
 
   public setToken(token: string) {
-    this.token = token;
+    this.#token = token;
+    this.#lastUpdate = Date.now();
   }
 
   public getToken() {
-    return this.token;
+    if (this.#hasExpired()) {
+      this.clearToken();
+    }
+    return this.#token;
   }
 
   public clearToken() {
-    this.token = undefined;
+    this.#token = undefined;
+  }
+
+  public setExpiration(expiration: number) {
+    if (typeof expiration !== 'number' || expiration < 0) {
+      throw new Error('expiration must be greater than 0');
+    }
+    this.#expiration = expiration;
+  }
+
+  #hasExpired() {
+    if (!this.#lastUpdate) return true;
+    return Date.now() > this.#lastUpdate + this.#expiration;
   }
 }
