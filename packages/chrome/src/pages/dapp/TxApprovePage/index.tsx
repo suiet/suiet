@@ -31,8 +31,9 @@ import isMoveCall from '../utils/isMoveCall';
 import { getGasBudgetFromTxb } from '../../../utils/getters';
 import useMyAssetChangesFromDryRun from './hooks/useMyAssetChangesFromDryRun';
 import { useAccount } from '../../../hooks/useAccount';
-import { formatDryRunError } from '@suiet/core';
+import { formatDryRunError, AssetChangeFormatter } from '@suiet/core';
 import useSuiBalance from '../../../hooks/coin/useSuiBalance';
+import { ObjectChangeItem } from '../../../components/AssetChange';
 
 enum Mode {
   LOADING,
@@ -91,6 +92,10 @@ const TxApprovePage = () => {
       : [];
   }, [transactionBlock]);
 
+  useEffect(() => {
+    console.log('txReqData', txReqData);
+  }, [txReqData]);
+
   const {
     data: suiBalance,
     error: suiBalanceError,
@@ -98,7 +103,13 @@ const TxApprovePage = () => {
   } = useSuiBalance(txReqData?.target.address ?? '');
 
   const {
-    data: { estimatedGasFee, coinBalanceChanges },
+    data: {
+      estimatedGasFee,
+      coinBalanceChanges,
+      coinChangeList,
+      nftChangeList,
+      objectChangeList,
+    },
     error: dryRunError,
     isSuccess: isDryRunSuccess,
   } = useMyAssetChangesFromDryRun(account?.address, transactionBlock);
@@ -196,6 +207,31 @@ const TxApprovePage = () => {
     );
   }
 
+  const renderAssetChanges = () => {
+    return (
+      <div>
+        {[...coinChangeList, ...nftChangeList, ...objectChangeList].map(
+          (item) => {
+            const f = AssetChangeFormatter.format(item);
+            return (
+              <ObjectChangeItem
+                key={item.objectId}
+                title={f.title}
+                desc={f.desc}
+                icon={f.icon}
+                iconShape={f.iconShape}
+                iconColor={f.iconColor}
+                changeTitle={f.changeTitle}
+                changeTitleColor={f.changeTitleColor as any}
+                changeDesc={f.changeDesc}
+              />
+            );
+          }
+        )}
+      </div>
+    );
+  };
+
   // validate txReqId
   useEffect(() => {
     (async function () {
@@ -276,24 +312,25 @@ const TxApprovePage = () => {
             <TabList>
               <Tab>
                 <Typo.Normal className={styles['tab-title']}>
-                  Overview
+                  Assets
                 </Typo.Normal>
               </Tab>
-              {txbList.map((tx, i) => (
-                <Tab key={tx.kind + i}>
-                  <Typo.Normal className={styles['tab-title']}>
-                    {`Transaction ${i + 1}`}
-                  </Typo.Normal>
-                </Tab>
-              ))}
+              {/*{txbList.map((tx, i) => (*/}
+              {/*  <Tab key={tx.kind + i}>*/}
+              {/*    <Typo.Normal className={styles['tab-title']}>*/}
+              {/*      {`Transaction ${i + 1}`}*/}
+              {/*    </Typo.Normal>*/}
+              {/*  </Tab>*/}
+              {/*))}*/}
             </TabList>
 
-            <TabPanel className={'mt-[8px]'}>{renderOverviewInfo()}</TabPanel>
-            {txbList.map((tx, i) => (
-              <TabPanel key={tx.kind + i} className={'mt-[8px]'}>
-                {renderTransaction(tx)}
-              </TabPanel>
-            ))}
+            <TabPanel className={'mt-[8px]'}>{renderAssetChanges()}</TabPanel>
+            {/*<TabPanel className={'mt-[8px]'}>{renderOverviewInfo()}</TabPanel>*/}
+            {/*{txbList.map((tx, i) => (*/}
+            {/*  <TabPanel key={tx.kind + i} className={'mt-[8px]'}>*/}
+            {/*    {renderTransaction(tx)}*/}
+            {/*  </TabPanel>*/}
+            {/*))}*/}
           </Tabs>
         </DappPopupLayout>
       );
@@ -342,3 +379,6 @@ const TxApprovePage = () => {
 };
 
 export default TxApprovePage;
+function formatAssetChanges() {
+  throw new Error('Function not implemented.');
+}

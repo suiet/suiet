@@ -19,6 +19,8 @@ import {
   is,
   RPCError as SuiRpcError,
   RPCValidationError as SuiRpcValidationError,
+  SuiObjectDataOptions,
+  CoinMetadata,
 } from '@mysten/sui.js';
 import { CoinObject, Nft, NftObject } from './object';
 import { Vault } from './vault/Vault';
@@ -292,6 +294,43 @@ export class QueryProvider {
       package: objectId,
       module: moduleName,
       function: functionName,
+    });
+  }
+
+  public async getDataOfObjects(
+    objectIds: string[],
+    options?: SuiObjectDataOptions
+  ) {
+    return await this.provider.multiGetObjects({
+      ids: objectIds,
+      options,
+    });
+  }
+
+  public async getCoinMetadata(coinTypes: string[]): Promise<
+    {
+      data: CoinMetadata | null;
+      error: string | null;
+    }[]
+  > {
+    const requests = coinTypes.map((coinType) => {
+      return this.provider.getCoinMetadata({
+        coinType,
+      });
+    });
+    const responses = await Promise.allSettled(requests);
+    return responses.map((resp) => {
+      if (resp.status === 'fulfilled') {
+        return {
+          data: resp.value,
+          error: null,
+        };
+      } else {
+        return {
+          data: null,
+          error: resp.reason.message,
+        };
+      }
     });
   }
 }
