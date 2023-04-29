@@ -5,12 +5,15 @@ import { IStorage } from '../storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
+  CoinMetadata,
   DryRunTransactionBlockResponse,
   ExecuteTransactionRequestType,
   SignedMessage,
   SignedTransaction,
   SUI_SYSTEM_STATE_OBJECT_ID,
   SuiMoveNormalizedFunction,
+  SuiObjectDataOptions,
+  SuiObjectResponse,
   SuiTransactionBlockResponse,
   TransactionBlock,
 } from '@mysten/sui.js';
@@ -139,6 +142,22 @@ export type UnStakeCoinParams = {
   gasBudgetForStake: number;
 };
 
+export type GetDataOfObjectsParams = {
+  network: Network;
+  objectIds: string[];
+  options?: SuiObjectDataOptions;
+};
+
+export type GetCoinMetadataParams = {
+  network: Network;
+  coinTypes: string[];
+};
+
+export type GetCoinMetadataResult = {
+  data: CoinMetadata | null;
+  error: string | null;
+};
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -148,11 +167,19 @@ export interface ITransactionApi {
   // getTransactionHistory: (
   //   params: GetTxHistoryParams
   // ) => Promise<Array<TxnHistoryEntry<ObjectDto>>>;
+
   getOwnedCoins: (params: GetOwnedObjParams) => Promise<CoinObjectDto[]>;
   getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObjectDto[]>;
   getCoinsBalance: (
     params: GetOwnedObjParams
   ) => Promise<Array<{ symbol: string; type: string; balance: string }>>;
+
+  getDataOfObjects: (
+    params: GetDataOfObjectsParams
+  ) => Promise<SuiObjectResponse[]>;
+  getCoinMetadata: (
+    params: GetCoinMetadataParams
+  ) => Promise<GetCoinMetadataResult[]>;
 
   getNormalizedMoveFunction: (
     params: GetNormalizedMoveFunctionParams
@@ -375,6 +402,29 @@ export class TransactionApi implements ITransactionApi {
       fields: nft.fields,
       hasPublicTransfer: nft.hasPublicTransfer,
     }));
+  }
+
+  async getDataOfObjects(params: GetDataOfObjectsParams) {
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const res = await provider.query.getDataOfObjects(
+      params.objectIds,
+      params.options
+    );
+    return res;
+  }
+
+  async getCoinMetadata(params: GetCoinMetadataParams) {
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const res = await provider.query.getCoinMetadata(params.coinTypes);
+    return res;
   }
 
   async signMessage(params: SignMessageParams) {
