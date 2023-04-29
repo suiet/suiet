@@ -27,6 +27,7 @@ import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 import { createTransferCoinTxb } from './utils/txb-factory';
+import { DEFAULT_GAS_BUDGET } from '@suiet/chrome-ext/src/constants';
 
 export class Provider {
   query: QueryProvider;
@@ -41,13 +42,43 @@ export class Provider {
     this.tx = TxProvider.create(txEndpoint, versionCacheTimoutInSeconds);
   }
 
+  async getTransferCoinTxb(
+    coinType: string,
+    amount: bigint,
+    recipient: string,
+    address: string
+  ) {
+    // NOTE: only query coins with the exact amount
+    // if user has a lot of coins, to avoid performance issues
+    let filterAmount = amount;
+    if (coinType === SUI_TYPE_ARG) {
+      filterAmount += BigInt(DEFAULT_GAS_BUDGET); // plus gas budget as max limit for sui coin
+    }
+    const coins = await this.query.getOwnedCoin(address, coinType, {
+      amount: filterAmount,
+    });
+    if (coins.length === 0) {
+      throw new Error('No coin to transfer');
+    }
+    return createTransferCoinTxb(coins, coinType, amount, recipient);
+  }
+
+  /**
+   * @deprecated Should use getTransferCoinTxb + signAndExecuteTransactionBlock for flexibility
+   * @param coinType
+   * @param amount
+   * @param recipient
+   * @param vault
+   */
   async transferCoin(
     coinType: string,
     amount: bigint,
     recipient: string,
     vault: Vault
   ) {
-    const coins = await this.query.getOwnedCoin(vault.getAddress(), coinType);
+    const coins = await this.query.getOwnedCoin(vault.getAddress(), coinType, {
+      amount: amount + BigInt(DEFAULT_GAS_BUDGET),
+    });
     if (coins.length === 0) {
       throw new Error('No coin to transfer');
     }
@@ -58,19 +89,6 @@ export class Provider {
       recipient,
       vault
     );
-  }
-
-  async getTransferCoinTxb(
-    coinType: string,
-    amount: bigint,
-    recipient: string,
-    address: string
-  ) {
-    const coins = await this.query.getOwnedCoin(address, coinType);
-    if (coins.length === 0) {
-      throw new Error('No coin to transfer');
-    }
-    return createTransferCoinTxb(coins, coinType, amount, recipient);
   }
 
   async transferObject(
@@ -97,7 +115,6 @@ export class QueryProvider {
     this.provider = new JsonRpcProvider(
       new Connection({ fullnode: queryEndpoint }),
       {
-        skipDataValidation: true,
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
@@ -203,13 +220,18 @@ export class QueryProvider {
 
   public async getOwnedCoin(
     address: string,
-    coinType: string
+    coinType: string,
+    filterOptions?: {
+      amount?: bigint;
+    }
   ): Promise<CoinObject[]> {
     const coins: CoinObject[] = [];
     let hasNextPage = true;
     let nextCursor = null;
 
-    // TODO: potential performance issue if there are too many coins
+    // NOTE: potential performance issue if there are too many coins
+    // only fetch coins until the amount is enough
+    let currentAmount = BigInt(0);
     // solution: add an amount parameter to determine how many coin objects should be fetch
     while (hasNextPage) {
       const resp: any = await this.provider.getCoins({
@@ -217,17 +239,28 @@ export class QueryProvider {
         coinType,
         cursor: nextCursor,
       });
+
       resp.data.forEach((item: CoinStruct) => {
+        const coinBalance = BigInt(item.balance);
         coins.push({
           type: item.coinType,
           objectId: item.coinObjectId,
           symbol: CoinAPI.getCoinSymbol(item.coinType),
-          balance: BigInt(item.balance),
+          balance: coinBalance,
           lockedUntilEpoch: item.lockedUntilEpoch,
           previousTransaction: item.previousTransaction,
           object: item,
         });
+        currentAmount += coinBalance;
       });
+
+      if (
+        typeof filterOptions?.amount === 'bigint' &&
+        currentAmount >= filterOptions.amount
+      ) {
+        break;
+      }
+
       hasNextPage = resp.hasNextPage;
       nextCursor = resp.nextCursor;
     }
@@ -290,7 +323,6 @@ export class TxProvider {
     const provider = new JsonRpcProvider(
       new Connection({ fullnode: txEndpoint }),
       {
-        skipDataValidation: true,
         // TODO: add socket options
         // socketOptions?: WebsocketClientOptions.
         versionCacheTimeoutInSeconds,
