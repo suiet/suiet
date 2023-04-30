@@ -39,6 +39,16 @@ const DEFAULT_NETWORKS = new Map([
     },
   ],
   [
+    'mainnet',
+    {
+      id: 'mainnet',
+      name: 'mainnet',
+      queryRpcUrl: 'https://rpc.mainnet.sui.io',
+      txRpcUrl: 'https://rpc.mainnet.sui.io',
+      versionCacheTimoutInSeconds: 0,
+    },
+  ],
+  [
     'local',
     {
       id: 'local',
