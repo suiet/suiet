@@ -99,9 +99,7 @@ function MainPage({ address, networkId }: DashboardProps) {
             className={classnames(styles['operations-item'])}
             target={'_blank'}
             rel={'noreferrer'}
-            href={
-              `https://api.suiet.app/${networkId}/service/buy-crypto/` + address
-            }
+            href={`https://pay.suiet.app/?wallet_address=${address}`}
           >
             Buy
           </a>
