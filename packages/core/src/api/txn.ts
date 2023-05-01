@@ -158,6 +158,10 @@ export type GetCoinMetadataResult = {
   error: string | null;
 };
 
+export type GetReferencePriceParams = {
+  network: Network;
+};
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -180,6 +184,8 @@ export interface ITransactionApi {
   getCoinMetadata: (
     params: GetCoinMetadataParams
   ) => Promise<GetCoinMetadataResult[]>;
+
+  getReferenceGasPrice: (params: GetReferencePriceParams) => Promise<string>;
 
   getNormalizedMoveFunction: (
     params: GetNormalizedMoveFunctionParams
@@ -315,31 +321,6 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  // async getTransactionHistory(
-  //   params: GetTxHistoryParams
-  // ): Promise<Array<TxnHistoryEntry<ObjectDto>>> {
-  //   const { network, address } = params;
-  //   const provider = new Provider(
-  //     network.queryRpcUrl,
-  //     network.txRpcUrl,
-  //     params.network.versionCacheTimoutInSeconds
-  //   );
-  //   let result: any = await provider.query.getTransactionsForAddress(address);
-
-  //   // transform the balance of coin obj from bigint to string
-  //   result = result.map((item: TxnHistoryEntry) => {
-  //     if (item.object.type !== 'coin') return item;
-  //     return {
-  //       ...item,
-  //       object: {
-  //         ...item.object,
-  //         balance: String(item.object.balance),
-  //       },
-  //     };
-  //   });
-  //   return result;
-  // }
-
   async getCoinsBalance(
     params: GetOwnedObjParams
   ): Promise<Array<{ symbol: string; type: string; balance: string }>> {
@@ -425,6 +406,16 @@ export class TransactionApi implements ITransactionApi {
     );
     const res = await provider.query.getCoinMetadata(params.coinTypes);
     return res;
+  }
+
+  async getReferenceGasPrice(params: GetReferencePriceParams) {
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const price = await provider.query.getReferenceGasPrice();
+    return String(price);
   }
 
   async signMessage(params: SignMessageParams) {
