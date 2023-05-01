@@ -41,6 +41,11 @@
   padding: 0 32px;
   margin-top: 20px;
 }
+
+.tab {
+  border-color: $gray-100;
+}
+
 .tab-title {
   font-family: 'Inter';
   font-style: normal;
@@ -91,4 +96,9 @@
   text-align: center;
   border-radius: 16px;
   word-break: break-word;
+}
+
+.overview {
+  padding: 16px 0;
+  border-top: 1px solid $gray-100;
 }

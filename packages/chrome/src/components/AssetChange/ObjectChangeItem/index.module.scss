@@ -1,0 +1,45 @@
+@import '../../../styles/variables.scss';
+
+.object-change-item {
+  display: flex;
+  align-items: center;
+
+  & + & {
+    margin-top: 16px;
+  }
+}
+
+.title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.desc {
+  font-size: 12px;
+  line-height: 16px;
+  color: $gray-400;
+  font-weight: 500;
+}
+
+.change-title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+
+  &--green {
+    color: $success-500;
+  }
+  &--red {
+    color: $error-500;
+  }
+  &--orange {
+    color: $warning-500;
+  }
+  &--gray {
+    color: $gray-500;
+  }
+}
+
+.change-desc {
+}

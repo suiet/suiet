@@ -3,7 +3,7 @@
 .container {
   position: relative;
   width: $full-width;
-  height: $full-height;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -25,7 +25,7 @@
 }
 
 .header {
-  margin-top: 67px;
+  margin-top: 32px;
   padding: 0 32px;
 
   &__title {

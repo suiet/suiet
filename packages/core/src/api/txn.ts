@@ -5,12 +5,15 @@ import { IStorage } from '../storage';
 import { Vault } from '../vault/Vault';
 import { Buffer } from 'buffer';
 import {
+  CoinMetadata,
   DryRunTransactionBlockResponse,
   ExecuteTransactionRequestType,
   SignedMessage,
   SignedTransaction,
   SUI_SYSTEM_STATE_OBJECT_ID,
   SuiMoveNormalizedFunction,
+  SuiObjectDataOptions,
+  SuiObjectResponse,
   SuiTransactionBlockResponse,
   TransactionBlock,
 } from '@mysten/sui.js';
@@ -139,6 +142,26 @@ export type UnStakeCoinParams = {
   gasBudgetForStake: number;
 };
 
+export type GetDataOfObjectsParams = {
+  network: Network;
+  objectIds: string[];
+  options?: SuiObjectDataOptions;
+};
+
+export type GetCoinMetadataParams = {
+  network: Network;
+  coinTypes: string[];
+};
+
+export type GetCoinMetadataResult = {
+  data: CoinMetadata | null;
+  error: string | null;
+};
+
+export type GetReferencePriceParams = {
+  network: Network;
+};
+
 export interface ITransactionApi {
   supportedCoins: () => Promise<CoinPackageIdPair[]>;
   transferCoin: (
@@ -148,11 +171,21 @@ export interface ITransactionApi {
   // getTransactionHistory: (
   //   params: GetTxHistoryParams
   // ) => Promise<Array<TxnHistoryEntry<ObjectDto>>>;
+
   getOwnedCoins: (params: GetOwnedObjParams) => Promise<CoinObjectDto[]>;
   getOwnedNfts: (params: GetOwnedObjParams) => Promise<NftObjectDto[]>;
   getCoinsBalance: (
     params: GetOwnedObjParams
   ) => Promise<Array<{ symbol: string; type: string; balance: string }>>;
+
+  getDataOfObjects: (
+    params: GetDataOfObjectsParams
+  ) => Promise<SuiObjectResponse[]>;
+  getCoinMetadata: (
+    params: GetCoinMetadataParams
+  ) => Promise<GetCoinMetadataResult[]>;
+
+  getReferenceGasPrice: (params: GetReferencePriceParams) => Promise<string>;
 
   getNormalizedMoveFunction: (
     params: GetNormalizedMoveFunctionParams
@@ -288,31 +321,6 @@ export class TransactionApi implements ITransactionApi {
     );
   }
 
-  // async getTransactionHistory(
-  //   params: GetTxHistoryParams
-  // ): Promise<Array<TxnHistoryEntry<ObjectDto>>> {
-  //   const { network, address } = params;
-  //   const provider = new Provider(
-  //     network.queryRpcUrl,
-  //     network.txRpcUrl,
-  //     params.network.versionCacheTimoutInSeconds
-  //   );
-  //   let result: any = await provider.query.getTransactionsForAddress(address);
-
-  //   // transform the balance of coin obj from bigint to string
-  //   result = result.map((item: TxnHistoryEntry) => {
-  //     if (item.object.type !== 'coin') return item;
-  //     return {
-  //       ...item,
-  //       object: {
-  //         ...item.object,
-  //         balance: String(item.object.balance),
-  //       },
-  //     };
-  //   });
-  //   return result;
-  // }
-
   async getCoinsBalance(
     params: GetOwnedObjParams
   ): Promise<Array<{ symbol: string; type: string; balance: string }>> {
@@ -375,6 +383,39 @@ export class TransactionApi implements ITransactionApi {
       fields: nft.fields,
       hasPublicTransfer: nft.hasPublicTransfer,
     }));
+  }
+
+  async getDataOfObjects(params: GetDataOfObjectsParams) {
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const res = await provider.query.getDataOfObjects(
+      params.objectIds,
+      params.options
+    );
+    return res;
+  }
+
+  async getCoinMetadata(params: GetCoinMetadataParams) {
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const res = await provider.query.getCoinMetadata(params.coinTypes);
+    return res;
+  }
+
+  async getReferenceGasPrice(params: GetReferencePriceParams) {
+    const provider = new Provider(
+      params.network.queryRpcUrl,
+      params.network.txRpcUrl,
+      params.network.versionCacheTimoutInSeconds
+    );
+    const price = await provider.query.getReferenceGasPrice();
+    return String(price);
   }
 
   async signMessage(params: SignMessageParams) {
