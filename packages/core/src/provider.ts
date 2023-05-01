@@ -333,6 +333,10 @@ export class QueryProvider {
       }
     });
   }
+
+  public async getReferenceGasPrice() {
+    return await this.provider.getReferenceGasPrice();
+  }
 }
 
 function handleSuiRpcError(e: unknown): never {
