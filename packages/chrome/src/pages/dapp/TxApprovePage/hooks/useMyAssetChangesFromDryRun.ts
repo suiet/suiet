@@ -1,11 +1,7 @@
 import { useFeatureFlagsWithNetwork } from '../../../../hooks/useFeatureFlags';
 import useDryRunTransactionBlock from '../../../../hooks/transaction/useDryRunTransactionBlock';
 import { getEstimatedGasFeeFromDryRunResult } from '../../../../hooks/transaction/useEstimatedGasFee';
-import {
-  DryRunTransactionBlockResponse,
-  SUI_TYPE_ARG,
-  TransactionBlock,
-} from '@mysten/sui.js';
+import { SUI_TYPE_ARG, TransactionBlock } from '@mysten/sui.js';
 import { DEFAULT_GAS_BUDGET } from '../../../../constants';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -20,19 +16,6 @@ import { useApiClient } from '../../../../hooks/useApiClient';
 import { useNetwork } from '../../../../hooks/useNetwork';
 import { useSelector } from 'react-redux';
 import { getCoinMetadata } from '../../../../hooks/query/useGetCoinMetadata';
-
-function getBalanceChangesFromDryRunResult(
-  dryRunResult: DryRunTransactionBlockResponse | undefined,
-  addressOwner?: string
-) {
-  if (!dryRunResult) return;
-  const balanceChanges = dryRunResult.balanceChanges.filter((item) => {
-    return addressOwner
-      ? (item.owner as any)?.AddressOwner === addressOwner
-      : true;
-  });
-  return balanceChanges;
-}
 
 export default function useMyAssetChangesFromDryRun(
   address: string | undefined,
@@ -51,10 +34,6 @@ export default function useMyAssetChangesFromDryRun(
   const estimatedGasFee = getEstimatedGasFeeFromDryRunResult(
     dryRunResult,
     fallbackGasFee
-  );
-  const coinBalanceChanges = getBalanceChangesFromDryRunResult(
-    dryRunResult,
-    address
   );
 
   const [coinChangeList, setCoinChangeList] = useState<ICoinChangeObject[]>([]);
@@ -137,7 +116,6 @@ export default function useMyAssetChangesFromDryRun(
   return {
     data: {
       estimatedGasFee,
-      coinBalanceChanges,
       coinChangeList,
       nftChangeList,
       objectChangeList,
