@@ -1,0 +1,28 @@
+@import '../../../styles/variables.scss';
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 8px;
+
+  &--circle {
+    border-radius: 50%;
+  }
+
+  &--gray {
+    background-color: $gray-500;
+  }
+  &--blue {
+    background-color: $primary-500;
+  }
+  &--purple {
+    background-color: $purple-500;
+  }
+
+  background-color: $gray-400;
+}

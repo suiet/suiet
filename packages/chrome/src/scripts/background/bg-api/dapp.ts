@@ -355,7 +355,9 @@ export class DappBgApi {
     const txReqWindow = this._createPopupWindow('/dapp/tx-approval', {
       txReqId: txReq.id,
     });
-    const onWindowCloseObservable = await txReqWindow.show();
+    const onWindowCloseObservable = await txReqWindow.show({
+      height: 700,
+    });
     const onFallbackDenyObservable = onWindowCloseObservable.pipe(
       map(async () => {
         return {

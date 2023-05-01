@@ -12,7 +12,7 @@ export type CoinObject = {
   type: string;
   symbol: string;
   balance: bigint;
-  lockedUntilEpoch: number | null;
+  lockedUntilEpoch: number | null | undefined;
   previousTransaction: string;
   object: CoinStruct; // raw data
 };

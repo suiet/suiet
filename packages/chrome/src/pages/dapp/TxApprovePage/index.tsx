@@ -31,8 +31,10 @@ import isMoveCall from '../utils/isMoveCall';
 import { getGasBudgetFromTxb } from '../../../utils/getters';
 import useMyAssetChangesFromDryRun from './hooks/useMyAssetChangesFromDryRun';
 import { useAccount } from '../../../hooks/useAccount';
-import { formatDryRunError } from '@suiet/core';
+import { formatDryRunError, AssetChangeFormatter } from '@suiet/core';
 import useSuiBalance from '../../../hooks/coin/useSuiBalance';
+import { ObjectChangeItem } from '../../../components/AssetChange';
+import classNames from 'classnames';
 
 enum Mode {
   LOADING,
@@ -91,6 +93,10 @@ const TxApprovePage = () => {
       : [];
   }, [transactionBlock]);
 
+  useEffect(() => {
+    console.log('txReqData', txReqData);
+  }, [txReqData]);
+
   const {
     data: suiBalance,
     error: suiBalanceError,
@@ -98,7 +104,7 @@ const TxApprovePage = () => {
   } = useSuiBalance(txReqData?.target.address ?? '');
 
   const {
-    data: { estimatedGasFee, coinBalanceChanges },
+    data: { estimatedGasFee, coinChangeList, nftChangeList, objectChangeList },
     error: dryRunError,
     isSuccess: isDryRunSuccess,
   } = useMyAssetChangesFromDryRun(account?.address, transactionBlock);
@@ -160,41 +166,41 @@ const TxApprovePage = () => {
 
   function renderOverviewInfo() {
     return (
-      <div>
-        <TxItem name={'Total Txns'} value={txbList.length} />
-        <TxItem name={'Network'} value={txReqData?.networkId} />
-        <TxItem name={'Balance changes'} value={''} />
-        {isNonEmptyArray(coinBalanceChanges) &&
-          coinBalanceChanges?.map((item, i) => {
-            return (
-              <TxItem
-                key={item.coinType}
-                name={`- ${CoinAPI.getCoinSymbol(item.coinType)}`}
-                value={formatCurrency(item.amount, {
-                  decimals:
-                    CoinAPI.getCoinSymbol(item.coinType) === 'SUI' ? 9 : 0,
-                })}
-              />
-            );
-          })}
-        <TxItem
-          name={'Estimated Gas Fee'}
-          value={
-            <>
-              {formatSUI(estimatedGasFee ?? 0, {
-                withAbbr: false,
-              })}{' '}
-              SUI
-            </>
-          }
-        />
+      <div className={classNames(styles['overview'], 'mt-[16px]')}>
         <TxItem
           name={'Gas Budget'}
           value={<>{formatGasBudget(getGasBudgetFromTxb(transactionBlock))}</>}
         />{' '}
+        <TxItem name={'Network'} value={txReqData?.networkId} />
       </div>
     );
   }
+
+  const renderAssetChanges = () => {
+    return (
+      <div>
+        {[...coinChangeList, ...nftChangeList, ...objectChangeList].map(
+          (item) => {
+            const f = AssetChangeFormatter.format(item);
+            return (
+              <ObjectChangeItem
+                key={item.objectId}
+                title={f.title}
+                desc={f.desc}
+                icon={f.icon}
+                iconShape={f.iconShape}
+                iconColor={f.iconColor}
+                changeTitle={f.changeTitle}
+                changeTitleColor={f.changeTitleColor as any}
+                changeDesc={f.changeDesc}
+              />
+            );
+          }
+        )}
+        {renderOverviewInfo()}
+      </div>
+    );
+  };
 
   // validate txReqId
   useEffect(() => {
@@ -276,19 +282,19 @@ const TxApprovePage = () => {
             <TabList>
               <Tab>
                 <Typo.Normal className={styles['tab-title']}>
-                  Overview
+                  Assets
                 </Typo.Normal>
               </Tab>
               {txbList.map((tx, i) => (
                 <Tab key={tx.kind + i}>
                   <Typo.Normal className={styles['tab-title']}>
-                    {`Transaction ${i + 1}`}
+                    {`Txn ${i + 1}`}
                   </Typo.Normal>
                 </Tab>
               ))}
             </TabList>
 
-            <TabPanel className={'mt-[8px]'}>{renderOverviewInfo()}</TabPanel>
+            <TabPanel className={'mt-[8px]'}>{renderAssetChanges()}</TabPanel>
             {txbList.map((tx, i) => (
               <TabPanel key={tx.kind + i} className={'mt-[8px]'}>
                 {renderTransaction(tx)}
