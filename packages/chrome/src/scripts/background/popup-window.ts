@@ -16,7 +16,7 @@ export class PopupWindow {
     this.browser = detectBrowser();
   }
 
-  public async show() {
+  public async show(options?: { width?: number; height?: number }) {
     const {
       width = 0,
       left = 0,
@@ -24,7 +24,7 @@ export class PopupWindow {
     } = await chrome.windows.getLastFocused();
 
     const w = await chrome.windows.create({
-      ...this.getWindowMetrics(),
+      ...this.getWindowMetrics(options),
       url: this.url,
       focused: true,
       type: 'popup',
@@ -39,23 +39,25 @@ export class PopupWindow {
     );
   }
 
-  private getWindowMetrics() {
+  private getWindowMetrics(options?: { width?: number; height?: number }) {
+    let defaultMetrics: Record<string, any>;
     if (this.browser.isWindows()) {
-      return {
+      defaultMetrics = {
         width: 382,
         height: 614,
       };
-    }
-    if (this.browser.isLinux()) {
-      return {
+    } else if (this.browser.isLinux()) {
+      defaultMetrics = {
         width: 364,
         height: 574,
       };
+    } else {
+      defaultMetrics = {
+        width: 364,
+        height: 602,
+      };
     }
-    return {
-      width: 364,
-      height: 602,
-    };
+    return Object.assign(defaultMetrics, options);
   }
 
   public async close() {
