@@ -104,13 +104,7 @@ const TxApprovePage = () => {
   } = useSuiBalance(txReqData?.target.address ?? '');
 
   const {
-    data: {
-      estimatedGasFee,
-      coinBalanceChanges,
-      coinChangeList,
-      nftChangeList,
-      objectChangeList,
-    },
+    data: { estimatedGasFee, coinChangeList, nftChangeList, objectChangeList },
     error: dryRunError,
     isSuccess: isDryRunSuccess,
   } = useMyAssetChangesFromDryRun(account?.address, transactionBlock);
@@ -354,6 +348,3 @@ const TxApprovePage = () => {
 };
 
 export default TxApprovePage;
-function formatAssetChanges() {
-  throw new Error('Function not implemented.');
-}
