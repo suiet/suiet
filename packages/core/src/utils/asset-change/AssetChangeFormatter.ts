@@ -2,6 +2,7 @@ import {
   ICoinChangeObject,
   INftChangeObject,
   IObjectChangeObject,
+  OriginalObjectChangeType,
 } from './AssetChangeAnalyzer';
 import { Coin, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { formatCurrency } from '../format';
@@ -32,22 +33,6 @@ export default class AssetChangeFormatter {
     }
     return formatObjectChange(input as IObjectChangeObject);
   }
-
-  static title(input: FormatAssetChangeInput): string {
-    return AssetChangeFormatter.format(input).title;
-  }
-
-  static desc(input: FormatAssetChangeInput): string {
-    return AssetChangeFormatter.format(input).desc;
-  }
-
-  static changeTitle(input: FormatAssetChangeInput): string {
-    return AssetChangeFormatter.format(input).changeTitle;
-  }
-
-  static changeTitleColor(input: FormatAssetChangeInput): string {
-    return AssetChangeFormatter.format(input).changeTitleColor;
-  }
 }
 
 export function formatCoinChange(
@@ -55,7 +40,7 @@ export function formatCoinChange(
 ): FormatAssetChangeOutput {
   const symbol = Coin.getCoinSymbol(input.coinType).toUpperCase();
 
-  const operator = input.changeType === 'receive' ? '+' : '-';
+  const operator = input.changeType === 'increase' ? '+' : '-';
   const amountValue = input.amount.replace('-', '');
   const amount = formatCurrency(amountValue, {
     withAbbr: false,
@@ -70,7 +55,7 @@ export function formatCoinChange(
     iconColor: input.coinType === SUI_TYPE_ARG ? 'blue' : 'purple',
     changeTitle: `${operator}${amount} ${symbol}`,
     changeDesc: '',
-    changeTitleColor: input.changeType === 'receive' ? 'green' : 'red',
+    changeTitleColor: input.changeType === 'increase' ? 'green' : 'red',
   };
 }
 
@@ -90,15 +75,18 @@ export function formatNftChange(
   let changeTitle = '';
   let changeDesc = '';
   let changeTitleColor = '';
-  if (input.changeType === 'receive') {
+  if (input.changeType === 'increase') {
     changeTitle = '+1 NFT';
     changeTitleColor = 'green';
-  } else if (input.changeType === 'send') {
+  } else if (input.changeType === 'decrease') {
     changeTitle = '-1 NFT';
     changeTitleColor = 'red';
-  } else if (input.changeType === 'update') {
-    changeTitle = 'MODIFIED';
+  } else if (input.changeType === 'modify') {
+    changeTitle = 'MODIFY';
     changeTitleColor = 'orange';
+  } else {
+    changeTitle = verbForOriginalChangeType(input.type);
+    changeTitleColor = colorForOriginalChangeType(input.type);
   }
 
   const { name, imageUrl } = handleNftDisplay(input.display);
@@ -115,21 +103,47 @@ export function formatNftChange(
   };
 }
 
+const originalChangeTypeColorMap = {
+  created: 'green',
+  mutated: 'orange',
+  deleted: 'red',
+  published: 'green',
+  transferred: 'red',
+  wrapped: 'orange',
+};
+function colorForOriginalChangeType(type: OriginalObjectChangeType): string {
+  return originalChangeTypeColorMap[type] || 'orange';
+}
+const originalChangeTypeVerbMap = {
+  created: 'CREATE',
+  mutated: 'MUTATE',
+  deleted: 'DELETE',
+  published: 'PUBLISH',
+  transferred: 'TRANSFER',
+  wrapped: 'WRAP',
+};
+function verbForOriginalChangeType(type: OriginalObjectChangeType): string {
+  return originalChangeTypeVerbMap[type];
+}
+
 export function formatObjectChange(
   input: IObjectChangeObject
 ): FormatAssetChangeOutput {
   let changeTitle = '';
   let changeDesc = '';
   let changeTitleColor = '';
-  if (input.changeType === 'receive') {
+  if (input.changeType === 'increase') {
     changeTitle = '+1 Object';
     changeTitleColor = 'green';
-  } else if (input.changeType === 'send') {
+  } else if (input.changeType === 'decrease') {
     changeTitle = '-1 Object';
     changeTitleColor = 'red';
-  } else if (input.changeType === 'update') {
-    changeTitle = 'MODIFIED';
+  } else if (input.changeType === 'modify') {
+    changeTitle = 'MODIFY';
     changeTitleColor = 'orange';
+  } else {
+    changeTitle = verbForOriginalChangeType(input.type);
+    changeTitleColor = colorForOriginalChangeType(input.type);
   }
   return {
     title: 'Object',
