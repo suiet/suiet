@@ -127,64 +127,6 @@ describe('analyze the result of changes to changes of needed different category'
     expect(result.getObjectChangeList().length).toEqual(0);
     expect(result.getCoinChangeList().length).toEqual(0);
   });
-
-  test('it should filter out object changes that are not owned by account', function () {
-    const accountAddress =
-      '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7';
-    const objectChanges = [
-      {
-        type: 'mutated',
-        sender:
-          '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7',
-        owner: {
-          AddressOwner:
-            '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7',
-        },
-        objectType: '0x2::coin::Coin<0x2::sui::SUI>',
-        objectId:
-          '0x00af0fb93d0b7d248a33beb2cfd1c64e1930772bf2681a79b35f0ad507274447',
-        version: '9223372036854775807',
-        previousVersion: '8623409',
-        digest: '2sMmnbiH5We9UBMn88psTTCMWYrLYMBQwfY7jwuHn6WP',
-      },
-      // this one should be filtered out
-      {
-        type: 'mutated',
-        sender:
-          '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7',
-        owner: {
-          Shared: {
-            initial_shared_version: 14817052,
-          },
-        },
-        objectType:
-          '0x5e604889765cf549454a1c8e92891c329d09b3f805a15a73c2a821e6bd55aa46::pool::Pool<0x2::sui::SUI, 0x2bd042e8ebcf3a36bae8fabcd6fd89fdf89907e9da2e898cb9a8d781e01664bd::usdc::USDC, 0x5e604889765cf549454a1c8e92891c329d09b3f805a15a73c2a821e6bd55aa46::fee3000bps::FEE3000BPS>',
-        objectId:
-          '0x4511abc70dc5d9e7f0c024f0cb008bfeba54cf4841c2cc7d63a0ac2fd5cadbe8',
-        version: '9223372036854775807',
-        previousVersion: '17923864',
-        digest: 'GdjazQnuSXH4eukYTfxQXumJBJdVRTcDzeyvVsXefA89',
-      },
-    ];
-    const result = AssetChangeAnalyzer.analyze({
-      accountAddress: accountAddress,
-      objectChanges: objectChanges as any,
-      balanceChanges: [
-        {
-          owner: {
-            AddressOwner:
-              '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7',
-          },
-          coinType: '0x2::sui::SUI',
-          amount: '-121392016',
-        },
-      ],
-      objectDataMap: {},
-    });
-    expect(result.getCoinChangeList().length).toEqual(1);
-    expect(result.getNftChangeList().length).toEqual(0);
-    expect(result.getObjectChangeList().length).toEqual(0);
-  });
 });
 
 describe('Detect Coin Change', function () {
@@ -232,7 +174,8 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
-        changeType: 'send',
+        type: 'mutated',
+        changeType: 'decrease',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '-999',
@@ -289,7 +232,8 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
-        changeType: 'receive',
+        type: 'mutated',
+        changeType: 'increase',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '999',
@@ -361,7 +305,8 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
-        changeType: 'receive',
+        type: 'mutated',
+        changeType: 'increase',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '999',
@@ -481,7 +426,8 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
-        changeType: 'receive',
+        type: 'mutated',
+        changeType: 'increase',
         objectType: objectType,
         // additional fields
         amount: '1000000000',
@@ -537,7 +483,8 @@ describe('Detect NFT Change', function () {
       });
       expect(result.getNftChangeList()[0]).toEqual({
         category: 'nft',
-        changeType: 'send',
+        type: 'mutated',
+        changeType: 'decrease',
         objectType:
           '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::Nft',
         objectId:
@@ -588,7 +535,8 @@ describe('Detect NFT Change', function () {
       });
       expect(result.getNftChangeList()[0]).toEqual({
         category: 'nft',
-        changeType: 'receive',
+        type: 'created',
+        changeType: 'increase',
         objectType:
           '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::Nft',
         objectId:
@@ -637,7 +585,8 @@ describe('Fallback Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
-        changeType: 'send',
+        type: 'mutated',
+        changeType: 'decrease',
         objectType:
           '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
         objectId:
@@ -648,7 +597,7 @@ describe('Fallback Detect Object Change', function () {
     }
   );
   test(
-    'it should return changeType=update, ' +
+    'it should return changeType=mutate, ' +
       'when object change is mutated, sender and receiver are the user itself',
     () => {
       const accountAddress =
@@ -678,7 +627,8 @@ describe('Fallback Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
-        changeType: 'update',
+        type: 'mutated',
+        changeType: 'modify',
         objectType:
           '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
         objectId:
@@ -689,3 +639,5 @@ describe('Fallback Detect Object Change', function () {
     }
   );
 });
+
+describe('Edge Case Detect Object Change', function () {});

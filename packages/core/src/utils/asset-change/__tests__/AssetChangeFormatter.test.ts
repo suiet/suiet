@@ -6,10 +6,11 @@ import {
 import AssetChangeFormatter from '../AssetChangeFormatter';
 
 describe('format object change', () => {
-  test('it should return +1 when changeType is receive', () => {
+  test('it should return +1 when changeType is increase', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
-      changeType: 'receive',
+      type: 'created',
+      changeType: 'increase',
       objectType: 'objectType',
       objectId: 'objectId',
       digest: 'digest',
@@ -27,10 +28,11 @@ describe('format object change', () => {
     });
   });
 
-  test('it should return -1 when changeType is send', () => {
+  test('it should return -1 when changeType is decrease', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
-      changeType: 'send',
+      type: 'mutated',
+      changeType: 'decrease',
       objectType: 'objectType',
       objectId: 'objectId',
       digest: 'digest',
@@ -48,10 +50,11 @@ describe('format object change', () => {
     });
   });
 
-  test('its changeTitle should be "MODIFIED" when changeType is update', () => {
+  test('its changeTitle should be "MODIFY" when changeType is modify', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
-      changeType: 'update',
+      type: 'mutated',
+      changeType: 'modify',
       objectType: 'objectType',
       objectId: 'objectId',
       digest: 'digest',
@@ -63,7 +66,29 @@ describe('format object change', () => {
       icon: 'object',
       iconShape: 'square',
       iconColor: 'gray',
-      changeTitle: 'MODIFIED',
+      changeTitle: 'MODIFY',
+      changeDesc: '',
+      changeTitleColor: 'orange',
+    });
+  });
+
+  test('it should return changeTitle to the original type if changeType is unknown', () => {
+    const objectChange: IObjectChangeObject = {
+      category: 'object',
+      type: 'mutated',
+      changeType: 'unknown',
+      objectType: 'objectType',
+      objectId: 'objectId',
+      digest: 'digest',
+      version: 'version',
+    };
+    expect(AssetChangeFormatter.format(objectChange)).toEqual({
+      title: 'Object',
+      desc: 'objectType',
+      icon: 'object',
+      iconShape: 'square',
+      iconColor: 'gray',
+      changeTitle: 'MUTATE',
       changeDesc: '',
       changeTitleColor: 'orange',
     });
@@ -71,11 +96,12 @@ describe('format object change', () => {
 });
 
 describe('format coin change', () => {
-  test('it should return +1 SUI when changeType is receive', () => {
+  test('it should return +1 SUI when changeType is increase', () => {
     const coinType = '0x2::sui::SUI';
     const coinChange: ICoinChangeObject = {
       category: 'coin',
-      changeType: 'receive',
+      type: 'mutated',
+      changeType: 'increase',
       objectType: `0x2::coin::Coin<${coinType}>`,
       coinType: coinType,
       amount: '1000000000',
@@ -101,7 +127,8 @@ describe('format coin change', () => {
     const objectType = `0x2::coin::Coin<${coinType}>`;
     const coinChange: ICoinChangeObject = {
       category: 'coin',
-      changeType: 'receive',
+      type: 'mutated',
+      changeType: 'increase',
       objectType: objectType,
       coinType: coinType,
       amount: '1000',
@@ -124,10 +151,11 @@ describe('format coin change', () => {
 });
 
 describe('format nft change', () => {
-  test('it should return +1 when changeType is receive', () => {
+  test('it should return +1 when changeType is increase', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
-      changeType: 'receive',
+      type: 'created',
+      changeType: 'increase',
       objectType: '0x2::coin::Coin<0x2::sui::SUI>',
       objectId: 'objectId',
       digest: 'digest',
@@ -148,10 +176,11 @@ describe('format nft change', () => {
     });
   });
 
-  test('its changeTitle should be "MODIFIED" when changeType is update', () => {
+  test('its changeTitle should be "MODIFY" when changeType is modify', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
-      changeType: 'update',
+      type: 'mutated',
+      changeType: 'modify',
       objectType: '0x2::coin::Coin<0x2::sui::SUI>',
       objectId: 'objectId',
       digest: 'digest',
@@ -166,7 +195,7 @@ describe('format nft change', () => {
       icon: 'object',
       iconShape: 'square',
       iconColor: 'gray',
-      changeTitle: 'MODIFIED',
+      changeTitle: 'MODIFY',
       changeDesc: '',
       changeTitleColor: 'orange',
     });
@@ -175,7 +204,8 @@ describe('format nft change', () => {
   test('it should show image_url as icon', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
-      changeType: 'receive',
+      type: 'created',
+      changeType: 'increase',
       objectType: '0x2::coin::Coin<0x2::sui::SUI>',
       objectId: 'objectId',
       digest: 'digest',
@@ -200,7 +230,8 @@ describe('format nft change', () => {
   test('it should show nft name as icon name', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
-      changeType: 'receive',
+      type: 'created',
+      changeType: 'increase',
       objectType: '0x2::coin::Coin<0x2::sui::SUI>',
       objectId: 'objectId',
       digest: 'digest',

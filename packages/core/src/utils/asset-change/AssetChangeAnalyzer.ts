@@ -7,7 +7,6 @@ import {
   SuiObjectChangeDeleted,
   SuiObjectChangeWrapped,
   SuiObjectChangeCreated,
-  Coin,
 } from '@mysten/sui.js';
 import { Infer } from 'superstruct';
 import { has } from '../index';
@@ -21,11 +20,18 @@ export type ObjectChange =
   | SuiObjectChangeTransferred
   | SuiObjectChangePublished;
 
+export type OriginalObjectChangeType =
+  | 'created'
+  | 'mutated'
+  | 'deleted'
+  | 'wrapped'
+  | 'transferred'
+  | 'published';
+
 export type ObjectChangeType =
-  | 'send'
-  | 'receive'
-  | 'update'
-  | 'delete'
+  | 'increase'
+  | 'decrease'
+  | 'modify'
   | 'publish'
   | 'wrap'
   | 'unknown';
@@ -45,6 +51,7 @@ export interface IAssetChangeOutput {
 
 export type IObjectChangeObject = {
   category: string;
+  type: OriginalObjectChangeType;
   changeType: ObjectChangeType;
   objectType: string;
   objectId: string;
@@ -160,6 +167,7 @@ export default class AssetChangeAnalyzer {
         const objectDesc = objectTypeMap.get(objChange.objectType);
         coinChangeMap.set(objChange.objectType, {
           category: 'coin',
+          type: objChange.type,
           changeType: AssetChangeAnalyzer.coinChangeType(objectDesc.amount),
           objectType: objChange.objectType,
           objectId: '',
@@ -175,6 +183,7 @@ export default class AssetChangeAnalyzer {
         const objectDesc = objectTypeMap.get(objChange.objectId);
         resultNftChanges.push({
           category: 'nft',
+          type: objChange.type,
           changeType: AssetChangeAnalyzer.objectChangeType(
             accountAddress,
             objChange
@@ -190,6 +199,7 @@ export default class AssetChangeAnalyzer {
       // fallback to object changes
       resultObjectChanges.push({
         category: 'object',
+        type: objChange.type,
         changeType: AssetChangeAnalyzer.objectChangeType(
           accountAddress,
           objChange
@@ -224,33 +234,47 @@ export default class AssetChangeAnalyzer {
     objectChange: ObjectChange
   ): ObjectChangeType {
     if (objectChange.type === 'published') return 'publish';
-    if (objectChange.type === 'deleted') return 'delete';
+    if (objectChange.type === 'deleted') return 'decrease';
     if (objectChange.type === 'wrapped') return 'wrap';
-    if (objectChange.type === 'transferred') return 'send';
-    if (!has(objectChange.owner, 'AddressOwner')) return 'unknown';
 
     const sender = objectChange.sender;
+    if (objectChange.type === 'transferred') {
+      if (
+        sender === accountAddress &&
+        objectChange.recipient === accountAddress
+      )
+        return 'increase';
+      if (
+        sender === accountAddress &&
+        objectChange.recipient !== accountAddress
+      )
+        return 'decrease';
+      return 'unknown';
+    }
+    if (!has(objectChange.owner, 'AddressOwner')) return 'unknown';
+
     const addressOwner = (objectChange.owner as any).AddressOwner;
     const type = objectChange.type;
     if (type === 'created') {
-      if (sender === accountAddress && addressOwner === accountAddress) {
-        return 'receive';
+      if (addressOwner === accountAddress) {
+        return 'increase';
       }
-    }
-    if (type === 'mutated') {
-      if (sender === accountAddress && addressOwner !== accountAddress) {
-        return 'send';
-      }
-      if (sender === accountAddress && addressOwner === accountAddress) {
-        return 'update';
-      }
+      return 'unknown';
     }
 
+    if (type === 'mutated') {
+      if (sender === accountAddress && addressOwner !== accountAddress) {
+        return 'decrease';
+      }
+      if (sender === accountAddress && addressOwner === accountAddress) {
+        return 'modify';
+      }
+    }
     return 'unknown';
   }
 
   static coinChangeType(amount: string): ObjectChangeType {
-    return BigInt(amount) < 0 ? 'send' : 'receive';
+    return BigInt(amount) < 0 ? 'decrease' : 'increase';
   }
 
   static buildObjectTypeMap(input: {
