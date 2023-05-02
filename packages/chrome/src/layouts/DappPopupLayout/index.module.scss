@@ -1,14 +1,15 @@
 @import '../../styles/variables';
 
 .container {
-  position: relative;
+  margin: auto;
   width: $full-width;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 .content {
-  flex: 1;
+  // flex: 1;
+  margin: auto;
   overflow-y: auto;
 }
 
@@ -48,5 +49,5 @@
 }
 
 .main {
-  padding-bottom: 104px;
+  // padding-bottom: 104px;
 }
