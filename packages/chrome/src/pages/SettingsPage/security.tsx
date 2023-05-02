@@ -127,7 +127,7 @@ function PasswordSetting() {
   }
 
   return (
-    <div>
+    <div className={styles['page']}>
       <Nav
         onNavBack={() => {
           navigate('..');
@@ -149,11 +149,18 @@ export default function Security() {
   return (
     <Routes>
       <Route path="/" element={<MainPage />} />
-      <Route path="password" element={<PasswordSetting />} />
+      <Route
+        path="password"
+        element={
+          <div className={styles['page']}>
+            <PasswordSetting />
+          </div>
+        }
+      />
       <Route
         path="reset"
         element={
-          <div>
+          <div className={styles['page']}>
             <Nav
               title={'Reset Suiet'}
               onNavBack={() => {

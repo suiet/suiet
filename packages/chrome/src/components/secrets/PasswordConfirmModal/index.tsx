@@ -18,6 +18,7 @@ import Icon from '../../Icon';
 import Typo from '../../../components/Typo';
 import classnames from 'classnames';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import classNames from 'classnames';
 export type PasswordConfirmModalProps = Extendable & {
   trigger: JSX.Element;
   actionDesc: string;
@@ -82,11 +83,14 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
       title={''}
       trigger={props.trigger}
       contentProps={{
-        className: styles['modal'] + ' overflow-scroll h-[100vh] no-scrollbar',
+        className: classNames(
+          styles['modal'],
+          ' overflow-scroll h-[100vh] no-scrollbar'
+        ),
       }}
       onOpenChange={props.onOpenChange}
     >
-      <SettingTwoLayout className={classnames('!pb-[128px]', '!p-0')}>
+      <SettingTwoLayout className={classnames(styles['container'])}>
         <div className="flex flex-col items-center gap-[8px]">
           <Icon elClassName={styles['icon']} icon={<IconError />} />
           <Typo.Title className={styles['title']}>Warning</Typo.Title>

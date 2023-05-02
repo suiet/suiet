@@ -3,29 +3,42 @@
 .container {
   width: $full-width;
   height: 100%;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  box-shadow: 0px 20px 24px -4px rgba(58, 76, 112, 0.04),
+    0px 8px 8px -4px rgba(58, 76, 112, 0.03);
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+@media screen and (max-width: $full-width * 1.2) {
+  .container {
+    border-radius: 0;
+  }
+}
+
+.content {
+  overflow-y: auto;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
-.content {
-  // flex: 1;
-  margin: 0 auto;
-  overflow-y: auto;
-}
 
 .footer {
-  position: fixed;
-  bottom: 0;
   width: $full-width;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto;
   padding: 16px;
   border-top: 1px solid $gray-100;
   background-color: $white;
 }
 
 .header {
-  margin-top: 32px;
+  margin-top: 48px;
   padding: 0 32px;
 
   &__title {
@@ -49,4 +62,5 @@
 
 .main {
   // padding-bottom: 104px;
+  flex: 1;
 }

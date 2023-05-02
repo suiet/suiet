@@ -42,7 +42,7 @@ const NftDetail = () => {
   }
 
   return (
-    <div>
+    <div className={styles['page']}>
       <Nav
         title={'NFT Details'}
         onNavBack={() => {
