@@ -18,6 +18,7 @@ import { useApiClient } from '../../hooks/useApiClient';
 import BrandLayout from '../../layouts/BrandLayout';
 import BiometricAuth from '../../components/BiometricAuth';
 import styles from './index.module.scss';
+import classNames from 'classnames';
 
 type FormData = {
   password: string;
@@ -54,9 +55,8 @@ const LockPage = () => {
 
   if (step === 2) {
     return (
-      <div className={styles['page']}>
+      <div className={classNames(styles['page'], 'no-scrollbar')}>
         <Nav
-          position={'absolute'}
           title={'Forget Password'}
           onNavBack={() => {
             setStep(1);

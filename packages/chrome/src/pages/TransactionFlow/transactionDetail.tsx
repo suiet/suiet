@@ -15,6 +15,7 @@ import { upperFirst } from 'lodash-es';
 import formatTotalCoinChange from './utils/formatTotalCoinChange';
 import renderAddress from './utils/renderAddress';
 import { isNonEmptyArray } from '../../utils/check';
+import classNames from 'classnames';
 
 export interface TxItem {
   type: TxItemDisplayType;
@@ -128,7 +129,7 @@ function TransactionDetail() {
     ? state.type
     : 'default';
   return (
-    <div className="transaction-detail-container">
+    <div className={classNames('transaction-detail-container', 'no-scrollbar')}>
       <div className="transaction-detail-header">
         <div
           className="transaction-detail-back"
