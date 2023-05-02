@@ -156,7 +156,8 @@ describe('format nft change', () => {
       category: 'nft',
       type: 'created',
       changeType: 'increase',
-      objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+      objectType:
+        '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::Nft',
       objectId: 'objectId',
       digest: 'digest',
       version: 'version',
@@ -181,7 +182,8 @@ describe('format nft change', () => {
       category: 'nft',
       type: 'mutated',
       changeType: 'modify',
-      objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+      objectType:
+        '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::Nft',
       objectId: 'objectId',
       digest: 'digest',
       version: 'version',
@@ -206,7 +208,8 @@ describe('format nft change', () => {
       category: 'nft',
       type: 'created',
       changeType: 'increase',
-      objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+      objectType:
+        '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::Nft',
       objectId: 'objectId',
       digest: 'digest',
       version: 'version',
@@ -232,7 +235,8 @@ describe('format nft change', () => {
       category: 'nft',
       type: 'created',
       changeType: 'increase',
-      objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+      objectType:
+        '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::Nft',
       objectId: 'objectId',
       digest: 'digest',
       version: 'version',
@@ -250,6 +254,28 @@ describe('format nft change', () => {
       changeTitle: '+1 NFT',
       changeDesc: '',
       changeTitleColor: 'green',
+    });
+  });
+
+  test('it should return changeTitle to the original type if changeType is unknown', () => {
+    const objectChange: IObjectChangeObject = {
+      category: 'nft',
+      type: 'mutated',
+      changeType: 'unknown',
+      objectType: 'objectType',
+      objectId: 'objectId',
+      digest: 'digest',
+      version: 'version',
+    };
+    expect(AssetChangeFormatter.format(objectChange)).toEqual({
+      title: 'Object',
+      desc: 'objectType',
+      icon: 'object',
+      iconShape: 'square',
+      iconColor: 'gray',
+      changeTitle: 'MUTATE',
+      changeDesc: '',
+      changeTitleColor: 'orange',
     });
   });
 });

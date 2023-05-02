@@ -135,6 +135,21 @@ export default class AssetChangeAnalyzer {
     }) as (SuiObjectChangeCreated | SuiObjectChangeMutated)[];
   }
 
+  static filterChildObjectChanges(objectChanges: ObjectChange[]) {
+    const objectIds: Set<string> = new Set();
+    for (const objChange of objectChanges) {
+      if (has(objChange, 'objectId')) {
+        objectIds.add((objChange as any).objectId);
+      }
+    }
+    return objectChanges.filter((o) => {
+      if (!has((o as any)?.owner, 'ObjectOwner')) return true;
+      // filter out object field changes that are related to an existing object
+      if (objectIds.has((o as any).owner.ObjectOwner)) return false;
+      return true;
+    });
+  }
+
   static analyze(input: IAssetChangeInput): IAssetChangeOutput {
     const {
       accountAddress,
@@ -148,53 +163,69 @@ export default class AssetChangeAnalyzer {
       objectDataMap,
     });
 
-    const ownedObjectChanges = AssetChangeAnalyzer.filterOwnedObjectChanges(
-      accountAddress,
-      objectChanges
-    );
+    const filteredObjChanges =
+      AssetChangeAnalyzer.filterChildObjectChanges(objectChanges);
 
     const coinChangeMap: Map<string, ICoinChangeObject> = new Map();
     const resultNftChanges: INftChangeObject[] = [];
     const resultObjectChanges: IObjectChangeObject[] = [];
 
-    for (const objChange of ownedObjectChanges) {
+    for (const objChange of filteredObjChanges) {
       // filter out object changes that are not related to the account
-      if (!has(objChange.owner, 'AddressOwner')) continue;
+      // if (!has(objChange.owner, 'AddressOwner')) continue;
+      // exclude type=published
+      if ('objectType' in objChange) {
+        if (AssetChangeAnalyzer.isCoin(objectTypeMap, objChange.objectType)) {
+          if (coinChangeMap.has(objChange.objectType)) continue;
 
-      if (AssetChangeAnalyzer.isCoin(objectTypeMap, objChange.objectType)) {
-        if (coinChangeMap.has(objChange.objectType)) continue;
-
-        const objectDesc = objectTypeMap.get(objChange.objectType);
-        coinChangeMap.set(objChange.objectType, {
-          category: 'coin',
-          type: objChange.type,
-          changeType: AssetChangeAnalyzer.coinChangeType(objectDesc.amount),
-          objectType: objChange.objectType,
-          objectId: '',
-          digest: '',
-          version: '',
-          amount: objectDesc.amount,
-          coinType: objectDesc.coinType,
-          decimals: objectDesc.decimals ?? 9,
-        });
-        continue;
+          const objectDesc = objectTypeMap.get(objChange.objectType);
+          coinChangeMap.set(objChange.objectType, {
+            category: 'coin',
+            type: objChange.type,
+            changeType: AssetChangeAnalyzer.coinChangeType(objectDesc.amount),
+            objectType: objChange.objectType,
+            objectId: '',
+            digest: '',
+            version: '',
+            amount: objectDesc.amount,
+            coinType: objectDesc.coinType,
+            decimals: objectDesc.decimals ?? 9,
+          });
+          continue;
+        }
+        if (AssetChangeAnalyzer.isNft(objectTypeMap, objChange.objectId)) {
+          const objectDesc = objectTypeMap.get(objChange.objectId);
+          resultNftChanges.push({
+            category: 'nft',
+            type: objChange.type,
+            changeType: AssetChangeAnalyzer.objectChangeType(
+              accountAddress,
+              objChange
+            ),
+            objectType: objChange.objectType,
+            objectId: objChange.objectId,
+            digest: (objChange as any).digest,
+            version: objChange.version,
+            display: objectDesc.display,
+          });
+          continue;
+        }
+        // fallback to object changes
       }
-      if (AssetChangeAnalyzer.isNft(objectTypeMap, objChange.objectId)) {
-        const objectDesc = objectTypeMap.get(objChange.objectId);
-        resultNftChanges.push({
-          category: 'nft',
-          type: objChange.type,
-          changeType: AssetChangeAnalyzer.objectChangeType(
-            accountAddress,
-            objChange
-          ),
-          objectType: objChange.objectType,
-          objectId: objChange.objectId,
-          digest: objChange.digest,
-          version: objChange.version,
-          display: objectDesc.display,
-        });
-        continue;
+
+      let objectType = '';
+      let objectId = '';
+      let digest = '';
+      if (objChange.type === 'published') {
+        objectType = '';
+        objectId = objChange.packageId;
+        digest = objChange.digest;
+      } else {
+        objectType = objChange.objectType;
+        objectId = objChange.objectId;
+        if ('digest' in objChange) {
+          digest = objChange.digest;
+        }
       }
       // fallback to object changes
       resultObjectChanges.push({
@@ -204,9 +235,9 @@ export default class AssetChangeAnalyzer {
           accountAddress,
           objChange
         ),
-        objectType: objChange.objectType,
-        objectId: objChange.objectId,
-        digest: objChange.digest,
+        objectType: objectType,
+        objectId: objectId,
+        digest: digest,
         version: objChange.version,
       });
     }
@@ -235,12 +266,12 @@ export default class AssetChangeAnalyzer {
   ): ObjectChangeType {
     if (objectChange.type === 'published') return 'publish';
     if (objectChange.type === 'deleted') return 'decrease';
-    if (objectChange.type === 'wrapped') return 'wrap';
+    if (objectChange.type === 'wrapped') return 'modify';
 
     const sender = objectChange.sender;
     if (objectChange.type === 'transferred') {
       if (
-        sender === accountAddress &&
+        sender !== accountAddress &&
         objectChange.recipient === accountAddress
       )
         return 'increase';
@@ -251,24 +282,32 @@ export default class AssetChangeAnalyzer {
         return 'decrease';
       return 'unknown';
     }
-    if (!has(objectChange.owner, 'AddressOwner')) return 'unknown';
 
+    if ('Shared' in (objectChange as any).owner) {
+      // handle changes with Shared Object
+      if (objectChange.type === 'created') return 'increase';
+      if (objectChange.type === 'mutated') return 'modify';
+      return 'unknown';
+    }
+    if ('ObjectOwner' in (objectChange as any).owner) {
+      // handle changes with ObjectOwner
+      if (objectChange.type === 'created') return 'increase';
+      if (objectChange.type === 'mutated') return 'modify';
+      return 'unknown';
+    }
+
+    // handle changes with AddressOwner
     const addressOwner = (objectChange.owner as any).AddressOwner;
     const type = objectChange.type;
     if (type === 'created') {
-      if (addressOwner === accountAddress) {
-        return 'increase';
-      }
-      return 'unknown';
+      return 'increase';
     }
 
     if (type === 'mutated') {
       if (sender === accountAddress && addressOwner !== accountAddress) {
         return 'decrease';
       }
-      if (sender === accountAddress && addressOwner === accountAddress) {
-        return 'modify';
-      }
+      return 'modify';
     }
     return 'unknown';
   }
