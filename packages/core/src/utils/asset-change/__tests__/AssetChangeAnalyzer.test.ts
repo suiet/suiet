@@ -1,4 +1,4 @@
-import AssetChangeAnalyzer from '../AssetChangeAnalyzer';
+import AssetChangeAnalyzer, { ObjectChange } from '../AssetChangeAnalyzer';
 
 describe('analyze the result of changes to changes of needed different category', function () {
   test('it should return list of coin, nft and object changes', function () {
@@ -174,6 +174,7 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'decrease',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
@@ -232,6 +233,7 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'increase',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
@@ -305,6 +307,7 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'increase',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
@@ -363,6 +366,7 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
+        ownership: 'owned',
         changeType: 'receive',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
@@ -426,6 +430,7 @@ describe('Detect Coin Change', function () {
       });
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'increase',
         objectType: objectType,
@@ -483,6 +488,7 @@ describe('Detect NFT Change', function () {
       });
       expect(result.getNftChangeList()[0]).toEqual({
         category: 'nft',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'decrease',
         objectType:
@@ -535,6 +541,7 @@ describe('Detect NFT Change', function () {
       });
       expect(result.getNftChangeList()[0]).toEqual({
         category: 'nft',
+        ownership: 'owned',
         type: 'created',
         changeType: 'increase',
         objectType:
@@ -585,6 +592,7 @@ describe('Fallback Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'decrease',
         objectType:
@@ -627,6 +635,7 @@ describe('Fallback Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'owned',
         type: 'mutated',
         changeType: 'modify',
         objectType:
@@ -671,6 +680,7 @@ describe('Fallback Detect Object Change', function () {
         category: 'object',
         type: 'transferred',
         changeType: 'decrease',
+        ownership: 'owned',
         objectType:
           '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
         objectId:
@@ -711,6 +721,7 @@ describe('Fallback Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'owned',
         type: 'transferred',
         changeType: 'increase',
         objectType:
@@ -755,6 +766,7 @@ describe('Fallback Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'unknown',
         type: 'transferred',
         changeType: 'unknown',
         objectType:
@@ -800,6 +812,7 @@ describe('Handle Object Change with ObjectOwner', () => {
     });
     expect(result.getObjectChangeList()[0]).toEqual({
       category: 'object',
+      ownership: 'dynamicField',
       type: 'mutated',
       changeType: 'modify',
       objectType: objectType,
@@ -866,6 +879,7 @@ describe('Handle Object Change with ObjectOwner', () => {
       expect(result.getObjectChangeList().length).toEqual(1);
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'shared',
         type: 'mutated',
         changeType: 'modify',
         objectType: parentObjectType,
@@ -914,6 +928,7 @@ describe('Handle Object Change with Shared Object', () => {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'shared',
         type: 'mutated',
         changeType: 'modify',
         objectType: objectType,
@@ -951,6 +966,7 @@ describe('Edge Case Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'unknown',
         type: 'published',
         changeType: 'publish',
         objectType: '',
@@ -987,6 +1003,7 @@ describe('Edge Case Detect Object Change', function () {
       });
       expect(result.getObjectChangeList()[0]).toEqual({
         category: 'object',
+        ownership: 'unknown',
         type: 'wrapped',
         changeType: 'modify',
         objectType:
@@ -998,4 +1015,66 @@ describe('Edge Case Detect Object Change', function () {
       });
     }
   );
+});
+
+describe('determine object ownership', () => {
+  test('it should return owner=owned', () => {
+    const accountAddress =
+      '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+    const objectChange: ObjectChange = {
+      type: 'mutated',
+      sender: accountAddress,
+      owner: {
+        AddressOwner: accountAddress,
+      },
+      objectType: '',
+      objectId: '',
+      version: '',
+      previousVersion: '',
+      digest: '',
+    };
+    expect(
+      AssetChangeAnalyzer.objectOwnership(objectChange, accountAddress)
+    ).toEqual('owned');
+  });
+  test('it should return owner=shared', () => {
+    const accountAddress =
+      '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+    const objectChange: ObjectChange = {
+      type: 'mutated',
+      sender: accountAddress,
+      owner: {
+        Shared: {
+          initial_shared_version: 3822520,
+        },
+      },
+      objectType: '',
+      objectId: '',
+      version: '',
+      previousVersion: '',
+      digest: '',
+    };
+    expect(
+      AssetChangeAnalyzer.objectOwnership(objectChange, accountAddress)
+    ).toEqual('shared');
+  });
+  test('it should return owner=dynamicField', () => {
+    const accountAddress =
+      '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+    const objectChange: ObjectChange = {
+      type: 'mutated',
+      sender: accountAddress,
+      owner: {
+        ObjectOwner: '',
+      },
+      objectType: '',
+      objectId: '',
+      version: '',
+      previousVersion: '',
+      digest: '',
+    };
+    expect(
+      AssetChangeAnalyzer.objectOwnership(objectChange, accountAddress)
+    ).toEqual('dynamicField');
+  });
 });

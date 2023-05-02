@@ -1,12 +1,12 @@
 import {
   BalanceChange,
-  SuiObjectData,
+  SuiObjectChangeCreated,
+  SuiObjectChangeDeleted,
+  SuiObjectChangeMutated,
   SuiObjectChangePublished,
   SuiObjectChangeTransferred,
-  SuiObjectChangeMutated,
-  SuiObjectChangeDeleted,
   SuiObjectChangeWrapped,
-  SuiObjectChangeCreated,
+  SuiObjectData,
 } from '@mysten/sui.js';
 import { Infer } from 'superstruct';
 import { has } from '../index';
@@ -49,6 +49,8 @@ export interface IAssetChangeOutput {
   getObjectChangeList(): IObjectChangeObject[];
 }
 
+export type ObjectOwnership = 'owned' | 'shared' | 'dynamicField' | 'unknown';
+
 export type IObjectChangeObject = {
   category: string;
   type: OriginalObjectChangeType;
@@ -57,6 +59,7 @@ export type IObjectChangeObject = {
   objectId: string;
   digest: string;
   version: string;
+  ownership: ObjectOwnership;
 };
 
 export type ICoinChangeObject = IObjectChangeObject & {
@@ -135,6 +138,10 @@ export default class AssetChangeAnalyzer {
     }) as (SuiObjectChangeCreated | SuiObjectChangeMutated)[];
   }
 
+  /**
+   * Filter out dynamic field object changes that are related to an existing parent object
+   * @param objectChanges
+   */
   static filterChildObjectChanges(objectChanges: ObjectChange[]) {
     const objectIds: Set<string> = new Set();
     for (const objChange of objectChanges) {
@@ -150,6 +157,10 @@ export default class AssetChangeAnalyzer {
     });
   }
 
+  /**
+   * Categorize object changes into coin, nft, and object changes
+   * @param input
+   */
   static analyze(input: IAssetChangeInput): IAssetChangeOutput {
     const {
       accountAddress,
@@ -166,92 +177,148 @@ export default class AssetChangeAnalyzer {
     const filteredObjChanges =
       AssetChangeAnalyzer.filterChildObjectChanges(objectChanges);
 
-    const coinChangeMap: Map<string, ICoinChangeObject> = new Map();
+    const resultCoinChangeMap: Map<string, ICoinChangeObject> = new Map();
     const resultNftChanges: INftChangeObject[] = [];
     const resultObjectChanges: IObjectChangeObject[] = [];
 
     for (const objChange of filteredObjChanges) {
-      // filter out object changes that are not related to the account
-      // if (!has(objChange.owner, 'AddressOwner')) continue;
-      // exclude type=published
-      if ('objectType' in objChange) {
+      if (objChange.type !== 'published') {
         if (AssetChangeAnalyzer.isCoin(objectTypeMap, objChange.objectType)) {
-          if (coinChangeMap.has(objChange.objectType)) continue;
+          // ignore duplicated coin changes for one coin type
+          if (resultCoinChangeMap.has(objChange.objectType)) continue;
 
           const objectDesc = objectTypeMap.get(objChange.objectType);
-          coinChangeMap.set(objChange.objectType, {
-            category: 'coin',
-            type: objChange.type,
-            changeType: AssetChangeAnalyzer.coinChangeType(objectDesc.amount),
-            objectType: objChange.objectType,
-            objectId: '',
-            digest: '',
-            version: '',
-            amount: objectDesc.amount,
-            coinType: objectDesc.coinType,
-            decimals: objectDesc.decimals ?? 9,
-          });
+          resultCoinChangeMap.set(
+            objChange.objectType,
+            AssetChangeAnalyzer.coinChangeObject(
+              accountAddress,
+              objChange,
+              objectDesc
+            )
+          );
           continue;
         }
+
         if (AssetChangeAnalyzer.isNft(objectTypeMap, objChange.objectId)) {
           const objectDesc = objectTypeMap.get(objChange.objectId);
-          resultNftChanges.push({
-            category: 'nft',
-            type: objChange.type,
-            changeType: AssetChangeAnalyzer.objectChangeType(
+          resultNftChanges.push(
+            AssetChangeAnalyzer.nftChangeObject(
               accountAddress,
-              objChange
-            ),
-            objectType: objChange.objectType,
-            objectId: objChange.objectId,
-            digest: (objChange as any).digest,
-            version: objChange.version,
-            display: objectDesc.display,
-          });
+              objChange,
+              objectDesc
+            )
+          );
           continue;
         }
-        // fallback to object changes
       }
 
-      let objectType = '';
-      let objectId = '';
-      let digest = '';
-      if (objChange.type === 'published') {
-        objectType = '';
-        objectId = objChange.packageId;
-        digest = objChange.digest;
-      } else {
-        objectType = objChange.objectType;
-        objectId = objChange.objectId;
-        if ('digest' in objChange) {
-          digest = objChange.digest;
-        }
-      }
       // fallback to object changes
-      resultObjectChanges.push({
-        category: 'object',
-        type: objChange.type,
-        changeType: AssetChangeAnalyzer.objectChangeType(
-          accountAddress,
-          objChange
-        ),
-        objectType: objectType,
-        objectId: objectId,
-        digest: digest,
-        version: objChange.version,
-      });
+      // fallback to object changes
+      resultObjectChanges.push(
+        AssetChangeAnalyzer.objectChangeObject(accountAddress, objChange)
+      );
     }
 
     return {
       getCoinChangeList(): ICoinChangeObject[] {
-        return Array.from(coinChangeMap.values());
+        return Array.from(resultCoinChangeMap.values());
       },
       getNftChangeList(): INftChangeObject[] {
-        return resultNftChanges as any;
+        return resultNftChanges;
       },
       getObjectChangeList(): IObjectChangeObject[] {
-        return resultObjectChanges as any;
+        return resultObjectChanges;
       },
+    };
+  }
+
+  static objectChangeObject(
+    accountAddress: string,
+    objChange:
+      | SuiObjectChangeCreated
+      | SuiObjectChangeMutated
+      | SuiObjectChangeDeleted
+      | SuiObjectChangeWrapped
+      | SuiObjectChangeTransferred
+      | SuiObjectChangePublished
+  ) {
+    let objectType = '';
+    let objectId = '';
+    let digest = '';
+    if (objChange.type === 'published') {
+      objectType = '';
+      objectId = objChange.packageId;
+      digest = objChange.digest;
+    } else {
+      objectType = objChange.objectType;
+      objectId = objChange.objectId;
+      if ('digest' in objChange) {
+        digest = objChange.digest;
+      }
+    }
+    return {
+      category: 'object',
+      ownership: AssetChangeAnalyzer.objectOwnership(objChange, accountAddress),
+      type: objChange.type,
+      changeType: AssetChangeAnalyzer.objectChangeType(
+        accountAddress,
+        objChange
+      ),
+      objectType: objectType,
+      objectId: objectId,
+      digest: digest,
+      version: objChange.version,
+    };
+  }
+
+  static nftChangeObject(
+    accountAddress: string,
+    objChange:
+      | SuiObjectChangeCreated
+      | SuiObjectChangeMutated
+      | SuiObjectChangeDeleted
+      | SuiObjectChangeWrapped
+      | SuiObjectChangeTransferred,
+    objectDesc: Record<string, any>
+  ): INftChangeObject {
+    return {
+      category: 'nft',
+      ownership: AssetChangeAnalyzer.objectOwnership(objChange, accountAddress),
+      type: objChange.type,
+      changeType: AssetChangeAnalyzer.objectChangeType(
+        accountAddress,
+        objChange
+      ),
+      objectType: objChange.objectType,
+      objectId: objChange.objectId,
+      digest: (objChange as any).digest,
+      version: objChange.version,
+      display: objectDesc.display,
+    };
+  }
+
+  static coinChangeObject(
+    accountAddress: string,
+    objChange:
+      | SuiObjectChangeCreated
+      | SuiObjectChangeMutated
+      | SuiObjectChangeDeleted
+      | SuiObjectChangeWrapped
+      | SuiObjectChangeTransferred,
+    objectDesc: Record<string, any>
+  ): ICoinChangeObject {
+    return {
+      category: 'coin',
+      ownership: AssetChangeAnalyzer.objectOwnership(objChange, accountAddress),
+      type: objChange.type,
+      changeType: AssetChangeAnalyzer.coinChangeType(objectDesc.amount),
+      objectType: objChange.objectType,
+      objectId: '',
+      digest: '',
+      version: '',
+      amount: objectDesc.amount,
+      coinType: objectDesc.coinType,
+      decimals: objectDesc.decimals ?? 9,
     };
   }
 
@@ -314,6 +381,25 @@ export default class AssetChangeAnalyzer {
 
   static coinChangeType(amount: string): ObjectChangeType {
     return BigInt(amount) < 0 ? 'decrease' : 'increase';
+  }
+
+  static objectOwnership(
+    objectChange: ObjectChange,
+    accountAddress: string
+  ): ObjectOwnership {
+    if (objectChange.type === 'transferred') {
+      if (objectChange.sender === accountAddress) return 'owned';
+      if (objectChange.recipient === accountAddress) return 'owned';
+      return 'unknown';
+    }
+    if (!('owner' in objectChange)) return 'unknown';
+    if ('ObjectOwner' in (objectChange as any).owner) {
+      return 'dynamicField';
+    }
+    if ('Shared' in (objectChange as any).owner) {
+      return 'shared';
+    }
+    return 'owned';
   }
 
   static buildObjectTypeMap(input: {

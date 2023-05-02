@@ -9,6 +9,7 @@ describe('format object change', () => {
   test('it should return +1 when changeType is increase', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
+      ownership: 'owned',
       type: 'created',
       changeType: 'increase',
       objectType: 'objectType',
@@ -31,6 +32,7 @@ describe('format object change', () => {
   test('it should return -1 when changeType is decrease', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'decrease',
       objectType: 'objectType',
@@ -53,6 +55,7 @@ describe('format object change', () => {
   test('its changeTitle should be "MODIFY" when changeType is modify', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'modify',
       objectType: 'objectType',
@@ -75,6 +78,7 @@ describe('format object change', () => {
   test('it should return changeTitle to the original type if changeType is unknown', () => {
     const objectChange: IObjectChangeObject = {
       category: 'object',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'unknown',
       objectType: 'objectType',
@@ -93,6 +97,52 @@ describe('format object change', () => {
       changeTitleColor: 'orange',
     });
   });
+
+  test('it should return title to Shared Object if ownership is shared', () => {
+    const objectChange: IObjectChangeObject = {
+      category: 'object',
+      ownership: 'shared',
+      type: 'mutated',
+      changeType: 'unknown',
+      objectType: 'objectType',
+      objectId: 'objectId',
+      digest: 'digest',
+      version: 'version',
+    };
+    expect(AssetChangeFormatter.format(objectChange)).toEqual({
+      title: 'Shared Object',
+      desc: 'objectType',
+      icon: 'object',
+      iconShape: 'square',
+      iconColor: 'gray',
+      changeTitle: 'MUTATE',
+      changeDesc: '',
+      changeTitleColor: 'orange',
+    });
+  });
+
+  test('it should return title to Dynamic Field if ownership is dynamicField', () => {
+    const objectChange: IObjectChangeObject = {
+      category: 'object',
+      ownership: 'dynamicField',
+      type: 'mutated',
+      changeType: 'unknown',
+      objectType: 'objectType',
+      objectId: 'objectId',
+      digest: 'digest',
+      version: 'version',
+    };
+    expect(AssetChangeFormatter.format(objectChange)).toEqual({
+      title: 'Dynamic Field',
+      desc: 'objectType',
+      icon: 'object',
+      iconShape: 'square',
+      iconColor: 'gray',
+      changeTitle: 'MUTATE',
+      changeDesc: '',
+      changeTitleColor: 'orange',
+    });
+  });
 });
 
 describe('format coin change', () => {
@@ -100,6 +150,7 @@ describe('format coin change', () => {
     const coinType = '0x2::sui::SUI';
     const coinChange: ICoinChangeObject = {
       category: 'coin',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'increase',
       objectType: `0x2::coin::Coin<${coinType}>`,
@@ -127,6 +178,7 @@ describe('format coin change', () => {
     const objectType = `0x2::coin::Coin<${coinType}>`;
     const coinChange: ICoinChangeObject = {
       category: 'coin',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'increase',
       objectType: objectType,
@@ -154,6 +206,7 @@ describe('format nft change', () => {
   test('it should return +1 when changeType is increase', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
+      ownership: 'owned',
       type: 'created',
       changeType: 'increase',
       objectType:
@@ -180,6 +233,7 @@ describe('format nft change', () => {
   test('its changeTitle should be "MODIFY" when changeType is modify', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'modify',
       objectType:
@@ -206,6 +260,7 @@ describe('format nft change', () => {
   test('it should show image_url as icon', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
+      ownership: 'owned',
       type: 'created',
       changeType: 'increase',
       objectType:
@@ -233,6 +288,7 @@ describe('format nft change', () => {
   test('it should show nft name as icon name', () => {
     const coinChange: INftChangeObject = {
       category: 'nft',
+      ownership: 'owned',
       type: 'created',
       changeType: 'increase',
       objectType:
@@ -260,6 +316,7 @@ describe('format nft change', () => {
   test('it should return changeTitle to the original type if changeType is unknown', () => {
     const objectChange: IObjectChangeObject = {
       category: 'nft',
+      ownership: 'owned',
       type: 'mutated',
       changeType: 'unknown',
       objectType: 'objectType',
