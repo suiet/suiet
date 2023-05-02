@@ -12,7 +12,11 @@ export type FormProps<TFieldValues> = Extendable & {
 function Form<TFieldValues = any>(props: FormProps<TFieldValues>) {
   return (
     <FormContext.Provider value={props.form}>
-      <form onSubmit={props.form.handleSubmit(props.onSubmit)}>
+      <form
+        onSubmit={props.form.handleSubmit(props.onSubmit)}
+        className={props.className}
+        style={props.style}
+      >
         {props.children}
       </form>
     </FormContext.Provider>

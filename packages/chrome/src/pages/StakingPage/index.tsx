@@ -31,6 +31,7 @@ import useSuiBalance from '../../hooks/coin/useSuiBalance';
 import { SUI_TYPE_ARG } from '@mysten/sui.js';
 import Message from '../../components/message';
 import { compareCoinAmount } from '../../utils/check';
+import styles from './index.module.scss';
 
 export default function StackingPage() {
   const apiClient = useApiClient();
@@ -138,7 +139,7 @@ export default function StackingPage() {
   }
   const navigate = useNavigate();
   return (
-    <div>
+    <div className={styles['page']}>
       <Nav
         position={'relative'}
         onNavBack={() => {
