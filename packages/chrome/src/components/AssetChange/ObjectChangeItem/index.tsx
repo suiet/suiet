@@ -56,9 +56,10 @@ const ObjectChangeItem = (props: ObjectChangeItemProps) => {
           </div>
         )}
       </div>
-      <div className={'ml-auto'}>
+      <div className={classNames('ml-auto')} style={{ fontFamily: 'Inter' }}>
         <Typo.Normal
           className={classNames(
+            'font-medium',
             styles['change-title'],
             styles[`change-title--${changeTitleColor}`]
           )}
