@@ -18,7 +18,13 @@ import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import Address from '../../../components/Address';
 import DappPopupLayout from '../../../layouts/DappPopupLayout';
 import { isNonEmptyArray } from '../../../utils/check';
-import { formatCurrency, formatGasBudget, formatSUI } from '@suiet/core';
+import {
+  formatCurrency,
+  formatGasBudget,
+  formatSUI,
+  formatDryRunError,
+  AssetChangeFormatter,
+} from '@suiet/core';
 import { isUndefined } from 'lodash-es';
 import { LoadingSpin } from '../../../components/Loading';
 import Message from '../../../components/message';
@@ -31,11 +37,10 @@ import isMoveCall from '../utils/isMoveCall';
 import { getGasBudgetFromTxb } from '../../../utils/getters';
 import useMyAssetChangesFromDryRun from './hooks/useMyAssetChangesFromDryRun';
 import { useAccount } from '../../../hooks/useAccount';
-import { formatDryRunError, AssetChangeFormatter } from '@suiet/core';
 import useSuiBalance from '../../../hooks/coin/useSuiBalance';
 import { ObjectChangeItem } from '../../../components/AssetChange';
 import classNames from 'classnames';
-
+import './custom.css';
 enum Mode {
   LOADING,
   INSUFFICIENT_SUI,
@@ -179,24 +184,26 @@ const TxApprovePage = () => {
   const renderAssetChanges = () => {
     return (
       <div>
-        {[...coinChangeList, ...nftChangeList, ...objectChangeList].map(
-          (item) => {
-            const f = AssetChangeFormatter.format(item);
-            return (
-              <ObjectChangeItem
-                key={item.objectId}
-                title={f.title}
-                desc={f.desc}
-                icon={f.icon}
-                iconShape={f.iconShape}
-                iconColor={f.iconColor}
-                changeTitle={f.changeTitle}
-                changeTitleColor={f.changeTitleColor as any}
-                changeDesc={f.changeDesc}
-              />
-            );
-          }
-        )}
+        <div className="my-6 flex flex-col gap-2">
+          {[...coinChangeList, ...nftChangeList, ...objectChangeList].map(
+            (item) => {
+              const f = AssetChangeFormatter.format(item);
+              return (
+                <ObjectChangeItem
+                  key={item.objectId}
+                  title={f.title}
+                  desc={f.desc}
+                  icon={f.icon}
+                  iconShape={f.iconShape}
+                  iconColor={f.iconColor}
+                  changeTitle={f.changeTitle}
+                  changeTitleColor={f.changeTitleColor as any}
+                  changeDesc={f.changeDesc}
+                />
+              );
+            }
+          )}
+        </div>
         {renderOverviewInfo()}
       </div>
     );
@@ -294,7 +301,7 @@ const TxApprovePage = () => {
               ))}
             </TabList>
 
-            <TabPanel className={'mt-[8px]'}>{renderAssetChanges()}</TabPanel>
+            <TabPanel>{renderAssetChanges()}</TabPanel>
             {txbList.map((tx, i) => (
               <TabPanel key={tx.kind + i} className={'mt-[8px]'}>
                 {renderTransaction(tx)}
