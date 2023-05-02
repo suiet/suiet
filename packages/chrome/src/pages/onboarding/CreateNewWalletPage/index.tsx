@@ -24,6 +24,7 @@ import { useApiClient } from '../../../hooks/useApiClient';
 import { sleep } from '../../../utils/time';
 import { OmitToken } from '../../../types';
 import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
+import styles from './index.module.scss';
 
 const CreateNewWallet = () => {
   const [step, setStep] = useState(1);
@@ -120,7 +121,7 @@ const CreateNewWallet = () => {
   }
 
   return (
-    <div>
+    <div className={styles['page']}>
       <Nav
         title={'New Wallet'}
         navDisabled={step === 2}

@@ -31,7 +31,7 @@ const Welcome = () => {
       blackTitle={'Suiet'}
       desc={'The wallet for everyone.'}
     >
-      <section className={'mt-[77px] w-full flex justify-between'}>
+      <section className={'px-[32px] mt-[77px] w-full flex justify-between'}>
         <RectButton theme={'primary'} onClick={handleCreateNewWallet}>
           Create New
         </RectButton>
