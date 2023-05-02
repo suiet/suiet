@@ -979,7 +979,7 @@ describe('Edge Case Detect Object Change', function () {
   );
 
   test(
-    'it should return changeType=mutate ' + 'when objectChange type is wrapped',
+    'it should return changeType=modify ' + 'when objectChange type is wrapped',
     () => {
       const accountAddress =
         '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
@@ -1076,5 +1076,25 @@ describe('determine object ownership', () => {
     expect(
       AssetChangeAnalyzer.objectOwnership(objectChange, accountAddress)
     ).toEqual('dynamicField');
+  });
+});
+
+describe('order of object and nft', () => {
+  test('it should follow the order: decrease, increase, modify, publish, unknown', () => {
+    expect(
+      AssetChangeAnalyzer.orderObjectChangeList([
+        { changeType: 'unknown' },
+        { changeType: 'publish' },
+        { changeType: 'modify' },
+        { changeType: 'increase' },
+        { changeType: 'decrease' },
+      ] as any)
+    ).toEqual([
+      { changeType: 'decrease' },
+      { changeType: 'increase' },
+      { changeType: 'modify' },
+      { changeType: 'publish' },
+      { changeType: 'unknown' },
+    ]);
   });
 });

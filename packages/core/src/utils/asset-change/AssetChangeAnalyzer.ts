@@ -33,7 +33,6 @@ export type ObjectChangeType =
   | 'decrease'
   | 'modify'
   | 'publish'
-  | 'wrap'
   | 'unknown';
 
 export interface IAssetChangeInput {
@@ -178,8 +177,8 @@ export default class AssetChangeAnalyzer {
       AssetChangeAnalyzer.filterChildObjectChanges(objectChanges);
 
     const resultCoinChangeMap: Map<string, ICoinChangeObject> = new Map();
-    const resultNftChanges: INftChangeObject[] = [];
-    const resultObjectChanges: IObjectChangeObject[] = [];
+    let resultNftChanges: INftChangeObject[] = [];
+    let resultObjectChanges: IObjectChangeObject[] = [];
 
     for (const objChange of filteredObjChanges) {
       if (objChange.type !== 'published') {
@@ -219,9 +218,22 @@ export default class AssetChangeAnalyzer {
       );
     }
 
+    let resultCoinChanges: ICoinChangeObject[] = Array.from(
+      resultCoinChangeMap.values()
+    );
+
+    resultCoinChanges = AssetChangeAnalyzer.orderObjectChangeList(
+      resultCoinChanges
+    ) as ICoinChangeObject[];
+    resultNftChanges = AssetChangeAnalyzer.orderObjectChangeList(
+      resultNftChanges
+    ) as INftChangeObject[];
+    resultObjectChanges =
+      AssetChangeAnalyzer.orderObjectChangeList(resultObjectChanges);
+
     return {
       getCoinChangeList(): ICoinChangeObject[] {
-        return Array.from(resultCoinChangeMap.values());
+        return resultCoinChanges;
       },
       getNftChangeList(): INftChangeObject[] {
         return resultNftChanges;
@@ -444,6 +456,25 @@ export default class AssetChangeAnalyzer {
     return (
       !AssetChangeAnalyzer.isCoin(objectTypeMap, objectType) &&
       !AssetChangeAnalyzer.isNft(objectTypeMap, objectType)
+    );
+  }
+
+  /**
+   * Sort the object change list by change type
+   * @param input
+   */
+  static orderObjectChangeList(
+    input: IObjectChangeObject[]
+  ): IObjectChangeObject[] {
+    const orderMap = {
+      decrease: 1,
+      increase: 2,
+      modify: 3,
+      publish: 4,
+      unknown: 5,
+    };
+    return input.sort(
+      (a, b) => (orderMap[a.changeType] || 5) - (orderMap[b.changeType] || 5)
     );
   }
 }
