@@ -2,6 +2,10 @@
 
 .container {
   @apply flex flex-col;
+  width: $full-width;
+  height: 100%;
+  background-color: $white;
+  overflow-y: auto;
   padding: 50px 32px;
 }
 

@@ -1,5 +1,11 @@
 @import '../../../styles/variables';
 
+.page {
+  width: $full-width;
+  height: 100%;
+  background-color: $white;
+}
+
 .container {
   padding: 8px 32px 32px;
 }

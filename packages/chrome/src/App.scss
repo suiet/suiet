@@ -1,14 +1,21 @@
 .app {
-  width: 362px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-height: 573px;
-
-  height: 100vh;
+  max-height: 100vh;
   overflow-y: auto;
-  margin: auto;
-  position: relative;
-  background-color: #fff;
-  box-shadow: 0px 20px 24px -4px rgba(58, 76, 112, 0.04),
-    0px 8px 8px -4px rgba(58, 76, 112, 0.03);
+  //width: 362px;
+  //min-height: 573px;
+  //
+  //height: 100vh;
+  //overflow-y: auto;
+  //margin: auto;
+  //position: relative;
+  //background-color: #fff;
+  //box-shadow: 0px 20px 24px -4px rgba(58, 76, 112, 0.04),
+  //  0px 8px 8px -4px rgba(58, 76, 112, 0.03);
 }
 
 small {

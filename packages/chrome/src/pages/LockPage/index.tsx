@@ -17,6 +17,7 @@ import { AppDispatch } from '../../store';
 import { useApiClient } from '../../hooks/useApiClient';
 import BrandLayout from '../../layouts/BrandLayout';
 import BiometricAuth from '../../components/BiometricAuth';
+import styles from './index.module.scss';
 
 type FormData = {
   password: string;
@@ -53,8 +54,9 @@ const LockPage = () => {
 
   if (step === 2) {
     return (
-      <div>
+      <div className={styles['page']}>
         <Nav
+          position={'absolute'}
           title={'Forget Password'}
           onNavBack={() => {
             setStep(1);
@@ -70,30 +72,32 @@ const LockPage = () => {
       blackTitle={'Suiet'}
       desc={'The wallet for everyone.'}
     >
-      <section className={'mt-[50px] w-full'}>
-        <Form form={form} onSubmit={handleSubmit}>
-          <FormControl name={'password'}>
-            <Input
-              state={getInputStateByFormState(form.formState, 'password')}
-              type={'password'}
-              placeholder={'Please enter password'}
-            />
-          </FormControl>
+      <div className={'px-[32px] pb-[32px] flex-1 flex flex-col'}>
+        <section className={'mt-[50px] w-full'}>
+          <Form form={form} onSubmit={handleSubmit}>
+            <FormControl name={'password'}>
+              <Input
+                state={getInputStateByFormState(form.formState, 'password')}
+                type={'password'}
+                placeholder={'Please enter password'}
+              />
+            </FormControl>
 
-          <Button type={'submit'} state={'primary'} className={'mt-[24px]'}>
-            Unlock
-          </Button>
-          <BiometricAuth className={'mt-[16px]'} />
-        </Form>
-      </section>
-      <Typo.Normal
-        className={'mt-auto cursor-pointer'}
-        onClick={() => {
-          setStep(2);
-        }}
-      >
-        Forget Password?
-      </Typo.Normal>
+            <Button type={'submit'} state={'primary'} className={'mt-[24px]'}>
+              Unlock
+            </Button>
+            <BiometricAuth className={'mt-[16px]'} />
+          </Form>
+        </section>
+        <Typo.Normal
+          className={'mt-auto cursor-pointer'}
+          onClick={() => {
+            setStep(2);
+          }}
+        >
+          Forget Password?
+        </Typo.Normal>
+      </div>
     </BrandLayout>
   );
 };
