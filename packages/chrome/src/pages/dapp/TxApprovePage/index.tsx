@@ -346,7 +346,7 @@ const TxApprovePage = () => {
             emitApproval(false, TxFailureReason.USER_REJECTION);
           }}
         >
-          <div className={'h-36 flex justify-center items-center'}>
+          <div className={'h-full flex justify-center items-center'}>
             <LoadingSpin />
           </div>
         </DappPopupLayout>

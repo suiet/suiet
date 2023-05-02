@@ -3,8 +3,9 @@
 .main-page {
   @apply flex flex-col;
   width: $full-width;
-  min-height: $full-height;
-  overflow-y: auto;
+  flex: 1;
+  background-color: $white;
+  //overflow-y: auto;
 
   &--default {
     & .main {

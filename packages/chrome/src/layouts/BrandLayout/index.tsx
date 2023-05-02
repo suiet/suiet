@@ -15,21 +15,28 @@ const BrandLayout = (props: BrandLayoutProps) => {
   return (
     <div className={classnames(styles['main-page'])}>
       <Icon elClassName={styles['logo']} icon={<LogoGrey />} />
-      <Typo.Title className={classnames(styles['suiet-title'], 'mt-[64px]')}>
-        {props.grayTitle}
-      </Typo.Title>
-      <Typo.Title
-        className={classnames(
-          styles['suiet-title'],
-          styles['suiet-title--black']
-        )}
-      >
-        {props.blackTitle}
-      </Typo.Title>
-      <Typo.Normal className={classnames(styles['suiet-desc'])}>
-        {props.desc}
-      </Typo.Normal>
-      {props.children}
+      <div className={styles['content']}>
+        <div className={styles['header']}>
+          <Typo.Title
+            className={classnames(styles['suiet-title'], 'mt-[64px]')}
+          >
+            {props.grayTitle}
+          </Typo.Title>
+          <Typo.Title
+            className={classnames(
+              styles['suiet-title'],
+              styles['suiet-title--black']
+            )}
+          >
+            {props.blackTitle}
+          </Typo.Title>
+          <Typo.Normal className={classnames(styles['suiet-desc'])}>
+            {props.desc}
+          </Typo.Normal>
+        </div>
+
+        {props.children}
+      </div>
     </div>
   );
 };
