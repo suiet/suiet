@@ -44,8 +44,19 @@ const ObjectChangeItem = (props: ObjectChangeItemProps) => {
   };
 
   return (
-    <div className={classNames(styles['object-change-item'], props.className)}>
-      <IconContainer shape={iconShape} color={iconColor}>
+    <div
+      className={classNames(
+        'flex',
+        'items-center',
+        styles['object-change-item'],
+        props.className
+      )}
+    >
+      <IconContainer
+        className="w-[36px] h-[36px] shrink-0"
+        shape={iconShape}
+        color={iconColor}
+      >
         {renderIcon(props.icon)}
       </IconContainer>
       <div className={'ml-[16px]'}>
@@ -60,6 +71,9 @@ const ObjectChangeItem = (props: ObjectChangeItemProps) => {
         <Typo.Normal
           className={classNames(
             'font-medium',
+            'whitespace-nowrap',
+            'overflow-x-auto',
+            'text-right',
             styles['change-title'],
             styles[`change-title--${changeTitleColor}`]
           )}

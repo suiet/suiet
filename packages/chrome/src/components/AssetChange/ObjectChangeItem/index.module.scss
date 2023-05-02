@@ -1,9 +1,6 @@
 @import '../../../styles/variables.scss';
 
 .object-change-item {
-  display: flex;
-  align-items: center;
-
   & + & {
     margin-top: 16px;
   }

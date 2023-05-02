@@ -26,12 +26,12 @@ export type FormatAssetChangeInput =
 export default class AssetChangeFormatter {
   static format(input: FormatAssetChangeInput) {
     if ('amount' in input) {
-      return formatCoinChange(input as ICoinChangeObject);
+      return formatCoinChange(input);
     }
     if ('display' in input) {
-      return formatNftChange(input as INftChangeObject);
+      return formatNftChange(input);
     }
-    return formatObjectChange(input as IObjectChangeObject);
+    return formatObjectChange(input);
   }
 }
 
@@ -73,7 +73,7 @@ export function formatNftChange(
   input: INftChangeObject
 ): FormatAssetChangeOutput {
   let changeTitle = '';
-  let changeDesc = '';
+  const changeDesc = '';
   let changeTitleColor = '';
   if (input.changeType === 'increase') {
     changeTitle = '+1 NFT';
@@ -130,7 +130,7 @@ export function formatObjectChange(
   input: IObjectChangeObject
 ): FormatAssetChangeOutput {
   let changeTitle = '';
-  let changeDesc = '';
+  const changeDesc = '';
   let changeTitleColor = '';
   if (input.changeType === 'increase') {
     changeTitle = '+1 Object';
