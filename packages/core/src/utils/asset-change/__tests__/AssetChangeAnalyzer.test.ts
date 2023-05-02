@@ -638,6 +638,364 @@ describe('Fallback Detect Object Change', function () {
       });
     }
   );
+
+  test(
+    'it should return changeType=decrease ' +
+      'when objectChange type is transferred, sender is user and receiver is other',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+      const otherAddress =
+        '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7';
+
+      const objectChanges = [
+        {
+          type: 'transferred',
+          sender: accountAddress,
+          recipient: otherAddress,
+          objectType:
+            '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
+          objectId:
+            '0x12de1aab1f366ef48eae514750462f80543f7756383fbe94102b9ccea304c306',
+          version: '9223372036854775807',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'transferred',
+        changeType: 'decrease',
+        objectType:
+          '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
+        objectId:
+          '0x12de1aab1f366ef48eae514750462f80543f7756383fbe94102b9ccea304c306',
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        version: '9223372036854775807',
+      });
+    }
+  );
+
+  test(
+    'it should return changeType=increase ' +
+      'when objectChange type is transferred, sender is other and receiver is user',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+      const otherAddress =
+        '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7';
+
+      const objectChanges = [
+        {
+          type: 'transferred',
+          sender: otherAddress,
+          recipient: accountAddress,
+          objectType:
+            '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
+          objectId:
+            '0x12de1aab1f366ef48eae514750462f80543f7756383fbe94102b9ccea304c306',
+          version: '9223372036854775807',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'transferred',
+        changeType: 'increase',
+        objectType:
+          '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
+        objectId:
+          '0x12de1aab1f366ef48eae514750462f80543f7756383fbe94102b9ccea304c306',
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        version: '9223372036854775807',
+      });
+    }
+  );
+
+  test(
+    'it should return changeType=unknown ' +
+      'when objectChange type is transferred, sender and receiver are not user',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+      const otherAddress1 =
+        '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678eaaa';
+      const otherAddress2 =
+        '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678ebbb';
+
+      const objectChanges = [
+        {
+          type: 'transferred',
+          sender: otherAddress1,
+          recipient: otherAddress2,
+          objectType:
+            '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
+          objectId:
+            '0x12de1aab1f366ef48eae514750462f80543f7756383fbe94102b9ccea304c306',
+          version: '9223372036854775807',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'transferred',
+        changeType: 'unknown',
+        objectType:
+          '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::other::Something',
+        objectId:
+          '0x12de1aab1f366ef48eae514750462f80543f7756383fbe94102b9ccea304c306',
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        version: '9223372036854775807',
+      });
+    }
+  );
 });
 
-describe('Edge Case Detect Object Change', function () {});
+describe('Handle Object Change with ObjectOwner', () => {
+  test('it should preserve this object change if its parent object is not in the changes', () => {
+    const accountAddress =
+      '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+    const objectType =
+      '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint';
+    const objectId =
+      '0x7d136b6b7b6be9799e1a8f86b104a041805325e97364bfc5a3b89df803c3b2ce';
+
+    const objectChanges = [
+      {
+        type: 'mutated',
+        sender: accountAddress,
+        owner: {
+          ObjectOwner:
+            '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a',
+        },
+        objectType: objectType,
+        objectId: objectId,
+        version: '9223372036854775807',
+        previousVersion: '19320939',
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+      },
+    ];
+    const result = AssetChangeAnalyzer.analyze({
+      accountAddress: accountAddress,
+      objectChanges: objectChanges as any,
+      balanceChanges: [],
+      objectDataMap: {},
+    });
+    expect(result.getObjectChangeList()[0]).toEqual({
+      category: 'object',
+      type: 'mutated',
+      changeType: 'modify',
+      objectType: objectType,
+      objectId: objectId,
+      digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+      version: '9223372036854775807',
+    });
+  });
+
+  test(
+    'it should filter out this object change ' +
+      'if its parent object is in the changes',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+
+      const parentObjectId =
+        '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a';
+      const parentObjectType =
+        '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint';
+      const childObjectId =
+        '0x7d136b6b7b6be9799e1a8f86b104a041805325e97364bfc5a3b89df803c3b2ce';
+      const childObjectType =
+        '0x2::dynamic_field::Field<0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::suifrens::AppKey<0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::capy::Capy>, 0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::suifrens::AppCap>';
+
+      const objectChanges = [
+        // parent object
+        {
+          type: 'mutated',
+          sender:
+            '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce',
+          owner: {
+            Shared: {
+              initial_shared_version: 3822520,
+            },
+          },
+          objectType: parentObjectType,
+          objectId: parentObjectId,
+          version: '9223372036854775807',
+          previousVersion: '19320939',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        },
+        // dynamic filed object
+        {
+          type: 'mutated',
+          sender: accountAddress,
+          owner: {
+            ObjectOwner: parentObjectId,
+          },
+          objectType: childObjectType,
+          objectId: childObjectId,
+          version: '9223372036854775807',
+          previousVersion: '19320939',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+
+      expect(result.getObjectChangeList().length).toEqual(1);
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'mutated',
+        changeType: 'modify',
+        objectType: parentObjectType,
+        objectId: parentObjectId,
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        version: '9223372036854775807',
+      });
+    }
+  );
+});
+
+describe('Handle Object Change with Shared Object', () => {
+  test(
+    'it should return changeType=mutate for Share object' +
+      'when objectChange type is mutated',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+      const objectType =
+        '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint';
+      const objectId =
+        '0x7d136b6b7b6be9799e1a8f86b104a041805325e97364bfc5a3b89df803c3b2ce';
+
+      const objectChanges = [
+        {
+          type: 'mutated',
+          sender:
+            '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce',
+          owner: {
+            Shared: {
+              initial_shared_version: 3822520,
+            },
+          },
+          objectType: objectType,
+          objectId: objectId,
+          version: '9223372036854775807',
+          previousVersion: '19320939',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'mutated',
+        changeType: 'modify',
+        objectType: objectType,
+        objectId: objectId,
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        version: '9223372036854775807',
+      });
+    }
+  );
+});
+
+describe('Edge Case Detect Object Change', function () {
+  test(
+    'it should return changeType=publish ' +
+      'when objectChange type is published',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+
+      const objectChanges = [
+        {
+          type: 'published',
+          packageId:
+            '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a',
+          version: '9223372036854775807',
+          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+          modules: [],
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'published',
+        changeType: 'publish',
+        objectType: '',
+        objectId:
+          '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a',
+        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
+        version: '9223372036854775807',
+      });
+    }
+  );
+
+  test(
+    'it should return changeType=mutate ' + 'when objectChange type is wrapped',
+    () => {
+      const accountAddress =
+        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
+
+      const objectChanges = [
+        {
+          type: 'wrapped',
+          sender: accountAddress,
+          objectType:
+            '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint',
+          objectId:
+            '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a',
+          version: '9223372036854775807',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges as any,
+        balanceChanges: [],
+        objectDataMap: {},
+      });
+      expect(result.getObjectChangeList()[0]).toEqual({
+        category: 'object',
+        type: 'wrapped',
+        changeType: 'modify',
+        objectType:
+          '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint',
+        objectId:
+          '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a',
+        digest: '',
+        version: '9223372036854775807',
+      });
+    }
+  );
+});
