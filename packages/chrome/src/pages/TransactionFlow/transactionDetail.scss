@@ -1,6 +1,10 @@
 @import '../../styles/variables';
 
 .transaction-detail-container {
+  width: $full-width;
+  height: 100%;
+  overflow-y: auto;
+  background-color: $white;
   padding: 0 24px;
   position: relative;
 }

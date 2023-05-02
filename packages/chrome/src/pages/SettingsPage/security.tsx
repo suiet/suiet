@@ -14,6 +14,7 @@ import PhraseModal from '../../components/secrets/PhraseModal';
 import ForgetPassword from '../LockPage/ForgetPassword';
 import BiometricSetting from '../../components/BiometricSetting';
 import PrivateKeyModal from '../../components/secrets/PrivateKeyModal';
+import classNames from 'classnames';
 
 type SecurityItemProps = Extendable & {
   title: string;
@@ -127,7 +128,7 @@ function PasswordSetting() {
   }
 
   return (
-    <div className={styles['page']}>
+    <div className={classNames(styles['page'], 'no-scrollbar')}>
       <Nav
         onNavBack={() => {
           navigate('..');
@@ -160,7 +161,7 @@ export default function Security() {
       <Route
         path="reset"
         element={
-          <div className={styles['page']}>
+          <div className={classNames(styles['page'], 'no-scrollbar')}>
             <Nav
               title={'Reset Suiet'}
               onNavBack={() => {

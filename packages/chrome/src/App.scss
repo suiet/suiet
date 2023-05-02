@@ -1,11 +1,13 @@
+@import './styles/variables.scss';
+
 .app {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 573px;
-  max-height: 100vh;
-  overflow-y: auto;
+  width: $full-width;
+  height: $full-height;
+  overflow: hidden;
   //width: 362px;
   //min-height: 573px;
   //
@@ -16,6 +18,13 @@
   //background-color: #fff;
   //box-shadow: 0px 20px 24px -4px rgba(58, 76, 112, 0.04),
   //  0px 8px 8px -4px rgba(58, 76, 112, 0.03);
+}
+
+@media screen and (min-width: $full-width) {
+  .app {
+    margin: 0 auto;
+    height: 100vh;
+  }
 }
 
 small {
