@@ -130,8 +130,9 @@ export function formatObjectChange(
   input: IObjectChangeObject
 ): FormatAssetChangeOutput {
   let changeTitle = '';
-  const changeDesc = '';
+  let changeDesc = '';
   let changeTitleColor = '';
+
   if (input.changeType === 'increase') {
     changeTitle = '+1 Object';
     changeTitleColor = 'green';
@@ -145,8 +146,17 @@ export function formatObjectChange(
     changeTitle = verbForOriginalChangeType(input.type);
     changeTitleColor = colorForOriginalChangeType(input.type);
   }
+
+  let title = '';
+  if (input.ownership === 'shared') {
+    title = 'Shared Object';
+  } else if (input.ownership === 'dynamicField') {
+    title = 'Dynamic Field';
+  } else {
+    title = 'Object';
+  }
   return {
-    title: 'Object',
+    title: title,
     desc: input.objectType,
     icon: 'object',
     iconShape: 'square',
