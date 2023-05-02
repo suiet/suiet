@@ -1,7 +1,7 @@
 @import '../../styles/variables';
 
 .container {
-  @apply flex flex-col items-center;
+  @apply flex flex-col items-center no-scrollbar;
   width: $full-width;
   height: 100%;
   background-color: $white;

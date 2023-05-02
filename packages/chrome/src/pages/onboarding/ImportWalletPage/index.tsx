@@ -19,6 +19,7 @@ import { Account, CreateWalletParams, Wallet } from '@suiet/core';
 import { sleep } from '../../../utils/time';
 import { OmitToken } from '../../../types';
 import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
+import styles from './index.module.scss';
 
 const ImportWallet = () => {
   const apiClient = useApiClient();
@@ -88,7 +89,7 @@ const ImportWallet = () => {
     }
   }
   return (
-    <div>
+    <div className={styles['page']}>
       <Nav
         title={'Import Wallet'}
         onNavBack={() => {
