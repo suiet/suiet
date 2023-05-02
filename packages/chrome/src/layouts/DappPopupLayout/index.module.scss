@@ -1,7 +1,6 @@
 @import '../../styles/variables';
 
 .container {
-  margin: auto;
   width: $full-width;
   height: 100%;
   display: flex;
@@ -9,7 +8,7 @@
 }
 .content {
   // flex: 1;
-  margin: auto;
+  margin: 0 auto;
   overflow-y: auto;
 }
 
