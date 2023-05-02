@@ -112,7 +112,7 @@ export default function useMyAssetChangesFromDryRun(
   console.log('coinChanges', coinChangeList);
   console.log('nftChanges', nftChangeList);
   console.log('objectChangeList', objectChangeList);
-
+  console.log('estimatedGasFee', estimatedGasFee);
   return {
     data: {
       estimatedGasFee,

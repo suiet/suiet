@@ -1,3 +1,7 @@
 .react-tabs__tab--selected {
   border-color: rgba(0, 0, 0, 0.1);
 }
+
+.react-tabs__tab {
+  border-color: rgba(0, 0, 0, 0.1);
+}
