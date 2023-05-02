@@ -121,7 +121,7 @@ const SendPage = () => {
   }, [coinsWithSuiOnTop]);
 
   return (
-    <>
+    <div className={styles['page']}>
       <Nav
         position={'relative'}
         onNavBack={() => {
@@ -229,7 +229,7 @@ const SendPage = () => {
           onSubmit={submitTransaction}
         />
       )}
-    </>
+    </div>
   );
 };
 
