@@ -1,7 +1,15 @@
 @import '../../../styles/variables';
 
+.page {
+  @apply no-scrollbar;
+  width: $full-width;
+  height: 100%;
+  background-color: $white;
+  overflow-y: auto;
+}
+
 .title-container {
-  padding: 48px 32px 0px;
+  padding: 16px 32px 0px;
 }
 
 .title {
@@ -83,7 +91,7 @@
 .gas-container {
   display: flex;
   justify-content: space-between;
-  margin: 31px 32px 25px;
+  margin: 24px 32px 24px;
   padding-top: 16px;
   border-top: solid 1px #eaecf0;
 }
@@ -106,4 +114,10 @@
   position: fixed;
   bottom: 0;
   width: 100%;
+  background-color: $white;
+  z-index: 999;
+}
+
+.form {
+  margin-bottom: 120px;
 }

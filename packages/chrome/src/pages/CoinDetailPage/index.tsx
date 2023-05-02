@@ -115,7 +115,7 @@ export default function CoinDetailPage() {
   }
 
   return (
-    <div>
+    <div className={styles['page']}>
       <Nav
         position={'relative'}
         onNavBack={() => {

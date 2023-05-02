@@ -82,9 +82,9 @@ export default function SendNft() {
   }
 
   return (
-    <div className="pb-16">
+    <div className={classNames(styles['page'], 'no-scrollbar')}>
       <Nav
-        title={'NFT Details'}
+        title={'Send NFT'}
         onNavBack={() => {
           navigate('/nft/details', {
             state: {
@@ -119,7 +119,11 @@ export default function SendNft() {
           </Typo.Normal>
         </div>
       </div>
-      <Form form={form} onSubmit={submitNftTransaction}>
+      <Form
+        className={styles['form']}
+        form={form}
+        onSubmit={submitNftTransaction}
+      >
         <div className={styles['address-container']}>
           <Typo.Title className={styles['address']}>Address</Typo.Title>
           <AddressInput form={form} className={'mt-[6px]'} />
