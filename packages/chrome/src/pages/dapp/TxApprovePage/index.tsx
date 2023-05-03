@@ -2,7 +2,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useWallet } from '../../../hooks/useWallet';
 import { useLocationSearch } from '../../../hooks/useLocationSearch';
-import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { sleep } from '../../../utils/time';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -97,10 +105,7 @@ const TxApprovePage = () => {
       ? (transactionBlock as TransactionBlock).blockData.transactions
       : [];
   }, [transactionBlock]);
-
-  useEffect(() => {
-    console.log('txReqData', txReqData);
-  }, [txReqData]);
+  const txReqStorage = useRef(new TxRequestStorage());
 
   const {
     data: suiBalance,
@@ -109,33 +114,50 @@ const TxApprovePage = () => {
   } = useSuiBalance(txReqData?.target.address ?? '');
 
   const {
-    data: { estimatedGasFee, coinChangeList, nftChangeList, objectChangeList },
-    error: dryRunError,
-    isSuccess: isDryRunSuccess,
+    data: {
+      coinChangeList,
+      nftChangeList,
+      objectChangeList,
+      estimatedGasFee,
+      gasBudget,
+    },
+    error: diffError,
+    loading: diffLoading,
   } = useMyAssetChangesFromDryRun(account?.address, transactionBlock);
 
   const apiClient = useApiClient();
-  async function emitApproval(approved: boolean, reason?: TxFailureReason) {
-    if (!txReqData) return;
-    try {
-      setSubmitLoading(true);
-      await apiClient.callFunc(
-        'dapp.callbackApproval',
-        {
-          approved,
-          reason: reason ?? null,
-          id: txReqData.id,
-          type: ApprovalType.TRANSACTION,
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          withAuth: true,
+  const emitApproval = useCallback(
+    async (approved: boolean, reason?: TxFailureReason) => {
+      if (!txReqData) return;
+      try {
+        setSubmitLoading(true);
+        // set gas budget to txReqData
+        debugger;
+        if (approved && !transactionBlock?.blockData?.gasConfig?.budget) {
+          // auto set gas budget
+          transactionBlock?.setGasBudget(BigInt(gasBudget));
+          txReqData.data = transactionBlock?.serialize();
+          await txReqStorage.current.set(txReqData);
         }
-      );
-    } finally {
-      setSubmitLoading(false);
-    }
-  }
+        await apiClient.callFunc(
+          'dapp.callbackApproval',
+          {
+            approved,
+            reason: reason ?? null,
+            id: txReqData.id,
+            type: ApprovalType.TRANSACTION,
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            withAuth: true,
+          }
+        );
+      } finally {
+        setSubmitLoading(false);
+      }
+    },
+    [txReqData, transactionBlock, gasBudget]
+  );
 
   function renderMetadataForMoveCall(reqData: any) {
     const [objectId, module, func] = reqData.target.split('::');
@@ -174,7 +196,7 @@ const TxApprovePage = () => {
       <div className={classNames(styles['overview'], 'mt-[16px]')}>
         <TxItem
           name={'Gas Budget'}
-          value={<>{formatGasBudget(getGasBudgetFromTxb(transactionBlock))}</>}
+          value={`${formatGasBudget(gasBudget)} SUI`}
         />{' '}
         <TxItem name={'Network'} value={txReqData?.networkId} />
       </div>
@@ -217,8 +239,7 @@ const TxApprovePage = () => {
         sleep(3000).then(() => navigate('/'));
         return;
       }
-      const txReqStorage = new TxRequestStorage();
-      const reqData = await txReqStorage.get(txReqId);
+      const reqData = await txReqStorage.current.get(txReqId);
       if (!reqData) {
         Message.error('cannot find txReq data!');
         sleep(3000).then(() => navigate('/'));
@@ -235,19 +256,19 @@ const TxApprovePage = () => {
       console.error(suiBalanceError);
       return;
     }
-    if (dryRunError || suiBalanceError) {
+    if (diffError || suiBalanceError) {
       setMode(Mode.ERROR);
       return;
     }
-    if (suiBalanceLoading || !isDryRunSuccess) {
+    if (suiBalanceLoading || diffLoading) {
       setMode(Mode.LOADING);
       return;
     }
-    if (isUndefined(suiBalance) || isUndefined(estimatedGasFee)) {
-      const err =
-        'Data Error: suiBalance or estimated gas fee can not be undefined';
-      Message.error(err);
-      console.error(err);
+    if (
+      isUndefined(suiBalance) ||
+      isUndefined(estimatedGasFee) ||
+      estimatedGasFee === '0'
+    ) {
       return;
     }
     if (BigInt(suiBalance.balance) < BigInt(estimatedGasFee)) {
@@ -260,8 +281,8 @@ const TxApprovePage = () => {
     estimatedGasFee,
     suiBalanceLoading,
     suiBalanceError,
-    isDryRunSuccess,
-    dryRunError,
+    diffLoading,
+    diffError,
   ]);
 
   if (!txReqData) return null;
@@ -326,7 +347,7 @@ const TxApprovePage = () => {
           }}
         >
           <Typo.Hints className={styles['dryrun-error']}>
-            {formatDryRunError(dryRunError)}
+            {formatDryRunError(diffError)}
           </Typo.Hints>
         </DappPopupLayout>
       );

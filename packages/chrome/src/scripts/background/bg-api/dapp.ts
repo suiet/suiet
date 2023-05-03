@@ -252,12 +252,9 @@ export class DappBgApi {
       requestType,
       options,
     } = payload.params;
-    console.log('requestType from dapp', requestType);
-    console.log('options from dapp', options);
-    const transactionBlock = TransactionBlock.from(serializedTxBlock);
 
     const network = await this._getNetwork(connectionCtx.networkId);
-    const { finalResult } = await this.promptForTxApproval(
+    const { txReq, finalResult } = await this.promptForTxApproval(
       {
         txData: serializedTxBlock,
       },
@@ -274,8 +271,14 @@ export class DappBgApi {
       walletId: connectionCtx.target.walletId,
       accountId: connectionCtx.target.accountId,
     };
+
+    // FIXME: txReq data in the storage could be changed unexpectedly!
+    const finalTxReq = await this.txManager.storage.get(txReq.id);
+    if (!finalTxReq) {
+      throw new Error('Transaction request not found');
+    }
     const response = await this.txApi.signAndExecuteTransactionBlock({
-      transactionBlock,
+      transactionBlock: finalTxReq.data,
       context: txContext,
       requestType,
       options,

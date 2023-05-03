@@ -158,8 +158,9 @@ export type GetCoinMetadataResult = {
   error: string | null;
 };
 
-export type GetReferencePriceParams = {
+export type GetGasBudgetFromDryRunParams = {
   network: Network;
+  dryRunResult: DryRunTransactionBlockResponse;
 };
 
 export interface ITransactionApi {
@@ -185,7 +186,9 @@ export interface ITransactionApi {
     params: GetCoinMetadataParams
   ) => Promise<GetCoinMetadataResult[]>;
 
-  getReferenceGasPrice: (params: GetReferencePriceParams) => Promise<string>;
+  getGasBudgetFromDryRun: (
+    params: GetGasBudgetFromDryRunParams
+  ) => Promise<string>;
 
   getNormalizedMoveFunction: (
     params: GetNormalizedMoveFunctionParams
@@ -408,14 +411,13 @@ export class TransactionApi implements ITransactionApi {
     return res;
   }
 
-  async getReferenceGasPrice(params: GetReferencePriceParams) {
+  async getGasBudgetFromDryRun(params: GetGasBudgetFromDryRunParams) {
     const provider = new Provider(
       params.network.queryRpcUrl,
       params.network.txRpcUrl,
       params.network.versionCacheTimoutInSeconds
     );
-    const price = await provider.query.getReferenceGasPrice();
-    return String(price);
+    return await provider.query.getGasBudgetFromDryRun(params.dryRunResult);
   }
 
   async signMessage(params: SignMessageParams) {
