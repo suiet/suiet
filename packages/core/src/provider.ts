@@ -112,6 +112,9 @@ export class Provider {
 
 export class QueryProvider {
   provider: JsonRpcProvider;
+  // An amount of gas (in gas units) that is added to
+  // transactions as an overhead to ensure transactions do not fail.
+  private static GAS_SAFE_OVERHEAD = 1000n;
 
   constructor(queryEndpoint: string, versionCacheTimeoutInSeconds: number) {
     this.provider = new JsonRpcProvider(
@@ -336,6 +339,28 @@ export class QueryProvider {
 
   public async getReferenceGasPrice() {
     return await this.provider.getReferenceGasPrice();
+  }
+
+  public async getGasBudgetFromDryRun(
+    dryRunResult: DryRunTransactionBlockResponse
+  ): Promise<string> {
+    if (!dryRunResult.effects.gasUsed) {
+      throw new Error('dry run result does not have gas used');
+    }
+    const refPrice = await this.getReferenceGasPrice();
+    const safeOverhead =
+      QueryProvider.GAS_SAFE_OVERHEAD * BigInt(refPrice || 1n);
+
+    const baseComputationCostWithOverhead =
+      BigInt(dryRunResult.effects.gasUsed.computationCost) + safeOverhead;
+    const gasBudget =
+      baseComputationCostWithOverhead +
+      BigInt(dryRunResult.effects.gasUsed.storageCost) -
+      BigInt(dryRunResult.effects.gasUsed.storageRebate);
+
+    return gasBudget > baseComputationCostWithOverhead
+      ? String(gasBudget)
+      : String(baseComputationCostWithOverhead);
   }
 }
 

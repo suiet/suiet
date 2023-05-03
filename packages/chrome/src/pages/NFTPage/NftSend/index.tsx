@@ -15,7 +15,6 @@ import { useNetwork } from '../../../hooks/useNetwork';
 import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
 import styles from './index.module.scss';
-import useEstimatedGasFee from '../../../hooks/transaction/useEstimatedGasFee';
 import { useForm } from 'react-hook-form';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 
