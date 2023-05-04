@@ -53,7 +53,7 @@ export function formatCoinChange(
     icon: input.coinType === SUI_TYPE_ARG ? 'sui' : 'coin',
     iconShape: 'circle',
     iconColor: input.coinType === SUI_TYPE_ARG ? 'blue' : 'purple',
-    changeTitle: `${operator}${amount} ${symbol}`,
+    changeTitle: `${operator}${amount}`,
     changeDesc: '',
     changeTitleColor: input.changeType === 'increase' ? 'green' : 'red',
   };

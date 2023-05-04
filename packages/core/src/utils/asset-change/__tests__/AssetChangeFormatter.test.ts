@@ -168,7 +168,7 @@ describe('format coin change', () => {
       icon: 'sui',
       iconShape: 'circle',
       iconColor: 'blue',
-      changeTitle: '+1 SUI',
+      changeTitle: '+1',
       changeDesc: '',
       changeTitleColor: 'green',
     });
@@ -197,7 +197,7 @@ describe('format coin change', () => {
       icon: 'coin',
       iconShape: 'circle',
       iconColor: 'purple',
-      changeTitle: '+1 TestToken',
+      changeTitle: '+1',
       changeDesc: '',
       changeTitleColor: 'green',
     });
