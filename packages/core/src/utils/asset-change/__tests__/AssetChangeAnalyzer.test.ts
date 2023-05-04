@@ -180,6 +180,7 @@ describe('Detect Coin Change', function () {
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '-999',
+        symbol: 'SUI',
         decimals: 9,
         coinType: '0x2::sui::SUI',
         // leave it empty because there could be multiple coin object changes
@@ -239,6 +240,7 @@ describe('Detect Coin Change', function () {
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '999',
+        symbol: 'SUI',
         decimals: 9,
         coinType: '0x2::sui::SUI',
         // leave it empty because there could be multiple coin object changes
@@ -313,6 +315,7 @@ describe('Detect Coin Change', function () {
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '999',
+        symbol: 'SUI',
         decimals: 9,
         coinType: '0x2::sui::SUI',
         // leave it empty because there are multiple coin object changes
@@ -436,7 +439,73 @@ describe('Detect Coin Change', function () {
         objectType: objectType,
         // additional fields
         amount: '1000000000',
+        symbol: 'TOKEN',
         decimals: 3, // with decimals
+        coinType: coinType,
+        // leave it empty because there are multiple coin object changes
+        objectId: '',
+        digest: '',
+        version: '',
+      });
+    }
+  );
+  test(
+    'it should return coinChange with symbol ' +
+      'when symbol is provided in objectDataMap',
+    function () {
+      const accountAddress =
+        '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7';
+
+      const coinType = '0x999::xxx::TOKEN';
+      const objectType = `0x2::coin::Coin<${coinType}>`;
+
+      // even if here is change of SUI, but without balanceChanges,
+      // it would fall back to object change
+      const objectChanges: any[] = [
+        {
+          type: 'mutated',
+          sender: accountAddress,
+          owner: {
+            AddressOwner: accountAddress,
+          },
+          objectType: objectType,
+          objectId:
+            '0x00af0fb93d0b7d248a33beb2cfd1c64e1930772bf2681a79b35f0ad507271111',
+          version: '9223372036854775807',
+          previousVersion: '8623409',
+          digest: '2sMmnbiH5We9UBMn88psTTCMWYrLYMBQwfY7jwuHnABC',
+        },
+      ];
+      const balanceChanges = [
+        {
+          owner: {
+            AddressOwner: accountAddress,
+          },
+          coinType: coinType,
+          amount: '1000000000',
+        },
+      ];
+      const result = AssetChangeAnalyzer.analyze({
+        accountAddress: accountAddress,
+        objectChanges: objectChanges,
+        balanceChanges: balanceChanges,
+        objectDataMap: {
+          [objectType]: {
+            decimals: 3,
+            symbol: 'test_coin', // additional info
+          },
+        },
+      });
+      expect(result.getCoinChangeList()[0]).toEqual({
+        category: 'coin',
+        ownership: 'owned',
+        type: 'mutated',
+        changeType: 'increase',
+        objectType: objectType,
+        // additional fields
+        amount: '1000000000',
+        symbol: 'test_coin', // with symbol
+        decimals: 3,
         coinType: coinType,
         // leave it empty because there are multiple coin object changes
         objectId: '',

@@ -50,9 +50,16 @@ async function analyzeAssetChanges(
   });
   for (let i = 0; i < coinTypes.length; i++) {
     const coinType = coinTypes[i];
+    const objectType = `0x2::coin::Coin<${coinType}>`;
     const res = coinMetadata[i];
     if (!res.data) continue;
-    objectDataMap[coinType] = {
+
+    // key by objectType
+    objectDataMap[objectType] = {
+      name: res.data.name,
+      iconUrl: res.data.iconUrl,
+      // TODO: switch to gql api
+      symbol: res.data.symbol,
       decimals: res.data.decimals,
     };
   }
@@ -117,6 +124,7 @@ export default function useMyAssetChangesFromDryRun(
   // Only dry run once within a period of time
   useAsyncEffect(async () => {
     if (!transactionBlock || !accountAddress || !network) return;
+    if (loading) return;
 
     let analyzeResult: IAssetChangeOutput;
     let gasBudgetResult: string;
