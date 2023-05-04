@@ -1,5 +1,6 @@
 import {
   BalanceChange,
+  Coin,
   SuiObjectChangeCreated,
   SuiObjectChangeDeleted,
   SuiObjectChangeMutated,
@@ -64,6 +65,7 @@ export type IObjectChangeObject = {
 export type ICoinChangeObject = IObjectChangeObject & {
   amount: string;
   coinType: string;
+  symbol: string;
   decimals: number;
 };
 
@@ -328,8 +330,10 @@ export default class AssetChangeAnalyzer {
       objectId: '',
       digest: '',
       version: '',
-      amount: objectDesc.amount,
-      coinType: objectDesc.coinType,
+      amount: objectDesc.amount ?? '0',
+      symbol:
+        objectDesc.symbol ?? Coin.getCoinSymbol(objectDesc.coinType) ?? '',
+      coinType: objectDesc.coinType ?? '',
       decimals: objectDesc.decimals ?? 9,
     };
   }

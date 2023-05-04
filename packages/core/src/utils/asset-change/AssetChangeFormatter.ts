@@ -38,7 +38,7 @@ export default class AssetChangeFormatter {
 export function formatCoinChange(
   input: ICoinChangeObject
 ): FormatAssetChangeOutput {
-  const symbol = Coin.getCoinSymbol(input.coinType).toUpperCase();
+  const symbol = input.symbol || Coin.getCoinSymbol(input.coinType);
 
   const operator = input.changeType === 'increase' ? '+' : '-';
   const amountValue = input.amount.replace('-', '');
