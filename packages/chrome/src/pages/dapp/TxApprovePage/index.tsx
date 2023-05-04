@@ -132,7 +132,6 @@ const TxApprovePage = () => {
       try {
         setSubmitLoading(true);
         // set gas budget to txReqData
-        debugger;
         if (approved && !transactionBlock?.blockData?.gasConfig?.budget) {
           // auto set gas budget
           transactionBlock?.setGasBudget(BigInt(gasBudget));
@@ -212,7 +211,7 @@ const TxApprovePage = () => {
               const f = AssetChangeFormatter.format(item);
               return (
                 <ObjectChangeItem
-                  key={item.objectId}
+                  key={item.changeType + item.objectType}
                   title={f.title}
                   desc={f.desc}
                   icon={f.icon}
