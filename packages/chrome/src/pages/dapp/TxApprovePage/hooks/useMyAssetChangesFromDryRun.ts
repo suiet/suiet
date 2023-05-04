@@ -165,16 +165,20 @@ export default function useMyAssetChangesFromDryRun(
     }
 
     let coinChangeList = analyzeResult.getCoinChangeList();
-    coinChangeList = coinChangeList.map((coinChange) => {
-      if (coinChange.coinType === SUI_TYPE_ARG) {
-        // exclude gas fee for SUI changes
-        coinChange.amount = String(
-          BigInt(coinChange.amount) + BigInt(estimatedGasFeeResult)
-        );
+    coinChangeList = coinChangeList
+      .map((coinChange) => {
+        if (coinChange.coinType === SUI_TYPE_ARG) {
+          // exclude gas fee for SUI changes
+          coinChange.amount = String(
+            BigInt(coinChange.amount) + BigInt(estimatedGasFeeResult)
+          );
+          return coinChange;
+        }
         return coinChange;
-      }
-      return coinChange;
-    });
+      })
+      .filter((coinChange) => {
+        return coinChange.amount !== '0';
+      });
     setCoinChangeList(coinChangeList);
     setNftChangeList(analyzeResult.getNftChangeList());
     setObjectChangeList(analyzeResult.getObjectChangeList());
