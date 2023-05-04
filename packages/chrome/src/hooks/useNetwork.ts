@@ -9,8 +9,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'devnet',
       name: 'devnet',
-      queryRpcUrl: 'https://fullnode.devnet.sui.io',
-      txRpcUrl: 'https://fullnode.devnet.sui.io',
+      queryRpcUrl: 'https://wallet-rpc.devnet.sui.io',
+      txRpcUrl: 'https://wallet-rpc.devnet.sui.io',
       versionCacheTimoutInSeconds: 0,
     },
   ],
@@ -19,8 +19,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'testnet',
       name: 'testnet',
-      queryRpcUrl: 'https://fullnode.testnet.sui.io',
-      txRpcUrl: 'https://fullnode.testnet.sui.io',
+      queryRpcUrl: 'https://wallet-rpc.testnet.sui.io',
+      txRpcUrl: 'https://wallet-rpc.testnet.sui.io',
       versionCacheTimoutInSeconds: 0,
     },
   ],
