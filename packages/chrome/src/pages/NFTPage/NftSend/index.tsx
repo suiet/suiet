@@ -1,4 +1,4 @@
-import { TransferObjectParams, formatSUI } from '@suiet/core';
+import { formatSUI, SendAndExecuteTxParams, TxEssentials } from '@suiet/core';
 import classNames from 'classnames';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -17,6 +17,9 @@ import { OmitToken } from '../../../types';
 import styles from './index.module.scss';
 import { useForm } from 'react-hook-form';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
+import { NftMeta } from '../NftList';
+import createTransactionNftTxb from '@suiet/core/src/utils/txb-factory/createTransferNftTxb';
+import useKioskMetaLazyQuery from '../../../hooks/nft/useKioskMetaLazyQuery';
 
 interface SendFormValues {
   address: string;
@@ -30,16 +33,19 @@ export default function SendNft() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
   const {
-    id = '',
-    name = '',
-    description = '',
-    previousTransaction = '',
-    objectType = '',
-    url = '',
+    objectType,
+    id,
+    kioskObjectId,
+    kioskPackageId,
+    name,
+    description,
+    previousTransaction,
+    url,
     thumbnailUrl,
     expiresAt,
     hasPublicTransfer = false,
-  } = location.state || ({} as any);
+  }: NftMeta = location.state || ({} as any);
+  const [queryKiosk] = useKioskMetaLazyQuery();
 
   const form = useForm<SendFormValues>({
     mode: 'onChange',
@@ -53,20 +59,66 @@ export default function SendNft() {
     if (!id) throw new Error('id should be passed within location state');
   }, [id]);
 
+  const prepareTransferNftTxb = async (params: {
+    objectId: string;
+    recipient: string;
+    objectType: string;
+    senderKioskId: string | undefined;
+  }) => {
+    // transfer kiosk NFT
+    if (params.senderKioskId) {
+      // get recipient kioskId by address
+      const { data } = await queryKiosk({
+        variables: {
+          ownerAddress: params.recipient,
+        },
+      });
+      return createTransactionNftTxb({
+        objectId: params.objectId,
+        recipient: params.recipient,
+        kiosk: {
+          packageId: kioskPackageId ?? '0x2',
+          objectType: params.objectType,
+          senderId: params.senderKioskId,
+          recipientId: data?.kiosk?.objectID,
+        },
+      });
+    }
+    // transfer owned NFT
+    return createTransactionNftTxb({
+      objectId: params.objectId,
+      recipient: params.recipient,
+    });
+  };
+
   async function submitNftTransaction(data: SendFormValues) {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     if (!network) throw new Error('require network selected');
 
     setSendLoading(true);
+
+    const txb = await prepareTransferNftTxb({
+      objectId: id,
+      objectType,
+      recipient: data.address,
+      senderKioskId: kioskObjectId,
+    });
+    if (!txb) {
+      throw new Error('txb is null');
+    }
     try {
-      await apiClient.callFunc<OmitToken<TransferObjectParams>, undefined>(
-        'txn.transferObject',
+      await apiClient.callFunc<
+        SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
+        undefined
+      >(
+        'txn.signAndExecuteTransactionBlock',
         {
-          network,
-          recipient: data.address,
-          walletId: appContext.walletId,
-          accountId: appContext.accountId,
-          objectId: id,
+          transactionBlock: txb.serialize(),
+          context: {
+            network,
+            walletId: appContext.walletId,
+            accountId: appContext.accountId,
+          },
         },
         { withAuth: true }
       );
@@ -107,7 +159,7 @@ export default function SendNft() {
       <div className={classNames(styles['nft-bg'], 'flex')}>
         <NftImg
           src={url}
-          thumbnailUrl={thumbnailUrl}
+          thumbnailUrl={thumbnailUrl ?? undefined}
           alt={name}
           className={styles['nft-img']}
         />

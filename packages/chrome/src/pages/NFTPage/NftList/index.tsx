@@ -2,7 +2,6 @@ import classnames from 'classnames';
 import type { Extendable, StyleExtendable } from '../../../types';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
-import { nftImgUrl } from '../../../utils/nft';
 import { useNavigate } from 'react-router-dom';
 import NftImg from '../../../components/NftImg';
 import Skeleton from 'react-loading-skeleton';
@@ -14,12 +13,14 @@ export type NftListProps = StyleExtendable & {
 };
 
 export interface NftMeta {
+  objectType: string;
   id: string;
+  kioskObjectId?: string;
+  kioskPackageId?: string;
   name: string;
   description: string;
   previousTransaction: string | undefined;
   url: string;
-  objectType: string;
   thumbnailUrl: string | null;
   expiresAt: number | null;
   hasPublicTransfer: boolean;
@@ -34,37 +35,35 @@ type NftItemProps = Extendable &
 const NftItem = (props: NftItemProps) => {
   const {
     loading = false,
-    id = '',
     name = 'No Name',
     description = 'No Description',
-    previousTransaction = '',
-    objectType = '',
+    url,
     thumbnailUrl,
-    expiresAt,
-    url = '',
-    hasPublicTransfer = false,
   } = props;
+
   return (
     <div
       className={classnames(styles['nft-item'], props.className)}
       onClick={() => {
         props.onClick?.({
-          id,
           name,
           description,
-          previousTransaction,
-          objectType,
-          thumbnailUrl,
-          expiresAt,
           url,
-          hasPublicTransfer,
+          thumbnailUrl,
+          id: props.id,
+          objectType: props.objectType,
+          expiresAt: props.expiresAt,
+          hasPublicTransfer: props.hasPublicTransfer,
+          kioskObjectId: props.kioskObjectId,
+          kioskPackageId: props.kioskPackageId,
+          previousTransaction: props.previousTransaction,
         });
       }}
     >
       {loading ? (
         <Skeleton className={'w-[140px] h-[140px] rounded-[16px]'} />
       ) : (
-        <NftImg src={url} thumbnailUrl={thumbnailUrl} alt={name} />
+        <NftImg src={url} thumbnailUrl={thumbnailUrl ?? undefined} alt={name} />
       )}
       <div className={classnames('w-full', 'mt-2')}>
         {loading ? (
@@ -118,8 +117,10 @@ const NftList = (props: NftListProps) => {
               description={''}
               previousTransaction={undefined}
               url={''}
+              thumbnailUrl={''}
               objectType={''}
               hasPublicTransfer={false}
+              expiresAt={0}
             />
           );
         }
@@ -135,6 +136,8 @@ const NftList = (props: NftListProps) => {
             previousTransaction={nft.object.previousTransaction}
             objectType={nft.object.type}
             hasPublicTransfer={nft.object.hasPublicTransfer}
+            kioskObjectId={nft.kiosk?.objectID}
+            kioskPackageId={nft.kiosk?.originBytePackageID}
             onClick={handleClickNft}
           />
         );

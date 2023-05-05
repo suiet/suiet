@@ -5,28 +5,30 @@ import NftImg from '../../../components/NftImg';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import classnames from 'classnames';
-import { addressEllipsis } from '@suiet/core';
+import { addressEllipsis, isNftTransferable } from '@suiet/core';
 import copy from 'copy-to-clipboard';
 import message from '../../../components/message';
 import CopyIcon from '../../../components/CopyIcon';
 import { ReactComponent as IconExternal } from '../../../assets/icons/external.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
+import { NftMeta } from '../NftList';
 
 const NftDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
+    objectType = '',
     id = '',
     name = '',
     description = '',
     previousTransaction = '',
-    objectType = '',
     thumbnailUrl,
-    expiresAt,
     url = '',
     hasPublicTransfer = false,
-  } = location.state || ({} as any);
+    kioskObjectId,
+  }: NftMeta = location.state ?? ({} as any);
+
   const appContext = useSelector((state: RootState) => state.appContext);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ const NftDetail = () => {
       <div className={styles['container']}>
         <NftImg
           src={url}
-          thumbnailUrl={thumbnailUrl}
+          thumbnailUrl={thumbnailUrl ?? undefined}
           alt={name}
           className={styles['nft-img']}
         />
@@ -74,22 +76,15 @@ const NftDetail = () => {
             </div>
           </div>
           {/* TODO: add hasPublicTransfer indicator in graphql  */}
-          {hasPublicTransfer && (
+          {isNftTransferable({
+            hasPublicTransfer,
+            kioskObjectId,
+          }) && (
             <div
               className={classnames(styles['nft-send'], 'flex-grow-0')}
               onClick={() => {
                 navigate('/nft/send', {
-                  state: {
-                    id,
-                    name,
-                    description,
-                    previousTransaction,
-                    thumbnailUrl,
-                    expiresAt,
-                    objectType,
-                    url,
-                    hasPublicTransfer,
-                  },
+                  state: location.state,
                 });
               }}
             >
