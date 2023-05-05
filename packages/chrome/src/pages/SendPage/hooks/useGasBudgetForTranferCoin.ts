@@ -1,25 +1,14 @@
 import { Network } from '@suiet/core';
-import { useMemo, useState } from 'react';
-import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
+import { useState } from 'react';
 import { useAsyncEffect } from 'ahooks';
 import { dryRunTransactionBlock } from '../../../hooks/transaction/useDryRunTransactionBlock';
-import { getEstimatedGasFeeFromDryRunResult } from '../../../hooks/transaction/useEstimatedGasFee';
 import createTransferCoinTxb from '../utils/createTransferCoinTxb';
 import { useApiClient } from '../../../hooks/useApiClient';
 import { DEFAULT_GAS_BUDGET } from '../../../constants';
 import Message from '../../../components/message';
 import formatDryRunError from '@suiet/core/src/utils/format/formatDryRunError';
-
-function calculateGasBudget(
-  estimatedGasFee: bigint,
-  defaultGasBudget: number,
-  gasFeeRatio = 1
-) {
-  if (estimatedGasFee > 0n) {
-    return Math.ceil(Number(estimatedGasFee) * gasFeeRatio);
-  }
-  return defaultGasBudget;
-}
+import { queryGasBudgetFromDryRunResult } from '../../../hooks/transaction/useGasBudgetFromDryRun';
+import useGasBudgetWithFallback from '../../../hooks/transaction/useGasBudgetWithFallback';
 
 export default function useGasBudgetForTransferCoin(params: {
   coinType: string;
@@ -27,23 +16,11 @@ export default function useGasBudgetForTransferCoin(params: {
   network: Network | undefined;
   walletId: string;
   accountId: string;
-  gasFeeRatio?: number;
 }) {
   const apiClient = useApiClient();
-  const [estimatedGasFee, setEstimatedGasFee] = useState<bigint>(0n);
-  const featureFlags = useFeatureFlagsWithNetwork();
-  const defaultGasBudget =
-    featureFlags?.pay_coin_gas_budget ?? DEFAULT_GAS_BUDGET;
-
-  const gasBudget = useMemo(() => {
-    return calculateGasBudget(
-      estimatedGasFee,
-      defaultGasBudget,
-      params.gasFeeRatio
-    );
-  }, [estimatedGasFee, params.gasFeeRatio]);
-
   const [loading, setLoading] = useState(false);
+
+  const [gasBudget, setGasBudget] = useGasBudgetWithFallback();
 
   useAsyncEffect(async () => {
     if (!params.network) return;
@@ -68,7 +45,7 @@ export default function useGasBudgetForTransferCoin(params: {
 
     setLoading(true);
     try {
-      const dryRunRes = await dryRunTransactionBlock({
+      const dryRunResult = await dryRunTransactionBlock({
         transactionBlock: txb,
         apiClient: apiClient,
         context: {
@@ -77,18 +54,21 @@ export default function useGasBudgetForTransferCoin(params: {
           accountId: params.accountId,
         },
       });
-      let result = getEstimatedGasFeeFromDryRunResult(dryRunRes);
-      setEstimatedGasFee(result);
+      const gasBudgetResult = await queryGasBudgetFromDryRunResult({
+        apiClient,
+        dryRunResult,
+        network: params.network,
+      });
+      setGasBudget(gasBudgetResult);
     } catch (e: any) {
       const formattedErrMsg = formatDryRunError(e);
       if (formattedErrMsg.includes('needed gas')) {
         Message.info('Current balance is not enough to pay the gas fee');
       }
-      setEstimatedGasFee(0n);
     } finally {
       setLoading(false);
     }
-  }, [params.coinType, params.recipient]);
+  }, [params.network, params.coinType, params.recipient]);
 
   return { data: gasBudget, loading };
 }
