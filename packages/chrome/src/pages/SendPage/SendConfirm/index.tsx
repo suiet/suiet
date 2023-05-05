@@ -70,7 +70,7 @@ function SendConfirm({
     <div className="h-[436px]">
       <div className={classNames('flex', 'flex-col', 'h-full')}>
         <InputAmount
-          className={classNames('ml-[36px]', 'grow')}
+          className={classNames('mx-[36px]', 'grow')}
           coinSymbol={selectedCoin.symbol}
           initCoinAmount={state.coinAmountWithDecimals}
           maxCoinAmount={maxAmount}

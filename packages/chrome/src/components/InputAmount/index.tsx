@@ -62,7 +62,6 @@ function InputAmount({
           'w-full',
           'flex',
           'items-center',
-          'pr-[32px]',
           'justify-between',
           isValid ? styles['fit'] : styles['excess']
         )}
@@ -72,7 +71,7 @@ function InputAmount({
           }
         }}
       >
-        <div className={styles['balance-amount-box']}>
+        <div className={classNames(styles['balance-amount-box'], 'flex-1')}>
           <textarea
             ref={textareaRef}
             className={classNames(styles['balance-amount'], 'no-scrollbar')}
