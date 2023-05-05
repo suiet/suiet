@@ -25,6 +25,10 @@
 
   &-name {
     margin-left: 8px;
+    color: #dcdfea;
+    .fit & {
+      color: #c6c9d3;
+    }
   }
 
   &-amount {

@@ -59,7 +59,11 @@ function InputAmount({
     <div className={classNames(className, styles['balance-container'])}>
       <div
         className={classNames(
-          'w-full flex items-center',
+          'w-full',
+          'flex',
+          'items-center',
+          'pr-[32px]',
+          'justify-between',
           isValid ? styles['fit'] : styles['excess']
         )}
         onClick={() => {
@@ -79,16 +83,33 @@ function InputAmount({
             }}
           />
         </div>
-
-        <span className={styles['balance-name']}>{coinSymbol}</span>
-      </div>
-      <div
-        className={styles['balance-max-btn']}
-        onClick={() => {
-          handleInputValue(maxCoinAmount);
-        }}
-      >
-        MAX
+        <div className={classNames('flex', 'flex-col')}>
+          <span className={styles['balance-name']}>{coinSymbol}</span>
+          <button
+            className={classNames(
+              'text-zinc-600',
+              'mt-2',
+              'px-3',
+              'py-1',
+              'w-fit',
+              'mx-auto',
+              'rounded-2xl',
+              'font-medium',
+              'bg-zinc-100',
+              'transition',
+              'hover:bg-zinc-200',
+              'active:bg-zinc-300',
+              'flex',
+              'justify-center',
+              'items-center'
+            )}
+            onClick={() => {
+              handleInputValue(maxCoinAmount);
+            }}
+          >
+            MAX
+          </button>
+        </div>
       </div>
     </div>
   );
