@@ -514,6 +514,122 @@ describe('Detect Coin Change', function () {
       });
     }
   );
+  test('it should filter out coinChanges that do not belong to the current account', function () {
+    const accountAddress =
+      '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d';
+
+    const otherAddress =
+      '0x59ff302653885e57a48d8f78abae7da6a7100f14b59ef56866bbb76664410cad';
+
+    const coinType = '0x2::sui::SUI';
+    const objectType = `0x2::coin::Coin<${coinType}>`;
+
+    // even if here is change of SUI, but without balanceChanges,
+    // it would fall back to object change
+    const objectChanges: any[] = [
+      {
+        type: 'mutated',
+        sender:
+          '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        owner: {
+          AddressOwner:
+            '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        },
+        objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+        objectId:
+          '0x249bca0218ce9fc0ccf70696c68a832e3502489079c22c290320b725ce1522d7',
+        version: '9223372036854775807',
+        previousVersion: '1794810',
+        digest: 'DruAVkkmgedEK2e8r4nzWFcVSVgYDPY3wPqDptub1E3c',
+      },
+      {
+        type: 'created',
+        sender:
+          '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        owner: {
+          AddressOwner:
+            '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        },
+        objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+        objectId:
+          '0x7091c4e27b940ba68050058f64c5281b57c84a4c67f8b323944c5ad9cb9a396d',
+        version: '9223372036854775807',
+        digest: '8oJrA46C1dCVMXH3MUFzNJ2e4RuhkogACP3CBqRKi1qA',
+      },
+      {
+        type: 'created',
+        sender:
+          '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        owner: {
+          AddressOwner:
+            '0x59ff302653885e57a48d8f78abae7da6a7100f14b59ef56866bbb76664410cad',
+        },
+        objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+        objectId:
+          '0xa317a707e1a3c0533309f026267d538e1e179d013e3d9b747966f961e4eaea51',
+        version: '9223372036854775807',
+        digest: 'BfjRHaQ6b112f7dQS1HZSKx8nAcX5HuLmPUdEndtKHY4',
+      },
+      {
+        type: 'deleted',
+        sender:
+          '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+        objectId:
+          '0x5f57d3dee5590a2a5553196de5a8a0d8d4d0eae32b9abb64cca7f51d0d695c63',
+        version: '9223372036854775807',
+      },
+      {
+        type: 'deleted',
+        sender:
+          '0x02b8c7910bd47a8b7ba494871f85d89e2e509df3bfa04861dbf5d9852910977d',
+        objectType: '0x2::coin::Coin<0x2::sui::SUI>',
+        objectId:
+          '0xec8561d391b773478b52c4dfb891330172a23fdf2f91b1513b3f2056875c0892',
+        version: '9223372036854775807',
+      },
+    ];
+    const balanceChanges = [
+      {
+        owner: {
+          AddressOwner: accountAddress,
+        },
+        coinType: '0x2::sui::SUI',
+        amount: '-131155372484',
+      },
+      {
+        owner: {
+          AddressOwner: otherAddress,
+        },
+        coinType: '0x2::sui::SUI',
+        amount: '2500000000',
+      },
+    ];
+    const result = AssetChangeAnalyzer.analyze({
+      accountAddress: accountAddress,
+      objectChanges: objectChanges,
+      balanceChanges: balanceChanges,
+      objectDataMap: {},
+    });
+
+    expect(result.getCoinChangeList().length).toEqual(1);
+    expect(result.getCoinChangeList()[0]).toEqual({
+      category: 'coin',
+      ownership: 'owned',
+      type: 'mutated',
+      changeType: 'decrease',
+      objectType: objectType,
+      // additional fields
+      amount: '-131155372484',
+      symbol: 'SUI', // with symbol
+      decimals: 9,
+      coinType: coinType,
+      // leave it empty because there are multiple coin object changes
+      objectId: '',
+      digest: '',
+      version: '',
+    });
+  });
 });
 
 describe('Detect NFT Change', function () {
