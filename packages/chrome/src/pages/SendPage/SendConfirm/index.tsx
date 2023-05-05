@@ -34,6 +34,8 @@ function SendConfirm({
   selectedCoin,
   suiBalance,
   gasBudget,
+  // TODO: display gas error and prevent confirm
+  gasError,
   onInputCoinAmountWithDecimals,
   onSubmit,
 }: {
@@ -41,6 +43,7 @@ function SendConfirm({
   selectedCoin: CoinDto;
   suiBalance: string;
   gasBudget: string;
+  gasError?: string;
   onInputCoinAmountWithDecimals: (coinAmountWithDecimals: string) => void;
   onSubmit: () => Promise<void>;
 }) {
