@@ -105,12 +105,14 @@ function TransactionDetail() {
           <div
             className={classNames(
               'text-zinc-500',
+              'hover:text-zinc-600',
               'px-4',
               'py-2',
               'rounded-xl',
+              'font-medium',
               'w-fit',
-              'hover:bg-zinc-50',
-              'active:bg-zinc-100',
+              'hover:bg-zinc-100',
+              'active:bg-zinc-200',
               'transition-all'
             )}
           >
@@ -137,12 +139,14 @@ function TransactionDetail() {
             <div
               className={classNames(
                 'text-zinc-500',
+                'hover:text-zinc-600',
                 'px-4',
                 'py-2',
                 'rounded-xl',
+                'font-medium',
                 'w-fit',
-                'hover:bg-zinc-50',
-                'active:bg-zinc-100',
+                'hover:bg-zinc-100',
+                'active:bg-zinc-200',
                 'transition-all'
               )}
             >
