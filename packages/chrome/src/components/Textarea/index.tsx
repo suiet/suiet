@@ -43,7 +43,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       ...textareaProps
     } = props;
     const stateMetrics = stateMap[state] || stateMap['default'];
-
     return (
       <div
         className={classnames(styles['textarea-wrapper'], className)}

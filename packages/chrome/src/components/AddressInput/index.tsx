@@ -3,11 +3,12 @@ import { isValidSuiAddress } from '@mysten/sui.js';
 import { UseFormReturn } from 'react-hook-form/dist/types';
 import { getInputStateByFormState } from '../../utils/form';
 import Textarea from '../Textarea';
+import React from 'react';
 
 interface AddressInputProps {
   form: UseFormReturn<any>;
   className?: string;
-  onChange?: () => void;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 function AddressInput({ form, className, onChange }: AddressInputProps) {
@@ -24,7 +25,7 @@ function AddressInput({ form, className, onChange }: AddressInputProps) {
     >
       <Textarea
         placeholder="Enter SUI address"
-        onChange={onChange}
+        onInput={onChange}
         state={getInputStateByFormState(form.formState, 'address')}
       />
     </FormControl>
