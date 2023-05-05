@@ -137,6 +137,9 @@ export default function useMyAssetChangesFromDryRun(
         },
         transactionBlock,
       });
+
+      console.log('dryRunResult', dryRunResult);
+
       estimatedGasFeeResult = String(
         getTotalGasUsed(dryRunResult.effects) ?? 0
       );
@@ -178,6 +181,10 @@ export default function useMyAssetChangesFromDryRun(
     setCoinChangeList(coinChangeList);
     setNftChangeList(analyzeResult.getNftChangeList());
     setObjectChangeList(analyzeResult.getObjectChangeList());
+
+    console.log('coinChangeList', coinChangeList);
+    console.log('nftChangeList', analyzeResult.getNftChangeList());
+    console.log('objectChangeList', analyzeResult.getObjectChangeList());
 
     setEstimatedGasFee(estimatedGasFeeResult);
 

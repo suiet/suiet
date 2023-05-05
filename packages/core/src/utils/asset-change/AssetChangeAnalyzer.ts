@@ -171,6 +171,7 @@ export default class AssetChangeAnalyzer {
     } = input;
 
     const objectTypeMap = AssetChangeAnalyzer.buildObjectTypeMap({
+      accountAddress,
       balanceChanges,
       objectDataMap,
     });
@@ -419,13 +420,17 @@ export default class AssetChangeAnalyzer {
   }
 
   static buildObjectTypeMap(input: {
+    accountAddress: string;
     balanceChanges: TokenBalanceChange[];
     objectDataMap: Record<string, SuiObjectData>;
   }) {
-    const { balanceChanges = [], objectDataMap = {} } = input;
+    const { accountAddress, balanceChanges = [], objectDataMap = {} } = input;
 
     const objectTypeMap = new Map<string, any>();
     for (const item of balanceChanges) {
+      // ignore coin changes that are not related to the account
+      if ((item.owner as any).AddressOwner !== accountAddress) continue;
+
       // for coins, we use the coin type as the key
       objectTypeMap.set(`0x2::coin::Coin<${item.coinType}>`, item);
     }
