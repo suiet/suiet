@@ -965,16 +965,13 @@ describe('Fallback Detect Object Change', function () {
   );
 });
 
-describe('Handle Object Change with ObjectOwner', () => {
-  test('it should preserve this object change if its parent object is not in the changes', () => {
+describe('Handle DynamicField: Object Change with ObjectOwner', () => {
+  test('it should filter out all the object changes of dynamic fields', () => {
     const accountAddress =
       '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
-    const objectType =
-      '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint';
-    const objectId =
-      '0x7d136b6b7b6be9799e1a8f86b104a041805325e97364bfc5a3b89df803c3b2ce';
 
     const objectChanges = [
+      // dynamic filed objects
       {
         type: 'mutated',
         sender: accountAddress,
@@ -982,8 +979,10 @@ describe('Handle Object Change with ObjectOwner', () => {
           ObjectOwner:
             '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a',
         },
-        objectType: objectType,
-        objectId: objectId,
+        objectType:
+          '0x2::dynamic_field::Field<0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::suifrens::AppKey<0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::capy::Capy>, 0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::suifrens::AppCap>',
+        objectId:
+          '0x7d136b6b7b6be9799e1a8f86b104a041805325e97364bfc5a3b89df803c3b2ce',
         version: '9223372036854775807',
         previousVersion: '19320939',
         digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
@@ -995,85 +994,9 @@ describe('Handle Object Change with ObjectOwner', () => {
       balanceChanges: [],
       objectDataMap: {},
     });
-    expect(result.getObjectChangeList()[0]).toEqual({
-      category: 'object',
-      ownership: 'dynamicField',
-      type: 'mutated',
-      changeType: 'modify',
-      objectType: objectType,
-      objectId: objectId,
-      digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
-      version: '9223372036854775807',
-    });
+
+    expect(result.getObjectChangeList().length).toEqual(0);
   });
-
-  test(
-    'it should filter out this object change ' +
-      'if its parent object is in the changes',
-    () => {
-      const accountAddress =
-        '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce';
-
-      const parentObjectId =
-        '0x7ab8d6a33cc59f9d426f6f40edc727b6fa57b341c165b465dd2a6ca1c49adc5a';
-      const parentObjectType =
-        '0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::genesis::Mint';
-      const childObjectId =
-        '0x7d136b6b7b6be9799e1a8f86b104a041805325e97364bfc5a3b89df803c3b2ce';
-      const childObjectType =
-        '0x2::dynamic_field::Field<0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::suifrens::AppKey<0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::capy::Capy>, 0x3dcfc5338d8358450b145629c985a9d6cb20f9c0ab6667e328e152cdfd8022cd::suifrens::AppCap>';
-
-      const objectChanges = [
-        // parent object
-        {
-          type: 'mutated',
-          sender:
-            '0x5259566eff17db24fb013e71558075ad775ad66eb09bdcbddfe58b633d904fce',
-          owner: {
-            Shared: {
-              initial_shared_version: 3822520,
-            },
-          },
-          objectType: parentObjectType,
-          objectId: parentObjectId,
-          version: '9223372036854775807',
-          previousVersion: '19320939',
-          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
-        },
-        // dynamic filed object
-        {
-          type: 'mutated',
-          sender: accountAddress,
-          owner: {
-            ObjectOwner: parentObjectId,
-          },
-          objectType: childObjectType,
-          objectId: childObjectId,
-          version: '9223372036854775807',
-          previousVersion: '19320939',
-          digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
-        },
-      ];
-      const result = AssetChangeAnalyzer.analyze({
-        accountAddress: accountAddress,
-        objectChanges: objectChanges as any,
-        balanceChanges: [],
-        objectDataMap: {},
-      });
-
-      expect(result.getObjectChangeList().length).toEqual(1);
-      expect(result.getObjectChangeList()[0]).toEqual({
-        category: 'object',
-        ownership: 'shared',
-        type: 'mutated',
-        changeType: 'modify',
-        objectType: parentObjectType,
-        objectId: parentObjectId,
-        digest: '8G1RcNzthZ5HWnsKr1JXjKuPBzQDEnkTqar8LW4YMTW3',
-        version: '9223372036854775807',
-      });
-    }
-  );
 });
 
 describe('Handle Object Change with Shared Object', () => {
@@ -1242,6 +1165,25 @@ describe('determine object ownership', () => {
     expect(
       AssetChangeAnalyzer.objectOwnership(objectChange, accountAddress)
     ).toEqual('shared');
+
+    const objectChange2: ObjectChange = {
+      type: 'mutated',
+      sender: accountAddress,
+      owner: {
+        ObjectOwner:
+          '0x8244085600ed77e1698e68428ec171c3757561ed7dc63b9a38a0623aa3604cff',
+      },
+      objectType:
+        '0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b::fuddies::Fuddies',
+      objectId:
+        '0x2542e1b0df5a57868fd6cfcf3707e9c1e9409f2dd14a393bd191f7f712cb58cc',
+      version: '9223372036854775807',
+      previousVersion: '1768647',
+      digest: '6N7QPRLy5EhUTqwmBkgApm1rNuoJsh6qy59upz3cN7R5',
+    };
+    expect(
+      AssetChangeAnalyzer.objectOwnership(objectChange2, accountAddress)
+    ).toEqual('shared');
   });
   test('it should return owner=dynamicField', () => {
     const accountAddress =
@@ -1252,7 +1194,8 @@ describe('determine object ownership', () => {
       owner: {
         ObjectOwner: '',
       },
-      objectType: '',
+      objectType:
+        '0x2::dynamic_field::Field<0x1::type_name::TypeName, 0x2::balance::Balance<0x2::sui::SUI>>',
       objectId: '',
       version: '',
       previousVersion: '',
