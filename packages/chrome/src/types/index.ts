@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 
 export interface StyleExtendable {
   className?: string;
@@ -10,3 +10,5 @@ export type Extendable<T = ReactNode> = StyleExtendable & {
 };
 
 export type OmitToken<T> = Omit<T, 'token'>;
+
+export type StateTuple<T> = [T, React.Dispatch<React.SetStateAction<T>>];

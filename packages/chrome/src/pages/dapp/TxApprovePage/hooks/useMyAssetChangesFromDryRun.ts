@@ -1,4 +1,3 @@
-import { useFeatureFlagsWithNetwork } from '../../../../hooks/useFeatureFlags';
 import { dryRunTransactionBlock } from '../../../../hooks/transaction/useDryRunTransactionBlock';
 import {
   DryRunTransactionBlockResponse,
@@ -6,8 +5,7 @@ import {
   SUI_TYPE_ARG,
   TransactionBlock,
 } from '@mysten/sui.js';
-import { DEFAULT_GAS_BUDGET } from '../../../../constants';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   AssetChangeAnalyzer,
   IAssetChangeOutput,
@@ -24,6 +22,7 @@ import { useSelector } from 'react-redux';
 import { getCoinMetadata } from '../../../../hooks/query/useGetCoinMetadata';
 import { queryGasBudgetFromDryRunResult } from '../../../../hooks/transaction/useGasBudgetFromDryRun';
 import { BackgroundApiClient } from '../../../../scripts/shared/ui-api-client';
+import useGasBudgetWithFallback from '../../../../hooks/transaction/useGasBudgetWithFallback';
 
 async function analyzeAssetChanges(
   accountAddress: string,
@@ -114,10 +113,7 @@ export default function useMyAssetChangesFromDryRun(
     IObjectChangeObject[]
   >([]);
   const [estimatedGasFee, setEstimatedGasFee] = useState<string>('0');
-  const [gasBudget, setGasBudget] = useState<string>(
-    String(DEFAULT_GAS_BUDGET)
-  );
-  const featureFlags = useFeatureFlagsWithNetwork();
+  const [gasBudget, setGasBudget] = useGasBudgetWithFallback();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -193,14 +189,6 @@ export default function useMyAssetChangesFromDryRun(
     }
   }, [transactionBlock, accountAddress, network]);
 
-  const gasBudgetResult = useMemo(() => {
-    if (Number(gasBudget) > 0) return gasBudget;
-    if (typeof featureFlags?.move_call_gas_budget === 'number') {
-      return String(featureFlags.move_call_gas_budget);
-    }
-    return String(DEFAULT_GAS_BUDGET);
-  }, [gasBudget, featureFlags]);
-
   return {
     loading,
     error,
@@ -209,7 +197,7 @@ export default function useMyAssetChangesFromDryRun(
       nftChangeList,
       objectChangeList,
       estimatedGasFee,
-      gasBudget: gasBudgetResult,
+      gasBudget,
     },
   };
 }
