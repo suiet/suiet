@@ -4,14 +4,15 @@ import { Extendable } from '../../types';
 // import styles from './index.module.scss';
 import * as TooltipRadix from '@radix-ui/react-tooltip';
 import './styles.css';
+import message from '../message';
 export type TypoProps = Extendable & {
-  message: string;
+  message?: string;
   backgoroundColor?: string;
   textColor?: string;
   onClick?: () => void;
 };
 export default function Tooltip(props: TypoProps) {
-  return (
+  return props.message ? (
     <TooltipRadix.Provider delayDuration={100}>
       <TooltipRadix.Root>
         <TooltipRadix.Trigger>{props.children}</TooltipRadix.Trigger>
@@ -23,5 +24,7 @@ export default function Tooltip(props: TypoProps) {
         </TooltipRadix.Portal>
       </TooltipRadix.Root>
     </TooltipRadix.Provider>
+  ) : (
+    <>{props.children}</>
   );
 }

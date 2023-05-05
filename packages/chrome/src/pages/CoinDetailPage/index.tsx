@@ -8,12 +8,16 @@ import IconWaterDrop from '../../assets/icons/waterdrop.svg';
 import IconToken from '../../assets/icons/token.svg';
 import styles from './index.module.scss';
 import TokenIcon from '../../components/TokenIcon';
-import { SendAndExecuteTxParams, TxEssentials } from '@suiet/core';
+import {
+  SendAndExecuteTxParams,
+  TxEssentials,
+  formatSUI,
+  formatCurrency,
+} from '@suiet/core';
 import classNames from 'classnames';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
-import { formatSUI, formatCurrency } from '@suiet/core';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { useQuery } from '@apollo/client';
 import { GET_DELEGATED_STAKES } from '../../utils/graphql/query';
@@ -26,6 +30,7 @@ import { useState } from 'react';
 import { createUnstakeTransaction } from '../StakingPage/utils';
 import useCoins from '../../hooks/coin/useCoins';
 import { isSuiToken } from '../../utils/check';
+import Tooltip from '../../components/Tooltip';
 
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -240,29 +245,52 @@ export default function CoinDetailPage() {
                         {delegatedStake?.validator?.name}
                       </div>
                     </div>
-                    <button
-                      className="bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-xl transition-all"
-                      onClick={async () =>
-                        await UnstakeCoins(stake?.stakedSuiID)
-                      }
-                      style={
-                        {
-                          // fixme: unhide when unstake is ready
-                          // display: 'none',
-                        }
+                    <Tooltip
+                      message={
+                        delegatedStake?.validator?.epoch <
+                        stake.stakeActiveEpoch
+                          ? 'you can start unstake from next epoch (24h)'
+                          : undefined
                       }
                     >
-                      {buttonLoading?.[stake?.stakedSuiID] ? (
-                        <div className="px-5 py-1">
-                          <LoadingSpokes
-                            width="12px"
-                            height="12px"
-                          ></LoadingSpokes>
-                        </div>
-                      ) : (
-                        'Unstake'
-                      )}
-                    </button>
+                      <button
+                        className={classNames(
+                          'bg-zinc-100  px-3 py-1 rounded-xl transition-all',
+                          delegatedStake?.validator?.epoch <
+                            stake.stakeActiveEpoch
+                            ? ['cursor-not-allowed', 'text-gray-400']
+                            : [
+                                'cursor-pointer',
+                                'hover:bg-zinc-200',
+                                'active:bg-zinc-300',
+                              ]
+                        )}
+                        onClick={async () =>
+                          await UnstakeCoins(stake?.stakedSuiID)
+                        }
+                        disabled={
+                          delegatedStake?.validator?.epoch <
+                          stake.stakeActiveEpoch
+                        }
+                        style={
+                          {
+                            // fixme: unhide when unstake is ready
+                            // display: 'none',
+                          }
+                        }
+                      >
+                        {buttonLoading?.[stake?.stakedSuiID] ? (
+                          <div className="px-5 py-1">
+                            <LoadingSpokes
+                              width="12px"
+                              height="12px"
+                            ></LoadingSpokes>
+                          </div>
+                        ) : (
+                          'Unstake'
+                        )}
+                      </button>
+                    </Tooltip>
                   </div>
                   <div className="flex mt-4 gap-2 justify-around">
                     <div className="flex flex-col">
