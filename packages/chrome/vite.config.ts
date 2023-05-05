@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
       // https://github.com/originjs/vite-plugins/issues/9#issuecomment-924668456
       transformMixedEsModules: true,
     },
+    minify: false, // disable minify for chrome review speed
   },
   optimizeDeps: {
     esbuildOptions: {
