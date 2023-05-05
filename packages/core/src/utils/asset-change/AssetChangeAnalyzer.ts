@@ -140,20 +140,17 @@ export default class AssetChangeAnalyzer {
   }
 
   /**
-   * Filter out dynamic field object changes that are related to an existing parent object
+   * Filter out dynamic field object changes
    * @param objectChanges
    */
-  static filterChildObjectChanges(objectChanges: ObjectChange[]) {
-    const objectIds: Set<string> = new Set();
-    for (const objChange of objectChanges) {
-      if (has(objChange, 'objectId')) {
-        objectIds.add((objChange as any).objectId);
-      }
-    }
+  static filterDynamicFieldObjectChanges(objectChanges: ObjectChange[]) {
     return objectChanges.filter((o) => {
-      if (!has((o as any)?.owner, 'ObjectOwner')) return true;
-      // filter out object field changes that are related to an existing object
-      if (objectIds.has((o as any).owner.ObjectOwner)) return false;
+      if (
+        'objectType' in o &&
+        (o as any).objectType?.startsWith('0x2::dynamic_field::Field')
+      ) {
+        return false;
+      }
       return true;
     });
   }
@@ -177,7 +174,7 @@ export default class AssetChangeAnalyzer {
     });
 
     const filteredObjChanges =
-      AssetChangeAnalyzer.filterChildObjectChanges(objectChanges);
+      AssetChangeAnalyzer.filterDynamicFieldObjectChanges(objectChanges);
 
     const resultCoinChangeMap: Map<string, ICoinChangeObject> = new Map();
     let resultNftChanges: INftChangeObject[] = [];
@@ -214,7 +211,6 @@ export default class AssetChangeAnalyzer {
         }
       }
 
-      // fallback to object changes
       // fallback to object changes
       resultObjectChanges.push(
         AssetChangeAnalyzer.objectChangeObject(accountAddress, objChange)
@@ -410,10 +406,16 @@ export default class AssetChangeAnalyzer {
       return 'unknown';
     }
     if (!('owner' in objectChange)) return 'unknown';
-    if ('ObjectOwner' in (objectChange as any).owner) {
+    if (
+      'objectType' in objectChange &&
+      objectChange.objectType.startsWith('0x2::dynamic_field::Field')
+    ) {
       return 'dynamicField';
     }
-    if ('Shared' in (objectChange as any).owner) {
+    if (
+      'Shared' in (objectChange as any)?.owner ||
+      'ObjectOwner' in (objectChange as any)?.owner
+    ) {
       return 'shared';
     }
     return 'owned';
