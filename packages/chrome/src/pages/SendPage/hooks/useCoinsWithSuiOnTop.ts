@@ -7,7 +7,8 @@ export default function useCoinsWithSuiOnTop(address: string) {
   const { data: coins, ...rest } = useCoins(address);
   const coinsWithSuiOnTop = useMemo(() => {
     if (isNonEmptyArray(coins)) {
-      const suiCoin = coins.find((coin) => coin.symbol === 'SUI');
+      const suiCoin =
+        coins.find((coin) => coin.symbol === 'SUI') ?? DEFAULT_SUI_COIN;
       const otherCoins = coins.filter((coin) => coin.symbol !== 'SUI');
       return [suiCoin, ...otherCoins] as CoinDto[];
     } else {
