@@ -91,7 +91,7 @@ function TransactionDetail() {
 
   function renderViewInExplorer(digest: string, networkId: string) {
     return (
-      <div className="transaction-detail-item">
+      <div className={classNames('flex')}>
         <a
           target="_blank"
           href={
@@ -102,9 +102,60 @@ function TransactionDetail() {
           className="m-auto"
           rel="noreferrer"
         >
-          View in explorer
-          <IconExternal className="inline w-[12px] h-[12px] stroke-gray-400"></IconExternal>
+          <div
+            className={classNames(
+              'text-zinc-500',
+              'px-4',
+              'py-2',
+              'rounded-xl',
+              'w-fit',
+              'hover:bg-zinc-50',
+              'active:bg-zinc-100',
+              'transition-all'
+            )}
+          >
+            Sui Explorer
+            <IconExternal
+              className={classNames(
+                'ml-2 inline w-[12px] h-[12px] stroke-gray-400',
+                'text-zinc-500'
+              )}
+            ></IconExternal>
+          </div>
         </a>
+        {['testnet', 'mainnet'].includes(networkId) && (
+          <a
+            target="_blank"
+            href={
+              `https://${
+                networkId === 'testnet' ? 'testnet.' : ''
+              }suivision.xyz/txblock/` + encodeURIComponent(digest)
+            }
+            className="m-auto"
+            rel="noreferrer"
+          >
+            <div
+              className={classNames(
+                'text-zinc-500',
+                'px-4',
+                'py-2',
+                'rounded-xl',
+                'w-fit',
+                'hover:bg-zinc-50',
+                'active:bg-zinc-100',
+                'transition-all'
+              )}
+            >
+              SuiVision
+              <IconExternal
+                className={classNames(
+                  'ml-2 inline w-[12px] h-[12px] stroke-gray-400',
+                  'text-zinc-500'
+                )}
+              ></IconExternal>
+            </div>
+          </a>
+        )}
       </div>
     );
   }
