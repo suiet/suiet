@@ -77,6 +77,13 @@ export default function StackingPage() {
       if (!network) throw new Error('require network selected');
       if (!selectedValidator) throw new Error('require validator selected');
 
+      // at least stake 1 SUI, 10^9
+      // TODO: using BigInt
+      if (Number(amount) < 1) {
+        message.error('Stake SUI failed: at least stake 1 SUI');
+        return;
+      }
+
       const stakeSUIAmount = calculateCoinAmount(amount, 9);
       const tx = createStakeTransaction(
         BigInt(stakeSUIAmount),
