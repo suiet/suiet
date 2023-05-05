@@ -55,7 +55,7 @@ const SendPage = () => {
     coinAmountWithDecimals: '0',
   });
 
-  const { data: gasBudget } = useGasBudgetForTransferCoin({
+  const { data: gasResult, error: gasError } = useGasBudgetForTransferCoin({
     coinType: sendData.coinType,
     recipient: sendData.recipientAddress,
     network,
@@ -84,7 +84,7 @@ const SendPage = () => {
       amount: coinAmount,
     });
     const txb = getTransactionBlock(serializedTxb);
-    txb.setGasBudget(BigInt(gasBudget));
+    txb.setGasBudget(BigInt(gasResult.gasBudget));
     try {
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
@@ -105,7 +105,7 @@ const SendPage = () => {
       console.error(e);
       message.error(`Send transaction failed: ${e?.message}`);
     }
-  }, [gasBudget, sendData, selectedCoin]);
+  }, [gasResult, sendData, selectedCoin]);
 
   useEffect(() => {
     if (coinsWithSuiOnTop.length === 0) return;
@@ -216,7 +216,8 @@ const SendPage = () => {
           state={sendData}
           selectedCoin={selectedCoin}
           suiBalance={suiBalance.balance}
-          gasBudget={String(gasBudget)}
+          gasBudget={gasResult.gasBudget}
+          gasError={gasError}
           onInputCoinAmountWithDecimals={(amountWithDecimals) => {
             setSendData((prev) => {
               return {
