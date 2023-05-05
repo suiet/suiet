@@ -32,8 +32,8 @@
     "test:chrome": "npm run test -w @suiet/chrome-ext",
     "prettier": "prettier --write --ignore-unknown .",
     "test": "run-p test:chrome",
-    "lint": "eslint --ext=.js,.js,.tsx,.ts .",
-    "lint:fix": "eslint --fix --ext=.js,.js,.tsx,.ts .",
+    "lint": "eslint './packages/{!(expo),}*/src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix './packages/{!(expo),}*/src/**/*.{ts,tsx}'",
     "prepare": "husky install"
   },
   "repository": {
