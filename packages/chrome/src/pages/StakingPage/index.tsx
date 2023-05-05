@@ -161,7 +161,7 @@ export default function StackingPage() {
 
       <div className="px-6 text-3xl flex items-center gap-2 w-full max-w-[362px]">
         <InputAmount
-          className="h-48"
+          className="mt-16 w-full"
           onInput={(value) => {
             setAmount(value);
           }}
