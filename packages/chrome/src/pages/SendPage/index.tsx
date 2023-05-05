@@ -61,7 +61,6 @@ const SendPage = () => {
     network,
     walletId,
     accountId,
-    gasFeeRatio: 1.2,
   });
 
   const submitTransaction = useCallback(async () => {
@@ -85,7 +84,7 @@ const SendPage = () => {
       amount: coinAmount,
     });
     const txb = getTransactionBlock(serializedTxb);
-    txb.setGasBudget(gasBudget); // set gas budget which is based on estimated gas fee
+    txb.setGasBudget(BigInt(gasBudget));
     try {
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
