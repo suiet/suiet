@@ -1,6 +1,6 @@
 import { formatSUI, SendAndExecuteTxParams, TxEssentials } from '@suiet/core';
 import classNames from 'classnames';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddressInput from '../../../components/AddressInput';
@@ -16,10 +16,11 @@ import { RootState } from '../../../store';
 import { OmitToken } from '../../../types';
 import styles from './index.module.scss';
 import { useForm } from 'react-hook-form';
-import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import { NftMeta } from '../NftList';
 import createTransactionNftTxb from '@suiet/core/src/utils/txb-factory/createTransferNftTxb';
 import useKioskMetaLazyQuery from '../../../hooks/nft/useKioskMetaLazyQuery';
+import { SuiAddress } from '@mysten/sui.js';
+import useGasBudgetForNftSend from '../hooks/useGasBudgetForNftSend';
 
 interface SendFormValues {
   address: string;
@@ -53,11 +54,6 @@ export default function SendNft() {
       address: '',
     },
   });
-  const featureFlags = useFeatureFlagsWithNetwork();
-
-  useEffect(() => {
-    if (!id) throw new Error('id should be passed within location state');
-  }, [id]);
 
   const prepareTransferNftTxb = async (params: {
     objectId: string;
@@ -91,29 +87,37 @@ export default function SendNft() {
     });
   };
 
-  async function submitNftTransaction(data: SendFormValues) {
+  const [recipientForDryRunOnly, setRecipientForDryRunOnly] =
+    useState<SuiAddress>('');
+  const { data: gasBudgetResult } = useGasBudgetForNftSend({
+    objectId: id,
+    objectType,
+    recipient: recipientForDryRunOnly,
+    senderKioskId: kioskObjectId,
+    prepareTransferNftTxb,
+  });
+
+  const submitNftTransaction = async (data: SendFormValues) => {
     // example address: ECF53CE22D1B2FB588573924057E9ADDAD1D8385
     if (!network) throw new Error('require network selected');
 
     setSendLoading(true);
-
-    const txb = await prepareTransferNftTxb({
-      objectId: id,
-      objectType,
-      recipient: data.address,
-      senderKioskId: kioskObjectId,
-    });
-    if (!txb) {
-      throw new Error('txb is null');
-    }
     try {
+      const transactionBlock = await prepareTransferNftTxb({
+        objectId: id,
+        objectType,
+        recipient: data.address,
+        senderKioskId: kioskObjectId,
+      });
+      transactionBlock.setGasBudget(BigInt(gasBudgetResult?.gasBudget));
+
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
         undefined
       >(
         'txn.signAndExecuteTransactionBlock',
         {
-          transactionBlock: txb.serialize(),
+          transactionBlock: transactionBlock.serialize(),
           context: {
             network,
             walletId: appContext.walletId,
@@ -130,7 +134,11 @@ export default function SendNft() {
     } finally {
       setSendLoading(false);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (!id) throw new Error('id should be passed within location state');
+  }, [id]);
 
   return (
     <div className={classNames(styles['page'], 'no-scrollbar')}>
@@ -177,12 +185,18 @@ export default function SendNft() {
       >
         <div className={styles['address-container']}>
           <Typo.Title className={styles['address']}>Address</Typo.Title>
-          <AddressInput form={form} className={'mt-[6px]'} />
+          <AddressInput
+            form={form}
+            className={'mt-[6px]'}
+            onChange={(e) => {
+              setRecipientForDryRunOnly(e.target.value);
+            }}
+          />
         </div>
         <div className={styles['gas-container']}>
           <Typo.Title className={styles['gas']}>Gas Budget</Typo.Title>
           <Typo.Normal className={styles['gas-amount']}>
-            {formatSUI(featureFlags?.move_call_gas_budget ?? 0)} SUI
+            {formatSUI(gasBudgetResult.gasBudget)} SUI
           </Typo.Normal>
         </div>
         <div className={styles['btn-container']}>
