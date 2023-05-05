@@ -1,10 +1,7 @@
-import AppLayout from '../../layouts/AppLayout';
 import Button from '../../components/Button';
 import ValidatorSelector from '../../components/ValidatorSelector';
 import { useApiClient } from '../../hooks/useApiClient';
 import {
-  StakeCoinParams,
-  getMintExampleNftTxBlock,
   SendAndExecuteTxParams,
   TxEssentials,
   formatSUI,
@@ -13,7 +10,7 @@ import {
   isCoinAmountValid,
 } from '@suiet/core';
 import { useNetwork } from '../../hooks/useNetwork';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client';
@@ -24,20 +21,21 @@ import InputAmount from '../../components/InputAmount';
 import { useAccount } from '../../hooks/useAccount';
 import message from '../../components/message';
 import { OmitToken } from '../../types';
-import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import Skeleton from 'react-loading-skeleton';
 import { createStakeTransaction } from './utils';
 import useSuiBalance from '../../hooks/coin/useSuiBalance';
 import { SUI_TYPE_ARG } from '@mysten/sui.js';
-import Message from '../../components/message';
-import { compareCoinAmount } from '../../utils/check';
 import styles from './index.module.scss';
+import useGasBudgetForStaking from './hooks/useGasBudgetForStaking';
 
 export default function StackingPage() {
   const apiClient = useApiClient();
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
-  const [selectedValidator, setSelectedValidator] = useState<string>();
+  const [selectedValidator, setSelectedValidator] = useState<string>('');
+  const { data: gasBudget } = useGasBudgetForStaking({
+    selectedValidator,
+  });
   const { loading, error, data } = useQuery(GET_VALIDATORS, {
     fetchPolicy: 'cache-and-network',
   });
@@ -45,7 +43,7 @@ export default function StackingPage() {
   useEffect(() => {
     setSelectedValidator(validators[0]?.suiAddress);
   }, [validators]);
-  const currentValidator = validators.find((validator) => {
+  const currentValidator = validators.find((validator: any) => {
     if (validator.suiAddress === selectedValidator) {
       return true;
     }
@@ -54,29 +52,10 @@ export default function StackingPage() {
   const [amount, setAmount] = useState('0');
   const [buttonLoading, setButtonLoading] = useState(false);
 
-  // const { data: estimatedGasBudget, isSuccess: isBudgetLoaded } =
-  //   useEstimatedGasBudget({
-  //     kind: 'moveCall',
-  //     data: {
-  //       packageObjectId: '0x2',
-  //       module: 'sui_system',
-  //       function: 'request_add_delegation_mul_coin',
-  //       typeArguments: [],
-  //       arguments: [
-  //         SUI_SYSTEM_STATE_OBJECT_ID,
-  //         // stakeCoins,
-  //         // [String(amount)],
-  //         // validator,
-  //       ],
-  //     },
-  //   });
-
   const { address } = useAccount(appContext.accountId);
   const { data: suiBalance, loading: balanceLoading } = useSuiBalance(
     address ?? ''
   );
-  const featureFlags = useFeatureFlagsWithNetwork();
-  const gasBudget = featureFlags?.stake_gas_budget ?? 20_000_000;
 
   const maxAmount = useMemo(() => {
     return maxCoinAmountWithDecimal(SUI_TYPE_ARG, suiBalance.balance, 9, {
@@ -103,6 +82,7 @@ export default function StackingPage() {
         BigInt(stakeSUIAmount),
         selectedValidator
       );
+      tx.setGasBudget(BigInt(gasBudget));
       await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
         undefined
