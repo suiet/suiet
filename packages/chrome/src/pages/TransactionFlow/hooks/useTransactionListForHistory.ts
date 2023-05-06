@@ -6,6 +6,7 @@ import {
   TransactionsResult,
 } from '../../../types/gql/transactions';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import filterDuplicateTransactions from '../utils/filterDuplicateTx';
 
 export interface TransactionForHistory {
   type: 'incoming' | 'outgoing';
@@ -107,6 +108,8 @@ function useTransactionListForHistoryInternal(params: {
         }))
       );
     }
+    // filter duplicate tx
+    res = filterDuplicateTransactions(res);
     // descending order by timestamp
     res.sort((a, b) => b.timestamp - a.timestamp);
     return res;
