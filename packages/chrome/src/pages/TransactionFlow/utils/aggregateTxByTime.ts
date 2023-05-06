@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+dayjs.extend(isBetween);
+
 import { TransactionForHistory } from '../hooks/useTransactionListForHistory';
 
 export function aggregateTxByTime(
@@ -14,12 +17,23 @@ export function aggregateTxByTime(
   }
 
   txList.forEach((tx) => {
-    if (dayjs(tx.timestamp).isSame(currentTimestamp, 'day')) {
+    const today = dayjs(currentTimestamp);
+    const txDay = dayjs(tx.timestamp);
+    const startOfWeek = today.startOf('week');
+    const endOfWeek = today.endOf('week');
+    const startOfLastWeek = today.subtract(1, 'week').startOf('week');
+    const endOfLastWeek = today.subtract(1, 'week').endOf('week');
+
+    if (txDay.isSame(today, 'day')) {
       put('Today', tx);
-    } else if (dayjs(tx.timestamp).isSame(currentTimestamp, 'week')) {
+    } else if (txDay.isSame(today.subtract(1, 'day'), 'day')) {
+      put('Yesterday', tx);
+    } else if (txDay.isBetween(startOfWeek, endOfWeek, 'day', '[]')) {
+      put('This Week', tx);
+    } else if (txDay.isBetween(startOfLastWeek, endOfLastWeek, 'day', '[]')) {
       put('Last Week', tx);
     } else {
-      put(dayjs(tx.timestamp).format('MMM, YYYY'), tx);
+      put(txDay.format('MMM, YYYY'), tx);
     }
   });
   return res;
