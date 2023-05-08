@@ -96,7 +96,15 @@ const TokenItem = (props: TokenItemProps) => {
           <div className="flex w-full justify-between">
             <div className="relative">
               {props.iconURL ? (
-                <img src={props.iconURL}></img>
+                <img
+                  className={classNames(
+                    'w-[40px]',
+                    'h-[40px]',
+                    'rounded-full',
+                    'mr-[25px]'
+                  )}
+                  src={props.iconURL}
+                ></img>
               ) : (
                 <TokenIcon
                   icon={isSUI ? IconWaterDrop : IconToken}
@@ -248,9 +256,18 @@ const TokenItem = (props: TokenItemProps) => {
                   className={classNames([
                     'rounded-lg',
                     'text-medium',
-                    Number(props.pricePercentChange24h) > 0
-                      ? ['text-green-600', 'bg-green-100']
-                      : ['text-red-600', 'bg-red-100'],
+                    Number(props.pricePercentChange24h) > 0 && [
+                      'text-green-600',
+                      'bg-green-100',
+                    ],
+                    Number(props.pricePercentChange24h) === 0 && [
+                      'text-gray-600',
+                      'bg-gray-100',
+                    ],
+                    Number(props.pricePercentChange24h) < 0 && [
+                      'text-red-600',
+                      'bg-red-100',
+                    ],
                   ])}
                   style={{
                     fontFamily: 'Inter',
