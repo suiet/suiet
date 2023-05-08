@@ -8,6 +8,11 @@ export interface CoinDto {
   balance: string;
   decimals: number;
   isVerified: boolean;
+  iconURL: string | null;
+  usd: string | null;
+  pricePercentChange24h: string | null;
+  wrappedChain: string | null;
+  bridge: string | null;
 }
 export type CoinBalance = {
   balance: string;
@@ -21,8 +26,13 @@ const GET_COINS_GQL = gql`
       balance
       symbol
       isVerified
+      iconURL
+      usd
+      pricePercentChange24h
       metadata {
         decimals
+        wrappedChain
+        bridge
       }
     }
   }
@@ -35,6 +45,11 @@ function formatCoinFromGql(coin: any): CoinDto {
     balance: coin.balance,
     isVerified: coin.isVerified,
     decimals: coin.metadata?.decimals ?? 0,
+    iconURL: coin.iconURL,
+    usd: coin.usd,
+    pricePercentChange24h: coin.pricePercentChange24h,
+    wrappedChain: coin.metadata.wrappedChain,
+    bridge: coin.metadata.bridge,
   };
 }
 /**

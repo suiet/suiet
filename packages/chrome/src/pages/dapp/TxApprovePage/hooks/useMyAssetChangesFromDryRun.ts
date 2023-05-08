@@ -56,7 +56,7 @@ async function analyzeAssetChanges(
     // key by objectType
     objectDataMap[objectType] = {
       name: res.data.name,
-      iconUrl: res.data.iconUrl,
+      iconURL: res.data.iconURL,
       // TODO: switch to gql api
       symbol: res.data.symbol,
       decimals: res.data.decimals,

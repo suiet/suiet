@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import type { StyleExtendable } from '../../../types';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
@@ -22,6 +21,8 @@ import { DEFAULT_SUI_COIN } from '../../../constants/coin';
 import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
 import { ReactComponent as UnverifiedIcon } from '../../../assets/icons/unverified.svg';
 import Tooltip from '../../../components/Tooltip';
+import classNames from 'classnames';
+
 export type TokenListProps = StyleExtendable;
 
 type TokenItemProps = Extendable & {
@@ -30,6 +31,11 @@ type TokenItemProps = Extendable & {
   balance: string;
   decimals: number;
   isVerified: boolean;
+  iconURL: string | null;
+  usd: string | null;
+  pricePercentChange24h: string | null;
+  wrappedChain: string | null;
+  bridge: string | null;
 };
 
 const TokenItem = (props: TokenItemProps) => {
@@ -67,89 +73,146 @@ const TokenItem = (props: TokenItemProps) => {
   }
   return (
     <div
-      className={classnames(
+      className={classNames(
+        'hover:bg-zinc-50',
+        'px-[25px]',
         styles['token-item'],
-        isSUI ? styles['token-item-sui'] : null,
         { 'cursor-pointer': isSUI }
       )}
-      onClick={handleClick}
     >
-      <div className="flex w-full flex-row items-center justify-between">
-        <div className="flex">
-          <TokenIcon
-            icon={isSUI ? IconWaterDrop : IconToken}
-            alt="water-drop"
-            className={isSUI ? '' : styles['icon-wrap-default']}
-          />
-          <div className={'flex flex-col ml-[32px]'}>
-            <div className="flex items-center gap-1">
-              <Tooltip message={props.type}>
-                <Typo.Normal
-                  className={classnames(
-                    styles['token-name'],
-                    isSUI ? styles['token-name-sui'] : null
-                  )}
-                >
-                  {props.symbol}
-                </Typo.Normal>
-              </Tooltip>
-              {isVerified ? (
-                <Tooltip message={'Verified'}>
-                  <VerifiedIcon width={14} height={14} />
-                </Tooltip>
-              ) : (
-                <Tooltip
-                  message={
-                    'Unverified: proceed with caution and research before use'
-                  }
-                >
-                  <UnverifiedIcon width={14} height={14} />
-                </Tooltip>
+      <div
+        className={classNames(
+          'py-[20px]',
+          'border-t',
+          // 'border',
+          'border-gray-100',
+          'w-full'
+        )}
+        onClick={handleClick}
+      >
+        <div className="flex  w-full flex-row items-center justify-between">
+          <div className="flex w-full justify-between">
+            <TokenIcon
+              icon={isSUI ? IconWaterDrop : IconToken}
+              alt="water-drop"
+              className={classNames(
+                [isSUI ? '' : styles['icon-wrap-default']],
+                'mr-[25px]',
+                'grow-0'
               )}
+            />
+            <div className={classNames('flex', 'flex-col', 'grow')}>
+              <div className="flex items-center gap-1">
+                <Tooltip message={props.type}>
+                  <Typo.Normal
+                    className={classNames(
+                      styles['token-name'],
+                      isSUI ? styles['token-name-sui'] : null
+                    )}
+                  >
+                    {props.symbol}
+                  </Typo.Normal>
+                </Tooltip>
+                {isVerified ? (
+                  <Tooltip message={'Verified'}>
+                    <VerifiedIcon width={14} height={14} />
+                  </Tooltip>
+                ) : (
+                  <Tooltip
+                    message={
+                      'Unverified: proceed with caution and research before use'
+                    }
+                  >
+                    <UnverifiedIcon width={14} height={14} />
+                  </Tooltip>
+                )}
+              </div>
+
+              <div className={classNames('flex', 'gap-1', 'grow-0')}>
+                <Typo.Small
+                  className={classNames(
+                    'text-gray-400',
+                    styles['token-amount'],
+                    isSUI ? styles['token-amount-sui'] : null
+                  )}
+                  style={{
+                    fontFamily: 'Inter',
+                  }}
+                >
+                  {formatCurrency(balance, {
+                    decimals,
+                    withAbbr: false,
+                  })}
+                  {' ' + props.symbol}
+                </Typo.Small>
+
+                {isSUI && network?.enableStaking && stakedBalance > 0 && (
+                  <>
+                    <Typo.Small
+                      className={classNames('inline', styles['token-amount'])}
+                      style={{ color: 'rgba(0,0,0,0.3)' }}
+                    >
+                      +
+                    </Typo.Small>
+
+                    <Typo.Small
+                      className={classNames(
+                        'inline',
+                        styles['token-amount'],
+                        isSUI ? styles['token-amount'] : null
+                      )}
+                      style={{ color: '#0096FF' }}
+                    >
+                      {formatCurrency(stakedBalance, {
+                        decimals: 9,
+                        withAbbr: false,
+                      })}{' '}
+                      Staked
+                    </Typo.Small>
+                  </>
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-1">
-              <Typo.Small
-                className={classnames(
-                  styles['token-amount'],
-                  isSUI ? styles['token-amount-sui'] : null
-                )}
-              >
-                {formatCurrency(balance, {
-                  decimals,
-                  withAbbr: false,
-                })}
-              </Typo.Small>
-
-              {isSUI && network?.enableStaking && stakedBalance > 0 && (
-                <>
-                  <Typo.Small
-                    className={classnames('inline', styles['token-amount'])}
-                    style={{ color: 'rgba(0,0,0,0.3)' }}
-                  >
-                    +
-                  </Typo.Small>
-
-                  <Typo.Small
-                    className={classnames(
-                      'inline',
-                      styles['token-amount'],
-                      isSUI ? styles['token-amount'] : null
-                    )}
-                    style={{ color: '#0096FF' }}
-                  >
-                    {formatCurrency(stakedBalance, {
-                      decimals: 9,
-                      withAbbr: false,
-                    })}{' '}
-                    Staked
-                  </Typo.Small>
-                </>
+            <div className={classNames('flex', 'flex-col', 'items-end')}>
+              {props.usd && (
+                <div
+                  className={classNames('font-medium')}
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: '14px',
+                  }}
+                >
+                  $
+                  {formatCurrency(Number(props.usd) * 10000, {
+                    decimals: 4,
+                  })}
+                </div>
+              )}
+              {props.pricePercentChange24h && (
+                <div
+                  className={classNames([
+                    'rounded-lg',
+                    'text-medium',
+                    Number(props.pricePercentChange24h) > 0
+                      ? ['text-green-600', 'bg-green-100']
+                      : ['text-red-600', 'bg-red-100'],
+                  ])}
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: '12px',
+                    padding: '2px 4px',
+                  }}
+                >
+                  {Number(props.pricePercentChange24h) > 0 && '+'}
+                  {Number(props.pricePercentChange24h) === 0 && ''}
+                  {Number(props.pricePercentChange24h) < 0 && '-'}
+                  {Number(props.pricePercentChange24h).toFixed(2)}%
+                </div>
               )}
             </div>
           </div>
-        </div>
-        {/* {props.type === SUI_TYPE_ARG && network?.enableStaking && (
+          {/* {props.type === SUI_TYPE_ARG && network?.enableStaking && (
           <button
             className={styles['click-button']}
             onClick={(e) => {
@@ -162,6 +225,7 @@ const TokenItem = (props: TokenItemProps) => {
             Stake
           </button>
         )} */}
+        </div>
       </div>
     </div>
   );
@@ -190,7 +254,7 @@ const TokenList = (props: TokenListProps) => {
 
   if (isLoading || coinsError) return null;
   return (
-    <div className={classnames(props.className)} style={props.style}>
+    <div className={classNames(props.className)} style={props.style}>
       {coinsWithSuiOnTop.map((coin) => {
         return (
           <TokenItem
@@ -200,6 +264,11 @@ const TokenList = (props: TokenListProps) => {
             balance={coin.balance}
             decimals={coin.decimals}
             isVerified={coin.isVerified}
+            iconURL={coin.iconURL}
+            usd={coin.usd}
+            pricePercentChange24h={coin.pricePercentChange24h}
+            wrappedChain={coin.wrappedChain}
+            bridge={coin.bridge}
           />
         );
       })}
