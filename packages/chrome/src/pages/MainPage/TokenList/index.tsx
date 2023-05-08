@@ -236,7 +236,14 @@ const TokenItem = (props: TokenItemProps) => {
               </div>
             </div>
 
-            <div className={classNames('flex', 'flex-col', 'items-end')}>
+            <div
+              className={classNames(
+                'flex',
+                'flex-col',
+                'items-end',
+                'justify-center'
+              )}
+            >
               {props.usd && (
                 <div
                   className={classNames('font-medium')}
