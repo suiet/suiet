@@ -22,6 +22,8 @@ import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.s
 import { ReactComponent as UnverifiedIcon } from '../../../assets/icons/unverified.svg';
 import Tooltip from '../../../components/Tooltip';
 import classNames from 'classnames';
+// const images = require.context('../../../assets/img', true);
+// loadImage = imageName => (assets(`./${imageName}`).default);
 
 export type TokenListProps = StyleExtendable;
 
@@ -92,15 +94,52 @@ const TokenItem = (props: TokenItemProps) => {
       >
         <div className="flex  w-full flex-row items-center justify-between">
           <div className="flex w-full justify-between">
-            <TokenIcon
-              icon={isSUI ? IconWaterDrop : IconToken}
-              alt="water-drop"
-              className={classNames(
-                [isSUI ? '' : styles['icon-wrap-default']],
-                'mr-[25px]',
-                'grow-0'
+            <div className="relative">
+              {props.iconURL ? (
+                <img src={props.iconURL}></img>
+              ) : (
+                <TokenIcon
+                  icon={isSUI ? IconWaterDrop : IconToken}
+                  alt="water-drop"
+                  className={classNames(
+                    [isSUI ? '' : styles['icon-wrap-default']],
+                    'mr-[25px]',
+                    'grow-0'
+                  )}
+                />
               )}
-            />
+              {props.wrappedChain && (
+                <div
+                  className={classNames(
+                    'w-[20px]',
+                    'h-[20px]',
+                    'absolute',
+                    'right-[20px]',
+                    'bottom-0'
+                  )}
+                >
+                  <Tooltip
+                    className={classNames()}
+                    message={`Wrapped from ${props.wrappedChain.toUpperCase()}`}
+                  >
+                    <img
+                      className={classNames(
+                        'rounded-full',
+                        // 'border',
+                        // 'border-black/10',
+
+                        'bg-white'
+                      )}
+                      style={{
+                        boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      // src={`https://assets.suiet.app/chains/${props.wrappedChain}.png`}
+                      src={`https://assets.suiet.app/img/chains/${props.wrappedChain}.png`}
+                    />
+                  </Tooltip>
+                </div>
+              )}
+            </div>
             <div className={classNames('flex', 'flex-col', 'grow')}>
               <div className="flex items-center gap-1">
                 <Tooltip message={props.type}>
@@ -123,7 +162,22 @@ const TokenItem = (props: TokenItemProps) => {
                       'Unverified: proceed with caution and research before use'
                     }
                   >
-                    <UnverifiedIcon width={14} height={14} />
+                    <UnverifiedIcon width={16} height={16} />
+                  </Tooltip>
+                )}
+                {props.bridge && (
+                  <Tooltip message={`${props.bridge} bridge`}>
+                    <img
+                      className={classNames(
+                        'w-[16px]',
+                        'h-[16px]',
+                        'rounded-md'
+                      )}
+                      style={{
+                        boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      src={`https://assets.suiet.app/img/bridges/${props.bridge}.png`}
+                    ></img>
                   </Tooltip>
                 )}
               </div>
