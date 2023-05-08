@@ -16,10 +16,14 @@ type TokenItemProps = Extendable & {
   balance: string;
   isVerified: boolean;
   decimals: number;
-  iconUrl?: string;
+  iconURL?: string;
   onClick?: (coinType: string) => void;
   selected?: boolean;
   verified?: boolean;
+  usd: string | null;
+  pricePercentChange24h: string | null;
+  wrappedChain: string | null;
+  bridge: string | null;
 };
 
 const TokenIconUrl: Record<string, string> = {
@@ -32,16 +36,20 @@ const TokenItem = (props: TokenItemProps) => {
     balance = 0,
     type: coinType,
     symbol,
-    iconUrl,
+    iconURL,
     decimals,
     onClick,
     selected,
     isVerified,
+    usd,
+    pricePercentChange24h,
+    wrappedChain,
+    bridge,
   } = props;
 
   let tokenIcon = TokenIconUrl[symbol] || TokenIconUrl.DEFAULT;
-  if (iconUrl) {
-    tokenIcon = iconUrl;
+  if (iconURL) {
+    tokenIcon = iconURL;
   }
   const isSUI = isSuiToken(coinType);
 

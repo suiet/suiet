@@ -4,24 +4,15 @@ $icon-size: 40px;
 
 .token-item {
   @apply box-border flex items-center;
-  padding: 26px 24px;
-  margin: 12px 12px;
+  // padding: 26px 26px;
 
-  background: $gray-50;
-  border-radius: 16px;
+  // background: $gray-50;
+  // border-radius: 16px;
   transition: 0.2s;
-  &:hover {
-    /* Gray/50 */
-    background: $gray-100;
-  }
-  &-sui {
-    background: $primary-25;
-
-    &:hover {
-      /* Gray/50 */
-      background: $primary-50;
-    }
-  }
+  // &:hover {
+  //   /* Gray/50 */
+  //   background: $gray-100;
+  // }
 }
 
 .icon-wrap {
@@ -43,7 +34,6 @@ $icon-size: 40px;
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  color: $gray-700;
 }
 
 .click-button {

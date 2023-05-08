@@ -11,11 +11,15 @@ import { useState } from 'react';
 type TokenItemProps = Extendable & {
   symbol: string;
   amount?: number | string;
-  iconUrl?: string;
+  iconURL?: string;
   decimals?: number;
   onClick?: (symbol: string) => void;
   selected?: boolean;
   isVerified: boolean;
+  usd: string | null;
+  pricePercentChange24h: string | null;
+  wrappedChain: string | null;
+  bridge: string | null;
 };
 
 const TokenIconUrl: Record<string, string> = {
@@ -27,16 +31,20 @@ const TokenItem = (props: TokenItemProps) => {
   const {
     amount = 0,
     symbol,
-    iconUrl,
+    iconURL,
     decimals = 0,
     onClick,
     selected,
     isVerified,
+    usd,
+    pricePercentChange24h,
+    wrappedChain,
+    bridge,
   } = props;
 
   let tokenIcon = TokenIconUrl[symbol] || TokenIconUrl.DEFAULT;
-  if (iconUrl) {
-    tokenIcon = iconUrl;
+  if (iconURL) {
+    tokenIcon = iconURL;
   }
 
   return (

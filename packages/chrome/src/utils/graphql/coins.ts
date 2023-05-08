@@ -9,8 +9,12 @@ export const coinsGql = gql`
       description
       symbol
       type
+      usd
+      pricePercentChange24h
       metadata {
         decimals
+        wrappedChain
+        bridge
       }
     }
   }
