@@ -13,7 +13,7 @@ export type TypoProps = Extendable & {
 };
 export default function Tooltip(props: TypoProps) {
   return props.message ? (
-    <TooltipRadix.Provider delayDuration={100}>
+    <TooltipRadix.Provider delayDuration={300}>
       <TooltipRadix.Root>
         <TooltipRadix.Trigger>{props.children}</TooltipRadix.Trigger>
         <TooltipRadix.Portal>
