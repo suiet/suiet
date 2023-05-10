@@ -284,7 +284,6 @@ const TokenItem = (props: TokenItemProps) => {
                 >
                   {Number(props.pricePercentChange24h) > 0 && '+'}
                   {Number(props.pricePercentChange24h) === 0 && ''}
-                  {Number(props.pricePercentChange24h) < 0 && '-'}
                   {Number(props.pricePercentChange24h).toFixed(2)}%
                 </div>
               )}
