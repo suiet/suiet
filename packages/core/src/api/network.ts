@@ -23,8 +23,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'devnet',
       name: 'devnet',
-      queryRpcUrl: 'https://wallet-rpc.devnet.sui.io',
-      txRpcUrl: 'https://wallet-rpc.devnet.sui.io',
+      queryRpcUrl: 'https://devnet.suiet.app',
+      txRpcUrl: 'https://devnet.suiet.app',
       versionCacheTimoutInSeconds: 0,
     },
   ],
@@ -33,8 +33,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'testnet',
       name: 'testnet',
-      queryRpcUrl: 'https://wallet-rpc.testnet.sui.io',
-      txRpcUrl: 'https://wallet-rpc.testnet.sui.io',
+      queryRpcUrl: 'https://testnet.suiet.app',
+      txRpcUrl: 'https://testnet.suiet.app',
       versionCacheTimoutInSeconds: 0,
     },
   ],
@@ -43,8 +43,8 @@ const DEFAULT_NETWORKS = new Map([
     {
       id: 'mainnet',
       name: 'mainnet',
-      queryRpcUrl: 'https://wallet-rpc.mainnet.sui.io',
-      txRpcUrl: 'https://wallet-rpc.mainnet.sui.io',
+      queryRpcUrl: 'https://mainnet.suiet.app',
+      txRpcUrl: 'https://mainnet.suiet.app',
       versionCacheTimoutInSeconds: 0,
     },
   ],
