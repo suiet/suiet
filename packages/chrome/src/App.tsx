@@ -15,16 +15,19 @@ import {
 import { CachePersistor, AsyncStorageWrapper } from 'apollo3-cache-persist';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
+import { setContext } from 'apollo-link-context';
 import {
   ApolloProvider,
   ApolloClient,
+  ApolloLink,
+  from,
   HttpLink,
   NormalizedCacheObject,
 } from '@apollo/client';
 import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from './pages/TransactionFlow/hooks/useTransactionListForHistory';
 import { ChromeStorage } from './store/storage';
-
+import { version } from '../package.json';
 enum CacheSyncStatus {
   NOT_SYNCED,
   SYNCING,
@@ -38,7 +41,18 @@ function useCustomApolloClient(networkId: string) {
   );
   const cachePersistor = useRef<CachePersistor<NormalizedCacheObject>>();
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
+  const headerLink = new ApolloLink((operation, forward) => {
+    // Use the setContext method to set the HTTP headers.
+    operation.setContext({
+      headers: {
+        'x-suiet-client-type': 'suiet-desktop-extension',
+        'x-suiet-client-version': version,
+      },
+    });
 
+    // Call the next link in the middleware chain.
+    return forward(operation);
+  });
   useEffect(() => {
     if (cacheSyncStatus.current !== CacheSyncStatus.NOT_SYNCED) return;
 
@@ -67,9 +81,12 @@ function useCustomApolloClient(networkId: string) {
 
       const newClient = new ApolloClient({
         cache,
-        link: new HttpLink({
-          uri: `https://${networkId}.suiet.app/query`,
-        }),
+        link: from([
+          headerLink,
+          new HttpLink({
+            uri: `https://${networkId}.suiet.app/query`,
+          }),
+        ]),
         defaultOptions: {
           watchQuery: {
             fetchPolicy: 'cache-first',
@@ -88,7 +105,12 @@ function useCustomApolloClient(networkId: string) {
     if (!client || !networkId) return; // sequentially set client after cache is ready
 
     client.setLink(
-      new HttpLink({ uri: `https://${networkId}.suiet.app/query` })
+      from([
+        headerLink,
+        new HttpLink({
+          uri: `https://${networkId}.suiet.app/query`,
+        }),
+      ])
     );
     client.resetStore(); // only reset memory cache
   }, [networkId, client]);
