@@ -1,9 +1,9 @@
 import React, { CSSProperties, useCallback } from 'react';
 import classnames from 'classnames';
-import { ReactComponent as IconCopy } from '../../assets/icons/copy.svg';
 import { Extendable } from '../../types';
 import styles from './index.module.scss';
 import copy from 'copy-to-clipboard';
+import { Icon } from '../icons';
 
 const CopyIcon = (
   props: Extendable & {
@@ -25,9 +25,11 @@ const CopyIcon = (
 
   return (
     <div onClick={handleClick} className={props.className} style={props.style}>
-      <IconCopy
+      <Icon
+        icon={'Copy'}
         className={classnames(styles['icon-copy'], props.elClassName)}
         style={props.elStyle}
+        stroke={'#7D89B0'}
       />
     </div>
   );

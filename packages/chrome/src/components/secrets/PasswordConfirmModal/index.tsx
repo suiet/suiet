@@ -14,7 +14,7 @@ import { ReactComponent as IconError } from '../../../assets/icons/error.svg';
 import { ReactComponent as IconKey } from '../../../assets/icons/key.svg';
 import { ReactComponent as IconShareError } from '../../../assets/icons/share-error.svg';
 import { ReactComponent as IconQuestionError } from '../../../assets/icons/question-error.svg';
-import Icon from '../../Icon';
+import { Icon } from '../../icons';
 import Typo from '../../../components/Typo';
 import classnames from 'classnames';
 import * as DialogPrimitive from '@radix-ui/react-dialog';

@@ -1,5 +1,5 @@
 import Button, { ButtonProps } from '../index';
-import Icon from '../../Icon';
+import { Icon } from '../../icons';
 import { ReactComponent as IconStepArrow } from '../../../assets/icons/step-arrow.svg';
 import classnames from 'classnames';
 import styles from './index.module.scss';

@@ -1,0 +1,5 @@
+.tx-summary-container {
+  & + & {
+    margin-top: 24px;
+  }
+}

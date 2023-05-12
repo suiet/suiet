@@ -11,7 +11,7 @@ import { useWallet } from '../../hooks/useWallet';
 import SettingTwoLayout from '../../layouts/SettingTwoLayout';
 import Nav from '../../components/Nav';
 import Input from '../../components/Input';
-import Icon from '../../components/Icon';
+import { Icon } from '../../components/icons';
 import { ReactComponent as IconCheck } from '../../assets/icons/check.svg';
 import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg';
 

@@ -202,6 +202,7 @@ const TxApprovePage = () => {
     );
   }
 
+  // deprecated
   const renderAssetChanges = () => {
     return (
       <div>
@@ -210,17 +211,20 @@ const TxApprovePage = () => {
             (item) => {
               const f = AssetChangeFormatter.format(item);
               return (
-                <ObjectChangeItem
-                  key={item.changeType + item.objectType}
-                  title={f.title}
-                  desc={f.desc}
-                  icon={f.icon}
-                  iconShape={f.iconShape}
-                  iconColor={f.iconColor}
-                  changeTitle={f.changeTitle}
-                  changeTitleColor={f.changeTitleColor as any}
-                  changeDesc={f.changeDesc}
-                />
+                // <ObjectChangeItem
+                //   key={item.changeType + item.objectType}
+                //   title={f.title}
+                //   desc={f.desc}
+                //   descType={'address'}
+                //   icon={f.icon}
+                //   iconShape={f.iconShape}
+                //   iconContainerColor={f.iconColor}
+                //   changeTitle={f.changeTitle}
+                //   changeTitleColor={f.changeTitleColor as any}
+                //   changeDesc={f.changeDesc}
+                //   changeDescColor={f.changeDescColor}
+                // />
+                <></>
               );
             }
           )}

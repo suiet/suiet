@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { ReactComponent as IconNavArrow } from '../../assets/icons/nav-arrow.svg';
-import Icon from '../Icon';
+import { Icon } from '../icons';
 import { Extendable } from '../../types';
 import Typo from '../Typo';
 import classnames from 'classnames';

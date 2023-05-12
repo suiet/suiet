@@ -9,6 +9,7 @@
   height: 36px;
 
   border-radius: 8px;
+  overflow: hidden;
 
   &--circle {
     border-radius: 50%;
@@ -22,6 +23,12 @@
   }
   &--purple {
     background-color: $purple-500;
+  }
+  &--red {
+    background-color: $error-600;
+  }
+  &--transparent {
+    background-color: transparent;
   }
 
   background-color: $gray-400;

@@ -25,7 +25,7 @@ import {
   NormalizedCacheObject,
 } from '@apollo/client';
 import { InMemoryCache } from '@apollo/client/cache';
-import { fieldPolicyForTransactions } from './pages/TransactionFlow/hooks/useTransactionListForHistory';
+import { fieldPolicyForTransactions } from './pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
 import { ChromeStorage } from './store/storage';
 import { version } from '../package.json';
 enum CacheSyncStatus {

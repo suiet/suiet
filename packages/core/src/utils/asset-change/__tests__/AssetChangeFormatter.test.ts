@@ -20,7 +20,7 @@ describe('format object change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Object',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: '+1 Object',
@@ -43,7 +43,7 @@ describe('format object change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Object',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: '-1 Object',
@@ -66,7 +66,7 @@ describe('format object change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Object',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: 'MODIFY',
@@ -89,7 +89,7 @@ describe('format object change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Object',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: 'MUTATE',
@@ -112,7 +112,7 @@ describe('format object change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Shared Object',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: 'MUTATE',
@@ -135,7 +135,7 @@ describe('format object change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Dynamic Field',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: 'MUTATE',
@@ -165,7 +165,7 @@ describe('format coin change', () => {
     expect(AssetChangeFormatter.format(coinChange)).toEqual({
       title: 'SUI',
       desc: coinType,
-      icon: 'sui',
+      icon: 'Sui',
       iconShape: 'circle',
       iconColor: 'blue',
       changeTitle: '+1',
@@ -194,7 +194,7 @@ describe('format coin change', () => {
     expect(AssetChangeFormatter.format(coinChange)).toEqual({
       title: 'TestToken',
       desc: coinType,
-      icon: 'coin',
+      icon: 'Coin',
       iconShape: 'circle',
       iconColor: 'purple',
       changeTitle: '+1',
@@ -223,7 +223,7 @@ describe('format nft change', () => {
     expect(AssetChangeFormatter.format(coinChange)).toEqual({
       title: 'test name',
       desc: 'objectId',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: '+1 NFT',
@@ -250,7 +250,7 @@ describe('format nft change', () => {
     expect(AssetChangeFormatter.format(coinChange)).toEqual({
       title: 'test name',
       desc: 'objectId',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: 'MODIFY',
@@ -329,7 +329,7 @@ describe('format nft change', () => {
     expect(AssetChangeFormatter.format(objectChange)).toEqual({
       title: 'Object',
       desc: 'objectType',
-      icon: 'object',
+      icon: 'Object',
       iconShape: 'square',
       iconColor: 'gray',
       changeTitle: 'MUTATE',

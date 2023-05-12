@@ -3,7 +3,7 @@ import styles from './index.module.scss';
 import { Extendable } from '../../../../types';
 import { ReactComponent as PlusPrimary } from '../../../../assets/icons/plus-primary.svg';
 import { ReactComponent as PlusSecondary } from '../../../../assets/icons/plus-secondary.svg';
-import Icon from '../../../../components/Icon';
+import { Icon } from '../../../../components/icons';
 
 export type RectButtonProps = Extendable & {
   theme?: 'primary' | 'default';

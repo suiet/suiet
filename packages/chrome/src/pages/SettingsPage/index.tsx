@@ -11,7 +11,7 @@ import { version } from '../../package-json';
 import { useAuth } from '../../hooks/useAuth';
 import AppLayout from '../../layouts/AppLayout';
 import { Extendable } from '../../types';
-import Icon from '../../components/Icon';
+import { Icon } from '../../components/icons';
 import { ReactComponent as IconReset } from '../../assets/icons/reset.svg';
 import { ReactComponent as IconSecurity } from '../../assets/icons/security.svg';
 import { ReactComponent as IconRightArrow } from '../../assets/icons/right-arrow.svg';

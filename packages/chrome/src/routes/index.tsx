@@ -28,6 +28,12 @@ const SettingSecurityPage = lazy(
 );
 const SendPage = lazy(async () => await import('../pages/SendPage'));
 const StakingPage = lazy(async () => await import('../pages/StakingPage'));
+const TxHistoryPage = lazy(
+  async () => await import('../pages/txn/TxHistoryPage')
+);
+const TxDetailPage = lazy(
+  async () => await import('../pages/txn/TxDetailPage')
+);
 const TransactionFlowPage = lazy(
   async () => await import('../pages/TransactionFlow')
 );
@@ -118,11 +124,13 @@ const routesConfig: RouteObject[] = [
       },
       {
         path: 'transaction/flow',
-        element: withSus(<TransactionFlowPage />),
+        // element: withSus(<TransactionFlowPage />),
+        element: withSus(<TxHistoryPage />),
       },
       {
-        path: 'transaction/detail/:id',
-        element: withSus(<TransactionDetail />),
+        path: 'transaction/detail/:digest',
+        // element: withSus(<TransactionDetail />),
+        element: withSus(<TxDetailPage />),
       },
       {
         path: 'settings',

@@ -2,7 +2,7 @@ import styles from './index.module.scss';
 import Typo from '../../components/Typo';
 import classnames from 'classnames';
 import { ReactComponent as LogoGrey } from '../../assets/icons/logo-grey.svg';
-import Icon from '../../components/Icon';
+import { Icon } from '../../components/icons';
 
 const LoadingPage = () => {
   return (
