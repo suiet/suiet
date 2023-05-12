@@ -1,5 +1,5 @@
 import Typo from '../../../components/Typo';
-import Icon from '../../../components/Icon';
+import { Icon } from '../../../components/icons';
 import { ReactComponent as IconPermYes } from '../../../assets/icons/perm-yes.svg';
 import { ReactComponent as IconPermNo } from '../../../assets/icons/perm-no.svg';
 import styles from './index.module.scss';

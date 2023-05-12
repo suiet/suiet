@@ -1,0 +1,14 @@
+export { ReactComponent as Up } from './Up.svg';
+export { ReactComponent as Down } from './Down.svg';
+export { ReactComponent as Add } from './Add.svg';
+export { ReactComponent as Txn } from './Txn.svg';
+export { ReactComponent as Swap } from './Swap.svg';
+export { ReactComponent as Object } from './Object.svg';
+export { ReactComponent as Sui } from './Sui.svg';
+export { ReactComponent as Coin } from './Coin.svg';
+export { ReactComponent as History } from './History.svg';
+export { ReactComponent as Close } from './Close.svg';
+export { ReactComponent as HashTag } from './HashTag.svg';
+export { ReactComponent as Time } from './Time.svg';
+export { ReactComponent as Wallet } from './Wallet.svg';
+export { ReactComponent as Copy } from './Copy.svg';

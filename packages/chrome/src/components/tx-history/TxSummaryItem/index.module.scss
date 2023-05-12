@@ -1,0 +1,21 @@
+@import '../../../styles/variables.scss';
+
+.tx-summary-item {
+  position: relative;
+  height: 56px; // have to set this to match the connecting line
+
+  // sibling styles
+  & + & {
+    // connecting line
+    &:before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 34px;
+      width: 1px;
+      height: 22px;
+      background: $gray-200;
+      z-index: 0;
+    }
+  }
+}

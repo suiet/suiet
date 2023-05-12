@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import Icon from '../Icon';
+import { Icon } from '../icons';
 import { ReactComponent as IconLink } from '../../assets/icons/link.svg';
 import Typo from '../Typo';
 import { Extendable } from '../../types';

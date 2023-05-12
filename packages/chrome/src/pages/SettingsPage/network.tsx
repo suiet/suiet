@@ -9,7 +9,7 @@ import message from '../../components/message';
 import SettingTwoLayout from '../../layouts/SettingTwoLayout';
 import Nav from '../../components/Nav';
 import Typo from '../../components/Typo';
-import Icon from '../../components/Icon';
+import { Icon } from '../../components/icons';
 
 import { ReactComponent as IconCheck } from '../../assets/icons/check.svg';
 import { ReactComponent as IconNotCheck } from '../../assets/icons/not-check.svg';

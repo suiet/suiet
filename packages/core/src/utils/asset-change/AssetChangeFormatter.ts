@@ -10,7 +10,7 @@ import { formatCurrency } from '../format';
 export type FormatAssetChangeOutput = {
   title: string;
   desc: string;
-  icon: 'coin' | 'sui' | 'object' | string;
+  icon: 'Coin' | 'Sui' | 'Object' | string;
   iconShape: 'circle' | 'square';
   iconColor: 'gray' | 'blue' | 'purple';
   changeTitle: string;
@@ -50,7 +50,7 @@ export function formatCoinChange(
   return {
     title: `${symbol}`,
     desc: input.coinType,
-    icon: input.coinType === SUI_TYPE_ARG ? 'sui' : 'coin',
+    icon: input.coinType === SUI_TYPE_ARG ? 'Sui' : 'Coin',
     iconShape: 'circle',
     iconColor: input.coinType === SUI_TYPE_ARG ? 'blue' : 'purple',
     changeTitle: `${operator}${amount}`,
@@ -65,7 +65,7 @@ function handleNftDisplay(display: Record<string, any>): {
 } {
   return {
     name: display.description || display.name || 'Object',
-    imageUrl: display.image_url || 'object',
+    imageUrl: display.image_url || 'Object',
   };
 }
 
@@ -130,7 +130,7 @@ export function formatObjectChange(
   input: IObjectChangeObject
 ): FormatAssetChangeOutput {
   let changeTitle = '';
-  let changeDesc = '';
+  const changeDesc = '';
   let changeTitleColor = '';
 
   if (input.changeType === 'increase') {
@@ -156,9 +156,9 @@ export function formatObjectChange(
     title = 'Object';
   }
   return {
-    title: title,
+    title,
     desc: input.objectType,
-    icon: 'object',
+    icon: 'Object',
     iconShape: 'square',
     iconColor: 'gray',
     changeTitle,

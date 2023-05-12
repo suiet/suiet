@@ -304,7 +304,7 @@ export function fieldPolicyForTransactions(): {
     //     };
     //   },
     // },
-  };
+  } as any;
 }
 
 export default useTransactionListForHistory;

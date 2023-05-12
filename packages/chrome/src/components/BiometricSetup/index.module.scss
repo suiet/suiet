@@ -6,17 +6,17 @@
   padding: 12px;
   // width: 100%;
   align-items: center;
-  background-color: $green-50;
+  background-color: $success-50;
   box-sizing: border-box;
   border-radius: 16px;
   margin: 0 12px;
   transition: background-color 200ms;
   &:hover {
-    background-color: $green-100;
+    background-color: $success-100;
 
     .setup-biometric__logo {
-      color: $green-700;
-      background-color: $green-200;
+      color: $success-700;
+      background-color: $success-200;
     }
   }
 }
@@ -24,11 +24,11 @@
 .setup-biometric__logo {
   flex-shrink: 0;
   margin-right: 8px;
-  background-color: $green-100;
+  background-color: $success-100;
   padding: 10px;
   border-radius: 100%;
   box-sizing: border-box;
-  color: $green-600;
+  color: $success-600;
 }
 
 .setup-biometric__content {
@@ -40,7 +40,7 @@
 }
 
 .setup-biometric__title {
-  color: $green-600;
+  color: $success-600;
   user-select: none;
   line-height: unset;
 }

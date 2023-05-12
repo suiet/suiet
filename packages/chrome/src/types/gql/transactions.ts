@@ -9,7 +9,7 @@ export interface TransactionsFilter {
 
 export interface GetTransactionsParams {
   filter?: Partial<TransactionsFilter>;
-  cursor?: string;
+  cursor?: string | null;
   limit?: number;
   order?: 'ASC' | 'DESC';
 }

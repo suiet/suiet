@@ -54,8 +54,8 @@
   font-weight: 500;
   font-size: 12px;
   line-height: 18px;
-  background: $orange-100;
-  color: $orange-600;
+  background: $warning-100;
+  color: $warning-600;
   cursor: pointer;
   padding: auto 4px;
   &-testnet {
@@ -64,7 +64,7 @@
   }
 
   &-mainnet {
-    background: $green-100;
-    color: $green-600;
+    background: $success-100;
+    color: $success-600;
   }
 }

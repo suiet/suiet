@@ -262,24 +262,24 @@ const TokenItem = (props: TokenItemProps) => {
                 <div
                   className={classNames([
                     'rounded-lg',
-                    'text-medium',
                     Number(props.pricePercentChange24h) > 0 && [
-                      'text-green-600',
+                      'text-green-500',
                       'bg-green-100',
                     ],
                     Number(props.pricePercentChange24h) === 0 && [
-                      'text-gray-600',
+                      'text-gray-500',
                       'bg-gray-100',
                     ],
                     Number(props.pricePercentChange24h) < 0 && [
-                      'text-red-600',
+                      'text-red-500',
                       'bg-red-100',
                     ],
                   ])}
                   style={{
                     fontFamily: 'Inter',
+                    fontWeight: 450,
                     fontSize: '12px',
-                    padding: '2px 4px',
+                    padding: '2px 5px',
                   }}
                 >
                   {Number(props.pricePercentChange24h) > 0 && '+'}

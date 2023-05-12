@@ -7,7 +7,6 @@ import { useNftList } from '../../hooks/useNftList';
 import AppLayout from '../../layouts/AppLayout';
 import { useDappList } from '../../hooks/useDappList';
 import BiometricSetup from '../../components/BiometricSetup';
-import useTransactionListForHistory from '../TransactionFlow/hooks/useTransactionListForHistory';
 
 function MainPage() {
   const { accountId, networkId } = useSelector(
@@ -16,7 +15,6 @@ function MainPage() {
   const { address } = useAccount(accountId);
   // prefetch other tabs' data
   useNftList(address);
-  useTransactionListForHistory(address);
   useDappList();
 
   return (

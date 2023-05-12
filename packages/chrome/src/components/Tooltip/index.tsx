@@ -17,7 +17,7 @@ export default function Tooltip(props: TypoProps) {
       <TooltipRadix.Root>
         <TooltipRadix.Trigger>{props.children}</TooltipRadix.Trigger>
         <TooltipRadix.Portal>
-          <TooltipRadix.Content className="TooltipContent bg-zinc-800 text-white px-4 py-2 rounded-xl break-words max-w-[240px] transition-all">
+          <TooltipRadix.Content className="TooltipContent bg-gray-600 text-white px-4 py-2 rounded-xl break-words max-w-[240px] transition-all">
             {props.message}
             <TooltipRadix.Arrow className="TooltipArrow" color="#101828" />
           </TooltipRadix.Content>

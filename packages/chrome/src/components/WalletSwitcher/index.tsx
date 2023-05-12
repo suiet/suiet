@@ -3,7 +3,7 @@ import Typo from '../Typo';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import Button from '../Button';
-import Icon from '../Icon';
+import { Icon } from '../icons';
 import { ReactComponent as IconEdit } from '../../assets/icons/edit.svg';
 import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
