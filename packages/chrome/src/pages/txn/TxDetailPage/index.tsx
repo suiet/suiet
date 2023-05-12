@@ -18,7 +18,7 @@ import { useAccount } from '../../../hooks/useAccount';
 import { useEffect } from 'react';
 import { DisplayItemDto } from '../types';
 import TemplateText from '../../../components/tx-history/TemplateText';
-
+import Skeleton from 'react-loading-skeleton';
 export type TxDetailPageProps = {};
 
 const TxnMetric = (
@@ -187,7 +187,11 @@ const TxDetailPage = (props: TxDetailPageProps) => {
         <Typo.Title
           className={'text-[28px] font-bold mt-[16px] max-w-[300px] ellipsis'}
         >
-          {safe(txnDetail?.title, 'Unknown Type')}
+          {txnDetail?.title ? (
+            safe(txnDetail?.title, 'Unknown Type')
+          ) : (
+            <Skeleton width={100} />
+          )}
         </Typo.Title>
         <Typo.Small className={'text-[14px] text-gray-500 max-w-[300px]'}>
           {safe(txnDetail?.description, '')}
