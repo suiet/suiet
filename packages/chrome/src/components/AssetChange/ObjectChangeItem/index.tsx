@@ -20,7 +20,6 @@ export type ObjectChangeItemProps = Extendable & {
   changeTitleColor: 'red' | 'green' | 'orange' | 'gray' | string;
   changeDesc?: string;
   changeDescType?: TemplateTextType;
-  changeDescColor?: string;
   changeDescIcon?: AvailableIcon;
 };
 

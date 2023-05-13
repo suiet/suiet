@@ -212,7 +212,7 @@ const TxApprovePage = () => {
               const f = AssetChangeFormatter.format(item);
               return (
                 <ObjectChangeItem
-                  key={item.changeType + item.objectType + i}
+                  key={item.changeType + item.objectType}
                   title={f.title}
                   desc={f.desc}
                   descType={'address'}
