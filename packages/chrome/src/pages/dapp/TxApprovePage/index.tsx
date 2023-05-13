@@ -208,23 +208,21 @@ const TxApprovePage = () => {
       <div>
         <div className="my-6 flex flex-col gap-2">
           {[...coinChangeList, ...nftChangeList, ...objectChangeList].map(
-            (item) => {
+            (item, i) => {
               const f = AssetChangeFormatter.format(item);
               return (
-                // <ObjectChangeItem
-                //   key={item.changeType + item.objectType}
-                //   title={f.title}
-                //   desc={f.desc}
-                //   descType={'address'}
-                //   icon={f.icon}
-                //   iconShape={f.iconShape}
-                //   iconContainerColor={f.iconColor}
-                //   changeTitle={f.changeTitle}
-                //   changeTitleColor={f.changeTitleColor as any}
-                //   changeDesc={f.changeDesc}
-                //   changeDescColor={f.changeDescColor}
-                // />
-                <></>
+                <ObjectChangeItem
+                  key={item.changeType + item.objectType + i}
+                  title={f.title}
+                  desc={f.desc}
+                  descType={'address'}
+                  icon={f.icon}
+                  iconShape={f.iconShape}
+                  iconContainerColor={f.iconColor}
+                  changeTitle={f.changeTitle}
+                  changeTitleColor={f.changeTitleColor as any}
+                  changeDesc={f.changeDesc}
+                />
               );
             }
           )}
