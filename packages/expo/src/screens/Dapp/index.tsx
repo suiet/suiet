@@ -1,12 +1,7 @@
-import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
-import { WebView } from 'react-native-webview';
-import { createBottomTabNavigator, useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { SvgXml } from 'react-native-svg';
-import { Gray_100, Gray_400, Gray_500, Gray_900, Primary_400, White_100 } from '@styles/colors';
-import { SvgClockRewind, SvgCoins03, SvgGrid01 } from '@components/icons/svgs';
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Gray_100, Gray_400, Gray_900, White_100 } from '@styles/colors';
 
-import { Coin } from '@/screens/Coin';
 import type { RootStackParamList } from '@/../App';
 import { StackScreenProps } from '@react-navigation/stack';
 import Typography from '@/components/Typography';
@@ -15,24 +10,98 @@ import { FontFamilys } from '@/hooks/useFonts';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { upperFirst } from 'lodash-es';
 import { useDappList } from '@/hooks/useDapps';
+import { Badge } from '@/components/Badge';
+import { LoadingDots } from '@/components/Loading';
+import { DappItem } from '@/utils/api';
+import { isNonEmptyArray } from '@suiet/core/src/utils';
+import { Label } from '@/components/Label';
+import { SvgRefreshCcw04 } from '@components/icons/svgs';
+import { SvgUri, SvgXml } from 'react-native-svg';
+
+const DappIcon: React.FC<{ icon: string }> = ({ icon }) => {
+  if (icon.endsWith('.svg')) {
+    return <SvgUri uri={icon} width={48} height={48} style={{ borderRadius: 9999 }} />;
+  } else {
+    return (
+      <Image source={{ uri: icon }} style={{ width: 48, height: 48, borderRadius: 9999, backgroundColor: Gray_100 }} />
+    );
+  }
+};
 
 export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
+  const { category, categoryKeys, featured, popular, error, isLoading, refetch } = useDappList();
+  const [selected, setSelected] = useState<string>();
+  const slides = useMemo(() => {
+    const slides: Record<string, DappItem[]> = {};
+    if (isNonEmptyArray(featured)) {
+      slides['featured'] = featured;
+    }
+    if (isNonEmptyArray(popular)) {
+      slides['popular'] = popular;
+    }
+    return slides;
+  }, [featured, popular]);
 
-  const [selected, setSelected] = useState('featured');
+  useEffect(() => {
+    if (Object.keys(slides).length > 0) {
+      setSelected(Object.keys(slides)[0]);
+    }
+  }, [slides]);
 
-  const { category, categoryKeys, featured, popular } = useDappList();
+  const renderContent = () => {
+    if (error) {
+      return (
+        <View style={{ paddingHorizontal: 24 }}>
+          <Badge title="Failed to load D-Apps list" variant="error" />
+        </View>
+      );
+    }
 
-  return (
-    <View style={{ backgroundColor: '#FFF', paddingTop: top, paddingBottom: 50, flexGrow: 1 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingVertical: 8 }}>
-        <Typography.Title children="D-App" />
-      </View>
-      <ScrollView style={{ backgroundColor: '#FFF', flexGrow: 1, paddingTop: 8 }}>
+    if (isLoading) {
+      return (
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          <LoadingDots />
+        </View>
+      );
+    }
+
+    if (isNonEmptyArray(categoryKeys) && isNonEmptyArray(featured) && isNonEmptyArray(popular)) {
+    } else {
+      return (
+        <View style={{ paddingHorizontal: 24 }}>
+          <Badge
+            title="Failed to load D-Apps list"
+            variant="warning"
+            leftLabel={<View />}
+            rightLabel={
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  refetch();
+                }}
+              >
+                <Label title="Reload" variant="warning" rightIconSvg={SvgRefreshCcw04} />
+              </TouchableOpacity>
+            }
+          />
+        </View>
+      );
+    }
+
+    // console.log();
+
+    Array.from(category.entries()).map(([subtitle, dapps]) => {
+      console.log(subtitle, dapps);
+    });
+
+    return (
+      <ScrollView style={{ backgroundColor: '#FFF', flexGrow: 1, paddingTop: 8 }} overScrollMode="never">
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 16, paddingHorizontal: 24 }}>
-            {['featured', 'popular'].map((item, index) => (
+            {Object.keys(slides).map((item, index) => (
               <TouchableOpacity
+                activeOpacity={0.6}
                 key={item}
                 onPress={() => {
                   setSelected(item);
@@ -61,14 +130,18 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
           </View>
           <View style={{ paddingHorizontal: 16 }}>
             <ScrollView
+              overScrollMode="never"
               horizontal
               style={{ width: '100%', paddingHorizontal: 8, paddingTop: 8, paddingBottom: 24, overflow: 'visible' }}
             >
-              {[...(selected === 'featured' ? featured : []), ...(selected === 'popular' ? popular : [])].map(
-                (dapp) => (
+              {selected &&
+                slides[selected].map((dapp) => (
                   <TouchableOpacity
+                    activeOpacity={0.8}
+                    key={dapp.id}
                     onPress={() => {
-                      Linking.openURL(dapp.link);
+                      // Linking.openURL(dapp.link);
+                      navigation.navigate('InAppBrowser', { url: dapp.link });
                     }}
                   >
                     <View
@@ -82,7 +155,7 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
                         marginRight: 8,
                       }}
                     >
-                      <Image style={{ width: 48, height: 48 }} source={{ uri: dapp.icon }} />
+                      <DappIcon icon={dapp.icon} />
                       <View style={{ maxWidth: 150 }}>
                         <Typography.Subtitle children={dapp.name} color={White_100} />
                         <Typography.Body
@@ -94,19 +167,19 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
                       </View>
                     </View>
                   </TouchableOpacity>
-                )
-              )}
+                ))}
             </ScrollView>
           </View>
 
           {Array.from(category.entries()).map(([subtitle, dapps]) => (
-            <View style={{ marginBottom: 24 }}>
+            <View style={{ marginBottom: 24 }} key={subtitle}>
               <Typography.Subtitle children={subtitle} style={{ paddingHorizontal: 24 }} />
               {dapps.map((dapp) => (
                 <TouchableHighlight
                   key={dapp.id}
                   onPress={() => {
-                    Linking.openURL(dapp.link);
+                    // Linking.openURL(dapp.link);
+                    navigation.navigate('InAppBrowser', { url: dapp.link });
                   }}
                   activeOpacity={0.9}
                   underlayColor={Gray_900}
@@ -122,10 +195,7 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
                       backgroundColor: 'white',
                     }}
                   >
-                    <Image
-                      style={{ width: 48, height: 48, borderRadius: 9999, backgroundColor: Gray_100 }}
-                      source={{ uri: dapp.icon }}
-                    />
+                    <DappIcon icon={dapp.icon} />
                     <View style={{ flexShrink: 1 }}>
                       <Typography.Label children={dapp.name} />
                       <Typography.Body children={dapp.description} color={Gray_400} />
@@ -137,6 +207,15 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
           ))}
         </View>
       </ScrollView>
+    );
+  };
+
+  return (
+    <View style={{ backgroundColor: '#FFF', paddingTop: top, paddingBottom: 50, flexGrow: 1 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 24, paddingVertical: 8 }}>
+        <Typography.Title children="D-App" />
+      </View>
+      {renderContent()}
     </View>
   );
 };
