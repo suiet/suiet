@@ -52,7 +52,12 @@ const SavePassword = (props: SavePasswordProps) => {
               <Typo.Small className={styles['control-label']}>
                 Old Password
               </Typo.Small>
-              <FormControl name={'oldpassword'}>
+              <FormControl
+                name={'oldpassword'}
+                registerOptions={{
+                  required: 'Password should not be empty',
+                }}
+              >
                 <Input
                   type={'password'}
                   state={getInputStateByFormState(
@@ -107,7 +112,6 @@ const SavePassword = (props: SavePasswordProps) => {
                 )}
                 className={'mt-[6px]'}
                 placeholder={'Re-enter the same password'}
-                disabled={!password || password.length < 6}
               />
             </FormControl>
           </div>
