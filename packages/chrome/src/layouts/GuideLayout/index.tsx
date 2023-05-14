@@ -5,13 +5,13 @@ import { ReactComponent as LogoGrey } from '../../assets/icons/logo-grey.svg';
 import { Icon } from '../../components/icons';
 import { Extendable } from '../../types';
 
-export type BrandLayoutProps = Extendable & {
+export type GuideLayoutProps = Extendable & {
   grayTitle?: string;
   blackTitle?: string;
   desc?: string;
 };
 
-const BrandLayout = (props: BrandLayoutProps) => {
+const GuideLayout = (props: GuideLayoutProps) => {
   return (
     <div className={classnames(styles['main-page'])}>
       <Icon elClassName={styles['logo']} icon={<LogoGrey />} />
@@ -47,4 +47,4 @@ const BrandLayout = (props: BrandLayoutProps) => {
   );
 };
 
-export default BrandLayout;
+export default GuideLayout;
