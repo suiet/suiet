@@ -6,7 +6,6 @@ import { getInputStateByFormState } from '../../../utils/form';
 import Input from '../../Input';
 import Form from '../../form/Form';
 import { useForm } from 'react-hook-form';
-import Alert from '../../Alert';
 import { useApiClient } from '../../../hooks/useApiClient';
 import styles from './index.module.scss';
 import SettingTwoLayout from '../../../layouts/SettingTwoLayout';
@@ -76,6 +75,7 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
       return;
     }
     props.onConfirm();
+    form.reset();
   }
 
   return (
@@ -134,12 +134,19 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
                 state={getInputStateByFormState(form.formState, 'password')}
                 type={'password'}
                 placeholder={'Please enter password'}
+                onKeyDownCapture={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSubmit(form.getValues());
+                    console.log('onKeyDown', e.key);
+                  }
+                }}
               />
             </FormControl>
 
             <div className={'flex items-center mt-[16px] gap-[8px]'}>
               <DialogPrimitive.Close className="w-full" aria-label="Close">
-                <Button type={'submit'} solidBackground={true}>
+                <Button type={'button'} solidBackground={true}>
                   Cancel
                 </Button>
               </DialogPrimitive.Close>

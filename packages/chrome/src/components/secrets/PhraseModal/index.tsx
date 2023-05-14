@@ -55,6 +55,7 @@ const PhraseModal = (props: PhraseModalProps) => {
       defaultOpen={true}
       onOpenChange={() => {
         setIsConfirmed(false); // reset
+        setPhrases([]);
       }}
       onCopy={() => {
         copy(phrases.join(' '));
