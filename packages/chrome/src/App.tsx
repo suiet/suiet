@@ -28,7 +28,7 @@ import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from './pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
 import { ChromeStorage } from './store/storage';
 import { version } from '../package.json';
-import GuideContainer from './components/GuideContainer';
+import VersionGuard from './components/VersionGuard';
 
 enum CacheSyncStatus {
   NOT_SYNCED,
@@ -165,9 +165,9 @@ function App() {
     <div className="app">
       <ErrorBoundary>
         <ContextFeatureFlags.Provider value={featureFlags}>
-          <GuideContainer>
+          <VersionGuard>
             <ApolloProvider client={client}>{routes}</ApolloProvider>
-          </GuideContainer>
+          </VersionGuard>
         </ContextFeatureFlags.Provider>
         <ToastContainer />
       </ErrorBoundary>
