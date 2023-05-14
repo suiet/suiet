@@ -52,11 +52,7 @@ export function getInputStateByFormState(
   formState: FormState<any>,
   field: string
 ): InputState {
-  return formState.errors[field]
-    ? 'error'
-    : formState.dirtyFields[field]
-    ? 'success'
-    : 'default';
+  return formState.errors[field] ? 'error' : 'default';
 }
 
 export function getButtonDisabledState(formState: FormState<any>): boolean {
