@@ -28,6 +28,8 @@ import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from './pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
 import { ChromeStorage } from './store/storage';
 import { version } from '../package.json';
+import GuideContainer from './components/GuideContainer';
+
 enum CacheSyncStatus {
   NOT_SYNCED,
   SYNCING,
@@ -152,16 +154,20 @@ function App() {
   const featureFlags = useAutoLoadFeatureFlags();
   const appContext = useSelector((state: RootState) => state.appContext);
   const client = useCustomApolloClient(appContext.networkId);
+
   useRegisterHandleRejectionEvent();
 
   if (!client) {
     return <h2>Initializing app...</h2>;
   }
+
   return (
     <div className="app">
       <ErrorBoundary>
         <ContextFeatureFlags.Provider value={featureFlags}>
-          <ApolloProvider client={client}>{routes}</ApolloProvider>
+          <GuideContainer>
+            <ApolloProvider client={client}>{routes}</ApolloProvider>
+          </GuideContainer>
         </ContextFeatureFlags.Provider>
         <ToastContainer />
       </ErrorBoundary>
