@@ -42,8 +42,19 @@ import { SecurityWarning } from '@/screens/Security/SecurityWarning';
 import { SecurityShow } from '@/screens/Security/SecurityShow';
 import { NftDetail } from '@/screens/NftDetail';
 import { NftGqlDto } from '@/hooks/useNftList';
+import { InAppBrowser } from '@/screens/InAppBrowser';
 
 // SplashScreen.preventAutoHideAsync();
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace ReactNavigation {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface RootParamList {
+      DappConnect: undefined;
+    }
+  }
+}
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -59,7 +70,7 @@ export type RootStackParamList = {
   Dapp: undefined;
   TxHistory: undefined;
   TxDetail: { tx: TransactionForHistory };
-  InAppBrowser: undefined;
+  InAppBrowser: { url: string };
 
   ScanQRCode: undefined;
   SelectWallet: undefined;
@@ -125,6 +136,7 @@ function App() {
               <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
               <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
               <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
+              <RootStack.Screen name="InAppBrowser" component={InAppBrowser} options={{ headerShown: false }} />
             </RootStack.Group>
             <RootStack.Group
               screenOptions={{
@@ -251,20 +263,6 @@ function App() {
                   ),
                 }}
               />
-
-              {/* <RootStack.Screen
-                name="InAppBrowser"
-                component={InAppBrowser}
-                // options={{
-                //   header: ({ navigation, route: { name } }) => (
-                //     <Header title={''} onRightAction={() => navigation.goBack()} />
-                //   ),
-                // }}
-
-                options={{
-                  title: 'In App Browser',
-                }}
-              /> */}
 
               <RootStack.Screen
                 name="Security"

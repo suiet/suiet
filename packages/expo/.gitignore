@@ -25,3 +25,4 @@ build-*.tar.gz
 Suiet.app/
 
 credentials.json
+credentials/

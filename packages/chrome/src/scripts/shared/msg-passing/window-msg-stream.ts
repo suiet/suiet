@@ -50,11 +50,16 @@ export class WindowMsgStream {
       payload,
     };
     // console.log('[WindowMsgStream] postMessage', msg);
-
-    // NOTE: We cannot specify the target origin for the content script, so have to broadcast to all windows
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#using_window.postmessage_in_extensions_non-standard
-    // TODO: Can we prevent the message being blocked by other extensions?
-    window.postMessage(msg, this.#targetOrigin);
+    // @ts-ignore
+    if (typeof __REACT_NATIVE__ !== 'undefined' && __REACT_NATIVE__) {
+      // @ts-ignore
+      window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+    } else {
+      // NOTE: We cannot specify the target origin for the content script, so have to broadcast to all windows
+      // https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#using_window.postmessage_in_extensions_non-standard
+      // TODO: Can we prevent the message being blocked by other extensions?
+      window.postMessage(msg);
+    }
 
     return await lastValueFrom(
       this.#msgObservable.pipe(

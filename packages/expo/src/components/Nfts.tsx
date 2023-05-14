@@ -49,8 +49,8 @@ const ListItem: React.FC<{ nft: NftGqlDto }> = ({ nft }) => {
       </View>
 
       <View style={{ paddingHorizontal: 4 }}>
-        <Typography.LabelS children={nft.name} color={Gray_700} />
-        <Typography.Comment children={nft.description} color={Gray_300} />
+        <Typography.LabelS children={nft.name} color={Gray_700} numberOfLines={1} />
+        <Typography.Comment children={nft.description} color={Gray_300} numberOfLines={1} />
       </View>
     </View>
   );
