@@ -76,6 +76,7 @@ const PasswordConfirmModal = (props: PasswordConfirmModalProps) => {
       return;
     }
     props.onConfirm();
+    form.reset();
   }
 
   return (
