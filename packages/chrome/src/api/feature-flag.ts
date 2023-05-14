@@ -21,6 +21,13 @@ export interface FeatureFlagRes {
   require_update: boolean;
   default_network: string;
   campaign: Record<string, any>;
+  minimal_versions: Versions;
+  latest_versions: Versions;
+}
+
+export interface Versions {
+  chrome: string;
+  extension: string;
 }
 
 export async function getFeatureFlags(): Promise<FeatureFlagRes> {

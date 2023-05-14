@@ -37,6 +37,7 @@
     "borsh": "0.7.0",
     "cbor-sync": "1.0.4",
     "classnames": "2.3.2",
+    "compare-versions": "^6.0.0-rc.1",
     "copy-to-clipboard": "3.3.2",
     "crypto-hash": "2.0.1",
     "dayjs": "1.11.5",
