@@ -20,7 +20,7 @@ const PhraseModal = (props: PhraseModalProps) => {
   const { title = 'Private Key' } = props;
   const apiClient = useApiClient();
   const { walletId } = useSelector((state: RootState) => state.appContext);
-  const [privateKey, setPrivate] = useState('');
+  const [privateKey, setPrivateKey] = useState('');
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   if (!isConfirmed) {
@@ -43,7 +43,7 @@ const PhraseModal = (props: PhraseModalProps) => {
             },
             { withAuth: true }
           );
-          setPrivate(privateKey);
+          setPrivateKey(privateKey);
         }}
       />
     );
@@ -53,6 +53,7 @@ const PhraseModal = (props: PhraseModalProps) => {
       title={title}
       defaultOpen={true}
       onOpenChange={() => {
+        setPrivateKey('');
         setIsConfirmed(false); // reset
       }}
       onCopy={() => {
