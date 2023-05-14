@@ -65,7 +65,7 @@ export const Badge: React.FC<BadgeProps> = ({ title, variant = 'info', leftLabel
         height: 32,
         borderRadius: 16,
         backgroundColor: variants.backgroundColor,
-        gap: 12,
+        gap: 8,
         alignItems: 'center',
       }}
     >

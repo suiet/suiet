@@ -28,4 +28,6 @@ config.resolver.extraNodeModules = {
   'xhr-shim': 'empty',
 };
 
+config.transformerPath = require.resolve('./metro/transformer.js');
+
 module.exports = config;
