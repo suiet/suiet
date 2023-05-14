@@ -49,7 +49,7 @@ function trimUndefinedValue(obj: Record<string, any>) {
 export function useNetwork(networkId: string) {
   const defaultNetwork =
     DEFAULT_NETWORKS.get(networkId) ??
-    (DEFAULT_NETWORKS.get('testnet') as Network);
+    (DEFAULT_NETWORKS.get('mainnet') as Network);
   const featureFlags = useFeatureFlags();
 
   const data: Network | undefined = useMemo(() => {
