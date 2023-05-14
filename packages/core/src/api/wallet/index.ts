@@ -71,7 +71,7 @@ export class WalletApi implements IWalletApi {
 
   async revealMnemonic(params: RevealMnemonicParams): Promise<string> {
     const { walletId, token } = params;
-    validateToken(this.storage, token);
+    await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet not exist');
@@ -84,7 +84,7 @@ export class WalletApi implements IWalletApi {
 
   async revealPrivate(params: RevealPrivateKeyParams): Promise<string> {
     const { walletId, token } = params;
-    validateToken(this.storage, token);
+    await validateToken(this.storage, token);
     const wallet = await this.storage.getWallet(walletId);
     if (!wallet) {
       throw new Error('Wallet not exist');
