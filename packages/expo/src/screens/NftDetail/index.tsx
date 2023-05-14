@@ -75,6 +75,7 @@ export const NftDetail: React.FC<StackScreenProps<RootStackParamList, 'NftDetail
               `https://explorer.sui.io/objects/` + encodeURIComponent(nft.object.objectID) + `?network=${networkId}`
             }
           />
+          <View />
         </View>
       </View>
       <View style={{ height: bottom }} />
