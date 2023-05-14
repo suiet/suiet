@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 
 export type GuideContainerProps = Extendable;
 
-export default function GuideContainer(props: GuideContainerProps) {
+export default function VersionGuard(props: GuideContainerProps) {
   const featureFlags = useFeatureFlags();
   const chromeVersion = getChromeVersion();
 
