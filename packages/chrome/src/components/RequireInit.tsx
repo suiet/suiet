@@ -12,7 +12,7 @@ function RequireInit({ children }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const featureFlags = useFeatureFlags();
   const adjustCurrentNetworkId = useCallback(async () => {
-    const defaultNetwork = featureFlags?.default_network ?? 'devnet';
+    const defaultNetwork = featureFlags?.default_network ?? 'mainnet';
 
     if (!appContext.networkId) {
       await dispatch(updateNetworkId(defaultNetwork));
