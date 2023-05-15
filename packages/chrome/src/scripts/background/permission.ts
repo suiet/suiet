@@ -119,7 +119,7 @@ export class PermissionManager {
   }
 
   async getAllPermissions(authInfo: {
-    origin: string;
+    origin?: string;
     address: string;
     networkId: string;
   }) {
@@ -127,11 +127,16 @@ export class PermissionManager {
     if (Object.keys(storeMap).length === 0) return [];
 
     return Object.values(storeMap).filter((permData) => {
+      let originMatched = true;
+      if (authInfo.origin) {
+        // contain legacy compatible logics
+        originMatched =
+          (permData.source?.origin || (permData as any).origin) ===
+          authInfo.origin;
+      }
       return (
         permData.approved === true &&
-        // contain legacy compatible logics
-        (permData.source?.origin || (permData as any).origin) ===
-          authInfo.origin &&
+        originMatched &&
         (permData.target?.address || (permData as any).address) ===
           authInfo.address &&
         permData.networkId === authInfo.networkId

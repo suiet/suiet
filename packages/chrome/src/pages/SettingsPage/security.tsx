@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import styles from './security.module.scss';
 import Button from '../../components/Button';
 import { Route, Routes, useNavigate } from 'react-router-dom';
@@ -15,6 +14,7 @@ import ForgetPassword from '../LockPage/ForgetPassword';
 import BiometricSetting from '../../components/BiometricSetting';
 import PrivateKeyModal from '../../components/secrets/PrivateKeyModal';
 import classNames from 'classnames';
+import { ConnectedDAppsSetting } from '../../components/ConnectedDAppsSetting';
 
 type SecurityItemProps = Extendable & {
   title: string;
@@ -23,11 +23,11 @@ type SecurityItemProps = Extendable & {
 
 const SecurityItem = (props: SecurityItemProps) => {
   return (
-    <div className={classnames(styles['secutity-card'], props.className)}>
+    <div className={classNames(styles['secutity-card'], props.className)}>
       <Typo.Title className={styles['security-title']}>
         {props.title}
       </Typo.Title>
-      <Typo.Normal className={classnames(styles['security-desc'])}>
+      <Typo.Normal className={classNames(styles['security-desc'])}>
         {props.desc}
       </Typo.Normal>
 
@@ -69,6 +69,14 @@ function MainPage() {
           >
             Update Password
           </Button>
+        </SecurityItem>
+        <SecurityItem
+          title={'Connected dApps'}
+          desc={
+            'If you no longer use an app, you can revoke its access. You will be able to reconnect to the app later if needed.'
+          }
+        >
+          <ConnectedDAppsSetting />
         </SecurityItem>
         <SecurityItem
           title={'Recovery Phrases'}
