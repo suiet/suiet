@@ -30,8 +30,9 @@
     "dev:chrome": "npm run dev -w @suiet/chrome-ext",
     "build:chrome": "npm run build -w @suiet/chrome-ext",
     "test:chrome": "npm run test -w @suiet/chrome-ext",
+    "test:core": "npm run test -w @suiet/core",
     "prettier": "prettier --write --ignore-unknown .",
-    "test": "run-p test:chrome",
+    "test": "run-s test:chrome test:core",
     "lint": "eslint './packages/{!(expo),}*/src/**/*.{ts,tsx}'",
     "lint:fix": "eslint --fix './packages/{!(expo),}*/src/**/*.{ts,tsx}'",
     "prepare": "husky install"

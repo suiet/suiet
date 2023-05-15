@@ -10,7 +10,7 @@
     "build:ext": "vite build",
     "build:dapp-api": "vite build --config vite-dapp-api.config.ts",
     "clean": "rimraf dist/",
-    "test": "jest  --collectCoverage=false",
+    "test": "jest --reporters jest-simple-dot-reporter --collectCoverage=false",
     "test:coverage": "jest --detectOpenHandles --runInBand --logHeapUsage --verbose --no-cache --bail --watchAll=false --ci --reporters=default"
   },
   "dependencies": {

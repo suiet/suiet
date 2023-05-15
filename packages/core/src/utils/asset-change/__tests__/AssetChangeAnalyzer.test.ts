@@ -192,7 +192,7 @@ describe('Detect Coin Change', function () {
   );
   test(
     'it should return coin change structure with balanceChanges, ' +
-      'changeType=receive, when when object change is mutated and amount is positive',
+      'changeType=increase, when when object change is mutated and amount is positive',
     function () {
       const accountAddress =
         '0xe2664e827c8aaa42035c78e285ad6d8702af220d662b0614bd64d356a678e5b7';
@@ -370,12 +370,14 @@ describe('Detect Coin Change', function () {
       expect(result.getCoinChangeList()[0]).toEqual({
         category: 'coin',
         ownership: 'owned',
-        changeType: 'receive',
+        changeType: 'increase',
+        type: 'mutated',
         objectType: '0x2::coin::Coin<0x2::sui::SUI>',
         // additional fields
         amount: '999',
         decimals: 9,
         coinType: '0x2::sui::SUI',
+        symbol: 'SUI',
         // leave it empty because there could be multiple coin object changes
         objectId: '',
         digest: '',
