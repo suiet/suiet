@@ -1,0 +1,42 @@
+@import '../../styles/variables';
+
+.container {
+  margin-top: 20px;
+}
+
+.dapp {
+  @apply flex items-center relative;
+  height: 28px;
+
+  &:hover .text {
+    text-decoration: underline;
+  }
+}
+
+.circle,
+.circle-disable {
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  background: $success-500;
+}
+
+.circle-disable {
+  background: #dcdfea;
+}
+
+.text {
+  font-size: 14px;
+  color: #404968;
+  margin-left: 8px;
+}
+
+.revoke {
+  @apply cursor-pointer absolute;
+  right: 0;
+  margin: auto 0;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $error-600;
+}
