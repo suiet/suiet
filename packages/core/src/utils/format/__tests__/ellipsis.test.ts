@@ -2,11 +2,11 @@ import ellipsis from '../ellipsis';
 
 describe('shorten long strings', function () {
   test(
-    'should preserve only the first and last 4 characters' +
+    'should preserve only the first 6 and last 4 characters' +
       ' if the string is longer than 8',
     function () {
-      expect(ellipsis('123456789')).toBe('1234...6789');
-      expect(ellipsis('11111234567892222')).toBe('1111...2222');
+      expect(ellipsis('123456789')).toBe('123456...6789');
+      expect(ellipsis('11111234567892222')).toBe('111112...2222');
     }
   );
 
