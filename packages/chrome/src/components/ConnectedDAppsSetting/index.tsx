@@ -17,7 +17,7 @@ function DAppItem({
   reload,
 }: {
   perms: PermRequest;
-  reload: () => void;
+  reload: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
     <div className={styles['dapp']}>
@@ -33,7 +33,7 @@ function DAppItem({
             approved: false,
             updatedAt: new Date().toISOString(),
           });
-          reload();
+          reload((state) => !state);
         }}
       >
         Revoke
