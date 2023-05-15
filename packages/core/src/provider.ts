@@ -29,7 +29,8 @@ import { RpcError } from './errors';
 import { SignedTransaction } from '@mysten/sui.js/src/signers/types';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 import { createTransferCoinTxb } from './utils/txb-factory';
-import { DEFAULT_GAS_BUDGET } from '@suiet/chrome-ext/src/constants';
+
+export const DEFAULT_GAS_BUDGET = 20_000_000;
 
 export class Provider {
   query: QueryProvider;
