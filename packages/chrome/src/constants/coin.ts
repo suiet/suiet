@@ -7,6 +7,11 @@ export const DEFAULT_SUI_COIN: CoinDto = {
   balance: '0',
   decimals: 9,
   isVerified: true,
+  bridge: null,
+  iconURL: null,
+  pricePercentChange24h: null,
+  usd: null,
+  wrappedChain: null,
 };
 
 export const DEFAULT_GAS_BUDGET = 20_000_000;
