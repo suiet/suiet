@@ -171,7 +171,7 @@ const NftDetail = () => {
               />
             </div>
           </div>
-          <div className={styles['sec-detail-item']}>
+          <div className={classnames(styles['sec-detail-item'], 'mt-4')}>
             <a
               target="_blank"
               href={getExplorerUrl(id, appContext.networkId)}
