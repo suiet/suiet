@@ -34,12 +34,6 @@ const TxHistoryPage = lazy(
 const TxDetailPage = lazy(
   async () => await import('../pages/txn/TxDetailPage')
 );
-const TransactionFlowPage = lazy(
-  async () => await import('../pages/TransactionFlow')
-);
-const TransactionDetail = lazy(
-  async () => await import('../pages/TransactionFlow/transactionDetail')
-);
 const CreateNewWalletPage = lazy(
   async () => await import('../pages/onboarding/CreateNewWalletPage')
 );
@@ -124,12 +118,10 @@ const routesConfig: RouteObject[] = [
       },
       {
         path: 'transaction/flow',
-        // element: withSus(<TransactionFlowPage />),
         element: withSus(<TxHistoryPage />),
       },
       {
         path: 'transaction/detail/:digest',
-        // element: withSus(<TransactionDetail />),
         element: withSus(<TxDetailPage />),
       },
       {
