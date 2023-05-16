@@ -45,8 +45,15 @@ const TemplateIcon = (
   const renderIcon = () => {
     switch (iconType(icon)) {
       case 'Unknown':
-        // TODO: add a default icon
-        return null;
+        return (
+          <IconContainer
+            shape={'square'}
+            color={'gray'}
+            {...props.containerProps}
+          >
+            <Icon icon={'Object'} {...props.iconProps} />
+          </IconContainer>
+        );
       case 'ReactNode':
       case 'External':
         return (
