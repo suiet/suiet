@@ -24,6 +24,14 @@ export interface NftMeta {
   thumbnailUrl: string | null;
   expiresAt: number | null;
   hasPublicTransfer: boolean;
+  attributes:
+    | [
+        {
+          key: string;
+          value: string;
+        }
+      ]
+    | undefined;
 }
 
 type NftItemProps = Extendable &
@@ -57,6 +65,7 @@ const NftItem = (props: NftItemProps) => {
           kioskObjectId: props.kioskObjectId,
           kioskPackageId: props.kioskPackageId,
           previousTransaction: props.previousTransaction,
+          attributes: props.attributes,
         });
       }}
     >
@@ -121,6 +130,7 @@ const NftList = (props: NftListProps) => {
               objectType={''}
               hasPublicTransfer={false}
               expiresAt={0}
+              attributes={undefined}
             />
           );
         }
@@ -139,6 +149,7 @@ const NftList = (props: NftListProps) => {
             kioskObjectId={nft.kiosk?.objectID}
             kioskPackageId={nft.kiosk?.originBytePackageID}
             onClick={handleClickNft}
+            attributes={nft.attributes}
           />
         );
       })}

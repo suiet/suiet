@@ -27,6 +27,7 @@ const NftDetail = () => {
     url = '',
     hasPublicTransfer = false,
     kioskObjectId,
+    attributes,
   }: NftMeta = location.state ?? ({} as any);
 
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -58,6 +59,7 @@ const NftDetail = () => {
           alt={name}
           className={styles['nft-img']}
         />
+
         <div className="relative flex">
           <div className="flex flex-col flex-grow">
             <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
@@ -99,6 +101,27 @@ const NftDetail = () => {
             {description}
           </Typo.Normal>
         </section>
+
+        {attributes && (
+          <section className={styles['nft-meta']}>
+            <Typo.Title className={styles['sec-title']}>Attributes</Typo.Title>
+            <div className="flex flex-wrap gap-3">
+              {attributes.map((attribute, index) => {
+                return (
+                  <div
+                    className="bg-sky-50 hover:bg-sky-100 transition rounded-2xl w-full p-4 px-6"
+                    key={index}
+                  >
+                    <div className="text-sky-600">{attribute.key}</div>
+                    <div className="text-zinc-700 font-bold">
+                      {attribute.value}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section className={styles['sec-detail-item-container']}>
           <Typo.Title className={styles['sec-title']}>

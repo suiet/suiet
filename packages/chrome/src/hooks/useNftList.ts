@@ -9,6 +9,10 @@ export const GET_NFT_LIST = gql`
       thumbnailUrl
       expiresAt
       isTransferable
+      attributes {
+        key
+        value
+      }
       kiosk {
         objectID
         originBytePackageID
@@ -40,6 +44,14 @@ export type NftGqlDto = {
     objectID: string;
     originBytePackageID: string;
   } | null;
+  attributes:
+    | [
+        {
+          key: string;
+          value: string;
+        }
+      ]
+    | undefined;
 };
 
 export function useNftList(

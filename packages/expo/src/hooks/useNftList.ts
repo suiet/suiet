@@ -9,6 +9,10 @@ export const GET_NFT_LIST = gql`
         previousTransaction
         hasPublicTransfer
       }
+      attributes {
+        key
+        value
+      }
       name
       thumbnailUrl
       expiresAt
@@ -24,6 +28,10 @@ export type NftGqlDto = {
     type: string;
     previousTransaction: string;
     hasPublicTransfer: boolean;
+  };
+  attributes?: {
+    key: string;
+    value: string;
   };
   name: string;
   url: string;
