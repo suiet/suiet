@@ -29,6 +29,7 @@ import { fieldPolicyForTransactions } from './pages/txn/TxHistoryPage/hooks/useT
 import { ChromeStorage } from './store/storage';
 import { version } from '../package.json';
 import VersionGuard from './components/VersionGuard';
+import { RetryLink } from '@apollo/client/link/retry';
 
 enum CacheSyncStatus {
   NOT_SYNCED,
@@ -43,6 +44,18 @@ function useCustomApolloClient(networkId: string) {
   );
   const cachePersistor = useRef<CachePersistor<NormalizedCacheObject>>();
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
+
+  const retryLink = new RetryLink({
+    delay: {
+      initial: 300,
+      max: Infinity,
+      jitter: true,
+    },
+    attempts: {
+      max: 5,
+      retryIf: (error, _operation) => !!error,
+    },
+  });
   const headerLink = new ApolloLink((operation, forward) => {
     // Use the setContext method to set the HTTP headers.
     operation.setContext({
@@ -84,6 +97,7 @@ function useCustomApolloClient(networkId: string) {
       const newClient = new ApolloClient({
         cache,
         link: from([
+          retryLink,
           headerLink,
           new HttpLink({
             uri: `https://${networkId}.suiet.app/query`,
@@ -108,6 +122,7 @@ function useCustomApolloClient(networkId: string) {
 
     client.setLink(
       from([
+        retryLink,
         headerLink,
         new HttpLink({
           uri: `https://${networkId}.suiet.app/query`,
