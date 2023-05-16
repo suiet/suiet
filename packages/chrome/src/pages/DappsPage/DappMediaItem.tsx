@@ -4,6 +4,7 @@ import styles from './index.module.scss';
 import Typo from '../../components/Typo';
 import { Extendable } from '../../types';
 import ReactSkeleton from 'react-loading-skeleton';
+import Img from '../../components/Img';
 
 export type DappMediaItemProps = Extendable & {
   name: string;
@@ -21,7 +22,7 @@ const DappMediaItem = (props: DappMediaItemProps) => {
       rel="noreferrer"
     >
       <div className={styles['dapp-media-item__img-wrap']}>
-        <img
+        <Img
           src={props.icon}
           alt="icon"
           className={styles['dapp-media-item__img']}

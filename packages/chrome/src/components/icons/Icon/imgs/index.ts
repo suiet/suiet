@@ -2,6 +2,7 @@ export { ReactComponent as Up } from './Up.svg';
 export { ReactComponent as Down } from './Down.svg';
 export { ReactComponent as Add } from './Add.svg';
 export { ReactComponent as Txn } from './Txn.svg';
+export { ReactComponent as Mint } from './Mint.svg';
 export { ReactComponent as Swap } from './Swap.svg';
 export { ReactComponent as Object } from './Object.svg';
 export { ReactComponent as Sui } from './Sui.svg';

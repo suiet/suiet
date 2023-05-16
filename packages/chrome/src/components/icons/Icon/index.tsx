@@ -9,6 +9,7 @@ import { Extendable } from '../../../types';
 import * as imgs from './imgs';
 import { nftImgUrl } from '../../../utils/nft';
 import classNames from 'classnames';
+import Image from '../../Img';
 
 export type IconProps = Extendable & {
   icon: AvailableIcon | ReactNode;
@@ -28,6 +29,7 @@ export type AvailableIcon =
   | 'Up'
   | 'Down'
   | 'Txn'
+  | 'Mint'
   | 'Swap'
   | 'Coin'
   | 'Object'
@@ -62,10 +64,12 @@ export function iconType(icon: string | ReactNode): IconType {
  * @constructor
  */
 const Icon = (props: IconProps) => {
-  const { icon, alt = 'icon', fill } = props;
+  const { icon, alt = 'icon' } = props;
 
   const renderIcon = () => {
     switch (iconType(icon)) {
+      case 'Unknown':
+        return null;
       case 'ReactNode':
         return React.cloneElement(icon as ReactElement, {
           className: props.elClassName,
@@ -73,15 +77,13 @@ const Icon = (props: IconProps) => {
         });
       case 'External':
         return (
-          <img
-            src={nftImgUrl(icon as string)}
+          <Image
+            src={nftImgUrl(icon as string) as string}
             alt={alt}
             className={classNames('w-[36px] h-[36px]', props.elClassName)}
             style={props.elStyle}
           />
         );
-      case 'Unknown':
-        return null;
       default:
         const IconReactNode: any = iconMap.get(icon as AvailableIcon) ?? <></>;
         return (

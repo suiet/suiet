@@ -8,6 +8,7 @@ import Skeleton from 'react-loading-skeleton';
 import { useEffect, useState } from 'react';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { ReactComponent as IconStake } from '../../assets/icons/stake.svg';
+import Img from '../Img';
 export default function ValidatorSelector({
   loading,
   validators,
@@ -38,10 +39,10 @@ export default function ValidatorSelector({
           <>
             <div className="flex items-center gap-2">
               {selectedValidatorImg ? (
-                <img
+                <Img
                   src={selectedValidatorImg}
                   className={classNames('w-[32px]', 'h-[32px]', 'rounded-xl')}
-                ></img>
+                />
               ) : (
                 <IconStakeFilled
                   className={classNames('w-[32px]', 'h-[32px]')}
