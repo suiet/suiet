@@ -2,7 +2,9 @@ import styles from './index.module.scss';
 import { Extendable } from '../../types';
 import { nftImgUrl } from '../../utils/nft';
 import classnames from 'classnames';
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
+import DefaultNftImg from '../../assets/icons/default-nft.png';
+
 export type NftImgProps = Extendable & {
   src: string;
   alt?: string;
@@ -13,16 +15,26 @@ export type NftImgProps = Extendable & {
 
 const NftImg = (props: NftImgProps) => {
   const { src = '', alt = 'nft' } = props;
-  const [loading, setLoading] = useState(true);
-  // const setLoading = (boolean) => {};
-  // const loading = true;
-  const handleImageLoad = () => {
-    setLoading(false);
-  };
 
-  const handleImageError = () => {
-    setLoading(false);
-  };
+  const [imgSource, setImgSource] = useState(
+    nftImgUrl(props.thumbnailUrl) ?? DefaultNftImg
+  );
+
+  useEffect(() => {
+    if (!src) {
+      setImgSource(DefaultNftImg);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = (ev) => {
+      setImgSource(nftImgUrl(src) as string);
+    };
+    img.onerror = (event) => {
+      setImgSource(DefaultNftImg);
+    };
+    img.src = nftImgUrl(src) as string;
+  }, [src]);
 
   return (
     <div
@@ -33,39 +45,12 @@ const NftImg = (props: NftImgProps) => {
         display: 'inline-block',
       }}
     >
-      {props.thumbnailUrl ? (
-        <>
-          <img
-            src={loading ? props.thumbnailUrl : src}
-            alt={alt}
-            className={classnames(styles['nft-img'], props.elClassName)}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            style={{
-              ...props.elStyle,
-              display: loading ? 'none' : 'block',
-            }}
-          />
-
-          <img
-            src={props.thumbnailUrl}
-            alt="Loading..."
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              display: loading ? 'block' : 'none',
-            }}
-          />
-        </>
-      ) : (
-        <img
-          src={nftImgUrl(src)}
-          alt={alt}
-          className={classnames(styles['nft-img'], props.elClassName)}
-          style={props.elStyle}
-        />
-      )}
+      <img
+        src={imgSource}
+        alt={alt}
+        className={classnames(styles['nft-img'], props.elClassName)}
+        style={props.elStyle}
+      />
     </div>
   );
 };
