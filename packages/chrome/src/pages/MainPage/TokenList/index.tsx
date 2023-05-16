@@ -22,6 +22,7 @@ import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.s
 import { ReactComponent as UnverifiedIcon } from '../../../assets/icons/unverified.svg';
 import Tooltip from '../../../components/Tooltip';
 import classNames from 'classnames';
+import Img from '../../../components/Img';
 // const images = require.context('../../../assets/img', true);
 // loadImage = imageName => (assets(`./${imageName}`).default);
 
@@ -96,15 +97,15 @@ const TokenItem = (props: TokenItemProps) => {
           <div className="flex w-full justify-between">
             <div className="relative">
               {props.iconURL ? (
-                <img
+                <Img
+                  src={props.iconURL}
                   className={classNames(
                     'w-[40px]',
                     'h-[40px]',
                     'rounded-full',
                     'mr-[25px]'
                   )}
-                  src={props.iconURL}
-                ></img>
+                />
               ) : (
                 <TokenIcon
                   icon={isSUI ? IconWaterDrop : IconToken}
@@ -130,19 +131,12 @@ const TokenItem = (props: TokenItemProps) => {
                     className={classNames()}
                     message={`Wrapped from ${props.wrappedChain.toUpperCase()}`}
                   >
-                    <img
-                      className={classNames(
-                        'rounded-full',
-                        // 'border',
-                        // 'border-black/10',
-
-                        'bg-white'
-                      )}
+                    <Img
+                      src={`https://assets.suiet.app/img/chains/${props.wrappedChain}.png`}
+                      className={classNames('rounded-full', 'bg-white')}
                       style={{
                         boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
                       }}
-                      // src={`https://assets.suiet.app/chains/${props.wrappedChain}.png`}
-                      src={`https://assets.suiet.app/img/chains/${props.wrappedChain}.png`}
                     />
                   </Tooltip>
                 </div>
@@ -175,7 +169,8 @@ const TokenItem = (props: TokenItemProps) => {
                 )}
                 {props.bridge && (
                   <Tooltip message={`${props.bridge} bridge`}>
-                    <img
+                    <Img
+                      src={`https://assets.suiet.app/img/bridges/${props.bridge}.png`}
                       className={classNames(
                         'w-[16px]',
                         'h-[16px]',
@@ -184,8 +179,7 @@ const TokenItem = (props: TokenItemProps) => {
                       style={{
                         boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
                       }}
-                      src={`https://assets.suiet.app/img/bridges/${props.bridge}.png`}
-                    ></img>
+                    />
                   </Tooltip>
                 )}
               </div>

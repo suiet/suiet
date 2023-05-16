@@ -3,6 +3,7 @@ import styles from './index.module.scss';
 import Typo from '../../components/Typo';
 import ReactSkeleton from 'react-loading-skeleton';
 import classnames from 'classnames';
+import Img from '../../components/Img';
 
 export type DappCardProps = Extendable & {
   icon: string;
@@ -22,7 +23,7 @@ const DappCard = (props: DappCardProps) => {
       rel="noreferrer"
     >
       <div>
-        <img className={styles['dapp-card-icon']} src={props.icon} />
+        <Img className={styles['dapp-card-icon']} src={props.icon} />
       </div>
       <Typo.Title className={styles['dapp-card-name']}>{props.name}</Typo.Title>
       <Typo.Normal className={styles['dapp-card-desc']}>
