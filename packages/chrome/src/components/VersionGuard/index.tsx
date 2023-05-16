@@ -20,7 +20,8 @@ export default function VersionGuard(props: GuideContainerProps) {
     ) {
       chrome.runtime.requestUpdateCheck((status: string, details: any) => {});
     }
-  });
+  }, [featureFlags]);
+
   if (
     featureFlags &&
     chromeVersion &&
