@@ -21,6 +21,7 @@ export type ObjectChangeItemProps = Extendable & {
   changeDesc?: string;
   changeDescType?: TemplateTextType;
   changeDescIcon?: AvailableIcon;
+  changeDescColor?: string;
 };
 
 export type ChangeDescProps = Extendable & {
