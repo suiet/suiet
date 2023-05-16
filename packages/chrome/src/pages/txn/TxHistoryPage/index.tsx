@@ -10,7 +10,7 @@ import { RootState } from '../../../store';
 import { useAccount } from '../../../hooks/useAccount';
 import { useMemo, useRef } from 'react';
 import { aggregateTxByTime } from './utils/aggregateTxByTime';
-import orderTimeList from '../../TransactionFlow/utils/orderTimeList';
+import orderTimeList from './utils/orderTimeList';
 import dayjs from 'dayjs';
 import classnames from 'classnames';
 import Skeleton from 'react-loading-skeleton';
