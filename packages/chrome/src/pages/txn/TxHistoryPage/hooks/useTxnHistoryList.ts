@@ -102,6 +102,7 @@ export function useTxnHistoryList(
     },
     fetchPolicy,
     skip: !address,
+    pollInterval: 0, // don't poll
   });
 
   const { data: outgoingData, ...restForOutgoing } = useQuery<
@@ -117,6 +118,7 @@ export function useTxnHistoryList(
     },
     fetchPolicy,
     skip: !address,
+    pollInterval: 0, // don't poll
   });
 
   const txHistoryList = useMemo(() => {
