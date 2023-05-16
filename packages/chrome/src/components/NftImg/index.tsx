@@ -2,8 +2,9 @@ import styles from './index.module.scss';
 import { Extendable } from '../../types';
 import { nftImgUrl } from '../../utils/nft';
 import classnames from 'classnames';
-import { CSSProperties, useEffect, useState } from 'react';
+import { CSSProperties } from 'react';
 import DefaultNftImg from '../../assets/icons/default-nft.png';
+import Img from '../Img';
 
 export type NftImgProps = Extendable & {
   src: string;
@@ -14,27 +15,7 @@ export type NftImgProps = Extendable & {
 };
 
 const NftImg = (props: NftImgProps) => {
-  const { src = '', alt = 'nft' } = props;
-
-  const [imgSource, setImgSource] = useState(
-    nftImgUrl(props.thumbnailUrl) ?? DefaultNftImg
-  );
-
-  useEffect(() => {
-    if (!src) {
-      setImgSource(DefaultNftImg);
-      return;
-    }
-
-    const img = new Image();
-    img.onload = (ev) => {
-      setImgSource(nftImgUrl(src) as string);
-    };
-    img.onerror = (event) => {
-      setImgSource(DefaultNftImg);
-    };
-    img.src = nftImgUrl(src) as string;
-  }, [src]);
+  const { src, alt = 'nft' } = props;
 
   return (
     <div
@@ -45,8 +26,9 @@ const NftImg = (props: NftImgProps) => {
         display: 'inline-block',
       }}
     >
-      <img
-        src={imgSource}
+      <Img
+        src={src ? nftImgUrl(src) : DefaultNftImg}
+        fallback={DefaultNftImg}
         alt={alt}
         className={classnames(styles['nft-img'], props.elClassName)}
         style={props.elStyle}

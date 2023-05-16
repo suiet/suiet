@@ -2,6 +2,7 @@ import { Extendable } from '../../../types';
 import { CSSProperties, ReactNode } from 'react';
 import styles from './index.module.scss';
 import classnames from 'classnames';
+import Img from '../../Img';
 
 type Size = 'normal' | 'small' | 'large';
 
@@ -25,7 +26,7 @@ const TokenIcon = (props: TokenIconProps) => {
       style={props.style}
     >
       {typeof icon === 'string' ? (
-        <img
+        <Img
           src={icon}
           alt={props.alt ?? 'icon'}
           className={classnames(
