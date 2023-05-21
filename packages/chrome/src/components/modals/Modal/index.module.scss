@@ -1,0 +1,41 @@
+@import '../../../styles/variables';
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(239, 241, 245, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.content {
+  box-sizing: border-box;
+  padding: 23px 25px;
+  gap: 10px;
+
+  width: 297px;
+
+  background: $white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 30px;
+}
+
+.title {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+  color: #000000;
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
