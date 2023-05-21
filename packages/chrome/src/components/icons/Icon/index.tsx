@@ -39,7 +39,8 @@ export type AvailableIcon =
   | 'HashTag'
   | 'Time'
   | 'Wallet'
-  | 'Copy';
+  | 'Copy'
+  | 'Warning';
 
 export type IconType = AvailableIcon | 'ReactNode' | 'External' | 'Unknown';
 const iconMap = new Map<AvailableIcon, ElementType>(
