@@ -191,10 +191,16 @@ export class WalletApi implements IWalletApi {
     if (!wallet) {
       throw new Error('Wallet not exist');
     }
-    if (meta.name) {
+    if (meta.name && meta.name !== wallet.name) {
       wallet.name = meta.name;
+      const wallets = await this.storage.getWallets();
+      for (const w of wallets) {
+        if (w.name === wallet.name) {
+          throw new Error('duplicate wallet name');
+        }
+      }
     }
-    if (meta.avatar) {
+    if (meta.avatar && meta.avatar !== wallet.avatar) {
       wallet.avatar = meta.avatar;
     }
     return await this.storage.updateWallet(walletId, wallet);
