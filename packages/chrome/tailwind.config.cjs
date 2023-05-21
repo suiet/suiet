@@ -26,7 +26,8 @@ module.exports = {
     fontSize: {
       base: ['12px', '16px'],
       small: ['12px', '16px'],
-      medium: ['16px', '24px'],
+      medium: ['16px', '20px'],
+      large: ['18px', '22px'],
     },
     colors: {
       ...tailwindColors,

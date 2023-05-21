@@ -13,3 +13,4 @@ export { ReactComponent as HashTag } from './HashTag.svg';
 export { ReactComponent as Time } from './Time.svg';
 export { ReactComponent as Wallet } from './Wallet.svg';
 export { ReactComponent as Copy } from './Copy.svg';
+export { ReactComponent as Warning } from './Warning.svg';
