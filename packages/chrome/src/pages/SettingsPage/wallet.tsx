@@ -23,7 +23,20 @@ function Wallet() {
   const { data: wallet, updateWallet } = useWallet(appContext.walletId);
 
   async function updateWalletInfo() {
-    await updateWallet(appContext.walletId, { name, avatar });
+    try {
+      await updateWallet(appContext.walletId, {
+        name: name.trim(),
+        avatar,
+      });
+    } catch (err: any) {
+      if (err?.message.includes('duplicate')) {
+        message.error('Wallet name already exists, please try another one');
+        return;
+      }
+      message.error('Failed to update wallet');
+      console.error(err);
+      return;
+    }
     message.success(`Updated Wallet: ${name}`);
     navigate('..');
   }
