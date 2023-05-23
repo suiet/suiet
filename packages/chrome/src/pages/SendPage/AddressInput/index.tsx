@@ -72,7 +72,7 @@ function AddressInputPage({
       >
         <div className={'px-[32px]'}>
           <Typo.Title className={'mt-[48px] font-bold text-[36px]'}>
-            Input Adress
+            Input Address
           </Typo.Title>
           <Typo.Normal className={`mt-[8px] ${styles['desc']}`}>
             Enter and validate address
