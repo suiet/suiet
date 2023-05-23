@@ -75,7 +75,7 @@ function AddressInputPage({
             Input Address
           </Typo.Title>
           <Typo.Normal className={`mt-[8px] ${styles['desc']}`}>
-            Enter and validate address
+            Enter an validate address
           </Typo.Normal>
 
           <AddressInput form={form} className={'mt-[48px]'} />
