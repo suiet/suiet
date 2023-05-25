@@ -407,6 +407,7 @@ async function maybeFixDataConsistency(storage: IStorage, token: string) {
       // account is just accountId string, need to change to {id: string, address: string}
       const accountData = await storage.getAccount(account.id);
       if (!accountData) {
+        throw new Error('Check data consistency failed: account data missing');
         continue;
       }
       const res = accountData.hdPath.match(/^m\/44'\/784'\/(\d+)'$/);
