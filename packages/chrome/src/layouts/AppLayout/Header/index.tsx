@@ -245,12 +245,12 @@ function Header(props: HeaderProps) {
           desc={
             <>
               <Typo.Normal className={'text-red-500 my-2'}>
-                Please make sure you have backed up the mnemonic phrase or
-                private key. You can always restore this wallet with one of
-                them.
+                Please ensure that you have backed up either the mnemonic phrase
+                or the private key. With either of these, you can restore this
+                wallet at any time.
               </Typo.Normal>
               <Typo.Normal className={'my-2'}>
-                Enter wallet name to confirm the removal.
+                To confirm the removal, please enter the name of the wallet.
               </Typo.Normal>
             </>
           }
