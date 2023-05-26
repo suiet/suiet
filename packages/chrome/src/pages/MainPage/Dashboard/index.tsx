@@ -1,6 +1,6 @@
 import styles from './index.module.scss';
 import { Link } from 'react-router-dom';
-import Modal from '../../../components/Modal';
+import { Modal } from '../../../components/modals';
 import WaterDropIcon from '../../../components/WaterDropIcon';
 import Typo from '../../../components/Typo';
 import QRCodeSVG from 'qrcode.react';
