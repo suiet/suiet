@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { DialogContentProps, DialogProps } from '@radix-ui/react-dialog';
 import styles from './index.module.scss';
-import { ReactComponent as IconClose } from '../../assets/icons/close.svg';
+import { ReactComponent as IconClose } from '../../../assets/icons/close.svg';
 import classnames from 'classnames';
 
 export type ModalProps = DialogProps & {
