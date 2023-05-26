@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import Address from '../Address';
 import Avatar from '../Avatar';
+import { ActionConfirmModal } from '../modals';
 
 export type WalletData = {
   id: string;
@@ -22,6 +23,7 @@ type WalletItemProps = {
   data: WalletData;
   onClick: (id: string, data: WalletData) => void;
   onEdit: (id: string, data: WalletData) => void;
+  onDelete: (id: string, data: WalletData) => void;
 };
 
 const WalletItem = (props: WalletItemProps) => {
@@ -47,9 +49,22 @@ const WalletItem = (props: WalletItemProps) => {
       </div>
 
       <Icon
-        className={classnames(styles['icon'])}
+        className={classnames(styles['icon'], 'absolute right-[40px]')}
         icon={<IconEdit />}
-        onClick={() => props?.onEdit && props.onEdit(data.id, data)}
+        onClick={(e) => {
+          e.stopPropagation();
+          props?.onEdit && props.onEdit(data.id, data);
+        }}
+      />
+
+      <Icon
+        icon={'Close'}
+        stroke={'#f04438'}
+        className={classnames(styles['icon'], 'absolute right-[16px]')}
+        onClick={(e) => {
+          e.stopPropagation();
+          props?.onDelete && props.onDelete(data.id, data);
+        }}
       />
     </div>
   );
@@ -59,6 +74,7 @@ export type WalletSwitcherProps = {
   wallets: WalletData[];
   onSelect: (id: string, wallet: WalletData) => void;
   onEdit: (id: string, wallet: WalletData) => void;
+  onDelete: (id: string, wallet: WalletData) => void;
   onClickLayer?: () => void;
   onClickNew?: () => void;
   onClickImport?: () => void;
@@ -111,6 +127,7 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
                 data={data}
                 onClick={props.onSelect}
                 onEdit={props.onEdit}
+                onDelete={props.onDelete}
               />
             ))}
           </section>

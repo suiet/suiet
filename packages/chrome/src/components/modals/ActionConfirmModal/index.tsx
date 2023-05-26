@@ -11,32 +11,43 @@ import { getInputStateByFormState } from '../../../utils/form';
 import FormControl from '../../form/FormControl';
 import { useForm } from 'react-hook-form';
 import { Icon, IconContainer } from '../../icons';
+import { Extendable } from '../../../types';
+import classNames from 'classnames';
 
-export type ActionConfirmModalProps = DialogProps & {
-  trigger: ReactNode;
-  confirmString: string;
-  title: string;
-  desc?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-};
+export type ActionConfirmModalProps = DialogProps &
+  Extendable & {
+    trigger?: ReactNode;
+    confirmString: string;
+    title: ReactNode;
+    desc?: ReactNode;
+    confirmText?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+  };
 
 type FormData = {
-  inputString: string;
+  confirmString: string;
 };
 
 const ActionConfirmModal = (props: ActionConfirmModalProps) => {
-  const { children, trigger, confirmString, ...restProps } = props;
+  const {
+    children,
+    trigger,
+    confirmString,
+    confirmText = 'Confirm',
+    className,
+    ...restProps
+  } = props;
 
   const form = useForm<FormData>({
     mode: 'onSubmit',
     defaultValues: {
-      inputString: '',
+      confirmString: '',
     },
   });
 
   const handleSubmit = (data: FormData) => {
-    if (data.inputString === confirmString) {
+    if (data.confirmString === confirmString) {
       props.onConfirm?.();
     }
   };
@@ -47,9 +58,9 @@ const ActionConfirmModal = (props: ActionConfirmModalProps) => {
 
   return (
     <Dialog.Root {...restProps}>
-      <Dialog.Trigger asChild={true}>{trigger}</Dialog.Trigger>
+      {trigger && <Dialog.Trigger asChild={true}>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
-        <Dialog.Overlay className={styles['overlay']}>
+        <Dialog.Overlay className={classNames(styles['overlay'], className)}>
           <Dialog.Content
             className={classnames(
               'w-full bg-white rounded-2xl px-[16px] py-[24px] mx-[16px] shadow-lg border-2'
@@ -76,7 +87,7 @@ const ActionConfirmModal = (props: ActionConfirmModalProps) => {
                   required: 'input should not be empty',
                   validate: (val) =>
                     val !== confirmString
-                      ? `Please enter the following to confirm: ${confirmString}`
+                      ? `The input does not match with: ${confirmString}`
                       : true,
                 }}
               >
@@ -91,7 +102,7 @@ const ActionConfirmModal = (props: ActionConfirmModalProps) => {
               </FormControl>
               <div className={'mt-[24px] flex justify-between items-center'}>
                 <Button type={'submit'} state={'danger'}>
-                  Confirm
+                  {confirmText}
                 </Button>
                 <Dialog.Close asChild={true} className={'ml-[16px]'}>
                   <Button onClick={handleCancel}>Cancel</Button>

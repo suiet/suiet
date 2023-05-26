@@ -14,7 +14,7 @@ import Image from '../../Img';
 export type IconProps = Extendable & {
   icon: AvailableIcon | ReactNode;
   alt?: string;
-  onClick?: () => void;
+  onClick?: (e: any) => void;
   elClassName?: string;
   elStyle?: CSSProperties;
   width?: string;
