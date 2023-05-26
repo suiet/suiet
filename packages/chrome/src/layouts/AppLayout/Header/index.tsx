@@ -4,19 +4,26 @@ import classnames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store';
 import { getAddress, useAccount } from '../../../hooks/useAccount';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import WalletSwitcher, { WalletData } from '../../../components/WalletSwitcher';
-import { useWallets } from '../../../hooks/useWallets';
+import { fetchWallets, useWallets } from '../../../hooks/useWallets';
 import { isNonEmptyArray } from '../../../utils/check';
 import { useNavigate } from 'react-router-dom';
-import { updateAccountId, updateWalletId } from '../../../store/app-context';
+import {
+  resetAppContext,
+  updateAccountId,
+  updateWalletId,
+} from '../../../store/app-context';
 import { PageEntry } from '../../../hooks/usePageEntry';
-import { Extendable } from '../../../types';
+import { Extendable, OmitToken } from '../../../types';
 import Address from '../../../components/Address';
 import Avatar from '../../../components/Avatar';
 import { useWallet } from '../../../hooks/useWallet';
-import { AccountInWallet, Wallet } from '@suiet/core';
+import { AccountInWallet, DeleteWalletParams, Wallet } from '@suiet/core';
 import { useApiClient } from '../../../hooks/useApiClient';
+import Message from '../../../components/message';
+import { ActionConfirmModal } from '../../../components/modals';
+import Typo from '../../../components/Typo';
 
 function useWalletAccountMap(wallets: Wallet[]) {
   const apiClient = useApiClient();
@@ -61,6 +68,7 @@ export type HeaderProps = Extendable & {
 const WalletSwitcherInstance = (props: {
   onSelect: (id: string, wallet: WalletData) => void;
   onEdit: (id: string, wallet: WalletData) => void;
+  onDelete: (id: string, wallet: WalletData) => void;
   onClickLayer: () => void;
   onClickImport: () => void;
   onClickNew: () => void;
@@ -88,6 +96,7 @@ const WalletSwitcherInstance = (props: {
       wallets={walletDataList}
       onSelect={props.onSelect}
       onEdit={props.onEdit}
+      onDelete={props.onDelete}
       onClickLayer={props.onClickLayer}
       onClickNew={props.onClickNew}
       onClickImport={props.onClickImport}
@@ -105,6 +114,9 @@ function Header(props: HeaderProps) {
   const { address } = useAccount(context.accountId);
   const dispatch = useDispatch<AppDispatch>();
   const { data: wallet } = useWallet(context.walletId);
+  const apiClient = useApiClient();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
+  const walletToDelete = useRef<WalletData | null>(null);
 
   async function switchWallet(id: string, data: WalletData) {
     await Promise.all([
@@ -126,6 +138,54 @@ function Header(props: HeaderProps) {
       },
     });
   }
+
+  async function removeWallet(id: string) {
+    const wallets = await fetchWallets(apiClient);
+    // delete current wallet
+    const index = wallets.findIndex((w) => w.id === id);
+    if (wallets.length === 1) {
+      // call reset
+      await apiClient.callFunc<null, undefined>('root.resetAppData', null);
+      await dispatch(resetAppContext()).unwrap();
+      Message.success('remove wallet successfully');
+      return;
+    }
+
+    // active wallet becomes:
+    //  if there is wallet next, then move to the next one
+    //  else move to the previous wallet
+    const nextWallet =
+      index + 1 === wallets.length ? wallets[index - 1] : wallets[index + 1];
+
+    await Promise.all([
+      dispatch(updateWalletId(nextWallet.id)),
+      dispatch(updateAccountId(nextWallet.accounts[0].id)),
+    ]);
+
+    // delete wallet
+    try {
+      await apiClient.callFunc<OmitToken<DeleteWalletParams>, undefined>(
+        'wallet.deleteWallet',
+        {
+          walletId: id,
+        },
+        {
+          withAuth: true,
+        }
+      );
+      Message.success('remove wallet successfully');
+    } catch {
+      Message.error('remove wallet failed');
+    } finally {
+      setShowDeleteConfirm(false);
+    }
+  }
+
+  const handleDelete = (id: string, data: WalletData) => {
+    console.log('delete wallet', id, data);
+    walletToDelete.current = data;
+    setShowDeleteConfirm(true);
+  };
 
   return (
     <div className={classnames(styles['header-container'], props.className)}>
@@ -161,6 +221,7 @@ function Header(props: HeaderProps) {
         <WalletSwitcherInstance
           onSelect={switchWallet}
           onEdit={editWallet}
+          onDelete={handleDelete}
           onClickLayer={() => {
             setDoSwitch(false);
           }}
@@ -174,6 +235,36 @@ function Header(props: HeaderProps) {
               state: { pageEntry: PageEntry.SWITCHER },
             });
           }}
+        />
+      )}
+
+      {showDeleteConfirm && (
+        <ActionConfirmModal
+          open={showDeleteConfirm}
+          title={'Confirm to remove wallet'}
+          desc={
+            <>
+              <Typo.Normal className={'text-red-500 my-2'}>
+                Please make sure you have backed up the mnemonic phrase or
+                private key. You can always restore this wallet with one of
+                them.
+              </Typo.Normal>
+              <Typo.Normal className={'my-2'}>
+                Enter wallet name to confirm the removal.
+              </Typo.Normal>
+            </>
+          }
+          confirmString={walletToDelete.current?.name ?? ''}
+          confirmText={'Remove'}
+          onConfirm={async () => {
+            if (!walletToDelete.current) return;
+            await removeWallet(walletToDelete.current.id);
+            navigate('/');
+          }}
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+          }}
+          className={'z-20'}
         />
       )}
     </div>

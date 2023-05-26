@@ -25,6 +25,12 @@ export type RevealMnemonicParams = {
   walletId: string;
   token: string;
 };
+
+export type DeleteWalletParams = {
+  walletId: string;
+  token: string;
+};
+
 export type RevealPrivateKeyParams = RevealMnemonicParams;
 
 export type AccountInWallet = {
@@ -54,7 +60,7 @@ export interface IWalletApi {
     }
   ) => Promise<Wallet | null>;
   updateWallet: (params: UpdateWalletParams) => Promise<void>;
-  deleteWallet: (walletId: string, token: string) => Promise<void>;
+  deleteWallet: (params: DeleteWalletParams) => Promise<void>;
 }
 
 export class WalletApi implements IWalletApi {
@@ -206,9 +212,17 @@ export class WalletApi implements IWalletApi {
     return await this.storage.updateWallet(walletId, wallet);
   }
 
-  async deleteWallet(walletId: string, token: string) {
-    await validateToken(this.storage, token);
-    return await this.storage.deleteWallet(walletId);
+  async deleteWallet(params: DeleteWalletParams) {
+    await validateToken(this.storage, params.token);
+    // delete all belonging accounts
+    const wallet = await this.storage.getWallet(params.walletId);
+    if (!wallet) {
+      throw new Error('Wallet not exist');
+    }
+    for (const account of wallet.accounts) {
+      await this.storage.deleteAccount(wallet.id, account.id);
+    }
+    await this.storage.deleteWallet(params.walletId);
   }
 
   async checkMnemonicDuplicated(
