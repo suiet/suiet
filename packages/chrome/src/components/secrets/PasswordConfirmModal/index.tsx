@@ -1,5 +1,5 @@
 import { Extendable } from '../../../types';
-import Modal from '../../Modal';
+import { Modal } from '../../modals';
 import Button from '../../Button';
 import FormControl from '../../form/FormControl';
 import { getInputStateByFormState } from '../../../utils/form';
