@@ -66,16 +66,18 @@ const ActionConfirmModal = (props: ActionConfirmModalProps) => {
               'w-full bg-white rounded-2xl px-[16px] py-[24px] mx-[16px] shadow-lg border-2'
             )}
           >
-            <IconContainer
-              shape={'circle'}
-              color={'bg-red-50'}
-              className={'w-[48px] h-[48px]'}
-            >
-              <Icon icon={'Warning'} width={'28px'} height={'28px'} />
-            </IconContainer>
-            <Typo.Title className={'font-bold text-large mt-[12px]'}>
-              {props.title}
-            </Typo.Title>
+            <div className="flex gap-2 align-middle">
+              <IconContainer
+                shape={'circle'}
+                color={'bg-red-50'}
+                className={'w-[48px] h-[48px]'}
+              >
+                <Icon icon={'Warning'} width={'28px'} height={'28px'} />
+              </IconContainer>
+              <Typo.Title className={'font-bold text-large my-auto'}>
+                {props.title}
+              </Typo.Title>
+            </div>
             <Typo.Normal className={'font-normal text-medium mt-[8px]'}>
               {props.desc}
             </Typo.Normal>

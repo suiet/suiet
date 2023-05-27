@@ -59,8 +59,12 @@ const WalletItem = (props: WalletItemProps) => {
 
       <Icon
         icon={'Close'}
-        stroke={'#f04438'}
-        className={classnames(styles['icon'], 'absolute right-[16px]')}
+        // stroke={'#f04438'}
+        elClassName="stroke-gray-400 hover:stroke-[#f04438]"
+        className={classnames(
+          styles['icon'],
+          'absolute right-[16px] stroke-zinc-100 hover:stroke-[#f04438]'
+        )}
         onClick={(e) => {
           e.stopPropagation();
           props?.onDelete && props.onDelete(data.id, data);
