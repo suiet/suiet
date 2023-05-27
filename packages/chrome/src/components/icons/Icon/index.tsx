@@ -40,6 +40,7 @@ export type AvailableIcon =
   | 'Time'
   | 'Wallet'
   | 'Copy'
+  | 'Trash'
   | 'Warning';
 
 export type IconType = AvailableIcon | 'ReactNode' | 'External' | 'Unknown';
