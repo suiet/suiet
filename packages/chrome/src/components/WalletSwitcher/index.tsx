@@ -58,9 +58,9 @@ const WalletItem = (props: WalletItemProps) => {
       />
 
       <Icon
-        icon={'Close'}
+        icon={'Trash'}
         // stroke={'#f04438'}
-        elClassName="stroke-gray-400 hover:stroke-[#f04438]"
+        elClassName="transition-all w-[16px] stroke-gray-500 hover:stroke-[#f04438]"
         className={classnames(
           styles['icon'],
           'absolute right-[16px] stroke-zinc-100 hover:stroke-[#f04438]'
