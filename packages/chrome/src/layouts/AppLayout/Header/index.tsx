@@ -241,20 +241,23 @@ function Header(props: HeaderProps) {
       {showDeleteConfirm && (
         <ActionConfirmModal
           open={showDeleteConfirm}
-          title={'Confirm to remove wallet'}
+          title={'Remove Wallet'}
           desc={
             <>
-              <Typo.Normal className={'text-red-500 my-2'}>
-                Please ensure that you have backed up either the mnemonic phrase
-                or the private key. With either of these, you can restore this
-                wallet at any time.
+              <Typo.Normal className="font-normal text-zinc-400">
+                Ensure you&apos;ve backed up your mnemonic phrase for wallet
+                restoration.
               </Typo.Normal>
-              <Typo.Normal className={'my-2'}>
-                To confirm the removal, please enter the name of the wallet.
+              <Typo.Normal className={'my-2 font-normal text-zinc-400'}>
+                Type wallet&apos;s name{' '}
+                <p className="inline font-bold text-zinc-400">
+                  {walletToDelete.current?.name ?? ''}
+                </p>{' '}
+                to confirm.
               </Typo.Normal>
             </>
           }
-          confirmString={walletToDelete.current?.name ?? ''}
+          confirmString={''}
           confirmText={'Remove'}
           onConfirm={async () => {
             if (!walletToDelete.current) return;
