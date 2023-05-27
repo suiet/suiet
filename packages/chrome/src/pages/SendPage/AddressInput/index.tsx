@@ -14,7 +14,7 @@ import useTransactionList from '../hooks/useTransactionList';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-
+import Skeleton from 'react-loading-skeleton';
 interface AddressInputValues {
   address: string;
 }
@@ -37,16 +37,12 @@ function AddressInputPage({
   const { networkId } = useSelector((state: RootState) => state.appContext);
   const addressState = getInputStateByFormState(form.formState, 'address');
   const formAddress = form.getValues().address;
-  const { getTransactionList, data, loading } = useTransactionList();
+  const { getTransactionList, data: history, loading } = useTransactionList();
   useWatch({ name: 'address', control: form.control });
+  // const loading = true;
   const disabled =
     addressState === 'error' ||
     (state.recipientAddress === '' && addressState === 'default');
-
-  let history = null;
-  if (data) {
-    history = data;
-  }
 
   useEffect(() => {
     if (formAddress) {
@@ -79,9 +75,10 @@ function AddressInputPage({
           </Typo.Normal>
 
           <AddressInput form={form} className={'mt-[48px]'} />
-          {!loading &&
+          {loading ? (
+            <Skeleton className="h-[28px] mt-4"></Skeleton>
+          ) : (
             history &&
-            !disabled &&
             (history.length > 0 ? (
               <div className={styles['transaction-num']}>
                 {history?.length} transactions in a week
@@ -109,7 +106,8 @@ function AddressInputPage({
                   No recent transactions
                 </div>
               </div>
-            ))}
+            ))
+          )}
         </div>
 
         <div className={commonStyles['next-step']}>
