@@ -9,7 +9,6 @@ import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import Address from '../Address';
 import Avatar from '../Avatar';
-import { ActionConfirmModal } from '../modals';
 
 export type WalletData = {
   id: string;
