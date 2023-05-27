@@ -257,7 +257,7 @@ function Header(props: HeaderProps) {
               </Typo.Normal>
             </>
           }
-          confirmString={''}
+          confirmString={walletToDelete.current?.name ?? ''}
           confirmText={'Remove'}
           onConfirm={async () => {
             if (!walletToDelete.current) return;

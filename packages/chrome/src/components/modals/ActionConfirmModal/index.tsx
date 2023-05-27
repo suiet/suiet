@@ -18,6 +18,7 @@ export type ActionConfirmModalProps = DialogProps &
   Extendable & {
     trigger?: ReactNode;
     confirmString: string;
+    placeholder?: string;
     title: ReactNode;
     desc?: ReactNode;
     confirmText?: string;
@@ -34,6 +35,7 @@ const ActionConfirmModal = (props: ActionConfirmModalProps) => {
     children,
     trigger,
     confirmString,
+    placeholder,
     confirmText = 'Confirm',
     className,
     ...restProps
@@ -99,7 +101,7 @@ const ActionConfirmModal = (props: ActionConfirmModalProps) => {
                     'confirmString'
                   )}
                   className={'mt-[16px]'}
-                  placeholder={confirmString}
+                  placeholder={placeholder}
                 />
               </FormControl>
               <div className={'mt-[24px] flex justify-between items-center'}>
