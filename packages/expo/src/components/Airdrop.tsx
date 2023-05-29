@@ -7,10 +7,11 @@ import Typography from '@/components/Typography';
 import { ToastProps } from './Toast';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { FAB } from './FAB';
+import { useNetwork } from '@/hooks/useNetwork';
 
 export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
   const featureFlags = useFeatureFlags();
-  const network = featureFlags?.networks?.[featureFlags.default_network];
+  const { network, networkId } = useNetwork(featureFlags);
   const faucetApi = network?.faucet_api;
 
   const t = new Date();
@@ -93,6 +94,7 @@ export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
                   } as ToastProps,
                 });
               } catch (e) {
+                console.log(e);
                 if (text.includes('rate limited')) {
                   // message.error('You have been rate limited, please try again 6 hours later');
                   Toast.show({
