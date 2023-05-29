@@ -32,6 +32,7 @@ import Toast from 'react-native-toast-message';
 import { getExecutionStatusType, getExecutionStatusError } from '@mysten/sui.js';
 import { isNumeric } from '@/utils/check';
 import { ToastProps } from '@/components/Toast';
+import { useNetwork } from '@/hooks/useNetwork';
 
 type SendStackParamList = {
   SendSelectCoin: undefined;
@@ -173,7 +174,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
   // const [scrollViewLayout, setScrollViewLayout] = useState<LayoutRectangle>();
   const { top, bottom } = useSafeAreaInsets();
   const featureFlags = useFeatureFlags();
-  const network = featureFlags?.networks?.[featureFlags.default_network];
+  const { network, networkId } = useNetwork(featureFlags);
   const { loadMnemonic } = useKeychain();
   const { selectedWallet } = useWallets();
 
