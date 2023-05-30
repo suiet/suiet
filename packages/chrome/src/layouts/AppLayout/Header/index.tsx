@@ -147,7 +147,7 @@ function Header(props: HeaderProps) {
       // call reset
       await apiClient.callFunc<null, undefined>('root.resetAppData', null);
       await dispatch(resetAppContext()).unwrap();
-      Message.success('remove wallet successfully');
+      Message.success('Wallet removed successfully');
       return;
     }
 
@@ -173,7 +173,7 @@ function Header(props: HeaderProps) {
           withAuth: true,
         }
       );
-      Message.success('remove wallet successfully');
+      Message.success('Wallet removed successfully');
     } catch {
       Message.error('remove wallet failed');
     } finally {
