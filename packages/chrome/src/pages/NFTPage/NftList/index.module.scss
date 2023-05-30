@@ -16,7 +16,7 @@
   cursor: pointer;
 }
 
-$max-text-len: 120px;
+$max-text-len: 110px;
 .nft-meta {
   @apply flex flex-col;
 }
@@ -24,7 +24,7 @@ $max-text-len: 120px;
 .nft-name {
   font-family: 'Work Sans';
   font-weight: 600;
-  width: $max-text-len;
+  max-width: $max-text-len;
   @include ellipsis();
   color: $gray-900;
   font-size: 14px;
