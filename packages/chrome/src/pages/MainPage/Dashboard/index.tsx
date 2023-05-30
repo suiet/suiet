@@ -7,13 +7,14 @@ import QRCodeSVG from 'qrcode.react';
 import classnames from 'classnames';
 import Address from '../../../components/Address';
 import Skeleton from 'react-loading-skeleton';
-import { formatSUI } from '@suiet/core';
+import { formatCurrency, formatSUI } from '@suiet/core';
 import message from '../../../components/message';
 import { useEffect, useState } from 'react';
 import { LoadingSpokes } from '../../../components/Loading';
 import Banner from '../Banner';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import useSuiBalance from '../../../hooks/coin/useSuiBalance';
+import useCoins from '../../../hooks/coin/useCoins';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -64,11 +65,16 @@ export type DashboardProps = {
 };
 
 function MainPage({ address, networkId }: DashboardProps) {
+  // const {
+  //   data: suiBalance,
+  //   loading: isBalanceLoading,
+  //   error: balanceError,
+  // } = useSuiBalance(address);
   const {
-    data: suiBalance,
-    loading: isBalanceLoading,
-    error: balanceError,
-  } = useSuiBalance(address);
+    data: coins,
+    loading: isLoading,
+    error: coinsError,
+  } = useCoins(address);
   const t = new Date();
   const [airdropTime, setAirdropTime] = useState(t.setTime(t.getTime() - 5000));
   const [airdropLoading, setAirdropLoading] = useState(false);
@@ -76,21 +82,26 @@ function MainPage({ address, networkId }: DashboardProps) {
   const faucetApi =
     featureFlags?.faucet_api ?? `https://faucet.${networkId}.sui.io/gas`;
 
+  const usd = coins
+    .map((coin) => {
+      return Number(coin.usd);
+    })
+    .reduce((total, value) => total + value, 0);
   useEffect(() => {
-    if (!balanceError) return;
-    message.error('Fetch balance failed: ' + balanceError.message);
-  }, [balanceError]);
+    if (!coinsError) return;
+    message.error('Fetch balance failed: ' + coinsError.message);
+  }, [coinsError]);
 
   return (
     <div className={styles['main-content']}>
       <Banner />
       <div className={styles['balance']}>
-        {isBalanceLoading || balanceError ? (
+        <span>$</span>
+        {isLoading || coinsError ? (
           <Skeleton width={'140px'} height={'36px'} />
         ) : (
-          formatSUI(suiBalance.balance)
+          formatCurrency(usd, { decimals: 0 })
         )}
-        <span className={styles['balance-unit']}>SUI</span>
       </div>
       <Address value={address} className={styles['address']} />
       <div className={styles['operations']}>
