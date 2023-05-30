@@ -38,6 +38,9 @@ export const GET_COINS = gql`
         description
         url
       }
+      verification {
+        status
+      }
     }
   }
 `;
