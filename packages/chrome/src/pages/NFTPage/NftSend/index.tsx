@@ -45,6 +45,7 @@ export default function SendNft() {
     thumbnailUrl,
     expiresAt,
     hasPublicTransfer = false,
+    verification,
   }: NftMeta = location.state || ({} as any);
   const [queryKiosk] = useKioskMetaLazyQuery();
 
@@ -156,6 +157,7 @@ export default function SendNft() {
               thumbnailUrl,
               expiresAt,
               hasPublicTransfer,
+              verification,
             },
           });
         }}

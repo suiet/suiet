@@ -10,9 +10,12 @@ import copy from 'copy-to-clipboard';
 import message from '../../../components/message';
 import CopyIcon from '../../../components/CopyIcon';
 import { ReactComponent as IconExternal } from '../../../assets/icons/external.svg';
+
+import { ReactComponent as VerifiedIcon } from '../../../assets/icons/verified.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { NftMeta } from '../NftList';
+import Tooltip from '../../../components/Tooltip';
 
 const NftDetail = () => {
   const navigate = useNavigate();
@@ -28,6 +31,7 @@ const NftDetail = () => {
     hasPublicTransfer = false,
     kioskObjectId,
     attributes,
+    verification,
   }: NftMeta = location.state ?? ({} as any);
 
   const appContext = useSelector((state: RootState) => state.appContext);
@@ -62,9 +66,16 @@ const NftDetail = () => {
 
         <div className="relative flex">
           <div className="flex flex-col flex-grow">
-            <Typo.Title className={classnames(styles['nft-name'], 'mt-[16px]')}>
-              {name}
-            </Typo.Title>
+            <div className="flex items-center gap-1 mt-[16px] mb-2">
+              <Typo.Title className={classnames(styles['nft-name'], 'shrink')}>
+                {name}
+              </Typo.Title>
+              {verification.status === 'VERIFIED' && (
+                <Tooltip message="Verified">
+                  <VerifiedIcon className="w-[16px] h-[16px] shrink-0" />
+                </Tooltip>
+              )}
+            </div>
             <div className="flex">
               <Typo.Small
                 className={classnames(styles['nft-tag'])}

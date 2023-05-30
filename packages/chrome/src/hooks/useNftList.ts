@@ -23,6 +23,9 @@ export const GET_NFT_LIST = gql`
         previousTransaction
         hasPublicTransfer
       }
+      verification {
+        status
+      }
     }
   }
 `;
@@ -44,6 +47,9 @@ export type NftGqlDto = {
     objectID: string;
     originBytePackageID: string;
   } | null;
+  verification: {
+    status: string;
+  };
   attributes:
     | [
         {

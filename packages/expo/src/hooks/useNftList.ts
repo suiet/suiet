@@ -18,6 +18,9 @@ export const GET_NFT_LIST = gql`
       expiresAt
       description
       url
+      verification {
+        status
+      }
     }
   }
 `;
