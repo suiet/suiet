@@ -116,6 +116,15 @@ const SettingPage = () => {
             >
               Lock
             </SettingItem>
+            <SettingItem
+              icon={<IconReset />}
+              onClick={() => {
+                navigate('security/reset');
+              }}
+              hideArrow={true}
+            >
+              Reset All
+            </SettingItem>
           </SettingsGroup>
 
           <SettingsGroup>
