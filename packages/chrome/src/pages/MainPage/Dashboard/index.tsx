@@ -96,11 +96,10 @@ function MainPage({ address, networkId }: DashboardProps) {
     <div className={styles['main-content']}>
       <Banner />
       <div className={styles['balance']}>
-        <span>$</span>
         {isLoading || coinsError ? (
           <Skeleton width={'140px'} height={'36px'} />
         ) : (
-          formatCurrency(usd, { decimals: 0 })
+          <span>${formatCurrency(usd, { decimals: 0 })}</span>
         )}
       </div>
       <Address value={address} className={styles['address']} />
