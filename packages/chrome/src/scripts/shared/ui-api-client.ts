@@ -11,7 +11,7 @@ import { ErrorCode } from '../background/errors';
 import mitt, { Emitter } from 'mitt';
 import errorToString from './errorToString';
 
-function log(message: string, details: any, devOnly = true) {
+function log(message: string, details?: any, devOnly = true) {
   if (devOnly && !isDev) return;
   console.log('[api client]', message, details);
 }
@@ -35,28 +35,28 @@ export class BackgroundApiClient {
   constructor() {
     this.events = mitt();
     this.connect();
-    this.initPortObservable(this.port);
-
-    this.port.onDisconnect.addListener(() => {
-      log('port disconnected', this.port);
-      this.connected = false;
-      // retry connection after 1s
-      setTimeout(() => {
-        try {
-          this.connect();
-        } catch (e) {
-          console.error('reconnect to port failed', e);
-        }
-      }, 1000);
-    });
   }
 
   private connect() {
     this.port = chrome.runtime.connect({
       name: PortName.SUIET_UI_BACKGROUND,
     });
-    this.connected = true;
     log('connect to port', this.port);
+    this.connected = true;
+
+    this.initPortObservable(this.port);
+    this.port.onDisconnect.addListener(() => {
+      log('port disconnected');
+      this.connected = false;
+
+      // retry connection
+      try {
+        this.connect();
+        log('retry port reconnection after disconnected');
+      } catch (e) {
+        console.error('reconnect to port failed', e);
+      }
+    });
   }
 
   private initPortObservable(port: chrome.runtime.Port) {
@@ -87,7 +87,19 @@ export class BackgroundApiClient {
       typeof payload === 'undefined' ? null : payload,
       options
     );
-    this.port.postMessage(reqParams);
+    try {
+      this.port.postMessage(reqParams);
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('disconnected')) {
+        this.connect();
+        this.port.postMessage(reqParams);
+        log(
+          'port is disconnected while sending messages, trigger reconnection and retry sending message'
+        );
+      } else {
+        throw e;
+      }
+    }
     const result = await lastValueFrom(
       this.portObservable.pipe(
         filter((data) => data.id === reqParams.id),
