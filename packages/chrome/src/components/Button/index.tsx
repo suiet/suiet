@@ -4,7 +4,7 @@ import styles from './index.module.scss';
 import { Extendable } from '../../types';
 import { LoadingSpokes } from '../../components/Loading';
 
-export type ButtonState = 'normal' | 'primary' | 'danger';
+export type ButtonState = 'normal' | 'primary' | 'danger' | 'solid';
 
 export type ButtonProps = Extendable & {
   type?: 'button' | 'submit' | 'reset';

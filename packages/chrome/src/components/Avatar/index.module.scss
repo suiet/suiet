@@ -1,36 +1,40 @@
 $size-small: 24px;
 $size-normal: 32px;
 $size-large: 64px;
-.avatar {
+
+.avatar.wrap {
   width: $size-normal;
   height: $size-normal;
   border-radius: 999px;
-
-  &-size--sm {
-    width: $size-small;
-    height: $size-small;
-  }
-
-  &-size--lg {
-    width: $size-large;
-    height: $size-large;
-  }
-
-  &-model--1 {
-    background: linear-gradient(135deg, #10c0f7 0%, #c0c7ff 100%);
-  }
-  &-model--2 {
-    background: linear-gradient(135deg, #19ce8d 0%, #c1d6ff 100%);
-  }
-  &-model--3 {
-    background: linear-gradient(135deg, #76f710 0%, #ffd3c0 100%);
-  }
-  &-model--4 {
-    background: linear-gradient(135deg, #3078e3 0%, #fac3f7 100%);
-  }
+}
+.avatar.pfp-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+}
+.avatar.size--sm {
+  width: $size-small;
+  height: $size-small;
+}
+.avatar.size--lg {
+  width: $size-large;
+  height: $size-large;
 }
 
-.with-favicon {
+.avatar.model--1 {
+  background: linear-gradient(135deg, #10c0f7 0%, #c0c7ff 100%);
+}
+.avatar.model--2 {
+  background: linear-gradient(135deg, #19ce8d 0%, #c1d6ff 100%);
+}
+.avatar.model--3 {
+  background: linear-gradient(135deg, #76f710 0%, #ffd3c0 100%);
+}
+.avatar.model--4 {
+  background: linear-gradient(135deg, #3078e3 0%, #fac3f7 100%);
+}
+
+.avatar.with-favicon {
   display: flex;
   align-items: center;
 

@@ -1,5 +1,5 @@
 import { ExecutionStatusType } from '@mysten/sui.js';
-import { AccountInWallet } from '../api/wallet';
+import { AccountInWallet, AvatarPfp } from '../api/wallet';
 
 export const WALLET_PREFIX = 'wallet-';
 
@@ -9,6 +9,7 @@ export type Wallet = {
   accounts: AccountInWallet[];
   nextAccountId: number;
   avatar?: string;
+  avatarPfp?: AvatarPfp;
   encryptedMnemonic: string;
 };
 
