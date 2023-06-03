@@ -44,6 +44,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
       secret
     );
     if (!result) {
+      console.log(data['secrets']);
       console.log(errors.secrets);
       message.error('Phrase is not valid');
       // form.setError('secret', new Error('Phrase is not valid'));
@@ -111,19 +112,35 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                     onPaste={(e) => {
                       /// ashdiahsidh asdiahsidh asd
                       const inputValues = form.getValues('secrets');
-                      console.log(e.clipboardData.getData('text'));
 
+                      // using local variable to avoid async problem
+                      let currentPhraseLength = phraseLength;
                       if (inputValues) {
                         const currentInput = e.clipboardData
                           .getData('text')
                           .trim();
                         if (currentInput.includes(' ')) {
                           let followingInputs = currentInput.split(' ');
-                          if (followingInputs.length + i > phraseLength) {
-                            followingInputs = followingInputs.slice(
-                              0,
-                              phraseLength
+
+                          if (
+                            [12, 15, 18, 21, 24].includes(
+                              followingInputs.length
+                            )
+                          ) {
+                            setPhraseLengthString(
+                              String(followingInputs.length)
                             );
+                            currentPhraseLength = followingInputs.length;
+                          } else {
+                            if (
+                              followingInputs.length + i >
+                              currentPhraseLength
+                            ) {
+                              followingInputs = followingInputs.slice(
+                                0,
+                                currentPhraseLength
+                              );
+                            }
                           }
 
                           const newSecrets = inputValues
@@ -132,7 +149,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                             .concat(
                               inputValues.slice(
                                 i + followingInputs.length,
-                                phraseLength
+                                currentPhraseLength
                               )
                             );
 
