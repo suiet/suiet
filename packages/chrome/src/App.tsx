@@ -30,6 +30,7 @@ import { ChromeStorage } from './store/storage';
 import { version } from '../package.json';
 import VersionGuard from './components/VersionGuard';
 import { RetryLink } from '@apollo/client/link/retry';
+import { ErrorCode } from './scripts/background/errors';
 
 enum CacheSyncStatus {
   NOT_SYNCED,
@@ -153,6 +154,10 @@ function useRegisterHandleRejectionEvent() {
     const handleError = (event: PromiseRejectionEvent) => {
       console.error('catch unhandledrejection:', event);
       event.promise.catch((e) => {
+        if (e.message.includes(ErrorCode.NO_AUTH)) {
+          message.info('Session expired, please login again');
+          return;
+        }
         message.error(e.message);
       });
       event.preventDefault();
