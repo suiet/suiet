@@ -40,7 +40,7 @@ const PhraseModal = (props: PhraseModalProps) => {
           >(
             'wallet.revealMnemonic',
             {
-              walletId: walletId,
+              walletId,
             },
             { withAuth: true }
           );
@@ -63,7 +63,7 @@ const PhraseModal = (props: PhraseModalProps) => {
       }}
     >
       <div className={styles['container']}>
-        {phrases.slice(0, 12).map((text, index) => (
+        {phrases.map((text, index) => (
           <div key={text}>
             <span className="inline-block text-gray-300 text-right select-none">
               {index + 1}
