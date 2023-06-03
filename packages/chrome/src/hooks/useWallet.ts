@@ -53,12 +53,31 @@ export function useWallet(walletId: string) {
     );
   };
 
+  const unsetPfpAvatar = async () => {
+    await apiClient.callFunc<OmitToken<UpdateWalletParams>, undefined>(
+      'wallet.updateWallet',
+      {
+        walletId,
+        meta: {
+          avatarPfp: {
+            mime: '',
+            uri: '',
+            objectId: '',
+            expiresAt: 0,
+          },
+        },
+      },
+      { withAuth: true }
+    );
+  };
+
   return {
     data,
     error,
     loading: !error && !data,
     updateWallet,
     setPfpAvatar,
+    unsetPfpAvatar,
     refetch,
     ...rest,
   };
