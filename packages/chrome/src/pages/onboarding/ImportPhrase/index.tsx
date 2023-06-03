@@ -11,6 +11,8 @@ import { useState } from 'react';
 import classNames from 'classnames';
 import { validateWord, BIP32_EN_WORDLIST } from '@suiet/core';
 import message from '../../../components/message';
+import { Select, SelectItem } from '../../../components/Select';
+
 type FormData = {
   secrets: [string];
 };
@@ -29,7 +31,11 @@ const ImportPhrase = (props: ImportPhraseProps) => {
     },
   });
   const { errors } = form.formState;
-  const [focus, setFocus] = useState([...Array(12).keys()].map(() => false));
+  const [phraseLengthString, setPhraseLengthString] = useState('12');
+  const phraseLength = Number(phraseLengthString);
+  const [focus, setFocus] = useState(
+    [...Array(phraseLength).keys()].map(() => false)
+  );
 
   async function handleSubmit(data: FormData) {
     const secret = data['secrets'].join(' ');
@@ -48,31 +54,33 @@ const ImportPhrase = (props: ImportPhraseProps) => {
 
   return (
     <SettingOneLayout
-      titles={['Input', 'Recovery', 'Phrase']}
+      titles={['Import', 'Recovery', 'Phrase']}
       desc={'From an existing wallet.'}
     >
       {/* {JSON.stringify(errors.secrets)} */}
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
+          <Select
+            value={phraseLengthString}
+            onValueChange={setPhraseLengthString}
+            defualtValue={'12'}
+          >
+            <SelectItem value="12">12 Words</SelectItem>
+            <SelectItem value="15">15 Words</SelectItem>
+            <SelectItem value="18">18 Words</SelectItem>
+            <SelectItem value="21">21 Words</SelectItem>
+            <SelectItem value="24">24 Words</SelectItem>
+          </Select>
           <datalist id="wordlist">
             {BIP32_EN_WORDLIST.map((word) => (
               <option key={word}>{word}</option>
             ))}
           </datalist>
           <div
-            className={classNames(
-              'grid',
-              'grid-cols-2',
-              'gap-2',
-              'gap-x-4',
-              '-mx-2'
-            )}
+            className={classNames('grid', 'grid-cols-3', 'gap-2', 'gap-x-4')}
           >
-            {[...Array(12).keys()].map((i) => (
+            {[...Array(phraseLength).keys()].map((i) => (
               <div key={i} className={classNames('flex', 'items-center')}>
-                <Typo.Normal className={'w-[18px] mr-1 text-right'}>
-                  {`${i + 1}.  `}
-                </Typo.Normal>
                 <div className="flex flex-col">
                   <Input
                     {...form.register(`secrets.${i}`, {
@@ -85,7 +93,15 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                     aria-invalid={
                       errors?.secrets && errors?.secrets[i] ? 'true' : 'false'
                     }
-                    className="flex-1"
+                    className="flex-1 w-[94px] h-[30px]"
+                    elStyle={{
+                      fontSize: '14px',
+                      padding: '10px 10px',
+                      height: '40px',
+                      borderRadius: '12px',
+                      border: '1px solid #E5E5E5',
+                      boxShadow: 'none',
+                    }}
                     type={focus[i] ? 'text' : 'password'}
                     state={getInputStateByFormState(
                       form.formState,
@@ -103,15 +119,21 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                           .trim();
                         if (currentInput.includes(' ')) {
                           let followingInputs = currentInput.split(' ');
-                          if (followingInputs.length + i > 12) {
-                            followingInputs = followingInputs.slice(0, 12);
+                          if (followingInputs.length + i > phraseLength) {
+                            followingInputs = followingInputs.slice(
+                              0,
+                              phraseLength
+                            );
                           }
 
                           const newSecrets = inputValues
                             .slice(0, i)
                             .concat(followingInputs)
                             .concat(
-                              inputValues.slice(i + followingInputs.length, 12)
+                              inputValues.slice(
+                                i + followingInputs.length,
+                                phraseLength
+                              )
                             );
 
                           setTimeout(() => {
@@ -124,7 +146,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                     onFocus={() => {
                       setFocus(focus.map((_, idx) => idx === i));
                     }}
-                    placeholder={`phrase${i + 1}`}
+                    placeholder={`${i + 1}.`}
                     list="wordlist"
                   />
 
