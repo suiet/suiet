@@ -32,7 +32,12 @@ const NftDetail = () => {
   const location = useLocation();
   const apiClient = useApiClient();
   const { walletId } = useSelector((state: RootState) => state.appContext);
-  const { setPfpAvatar } = useWallet(walletId);
+  const {
+    data: wallet,
+    setPfpAvatar,
+    unsetPfpAvatar,
+    refetch,
+  } = useWallet(walletId);
   const {
     objectType = '',
     id = '',
@@ -70,11 +75,38 @@ const NftDetail = () => {
         uri: url,
         mime: 'image/png',
       });
+      await refetch();
       message.success('Set as avatar successfully');
     } catch (e) {
       message.error('Failed to set as avatar');
       console.error(e);
     }
+  };
+
+  const unsetPfpAvatarForWallet = async () => {
+    try {
+      await unsetPfpAvatar();
+      await refetch();
+      message.success('Unset avatar successfully');
+    } catch (e) {
+      message.error('Failed to unset avatar');
+      console.error(e);
+    }
+  };
+
+  const renderNftAvatarButton = () => {
+    if (wallet?.avatarPfp && wallet?.avatarPfp.objectId === id) {
+      return (
+        <Button onClick={unsetPfpAvatarForWallet} state={'solid'}>
+          Unset Avatar
+        </Button>
+      );
+    }
+    return (
+      <Button onClick={setPfpAsWalletAvatar} state={'solid'}>
+        Set as Avatar
+      </Button>
+    );
   };
 
   return (
@@ -213,9 +245,7 @@ const NftDetail = () => {
           'fixed bottom-0 w-full h-[80px] p-[16px] flex items-center gap-[8px] border-t-[1px] bg-white'
         }
       >
-        <Button onClick={setPfpAsWalletAvatar} state={'solid'}>
-          Set as Avatar
-        </Button>
+        {renderNftAvatarButton()}
         {isNftTransferable({
           hasPublicTransfer,
           kioskObjectId,
