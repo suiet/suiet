@@ -17,6 +17,8 @@ type FormData = {
   secrets: [string];
 };
 
+const supportedPhraseLengths = [12, 15, 18, 21, 24];
+
 export type ImportPhraseProps = {
   onImported: (secrets: [string]) => void;
   phrases?: string;
@@ -66,11 +68,11 @@ const ImportPhrase = (props: ImportPhraseProps) => {
             onValueChange={setPhraseLengthString}
             defualtValue={'12'}
           >
-            <SelectItem value="12">12 Words</SelectItem>
-            <SelectItem value="15">15 Words</SelectItem>
-            <SelectItem value="18">18 Words</SelectItem>
-            <SelectItem value="21">21 Words</SelectItem>
-            <SelectItem value="24">24 Words</SelectItem>
+            {supportedPhraseLengths.map((length) => (
+              <SelectItem key={length} value={String(length)}>
+                {length} Words
+              </SelectItem>
+            ))}
           </Select>
           <datalist id="wordlist">
             {BIP32_EN_WORDLIST.map((word) => (
@@ -123,7 +125,7 @@ const ImportPhrase = (props: ImportPhraseProps) => {
                           let followingInputs = currentInput.split(' ');
 
                           if (
-                            [12, 15, 18, 21, 24].includes(
+                            supportedPhraseLengths.includes(
                               followingInputs.length
                             )
                           ) {
