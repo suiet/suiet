@@ -3,7 +3,7 @@ import { TextProps, TextStyle } from 'react-native';
 import { Text } from 'react-native';
 import React from 'react';
 
-interface ColorProps {
+export interface ColorProps {
   color?: TextStyle['color'];
 }
 

@@ -1,4 +1,4 @@
-import { Gray_400, Primary_500, White_100 } from '@styles/colors';
+import { Gray_400, Primary_500, White } from '@styles/colors';
 import React from 'react';
 import { View, ViewProps } from 'react-native';
 import { SvgXml } from 'react-native-svg';
@@ -18,7 +18,7 @@ export const CoinIcon: React.FC<{ symbol: string; scale?: number } & ViewProps> 
       >
         <SvgXml
           style={{ margin: 10 * scale }}
-          color={White_100}
+          color={White}
           width={20 * scale}
           height={20 * scale}
           xml={SvgSui}
@@ -34,7 +34,7 @@ export const CoinIcon: React.FC<{ symbol: string; scale?: number } & ViewProps> 
     >
       <SvgXml
         style={{ margin: 10 * scale }}
-        color={White_100}
+        color={White}
         width={20 * scale}
         height={20 * scale}
         xml={SvgToken}

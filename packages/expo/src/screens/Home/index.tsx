@@ -7,7 +7,7 @@ import { SvgClockRewind, SvgCoins03, SvgGrid01 } from '@components/icons/svgs';
 
 import { Coin } from '@/screens/Coin';
 import { Dapp } from '@/screens/Dapp';
-import { TxHistory } from '@/screens/TxHistory';
+import { TxHistory } from '@/screens/TxHistory/index.new';
 import type { RootStackParamList } from '@/../App';
 
 const Tab = createBottomTabNavigator<RootStackParamList>();

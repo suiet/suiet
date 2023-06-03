@@ -4,9 +4,9 @@ import styles from './index.module.scss';
 import { ObjectChangeItem } from '../../AssetChange';
 import { ObjectChangeItemProps } from '../../AssetChange/ObjectChangeItem';
 
-export type TxSummaryItemProps = Extendable & ObjectChangeItemProps & {};
+export type TxSummaryItemProps = ObjectChangeItemProps & {};
 
-const TxSummaryItem = (props: TxSummaryItemProps) => {
+const TxSummaryItem = (props: TxSummaryItemProps & Extendable) => {
   return (
     <div
       className={classNames(

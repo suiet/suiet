@@ -7,7 +7,7 @@ import { Button } from '@/components/Button';
 import { useWallets } from '@/hooks/useWallets';
 import { FontFamilys } from '@/hooks/useFonts';
 import Typography from '@/components/Typography';
-import { White_100 } from '@/styles/colors';
+import { White } from '@/styles/colors';
 import { Mnemonic } from '@/components/Mnemonic';
 
 export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'BackupAndDone'>> = ({
@@ -28,9 +28,9 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       <View style={{ flexGrow: 1, maxHeight: 150 }} />
 
       <View style={{ marginBottom: 40 }}>
-        <Typography.Headline children="Welcome" color={White_100} />
-        <Typography.Headline children="to Your" color={White_100} />
-        <Typography.Headline children="New Wallet" color={White_100} />
+        <Typography.Headline children="Welcome" color={White} />
+        <Typography.Headline children="to Your" color={White} />
+        <Typography.Headline children="New Wallet" color={White} />
         <View style={{ height: 8 }} />
         <Typography.Body children="Copy and save your recovery phrase." color={`rgba(255,255,255,0.7)`} />
       </View>

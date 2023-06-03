@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import calendar from 'dayjs/plugin/calendar';
 import TemplateText from '../TemplateText';
-export type TxSummaryContainerProps = Extendable & {
+export type TxSummaryContainerProps = {
   timestamp: number;
   category?: string;
   categoryIcon?: string;
@@ -25,7 +25,7 @@ function formatDatetime(timestamp: number) {
   });
 }
 
-const TxSummaryContainer = (props: TxSummaryContainerProps) => {
+const TxSummaryContainer = (props: Extendable & TxSummaryContainerProps) => {
   const {
     category = 'Category',
     categoryIcon = 'Down',

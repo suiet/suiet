@@ -44,6 +44,9 @@ import { NftDetail } from '@/screens/NftDetail';
 import { NftGqlDto } from '@/hooks/useNftList';
 import { InAppBrowser } from '@/screens/InAppBrowser';
 
+import { useCustomApolloClient } from '@suiet/chrome-ext/src/hooks/useCustomApolloClient';
+import type { WebStorage } from '@suiet/chrome-ext/src/store/storage';
+
 // SplashScreen.preventAutoHideAsync();
 
 declare global {
@@ -101,20 +104,7 @@ function App() {
   // const network = featureFlags?.networks?.[featureFlags.default_network];
 
   console.log(network, networkId, featureFlags?.networks);
-  const client = useMemo(() => {
-    return new ApolloClient({
-      uri: network?.graphql_url,
-      cache: new InMemoryCache({
-        typePolicies: {
-          Query: {
-            fields: {
-              ...fieldPolicyForTransactions(),
-            },
-          },
-        },
-      }),
-    });
-  }, [network]);
+  const client = useCustomApolloClient(networkId!, 'suiet-app', '1.0.0', AsyncStorage as WebStorage);
 
   // this is added to avoid an selected network deleted from feature flags
   {
@@ -124,6 +114,10 @@ function App() {
         updateNetworkId(featureFlags.default_network);
       }
     }, [featureFlags, networkId, updateNetworkId]);
+  }
+
+  if (!client) {
+    return null;
   }
 
   return (
