@@ -15,9 +15,16 @@ export type CreateWalletParams = {
   avatar?: string;
 };
 
+export type AvatarPfp = {
+  objectId: string;
+  uri: string;
+  mime: string;
+  expiresAt: number;
+};
+
 export type UpdateWalletParams = {
   walletId: string;
-  meta: { name?: string; avatar?: string };
+  meta: { name?: string; avatar?: string; avatarPfp?: AvatarPfp };
   token: string;
 };
 
@@ -44,6 +51,7 @@ export type Wallet = {
   accounts: AccountInWallet[];
   nextAccountId: number;
   avatar?: string;
+  avatarPfp?: AvatarPfp;
 };
 
 export interface IWalletApi {
@@ -208,6 +216,14 @@ export class WalletApi implements IWalletApi {
     }
     if (meta.avatar && meta.avatar !== wallet.avatar) {
       wallet.avatar = meta.avatar;
+    }
+    if (typeof meta.avatarPfp === 'object') {
+      wallet.avatarPfp = {
+        mime: meta.avatarPfp.mime,
+        uri: meta.avatarPfp.uri,
+        objectId: meta.avatarPfp.objectId,
+        expiresAt: meta.avatarPfp.expiresAt,
+      };
     }
     return await this.storage.updateWallet(walletId, wallet);
   }
