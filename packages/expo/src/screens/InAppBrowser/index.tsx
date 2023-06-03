@@ -2,7 +2,7 @@ import { Platform, TouchableHighlight, View } from 'react-native';
 import React, { useState } from 'react';
 import { WebView, WebViewNavigation } from 'react-native-webview';
 import { SvgXml } from 'react-native-svg';
-import { Gray_100, Gray_500, Gray_600, White_100 } from '@styles/colors';
+import { Gray_100, Gray_500, Gray_600, White } from '@styles/colors';
 import { SvgArrowLeft } from '@components/icons/svgs';
 
 import type { RootStackParamList } from '@/../App';
@@ -21,7 +21,7 @@ export const InAppBrowser: React.FC<StackScreenProps<RootStackParamList, 'InAppB
   const [navState, setNavState] = useState<WebViewNavigation>();
 
   return (
-    <View style={{ flexDirection: 'column', flexGrow: 1, width: '100%', height: '100%', backgroundColor: White_100 }}>
+    <View style={{ flexDirection: 'column', flexGrow: 1, width: '100%', height: '100%', backgroundColor: White }}>
       <View style={{ height: top }} />
       <View>
         <View
@@ -53,7 +53,7 @@ export const InAppBrowser: React.FC<StackScreenProps<RootStackParamList, 'InAppB
               paddingHorizontal: 12,
               paddingVertical: 8,
               alignItems: 'center',
-              backgroundColor: White_100,
+              backgroundColor: White,
 
               borderWidth: 1,
               borderColor: Gray_100,

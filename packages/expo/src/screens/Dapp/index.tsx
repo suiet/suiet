@@ -1,6 +1,6 @@
 import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Gray_100, Gray_400, Gray_900, White_100 } from '@styles/colors';
+import { Gray_100, Gray_400, Gray_900, White } from '@styles/colors';
 
 import type { RootStackParamList } from '@/../App';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -157,10 +157,10 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
                     >
                       <DappIcon icon={dapp.icon} />
                       <View style={{ maxWidth: 150 }}>
-                        <Typography.Subtitle children={dapp.name} color={White_100} />
+                        <Typography.Subtitle children={dapp.name} color={White} />
                         <Typography.Body
                           children={dapp.description}
-                          color={White_100}
+                          color={White}
                           style={{ opacity: 0.7, flexShrink: 1 }}
                           numberOfLines={2}
                         />

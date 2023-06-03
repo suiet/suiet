@@ -10,7 +10,7 @@ import {
   Warning_50,
   Warning_500,
   Warning_700,
-  White_100,
+  White,
 } from '@/styles/colors';
 import React from 'react';
 import { View } from 'react-native';

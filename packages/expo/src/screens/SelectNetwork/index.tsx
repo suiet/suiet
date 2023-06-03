@@ -16,7 +16,7 @@ import {
   Primary_100,
   Primary_400,
   Primary_500,
-  White_100,
+  White,
 } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
 import {
@@ -98,7 +98,7 @@ const NetworkSelector: React.FC<{ featureFlags: FeatureFlagRes }> = ({ featureFl
         <View style={{ flex: 1 }} />
         {networkId === selectedNetworkId ? (
           <View style={{ padding: 2, backgroundColor: Primary_500, borderRadius: 9999 }}>
-            <SvgXml width={14} height={14} color={White_100} xml={SvgCheck} />
+            <SvgXml width={14} height={14} color={White} xml={SvgCheck} />
           </View>
         ) : (
           <View
