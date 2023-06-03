@@ -23,7 +23,7 @@ const WalletSelector = (props: WalletSelectorProps) => {
   return (
     <div>
       <div className={classnames(styles['wallet-item'], props.className)}>
-        <Avatar model={wallet?.avatar} size={'sm'} />
+        <Avatar model={wallet?.avatar} size={'sm'} pfp={wallet?.avatarPfp} />
         <Typo.Normal className={styles['wallet-item__name']}>
           {wallet?.name}
         </Typo.Normal>

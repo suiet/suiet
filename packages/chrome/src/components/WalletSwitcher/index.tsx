@@ -16,6 +16,7 @@ export type WalletData = {
   accountId: string;
   accountAddress: string;
   avatar: string | undefined;
+  avatarPfp: string | undefined;
 };
 
 type WalletItemProps = {
@@ -33,7 +34,7 @@ const WalletItem = (props: WalletItemProps) => {
         className={classnames(styles['wallet-item-wrap'])}
         onClick={() => props?.onClick && props.onClick(data.id, data)}
       >
-        <Avatar model={data.avatar} size={'sm'}></Avatar>
+        <Avatar model={data.avatar} size={'sm'} pfp={data?.avatarPfp} />
         <div className={'ml-[8px]'}>
           <Typo.Title className={styles['wallet-item-name']}>
             {data.name}

@@ -71,7 +71,7 @@ const SettingPage = () => {
     <AppLayout>
       <div className={styles['container']}>
         <div className={'flex flex-col items-center'}>
-          <Avatar size={'lg'} model={wallet?.avatar}></Avatar>
+          <Avatar size={'lg'} model={wallet?.avatar} pfp={wallet?.avatarPfp} />
           <div className={classnames(styles['wallet-name'], 'mt-[8px]')}>
             {wallet?.name}
           </div>
