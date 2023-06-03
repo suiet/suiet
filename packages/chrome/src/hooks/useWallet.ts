@@ -1,4 +1,4 @@
-import { UpdateWalletParams, Wallet } from '@suiet/core';
+import { AvatarPfp, UpdateWalletParams, Wallet } from '@suiet/core';
 import { useApiClient } from './useApiClient';
 import { OmitToken } from '../types';
 import { useQuery } from 'react-query';
@@ -33,11 +33,32 @@ export function useWallet(walletId: string) {
     await refetch();
   }
 
+  const setPfpAvatar = async (
+    avatarPfp: Omit<AvatarPfp, 'expiresAt'> & { expiresAt?: number }
+  ) => {
+    const DEFAULT_DURATION = 1000 * 60 * 60 * 4;
+    const { expiresAt = Date.now() + DEFAULT_DURATION } = avatarPfp;
+    await apiClient.callFunc<OmitToken<UpdateWalletParams>, undefined>(
+      'wallet.updateWallet',
+      {
+        walletId,
+        meta: {
+          avatarPfp: {
+            ...avatarPfp,
+            expiresAt,
+          },
+        },
+      },
+      { withAuth: true }
+    );
+  };
+
   return {
     data,
     error,
     loading: !error && !data,
     updateWallet,
+    setPfpAvatar,
     refetch,
     ...rest,
   };
