@@ -1,4 +1,4 @@
-interface WebStorage {
+export interface WebStorage {
   /**
    * @desc Fetches key and returns item in a promise.
    */

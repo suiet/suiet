@@ -5,16 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, ScrollView } from 'react-native';
 
 import type { RootStackParamList } from '@/../App';
-import {
-  Error_100,
-  Error_500,
-  Gray_100,
-  Gray_500,
-  Gray_900,
-  Primary_400,
-  Primary_500,
-  White_100,
-} from '@/styles/colors';
+import { Error_100, Error_500, Gray_100, Gray_500, Gray_900, Primary_400, Primary_500, White } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
 import { SvgCheck, SvgDownload01, SvgMinus, SvgPlus } from '@/components/icons/svgs';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -66,7 +57,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
         <View style={{ flex: 1 }} />
         {wallet.address === selectedWallet && (
           <View style={{ padding: 4, backgroundColor: Primary_500, borderRadius: 9999 }}>
-            <SvgXml width={14} height={14} color={White_100} xml={SvgCheck} />
+            <SvgXml width={14} height={14} color={White} xml={SvgCheck} />
           </View>
         )}
       </TouchableOpacity>
@@ -151,7 +142,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
                         }}
                       >
                         <View style={{ padding: 4, backgroundColor: Error_500, borderRadius: 9999 }}>
-                          <SvgXml width={14} height={14} color={White_100} xml={SvgMinus} />
+                          <SvgXml width={14} height={14} color={White} xml={SvgMinus} />
                         </View>
                       </TouchableOpacity>
                     </Animated.View>
