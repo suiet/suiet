@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gray_100, Gray_400, Gray_700, Primary_500, White_100 } from '@styles/colors';
+import { Gray_100, Gray_400, Gray_700, Primary_500, White } from '@styles/colors';
 import { Text, TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { FontFamilys } from '@/hooks/useFonts';

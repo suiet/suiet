@@ -31,123 +31,7 @@ import { version } from '../package.json';
 import VersionGuard from './components/VersionGuard';
 import { RetryLink } from '@apollo/client/link/retry';
 import { ErrorCode } from './scripts/background/errors';
-
-enum CacheSyncStatus {
-  NOT_SYNCED,
-  SYNCING,
-  SYNCED,
-}
-
-function useCustomApolloClient(networkId: string) {
-  const cacheSyncStatus = useRef<number>(CacheSyncStatus.NOT_SYNCED);
-  const cacheInChromeStorage = useRef(
-    new AsyncStorageWrapper(new ChromeStorage())
-  );
-  const cachePersistor = useRef<CachePersistor<NormalizedCacheObject>>();
-  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
-
-  const retryLink = new RetryLink({
-    delay: {
-      initial: 300,
-      max: Infinity,
-      jitter: true,
-    },
-    attempts: {
-      max: 5,
-      retryIf: (error, _operation) => !!error,
-    },
-  });
-  const headerLink = new ApolloLink((operation, forward) => {
-    // Use the setContext method to set the HTTP headers.
-    operation.setContext({
-      headers: {
-        'x-suiet-client-type': 'suiet-desktop-extension',
-        'x-suiet-client-version': version,
-      },
-    });
-
-    // Call the next link in the middleware chain.
-    return forward(operation);
-  });
-  useEffect(() => {
-    if (cacheSyncStatus.current !== CacheSyncStatus.NOT_SYNCED) return;
-
-    async function initApolloClient() {
-      cacheSyncStatus.current = CacheSyncStatus.SYNCING;
-
-      const cache = new InMemoryCache({
-        typePolicies: {
-          Query: {
-            fields: {
-              ...fieldPolicyForTransactions(),
-            },
-          },
-        },
-      });
-      cachePersistor.current = new CachePersistor<NormalizedCacheObject>({
-        cache,
-        storage: cacheInChromeStorage.current,
-        trigger: false, // manually trigger persisting
-      });
-      // sync cache from chrome storage
-      await cachePersistor.current.restore();
-      // cachePersistor.current.getSize().then((size) => {
-      //   console.log('cache restore size: ', size);
-      // });
-
-      const newClient = new ApolloClient({
-        cache,
-        link: from([
-          retryLink,
-          headerLink,
-          new HttpLink({
-            uri: `https://${networkId}.suiet.app/query`,
-          }),
-        ]),
-        defaultOptions: {
-          watchQuery: {
-            fetchPolicy: 'cache-first',
-            pollInterval: 3 * 1000,
-          },
-        },
-      });
-      setClient(newClient);
-      cacheSyncStatus.current = CacheSyncStatus.SYNCED;
-    }
-
-    initApolloClient();
-  }, []);
-
-  useEffect(() => {
-    if (!client || !networkId) return; // sequentially set client after cache is ready
-
-    client.setLink(
-      from([
-        retryLink,
-        headerLink,
-        new HttpLink({
-          uri: `https://${networkId}.suiet.app/query`,
-        }),
-      ])
-    );
-    client.resetStore(); // only reset memory cache
-  }, [networkId, client]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (!cachePersistor.current) return;
-      // manually trigger persisting, avoid memory cache reset to clear storage cache
-      // then the next cold starting phase would be faster
-      cachePersistor.current.persist();
-    }, 5 * 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  return client;
-}
+import { useCustomApolloClient } from './hooks/useCustomApolloClient';
 
 function useRegisterHandleRejectionEvent() {
   useEffect(() => {
@@ -173,7 +57,12 @@ function App() {
   const routes = useRoutes(routesConfig);
   const featureFlags = useAutoLoadFeatureFlags();
   const appContext = useSelector((state: RootState) => state.appContext);
-  const client = useCustomApolloClient(appContext.networkId);
+  const client = useCustomApolloClient(
+    appContext.networkId,
+    'suiet-desktop-extension',
+    version,
+    new ChromeStorage()
+  );
 
   useRegisterHandleRejectionEvent();
 

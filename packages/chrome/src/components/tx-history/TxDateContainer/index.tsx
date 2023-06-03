@@ -3,11 +3,11 @@ import { Extendable } from '../../../types';
 import classNames from 'classnames';
 import styles from './index.module.scss';
 
-export type TxDateContainerProps = Extendable & {
+export type TxDateContainerProps = {
   title: string;
 };
 
-const TxDateContainer = (props: TxDateContainerProps) => {
+const TxDateContainer = (props: Extendable & TxDateContainerProps) => {
   const { title = 'Unknown Date' } = props;
   return (
     <section

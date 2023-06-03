@@ -6,7 +6,7 @@ import * as Clipboard from 'expo-clipboard';
 // import * as Brightness from 'expo-brightness';
 
 import type { RootStackParamList } from '@/../App';
-import { Gray_200, Gray_400, Gray_700, Gray_900, White_100 } from '@/styles/colors';
+import { Gray_200, Gray_400, Gray_700, Gray_900, White } from '@/styles/colors';
 import { ButtonWithIcon } from '@/components/ButtonWithIcon';
 import { SvgChevronDown, SvgCopy03, SvgShare06 } from '@/components/icons/svgs';
 import { useWallets } from '@/hooks/useWallets';

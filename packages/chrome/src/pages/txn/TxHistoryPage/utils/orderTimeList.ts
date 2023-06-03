@@ -14,3 +14,5 @@ export default function orderTimeList(timeList: string[]): string[] {
   });
   return res.concat(cp);
 }
+
+export { orderTimeList };

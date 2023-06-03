@@ -1,4 +1,4 @@
-import { Gray_100, Gray_700, Gray_900, White_100 } from '@/styles/colors';
+import { Gray_100, Gray_700, Gray_900, White } from '@/styles/colors';
 import { GLSL, Shaders, Node } from 'gl-react';
 import { Surface } from 'gl-react-expo';
 import React from 'react';
@@ -93,7 +93,7 @@ export const AngularGradientToast: React.FC<ToastProps> = ({ text, isVisible, ic
 
       <View
         style={{
-          backgroundColor: White_100,
+          backgroundColor: White,
           height: '100%',
           width: '100%',
           borderRadius: 999,
@@ -125,7 +125,7 @@ export const AngularGradientToast: React.FC<ToastProps> = ({ text, isVisible, ic
 //         paddingVertical: 8,
 //       }}
 //     >
-//       <Typography.Body color={White_100}>{text}</Typography.Body>
+//       <Typography.Body color={White}>{text}</Typography.Body>
 //     </View>
 //   );
 // };

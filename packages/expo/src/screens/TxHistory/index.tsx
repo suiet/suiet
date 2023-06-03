@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AVATARS } from '@/utils/constants';
 import { Wallet } from '@/utils/wallet';
 import Typography from '@/components/Typography';
-import { Gray_300, Gray_400, Gray_900, White_100 } from '@/styles/colors';
+import { Gray_300, Gray_400, Gray_900, White } from '@/styles/colors';
 import { groupBy, upperFirst, mapValues } from 'lodash-es';
 import { CoinIcon } from '@/components/CoinIcon';
 import { addressEllipsis, formatCurrency } from '@/utils/format';
@@ -59,7 +59,7 @@ function formatTxDate(timestamp: number, currentTimestamp?: number): string {
 }
 
 const DateItem: React.FC<{ title: string }> = ({ title }) => (
-  <View style={{ paddingHorizontal: 24, marginBottom: 16, backgroundColor: White_100 }}>
+  <View style={{ paddingHorizontal: 24, marginBottom: 16, backgroundColor: White }}>
     <Typography.Subtitle color={Gray_900} children={title} />
   </View>
 );
@@ -74,7 +74,7 @@ const TypeItem: React.FC<{ title: string }> = ({ title }) => {
   }
 
   return (
-    <View style={{ paddingHorizontal: 24, marginBottom: 4, backgroundColor: White_100 }}>
+    <View style={{ paddingHorizontal: 24, marginBottom: 4, backgroundColor: White }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         {icon}
         <Typography.Comment color={Gray_400} children={upperFirst(title)} />
@@ -144,7 +144,7 @@ const TransactionItem: React.FC<{
         navigation.navigate('TxDetail', { tx: item });
       }}
     >
-      <View style={{ paddingHorizontal: 24, backgroundColor: White_100, paddingVertical: 6 }}>
+      <View style={{ paddingHorizontal: 24, backgroundColor: White, paddingVertical: 6 }}>
         <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
           <CoinIcon symbol={symbol} scale={0.8} />
           <View style={{ flexDirection: 'column', flexGrow: 1 }}>
@@ -272,7 +272,7 @@ export const HistoryList: React.FC<{
 
   return (
     <FlatList
-      style={{ backgroundColor: White_100 }}
+      style={{ backgroundColor: White }}
       data={data}
       keyExtractor={(item) => item[0]}
       renderItem={({ item }) => item[2]}

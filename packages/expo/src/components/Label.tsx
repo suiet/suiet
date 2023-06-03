@@ -1,4 +1,4 @@
-import { Error_500, Gray_700, Green_600, Warning_600, White_100 } from '@/styles/colors';
+import { Error_500, Gray_700, Green_600, Warning_600, White } from '@/styles/colors';
 import { View, ViewProps } from 'react-native';
 import React from 'react';
 import { SvgXml } from 'react-native-svg';
@@ -20,19 +20,19 @@ export const Label: React.FC<LabelProps & ViewProps> = ({ title, variant = 'info
   let VARIANTS: Record<Exclude<LabelProps['variant'], undefined>, LabelVariants> = {
     warning: {
       backgroundColor: Warning_600,
-      textColor: White_100,
+      textColor: White,
     },
     error: {
       backgroundColor: Error_500,
-      textColor: White_100,
+      textColor: White,
     },
     success: {
       backgroundColor: Green_600,
-      textColor: White_100,
+      textColor: White,
     },
     info: {
       backgroundColor: Gray_700,
-      textColor: White_100,
+      textColor: White,
     },
   };
 
@@ -56,8 +56,8 @@ export const Label: React.FC<LabelProps & ViewProps> = ({ title, variant = 'info
         style,
       ]}
     >
-      <Typography.Body children={title} color={White_100} />
-      {rightIconSvg && <SvgXml width={12} height={12} color={White_100} xml={rightIconSvg} />}
+      <Typography.Body children={title} color={White} />
+      {rightIconSvg && <SvgXml width={12} height={12} color={White} xml={rightIconSvg} />}
     </View>
   );
 };
