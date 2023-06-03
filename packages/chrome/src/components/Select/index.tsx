@@ -32,6 +32,7 @@ export const SelectItem = (props: SelectItemProps) => (
 export const Select = (props: SelectProps) => (
   <RadixSelect.Root
     defaultValue={props.defualtValue}
+    value={props.value}
     onValueChange={props.onValueChange}
   >
     <RadixSelect.Trigger className="flex gap-2 items-center text-gray-600 font-medium text-medium mb-4">
