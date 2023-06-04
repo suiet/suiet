@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useLazyQuery, useQuery } from '@apollo/client';
 
 export const GET_NFT_LIST = gql`
   query GetNftList($address: Address!) {
@@ -86,4 +86,13 @@ export function useNftList(
     loading,
     ...rest,
   };
+}
+
+export function useNftListLazyQuery() {
+  return useLazyQuery<
+    { nfts: NftGqlDto[] },
+    {
+      address: string;
+    }
+  >(GET_NFT_LIST);
 }
