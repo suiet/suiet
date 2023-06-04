@@ -1,4 +1,4 @@
-export function has(obj: Object, key: string) {
+export function has(obj: unknown, key: string) {
   return (
     typeof obj === 'object' && Object.prototype.hasOwnProperty.call(obj, key)
   );

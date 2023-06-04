@@ -9,14 +9,15 @@ import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import Address from '../Address';
 import Avatar from '../Avatar';
-
+import { AvatarPfp } from '@suiet/core';
 export type WalletData = {
   id: string;
   name: string;
   accountId: string;
   accountAddress: string;
   avatar: string | undefined;
-  avatarPfp: string | undefined;
+  isImportedWallet: boolean;
+  avatarPfp: AvatarPfp | undefined;
 };
 
 type WalletItemProps = {
@@ -29,16 +30,36 @@ type WalletItemProps = {
 const WalletItem = (props: WalletItemProps) => {
   const { data } = props;
   return (
-    <div className={classnames(styles['wallet-item'])}>
+    <div
+      className={classnames(styles['wallet-item'], 'flex items-center w-full')}
+    >
       <div
-        className={classnames(styles['wallet-item-wrap'])}
+        className={classnames('flex items-center w-full ml-[12px]')}
         onClick={() => props?.onClick && props.onClick(data.id, data)}
       >
-        <Avatar model={data.avatar} size={'sm'} pfp={data?.avatarPfp} />
-        <div className={'ml-[8px]'}>
-          <Typo.Title className={styles['wallet-item-name']}>
-            {data.name}
-          </Typo.Title>
+        <Avatar
+          className="shrink-0"
+          model={data.avatar}
+          size={'sm'}
+          pfp={data?.avatarPfp}
+        ></Avatar>
+        <div className={'ml-[8px] max-w-[176px]'}>
+          <div className="flex items-center gap-2">
+            <Typo.Title
+              className={classnames(
+                styles['wallet-item-name'],
+                'text-ellipsis whitespace-nowrap shrink grow overflow-hidden'
+              )}
+            >
+              {data.name}
+            </Typo.Title>
+            {data.isImportedWallet && (
+              <div className="-my-[1px] px-[6px] py-[1px] shrink-0 text-small grow-0 text-gray-400 border border-gray-200 rounded-xl">
+                imported
+              </div>
+            )}
+          </div>
+
           <Address
             value={data.accountAddress}
             hideCopy={true}
@@ -49,7 +70,10 @@ const WalletItem = (props: WalletItemProps) => {
       </div>
 
       <Icon
-        className={classnames(styles['icon'], 'absolute right-[40px]')}
+        className={classnames(
+          styles['icon'],
+          'absolute cursor-pointer transition backdrop-blur-sm bg-white/[0.3] right-[48px] hover:bg-white/[0.6] rounded-lg'
+        )}
         icon={<IconEdit />}
         onClick={(e) => {
           e.stopPropagation();
@@ -60,10 +84,10 @@ const WalletItem = (props: WalletItemProps) => {
       <Icon
         icon={'Trash'}
         // stroke={'#f04438'}
-        elClassName="transition-all w-[16px] stroke-gray-500 hover:stroke-[#f04438]"
+        elClassName="transition-all w-[16px] h-[16px] stroke-gray-500 hover:stroke-[#f04438]"
         className={classnames(
           styles['icon'],
-          'absolute right-[16px] stroke-zinc-100 hover:stroke-[#f04438]'
+          'absolute cursor-pointer transition backdrop-blur-sm bg-white/[0.3] hover:bg-white/[0.6] rounded-lg right-[22px] stroke-zinc-100 hover:stroke-[#f04438]'
         )}
         onClick={(e) => {
           e.stopPropagation();

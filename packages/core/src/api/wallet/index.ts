@@ -6,6 +6,8 @@ import { toAccountIdString, toAccountNameString } from '../account';
 import { Buffer } from 'buffer';
 import { whichAvatar } from './utils';
 import { prepareVault } from '../../utils/vault';
+import { IsImportedWallet, isImportedAccount } from '../../storage/types';
+import elliptic from 'elliptic';
 
 export type CreateWalletParams = {
   token: string;
@@ -15,6 +17,12 @@ export type CreateWalletParams = {
   avatar?: string;
 };
 
+export type ImportWalletParams = {
+  token: string;
+  private: string;
+  name?: string;
+  avatar?: string;
+};
 export type AvatarPfp = {
   objectId: string;
   uri: string;
@@ -51,6 +59,7 @@ export type Wallet = {
   accounts: AccountInWallet[];
   nextAccountId: number;
   avatar?: string;
+  isImported: boolean;
   avatarPfp?: AvatarPfp;
 };
 
@@ -69,6 +78,7 @@ export interface IWalletApi {
   ) => Promise<Wallet | null>;
   updateWallet: (params: UpdateWalletParams) => Promise<void>;
   deleteWallet: (params: DeleteWalletParams) => Promise<void>;
+  importWallet: (params: ImportWalletParams) => Promise<Wallet>;
 }
 
 export class WalletApi implements IWalletApi {
@@ -90,9 +100,12 @@ export class WalletApi implements IWalletApi {
     if (!wallet) {
       throw new Error('Wallet not exist');
     }
+    if (IsImportedWallet(wallet)) {
+      throw new Error('Wallet is not HD wallet');
+    }
     return crypto.decryptMnemonic(
       Buffer.from(token, 'hex'),
-      wallet.encryptedMnemonic
+      wallet.encryptedMnemonic!
     );
   }
 
@@ -108,7 +121,7 @@ export class WalletApi implements IWalletApi {
       throw new Error('Account not exist');
     }
     const vault = await prepareVault(wallet, account, token);
-    return vault.hdKey.getPrivateKey().toString('hex');
+    return vault.key.getPrivateKey().toString('hex');
   }
 
   async createWallet(params: CreateWalletParams): Promise<Wallet> {
@@ -116,8 +129,6 @@ export class WalletApi implements IWalletApi {
     let mnemonic;
     if (params.mnemonic) {
       mnemonic = params.mnemonic;
-    } else if (params.private) {
-      mnemonic = crypto.entropyToMnemonic(Buffer.from(params.private, 'hex'));
     } else {
       mnemonic = crypto.generateMnemonic();
     }
@@ -141,10 +152,15 @@ export class WalletApi implements IWalletApi {
       nextAccountId: 2,
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
       avatar: params.avatar ? params.avatar : whichAvatar(walletId),
+      isImported: false,
     };
     const hdPath = crypto.derivationHdPath(0);
     const t = Date.now();
-    const vault = await Vault.create(hdPath, token, wallet.encryptedMnemonic);
+    const vault = await Vault.fromEncryptedMnemonic(
+      hdPath,
+      token,
+      wallet.encryptedMnemonic
+    );
     console.log('vault create time', Date.now() - t);
     // TODO: cache vaults
     const account = {
@@ -169,13 +185,17 @@ export class WalletApi implements IWalletApi {
 
   async getWallets(opts?: { withMnemonic?: boolean }): Promise<Wallet[]> {
     const { withMnemonic = false } = opts ?? {};
-    const wallets = await this.storage.getWallets();
-    if (!withMnemonic) {
-      wallets.forEach((wallet) => {
-        if (wallet.encryptedMnemonic) {
-          Reflect.deleteProperty(wallet, 'encryptedMnemonic');
-        }
-      });
+    const wallets = [] as Wallet[];
+    const storeWallets = await this.storage.getWallets();
+    for (const w of storeWallets) {
+      const wallet: Wallet = {
+        isImported: IsImportedWallet(w),
+        ...w,
+      };
+      if (!withMnemonic) {
+        Reflect.deleteProperty(wallet, 'encryptedMnemonic');
+      }
+      wallets.push(wallet);
     }
     return wallets;
   }
@@ -191,11 +211,15 @@ export class WalletApi implements IWalletApi {
     if (!walletData) {
       return null;
     }
+    const wallet: Wallet = {
+      isImported: IsImportedWallet(walletData),
+      ...walletData,
+    };
     // TODO: we don't need to reveal the decrypt mnemonic here.
     if (!withMnemonic && walletData.encryptedMnemonic) {
-      Reflect.deleteProperty(walletData, 'encryptedMnemonic');
+      Reflect.deleteProperty(wallet, 'encryptedMnemonic');
     }
-    return walletData;
+    return wallet;
   }
 
   async updateWallet(params: UpdateWalletParams) {
@@ -247,12 +271,135 @@ export class WalletApi implements IWalletApi {
   ): Promise<boolean> {
     const wallets = await this.storage.getWallets();
     for (const wallet of wallets) {
+      if (IsImportedWallet(wallet)) {
+        continue;
+      }
       const decryptedMnemonic = crypto.decryptMnemonic(
         token,
-        wallet.encryptedMnemonic
+        wallet.encryptedMnemonic!
       );
       if (decryptedMnemonic === mnemonic) {
         return true;
+      }
+    }
+    return false;
+  }
+
+  async importWallet(params: ImportWalletParams): Promise<Wallet> {
+    await validateToken(this.storage, params.token);
+    const token = Buffer.from(params.token, 'hex');
+    const privateKeyArrayBuffer = Buffer.from(params.private, 'hex');
+    let privateKeyPair;
+    try {
+      privateKeyPair = new elliptic.eddsa('ed25519').keyFromSecret(
+        Buffer.from(privateKeyArrayBuffer)
+      );
+    } catch (e) {
+      throw new Error('Imported private key not valid');
+    }
+    if (await this.checkPrivateDuplicated(privateKeyPair, token)) {
+      throw new Error('Private key already exsist');
+    }
+    const meta = await this.storage.loadMeta();
+    if (!meta) {
+      throw new Error('Password not initialized');
+    }
+    const walletId = meta.nextWalletId;
+    meta.nextWalletId += 1;
+    const walletIdStr = toWalletIdString(walletId);
+    const accountIdStr = toAccountIdString(walletIdStr, 0);
+    const wallet: Wallet = {
+      id: toWalletIdString(walletId),
+      name: params.name ? params.name : toWalletNameString(walletId),
+      accounts: [],
+      nextAccountId: 2,
+      avatar: params.avatar ? params.avatar : whichAvatar(walletId),
+      isImported: true,
+    };
+    const t = Date.now();
+    const encryptedPrivateKey = crypto
+      .encryptPrivate(token, privateKeyArrayBuffer)
+      .toString('hex');
+    const vault = await Vault.fromEncryptedPrivateKey(
+      token,
+      encryptedPrivateKey
+    );
+    console.log('vault create time', Date.now() - t);
+    // TODO: cache vaults
+    const account = {
+      id: accountIdStr,
+      name: toAccountNameString(wallet.name, 0),
+      pubkey: vault.getPublicKey(),
+      address: vault.getAddress(),
+      encryptedPrivateKey,
+    };
+    wallet.accounts.push({
+      id: account.id,
+      address: account.address,
+    });
+
+    // TODO: save these states transactionally.
+    await this.storage.saveMeta(meta);
+    await this.storage.addAccount(wallet.id, account.id, account);
+    await this.storage.addWallet(wallet.id, wallet);
+
+    return wallet;
+  }
+
+  async checkPrivateDuplicated(
+    privateKey: elliptic.eddsa.KeyPair,
+    token: Buffer
+  ): Promise<boolean> {
+    const wallets = await this.storage.getWallets();
+    for (const wallet of wallets) {
+      if (IsImportedWallet(wallet)) {
+        for (const account of wallet.accounts) {
+          const accountData = await this.storage.getAccount(account.id);
+          if (!accountData) {
+            throw new Error(
+              `Data inconsistency: wallet ${wallet.id} account ${account.id} not exist`
+            );
+          }
+          if (!isImportedAccount(accountData)) {
+            throw new Error(
+              `Data inconsistency: account ${account.id} is not imported`
+            );
+          }
+          const decryptedPrivateKey = crypto.decryptPrivate(
+            token,
+            accountData.encryptedPrivateKey!
+          );
+          if (
+            decryptedPrivateKey.getSecret('hex') === privateKey.getSecret('hex')
+          ) {
+            return true;
+          }
+        }
+      } else {
+        for (const account of wallet.accounts) {
+          const accountData = await this.storage.getAccount(account.id);
+          if (!accountData) {
+            throw new Error(
+              `Data inconsistency: wallet ${wallet.id} account ${account.id} not exist`
+            );
+          }
+          if (isImportedAccount(accountData)) {
+            throw new Error(
+              `Data inconsistency: account ${account.id} is imported`
+            );
+          }
+          const vault = await Vault.fromEncryptedMnemonic(
+            accountData.hdPath!,
+            token,
+            wallet.encryptedMnemonic!
+          );
+          if (
+            vault.getPrivateKey().toString('hex') ===
+            privateKey.getSecret('hex')
+          ) {
+            return true;
+          }
+        }
       }
     }
     return false;

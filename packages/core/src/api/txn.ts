@@ -20,6 +20,7 @@ import {
 import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 import { getTransactionBlock } from '../utils/txb-factory';
+import { prepareVault } from '../utils/vault';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -470,12 +471,7 @@ export class TransactionApi implements ITransactionApi {
     if (!account) {
       throw new Error('Account not found');
     }
-    const vault = await Vault.create(
-      account.hdPath,
-      Buffer.from(token, 'hex'),
-      wallet.encryptedMnemonic
-    );
-    return vault;
+    return await prepareVault(wallet, account, token);
   }
 
   private async prepareTxEssentials(context: TxEssentials) {

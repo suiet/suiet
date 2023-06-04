@@ -89,6 +89,7 @@ const WalletSwitcherInstance = (props: {
       avatarPfp: wallet?.avatarPfp,
       accountId: account?.id ?? '',
       accountAddress: account?.address ?? '',
+      isImportedWallet: wallet.isImported,
     };
   }
 

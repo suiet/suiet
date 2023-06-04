@@ -220,7 +220,9 @@ export class IndexedDBStorage implements IStorage {
                   'Failed to remove account, wallet or account not found.'
                 )
               );
+              return;
             }
+
             this.cleanupAccount(transaction, wallet, accountId);
           };
         })
@@ -359,25 +361,30 @@ export class IndexedDBStorage implements IStorage {
     );
   }
 
-  async updateMetaAndWallets(
+  async updateMetaWalletsAndAccounts(
     meta: GlobalMeta,
-    wallets: Wallet[]
+    wallets: Wallet[],
+    accounts: Account[]
   ): Promise<void> {
     return await this.connection.then(
       async (db) =>
         await new Promise((resolve, reject) => {
           const transaction = db.transaction(
-            [StoreName.META, StoreName.WALLETS],
+            [StoreName.META, StoreName.WALLETS, StoreName.ACCOUNTS],
             'readwrite'
           );
           const metaStore = transaction.objectStore(StoreName.META);
           const walletStore = transaction.objectStore(StoreName.WALLETS);
+          const accountStore = transaction.objectStore(StoreName.ACCOUNTS);
           metaStore.put({
             id: GLOBAL_META_ID,
             ...meta,
           });
           for (const wallet of wallets) {
             walletStore.put(wallet);
+          }
+          for (const account of accounts) {
+            accountStore.put(account);
           }
 
           transaction.oncomplete = (event) => {

@@ -9,17 +9,32 @@ export type Wallet = {
   accounts: AccountInWallet[];
   nextAccountId: number;
   avatar?: string;
+  encryptedMnemonic?: string;
   avatarPfp?: AvatarPfp;
-  encryptedMnemonic: string;
 };
+
+export function IsImportedWallet(wallet: Wallet): boolean {
+  if (!wallet.encryptedMnemonic) {
+    return true;
+  }
+  return false;
+}
 
 export type Account = {
   id: string;
   name: string;
   pubkey: string;
   address: string;
-  hdPath: string;
+  hdPath?: string;
+  encryptedPrivateKey?: string;
 };
+
+export function isImportedAccount(account: Account): boolean {
+  if (!account.hdPath && account.encryptedPrivateKey) {
+    return true;
+  }
+  return false;
+}
 
 export type GlobalMeta = {
   nextWalletId: number;
