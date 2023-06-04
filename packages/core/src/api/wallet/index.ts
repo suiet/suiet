@@ -6,7 +6,12 @@ import { toAccountIdString, toAccountNameString } from '../account';
 import { Buffer } from 'buffer';
 import { whichAvatar } from './utils';
 import { prepareVault } from '../../utils/vault';
-import { IsImportedWallet, isImportedAccount } from '../../storage/types';
+import {
+  IsImportedWallet,
+  WALLET_TYPE_HDWALLET,
+  WALLET_TYPE_IMPORTED,
+  isImportedAccount,
+} from '../../storage/types';
 import elliptic from 'elliptic';
 
 export type CreateWalletParams = {
@@ -145,7 +150,7 @@ export class WalletApi implements IWalletApi {
     meta.nextWalletId += 1;
     const walletIdStr = toWalletIdString(walletId);
     const accountIdStr = toAccountIdString(walletIdStr, 0);
-    const wallet: Wallet & { encryptedMnemonic: string } = {
+    const wallet: Wallet & { encryptedMnemonic: string; type: string } = {
       id: toWalletIdString(walletId),
       name: params.name ? params.name : toWalletNameString(walletId),
       accounts: [],
@@ -153,6 +158,7 @@ export class WalletApi implements IWalletApi {
       encryptedMnemonic: encryptedMnemonic.toString('hex'),
       avatar: params.avatar ? params.avatar : whichAvatar(walletId),
       isImported: false,
+      type: WALLET_TYPE_HDWALLET,
     };
     const hdPath = crypto.derivationHdPath(0);
     const t = Date.now();
@@ -308,13 +314,14 @@ export class WalletApi implements IWalletApi {
     meta.nextWalletId += 1;
     const walletIdStr = toWalletIdString(walletId);
     const accountIdStr = toAccountIdString(walletIdStr, 0);
-    const wallet: Wallet = {
+    const wallet: Wallet & { type: string } = {
       id: toWalletIdString(walletId),
       name: params.name ? params.name : toWalletNameString(walletId),
       accounts: [],
       nextAccountId: 2,
       avatar: params.avatar ? params.avatar : whichAvatar(walletId),
       isImported: true,
+      type: WALLET_TYPE_IMPORTED,
     };
     const t = Date.now();
     const encryptedPrivateKey = crypto
