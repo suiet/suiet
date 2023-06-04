@@ -17,7 +17,6 @@ import classNames from 'classnames';
 import { ConnectedDAppsSetting } from '../../components/ConnectedDAppsSetting';
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
-import { IsImportedWallet } from '@suiet/core/src/storage/types';
 import { useWallet } from '../../hooks/useWallet';
 
 type SecurityItemProps = Extendable & {
@@ -86,7 +85,7 @@ function MainPage() {
         >
           <ConnectedDAppsSetting />
         </SecurityItem>
-        {wallet && !IsImportedWallet(wallet) && (
+        {wallet && !wallet.isImported && (
           <SecurityItem
             title={'Recovery Phrases'}
             desc={
