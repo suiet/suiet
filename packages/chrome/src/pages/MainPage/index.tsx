@@ -7,15 +7,18 @@ import { useNftList } from '../../hooks/useNftList';
 import AppLayout from '../../layouts/AppLayout';
 import { useDappList } from '../../hooks/useDappList';
 import BiometricSetup from '../../components/BiometricSetup';
+import useCheckAvatarPfpValidness from './hooks/useCheckAvatarPfpValidness';
 
 function MainPage() {
-  const { accountId, networkId } = useSelector(
+  const { accountId, networkId, walletId } = useSelector(
     (state: RootState) => state.appContext
   );
   const { address } = useAccount(accountId);
   // prefetch other tabs' data
   useNftList(address);
   useDappList();
+
+  useCheckAvatarPfpValidness(walletId, address);
 
   return (
     <AppLayout>
