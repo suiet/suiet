@@ -6,12 +6,17 @@ import Button, { ButtonState } from '../../components/Button';
 import { Extendable } from '../../types';
 import classnames from 'classnames';
 import WalletSelector from '../../pages/dapp/WalletSelector';
+import { AvatarPfp } from '@suiet/core';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { useWallet } from '../../hooks/useWallet';
 
 export type DappPopupLayoutProps = Extendable & {
   originTitle: string;
   originUrl: string;
   desc?: string;
   avatarMode?: string;
+  avatarPfp?: AvatarPfp;
   favicon?: string;
   loading?: boolean;
   okText?: string;
@@ -31,14 +36,22 @@ const DappPopupLayout = (props: DappPopupLayoutProps) => {
     cancelState = 'danger',
     showOk = true,
   } = props;
+
+  const { walletId } = useSelector((state: RootState) => state.appContext);
+  const { data: wallet } = useWallet(walletId);
+  console.log('wallet', wallet);
+
   return (
     <div className={styles['container']}>
       <div className={classnames(styles['content'], 'no-scrollbar')}>
         <header className={styles['header']}>
-          {withFavicon(<Avatar model={props.avatarMode} />, {
-            src: props.favicon ?? '',
-            alt: props.originTitle ?? 'origin',
-          })}
+          {withFavicon(
+            <Avatar model={props.avatarMode} pfp={wallet?.avatarPfp} />,
+            {
+              src: props.favicon ?? '',
+              alt: props.originTitle ?? 'origin',
+            }
+          )}
           <HyperLink url={props.originUrl} className={'mt-[16px]'} />
           <Typo.Title
             ellipsis={true}
