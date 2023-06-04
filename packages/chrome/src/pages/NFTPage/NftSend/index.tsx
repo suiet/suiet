@@ -21,6 +21,7 @@ import createTransactionNftTxb from '@suiet/core/src/utils/txb-factory/createTra
 import useKioskMetaLazyQuery from '../../../hooks/nft/useKioskMetaLazyQuery';
 import { SuiAddress } from '@mysten/sui.js';
 import useGasBudgetForNftSend from '../hooks/useGasBudgetForNftSend';
+import { useWallet } from '../../../hooks/useWallet';
 
 interface SendFormValues {
   address: string;
@@ -33,6 +34,7 @@ export default function SendNft() {
   const [sendLoading, setSendLoading] = useState(false);
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: network } = useNetwork(appContext.networkId);
+  const { data: wallet, unsetPfpAvatar } = useWallet(appContext.walletId);
   const {
     objectType,
     id,
@@ -128,13 +130,19 @@ export default function SendNft() {
         { withAuth: true }
       );
       message.success('Send succeeded');
-      navigate('/transaction/flow');
     } catch (e: any) {
       console.error(e);
       message.error(`Send failed: ${e?.message}`);
+      return;
     } finally {
       setSendLoading(false);
     }
+
+    // check if this nft is set as avatar, if so, unset it
+    if (wallet?.avatarPfp && wallet.avatarPfp?.objectId === id) {
+      await unsetPfpAvatar();
+    }
+    navigate('/transaction/flow');
   };
 
   useEffect(() => {
