@@ -2,10 +2,13 @@ import { ExecutionStatusType } from '@mysten/sui.js';
 import { AccountInWallet, AvatarPfp } from '../api/wallet';
 
 export const WALLET_PREFIX = 'wallet-';
+export const WALLET_TYPE_HDWALLET = '';
+export const WALLET_TYPE_IMPORTED = 'imported';
 
 export type Wallet = {
   id: string;
   name: string;
+  type: string;
   accounts: AccountInWallet[];
   nextAccountId: number;
   avatar?: string;
