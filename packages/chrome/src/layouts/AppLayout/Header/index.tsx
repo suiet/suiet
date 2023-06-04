@@ -86,6 +86,7 @@ const WalletSwitcherInstance = (props: {
       id: wallet.id,
       name: wallet.name,
       avatar: wallet.avatar,
+      avatarPfp: wallet?.avatarPfp,
       accountId: account?.id ?? '',
       accountAddress: account?.address ?? '',
     };
@@ -189,7 +190,7 @@ function Header(props: HeaderProps) {
 
   return (
     <div className={classnames(styles['header-container'], props.className)}>
-      <Avatar size={'sm'} model={wallet?.avatar} />
+      <Avatar size={'sm'} model={wallet?.avatar} pfp={wallet?.avatarPfp} />
       <div
         className={styles['account']}
         onClick={() => {

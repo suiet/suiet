@@ -5,7 +5,12 @@ import NftImg from '../../../components/NftImg';
 import styles from './index.module.scss';
 import Typo from '../../../components/Typo';
 import classnames from 'classnames';
-import { addressEllipsis, isNftTransferable } from '@suiet/core';
+import {
+  addressEllipsis,
+  AvatarPfp,
+  isNftTransferable,
+  UpdateWalletParams,
+} from '@suiet/core';
 import copy from 'copy-to-clipboard';
 import message from '../../../components/message';
 import CopyIcon from '../../../components/CopyIcon';
@@ -16,10 +21,23 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { NftMeta } from '../NftList';
 import Tooltip from '../../../components/Tooltip';
+import classNames from 'classnames';
+import Button from '../../../components/Button';
+import { useApiClient } from '../../../hooks/useApiClient';
+import { OmitToken } from '../../../types';
+import { useWallet } from '../../../hooks/useWallet';
 
 const NftDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const apiClient = useApiClient();
+  const { walletId } = useSelector((state: RootState) => state.appContext);
+  const {
+    data: wallet,
+    setPfpAvatar,
+    unsetPfpAvatar,
+    refetch,
+  } = useWallet(walletId);
   const {
     objectType = '',
     id = '',
@@ -33,6 +51,8 @@ const NftDetail = () => {
     attributes,
     verification,
   }: NftMeta = location.state ?? ({} as any);
+
+  console.log('location.state', location.state);
 
   const appContext = useSelector((state: RootState) => state.appContext);
 
@@ -48,6 +68,47 @@ const NftDetail = () => {
     );
   }
 
+  const setPfpAsWalletAvatar = async () => {
+    try {
+      await setPfpAvatar({
+        objectId: id,
+        uri: url,
+        mime: 'image/png',
+      });
+      await refetch();
+      message.success('Set as avatar successfully');
+    } catch (e) {
+      message.error('Failed to set as avatar');
+      console.error(e);
+    }
+  };
+
+  const unsetPfpAvatarForWallet = async () => {
+    try {
+      await unsetPfpAvatar();
+      await refetch();
+      message.success('Unset avatar successfully');
+    } catch (e) {
+      message.error('Failed to unset avatar');
+      console.error(e);
+    }
+  };
+
+  const renderNftAvatarButton = () => {
+    if (wallet?.avatarPfp && wallet?.avatarPfp.objectId === id) {
+      return (
+        <Button onClick={unsetPfpAvatarForWallet} state={'solid'}>
+          Unset Avatar
+        </Button>
+      );
+    }
+    return (
+      <Button onClick={setPfpAsWalletAvatar} state={'solid'}>
+        Set as Avatar
+      </Button>
+    );
+  };
+
   return (
     <div className={styles['page']}>
       <Nav
@@ -56,7 +117,7 @@ const NftDetail = () => {
           navigate('/nft');
         }}
       />
-      <div className={styles['container']}>
+      <div className={classNames(styles['container'], 'mb-[80px]')}>
         <NftImg
           src={url}
           thumbnailUrl={thumbnailUrl ?? undefined}
@@ -88,22 +149,6 @@ const NftDetail = () => {
               </Typo.Small>
             </div>
           </div>
-          {/* TODO: add hasPublicTransfer indicator in graphql  */}
-          {isNftTransferable({
-            hasPublicTransfer,
-            kioskObjectId,
-          }) && (
-            <div
-              className={classnames(styles['nft-send'], 'flex-grow-0')}
-              onClick={() => {
-                navigate('/nft/send', {
-                  state: location.state,
-                });
-              }}
-            >
-              Send
-            </div>
-          )}
         </div>
 
         <section className={styles['nft-meta']}>
@@ -195,6 +240,28 @@ const NftDetail = () => {
           </div>
         </section>
       </div>
+      <footer
+        className={
+          'fixed bottom-0 w-full h-[80px] p-[16px] flex items-center gap-[8px] border-t-[1px] bg-white'
+        }
+      >
+        {renderNftAvatarButton()}
+        {isNftTransferable({
+          hasPublicTransfer,
+          kioskObjectId,
+        }) && (
+          <Button
+            state={'primary'}
+            onClick={() => {
+              navigate('/nft/send', {
+                state: location.state,
+              });
+            }}
+          >
+            Send
+          </Button>
+        )}
+      </footer>
     </div>
   );
 };
