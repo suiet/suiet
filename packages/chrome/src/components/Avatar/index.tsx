@@ -16,7 +16,7 @@ const Avatar = (props: AvatarProps) => {
   let _model = Number(props.model);
   _model = _model >= 1 && _model <= 4 ? _model : 1;
 
-  if (props.pfp && props.pfp?.uri) {
+  if (props.pfp?.uri) {
     return (
       <NftImg
         src={props.pfp.uri}

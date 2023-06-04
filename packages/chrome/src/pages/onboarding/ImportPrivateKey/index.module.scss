@@ -1,0 +1,9 @@
+@import '../../../styles/variables';
+
+.page {
+  @apply no-scrollbar;
+  width: $full-width;
+  height: 100%;
+  background-color: $white;
+  overflow-y: auto;
+}

@@ -6,6 +6,7 @@ import { generateClientId } from '../utils/clientId';
 import { Vault } from '../vault/Vault';
 import { MetadataMissingError, NoAuthError } from '../errors';
 import { type } from 'superstruct';
+import { IsImportedWallet, isImportedAccount } from '../storage/types';
 
 export type UpdatePasswordParams = {
   oldPassword: string;
@@ -76,24 +77,48 @@ export class AuthApi implements IAuthApi {
       nextWalletId: meta.nextWalletId,
       dataVersion: DATA_VERSION,
     };
-    const wallets = await this.storage.getWallets();
+    let wallets = await this.storage.getWallets();
+    let accounts = [];
     {
       const t = Date.now();
       try {
-        wallets.forEach((wallet) => {
+        for (let i = 0; i < wallets.length; i++) {
+          if (IsImportedWallet(wallets[i])) {
+            for (let a of wallets[i].accounts) {
+              let account = await this.storage.getAccount(a.id);
+              if (!account) {
+                throw new Error(
+                  `Data inconsistency: wallet ${wallets[i].id} account ${a.id} not exist`
+                );
+              }
+              if (!isImportedAccount(account)) {
+                throw new Error(
+                  `Data inconsistenct error: account ${a.id} is not imported`
+                );
+              }
+              const privateKey = crypto
+                .decryptPrivate(currentToken, account.encryptedPrivateKey!)
+                .getSecret();
+              account.encryptedPrivateKey = crypto
+                .encryptPrivate(newToken, privateKey)
+                .toString('hex');
+              accounts.push(account);
+            }
+            continue;
+          }
           const mnemonic = crypto.decryptMnemonic(
             currentToken,
-            wallet.encryptedMnemonic
+            wallets[i].encryptedMnemonic!
           );
-          wallet.encryptedMnemonic = crypto
+          wallets[i].encryptedMnemonic = crypto
             .encryptMnemonic(newToken, mnemonic)
             .toString('hex');
-        });
+        }
       } finally {
         console.log('decryptMnemonic', Date.now() - t);
       }
     }
-    await this.storage.updateMetaAndWallets(newMeta, wallets);
+    await this.storage.updateMetaWalletsAndAccounts(newMeta, wallets, accounts);
 
     {
       const t = Date.now();
@@ -410,23 +435,30 @@ async function maybeFixDataConsistency(storage: IStorage, token: string) {
         throw new Error('Check data consistency failed: account data missing');
         continue;
       }
-      const res = accountData.hdPath.match(/^m\/44'\/784'\/(\d+)'$/);
-      const t = Date.now();
-      // console.log(res, accountData);
-      if (res) {
-        const path = crypto.derivationHdPath(+res[1]);
-        console.debug(
-          `update account hd path from ${accountData.hdPath} to ${path}`
+      let vault: Vault;
+      if (isImportedAccount(accountData)) {
+        vault = await Vault.fromEncryptedPrivateKey(
+          Buffer.from(token, 'hex'),
+          accountData.encryptedPrivateKey!
         );
-        accountData.hdPath = path;
+      } else {
+        const hdPath = accountData.hdPath!;
+        const res = hdPath.match(/^m\/44'\/784'\/(\d+)'$/);
+        const t = Date.now();
+        // console.log(res, accountData);
+        if (res) {
+          const path = crypto.derivationHdPath(+res[1]);
+          console.debug(`update account hd path from ${hdPath} to ${path}`);
+          accountData.hdPath = path;
+        }
+        console.log('crypto.derivationHdPath', Date.now() - t);
+        vault = await Vault.fromEncryptedMnemonic(
+          hdPath,
+          Buffer.from(token, 'hex'),
+          wallet.encryptedMnemonic!
+        );
+        console.log('Vault.create', Date.now() - t);
       }
-      console.log('crypto.derivationHdPath', Date.now() - t);
-      const vault = await Vault.create(
-        accountData.hdPath,
-        Buffer.from(token, 'hex'),
-        wallet.encryptedMnemonic
-      );
-      console.log('Vault.create', Date.now() - t);
       if (
         accountData.address !== vault.getAddress() ||
         accountData.pubkey !== vault.getPublicKey()

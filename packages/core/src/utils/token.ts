@@ -2,6 +2,7 @@ import * as crypto from '../crypto';
 import { IStorage } from '../storage';
 import { Buffer } from 'buffer';
 import { Vault } from '../vault/Vault';
+import { prepareVault } from './vault';
 
 export async function validateToken(storage: IStorage, token: string) {
   if (!token) {
@@ -37,11 +38,7 @@ async function validateAddress(params: ValidateAccountParams) {
   if (!account) {
     throw new Error(`Account ${params.accountId} not found`);
   }
-  const vault = await Vault.create(
-    account.hdPath,
-    Buffer.from(params.token, 'hex'),
-    wallet.encryptedMnemonic
-  );
+  const vault = await prepareVault(wallet, account, params.token);
   if (vault.getAddress() !== account.address) {
     throw new Error(
       `Critical: address ${

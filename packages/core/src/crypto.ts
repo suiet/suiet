@@ -13,6 +13,8 @@ import { wordlist as szhWordlist } from '@scure/bip39/wordlists/simplified-chine
 import { wordlist as spWordlist } from '@scure/bip39/wordlists/spanish';
 import { wordlist as tzhWordlist } from '@scure/bip39/wordlists/traditional-chinese';
 import randomBytes from 'randombytes';
+import elliptic from 'elliptic';
+import { func } from 'superstruct';
 
 const WALLET_MASTER_SECRET = 'suiet wallet';
 const COIN_TYPE_SUI = '784';
@@ -57,6 +59,29 @@ export function decryptMnemonic(
   }
   console.log('decryptMnemonic', Date.now() - t);
   return mnemonic;
+}
+
+export function encryptPrivate(token: Buffer, privateKey: ArrayBuffer): Buffer {
+  const aesCtr = new ModeOfOperation.ctr(token);
+  return Buffer.from(aesCtr.encrypt(privateKey));
+}
+
+export function decryptPrivate(
+  token: Buffer,
+  encryptedPrivate: string
+): elliptic.eddsa.KeyPair {
+  const aesCtr = new ModeOfOperation.ctr(token);
+  const encryptedBytes = Buffer.from(encryptedPrivate, 'hex');
+  const privateBytes = aesCtr.decrypt(encryptedBytes);
+  let keyPair;
+  try {
+    keyPair = new elliptic.eddsa('ed25519').keyFromSecret(
+      Buffer.from(privateBytes)
+    );
+  } catch (e) {
+    throw new Error('Invalid password');
+  }
+  return keyPair;
 }
 
 export function newToken(password: string): Token {

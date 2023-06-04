@@ -26,7 +26,11 @@ export default interface IStorage {
   loadMeta: () => Promise<GlobalMeta | null>;
   saveMeta: (meta: GlobalMeta) => Promise<void>;
   clearMeta: () => Promise<void>;
-  updateMetaAndWallets: (meta: GlobalMeta, wallets: Wallet[]) => Promise<void>;
+  updateMetaWalletsAndAccounts: (
+    meta: GlobalMeta,
+    wallets: Wallet[],
+    accounts: Account[]
+  ) => Promise<void>;
 
   reset: () => Promise<void>;
 }

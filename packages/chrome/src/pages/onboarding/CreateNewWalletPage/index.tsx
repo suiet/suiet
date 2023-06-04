@@ -1,6 +1,4 @@
-import SetPassword from '../SetPassword';
-import SavePhrase from '../SavePhrase';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
@@ -25,15 +23,22 @@ import { sleep } from '../../../utils/time';
 import { OmitToken } from '../../../types';
 import { useFeatureFlags } from '../../../hooks/useFeatureFlags';
 import styles from './index.module.scss';
+import SavePhraseView from './views/SavePhraseView';
+import { useAsyncEffect } from 'ahooks';
+
+// enum Step {
+//   DISPLAY_PHRASE = 1,
+// }
 
 const CreateNewWallet = () => {
-  const [step, setStep] = useState(1);
+  // const [step, setStep] = useState(Step.DISPLAY_PHRASE);
   const [phrases, setPhrases] = useState<string[]>([]);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const pageEntry = usePageEntry();
   const apiClient = useApiClient();
   const featureFlags = useFeatureFlags();
+  const isCreating = useRef(false);
 
   async function createWalletAndAccount() {
     const wallet = await apiClient.callFunc<
@@ -65,69 +70,30 @@ const CreateNewWallet = () => {
 
     await dispatch(updateWalletId(wallet.id));
     await dispatch(updateAccountId(defaultAccount.id));
-    await dispatch(updateNetworkId(featureFlags?.default_network ?? 'devnet'));
+    await dispatch(updateNetworkId(featureFlags?.default_network ?? 'mainnet'));
     await dispatch(updateInitialized(true));
-  }
-
-  async function handleSetPassword(password: string) {
-    await apiClient.callFunc<string, undefined>('auth.initPassword', password);
-    await createWalletAndAccount();
-    setStep((s) => s + 1);
   }
 
   async function handleSavePhrase() {
     message.success('Wallet Created!');
     if (pageEntry === PageEntry.SWITCHER) {
-      await sleep(300); // wait for wallet created
       navigate('/home', { state: { openSwitcher: true } });
       return;
     }
     navigate('/home');
   }
 
-  async function handleCreateFromSwitcher() {
+  useAsyncEffect(async () => {
+    if (isCreating.current) return;
+
+    isCreating.current = true;
     await createWalletAndAccount();
-    setStep((s) => s + 1);
-  }
-
-  // detect if coming from other entry
-  useEffect(() => {
-    if (pageEntry === PageEntry.SWITCHER) {
-      handleCreateFromSwitcher();
-    }
-  }, [pageEntry]);
-
-  function renderContent() {
-    switch (step) {
-      case 2:
-        return <SavePhrase phrases={phrases} onNext={handleSavePhrase} />;
-      default:
-        return <SetPassword onNext={handleSetPassword} />;
-    }
-  }
-
-  function handleNavBack() {
-    if (pageEntry === PageEntry.SWITCHER) {
-      navigate('/', {
-        state: { openSwitcher: true }, // open the wallet switcher
-      });
-      return;
-    }
-    if (step > 1) {
-      setStep((step) => step - 1);
-      return;
-    }
-    navigate('/onboard/welcome');
-  }
+  }, []);
 
   return (
     <div className={styles['page']}>
-      <Nav
-        title={'New Wallet'}
-        navDisabled={step === 2}
-        onNavBack={handleNavBack}
-      />
-      {renderContent()}
+      <Nav title={'Create New'} navDisabled={true} />
+      <SavePhraseView phrases={phrases} onNext={handleSavePhrase} />
     </div>
   );
 };

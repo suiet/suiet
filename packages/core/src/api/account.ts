@@ -3,13 +3,16 @@ import * as crypto from '../crypto';
 import { Vault } from '../vault/Vault';
 import { IStorage } from '../storage';
 import { isNonEmptyArray } from '../utils';
+import { IsImportedWallet } from '../storage/types';
+import { prepareVault } from '../utils/vault';
 
 export interface Account {
   id: string;
   name: string;
   address: string;
   pubkey: string;
-  hdPath: string;
+  hdPath?: string;
+  encryptedPrivkey?: string;
 }
 
 export interface IAccountApi {
@@ -49,15 +52,18 @@ export class AccountApi implements IAccountApi {
     if (!wallet) {
       throw new Error('Wallet not exist');
     }
+    if (IsImportedWallet(wallet)) {
+      throw new Error('Wallet is not HD wallet');
+    }
 
     const accountId = wallet.nextAccountId;
     wallet.nextAccountId += 1;
     const accountIdStr = toAccountIdString(wallet.id, accountId);
     const hdPath = crypto.derivationHdPath(accountId - 1);
-    const vault = await Vault.create(
+    const vault = await Vault.fromEncryptedMnemonic(
       hdPath,
       Buffer.from(token, 'hex'),
-      wallet.encryptedMnemonic
+      wallet.encryptedMnemonic!
     );
     // TODO: cache vaults
     const account = {
@@ -133,13 +139,11 @@ export class AccountApi implements IAccountApi {
       if (!wallet) {
         throw new Error('Wallet not exist');
       }
-      const accountIdNumber = getAccountIdNumberFromString(accountId);
-      const hdPath = crypto.derivationHdPath(accountIdNumber);
-      const vault = await Vault.create(
-        hdPath,
-        Buffer.from(token, 'hex'),
-        wallet.encryptedMnemonic
-      );
+      const account = await this.storage.getAccount(accountId);
+      if (!account) {
+        throw new Error('Account not exist');
+      }
+      const vault = await prepareVault(wallet, account, token);
       return vault.getAddress();
     };
 
