@@ -120,7 +120,7 @@ function AddressInputPage({
             isValidDomain(formAddress) &&
             !namerServiceAddress && (
               <div className="mt-4 p-2 px-3 rounded-lg bg-orange-100 border border-orange-200 break-words text-orange-500">
-                <p>Invalid domain name</p>
+                <p>Unable to resolve domain name</p>
               </div>
             )}
           {loading ? (
