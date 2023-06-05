@@ -42,3 +42,33 @@ export async function resolveAddress(
 //     },
 //   });
 // }
+
+/**
+ * resolve default name for address
+ * @param address
+ * @param opts
+ */
+export async function resolveDomain(
+  domain: string,
+  opts: {
+    networkId: string;
+  }
+) {
+  if (typeof domain !== 'string' || typeof opts?.networkId !== 'string') {
+    throw new Error('invalid params');
+  }
+  const resultMap: Record<string, any> = await suietHttp.get(
+    envUrl('/ns/resolve', opts.networkId),
+    {
+      params: {
+        domain,
+      },
+    }
+  );
+  if (!has(resultMap, domain)) return undefined;
+  const info = resultMap[domain];
+  if (!has(info, 'address')) {
+    throw new Error('response data structure incorrect');
+  }
+  return info.address;
+}
