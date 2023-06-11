@@ -14,7 +14,7 @@ import { log, logError } from './utils/log';
 import { cloneDeep, has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
 import { BizError, ErrorCode, NoAuthError } from './errors';
-import Port, { IPort } from './utils/Port';
+import { IPort } from './utils/Port';
 
 interface RootApi {
   clearToken: () => Promise<void>;
