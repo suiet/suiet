@@ -14,6 +14,7 @@ import { log, logError } from './utils/log';
 import { cloneDeep, has } from 'lodash-es';
 import { DappBgApi } from './bg-api/dapp';
 import { BizError, ErrorCode, NoAuthError } from './errors';
+import Port, { IPort } from './utils/Port';
 
 interface RootApi {
   clearToken: () => Promise<void>;
@@ -30,7 +31,7 @@ export interface BackgroundApiContext {
  */
 export class BackgroundApiProxy {
   protected storage: IStorage;
-  readonly #ports: chrome.runtime.Port[] = [];
+  readonly #ports: IPort[] = [];
   #serviceProxyCache: Record<string, any>;
 
   #root: RootApi;
@@ -50,24 +51,24 @@ export class BackgroundApiProxy {
    * proxy the function call to the actual method
    * @param port
    */
-  public listen(port: chrome.runtime.Port) {
+  public listen(port: IPort) {
     log('set up listener for port: ', port.name);
+
     this.#ports.push(port);
     // log('this.ports after adding', this.ports);
     const subscription = this.#setUpFuncCallProxy(port);
 
     // Triggers when:
     // - No listeners at the other end
-    // - The tab containing the port is unloaded (for example, if the tab is navigated).
-    // - The frame where connect() was called has unloaded.
-    // - All frames that received the port (via runtime.onConnect) have unloaded.
+    // - The tab that contains the port is unloaded (for example, if the tab is navigated).
+    // - The frame where connect() was called is unloaded.
+    // - All frames that received the port (via runtime.onConnect) are unloaded.
     // - runtime.Port.disconnect() is called by the other end.
     port.onDisconnect.addListener(() => {
       subscription.unsubscribe();
-      const index = this.#ports.findIndex((p) => p === port);
+      const index = this.#ports.findIndex((p) => p === port); // find port by instance
       log(`unsubscribe port ${port.name} and index: ${index}`);
       this.#ports.splice(index, 1);
-      // log('this.ports after removal', this.ports);
     });
   }
 
@@ -143,7 +144,7 @@ export class BackgroundApiProxy {
    * @param port
    * @private
    */
-  #setUpFuncCallProxy(port: chrome.runtime.Port) {
+  #setUpFuncCallProxy(port: IPort) {
     // create msg source from chrome port to be subscribed
     const portObservable = fromEventPattern(
       (h) => port.onMessage.addListener(h),
