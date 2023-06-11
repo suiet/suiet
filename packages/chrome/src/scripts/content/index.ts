@@ -2,6 +2,8 @@ import { PortName, WindowMsg, WindowMsgTarget } from '../shared';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
 import { getSiteMetadata, SiteMetadata } from './utils';
 import { validateExternalWindowMsg } from './utils';
+import Port from '../background/utils/Port';
+import KeepAliveConnection from '../background/connections/KeepAliveConnection';
 
 function injectDappInterface() {
   const script = document.createElement('script');
@@ -23,7 +25,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
     WindowMsgTarget.DAPP,
     siteMetadata.origin
   );
-  const port = chrome.runtime.connect({
+  const port = new Port({
     name: PortName.SUIET_CONTENT_BACKGROUND,
   });
 
@@ -67,24 +69,13 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   return port;
 }
 
-/**
- * Workaround to avoid service-worker be killed by Chrome
- * https://stackoverflow.com/questions/66618136/persistent-service-worker-in-chrome-extension
- */
-function keepServiceWorkerAlive() {
-  let port: chrome.runtime.Port;
-  function connect() {
-    port = chrome.runtime.connect({ name: PortName.SUIET_KEEP_ALIVE });
-    // Everytime the port gets killed, reconnect it
-    port.onDisconnect.addListener(connect);
-  }
-  connect();
-}
+(function main() {
+  injectDappInterface();
+  const keepAlive = new KeepAliveConnection();
+  keepAlive.connect();
+})();
 
-injectDappInterface();
-keepServiceWorkerAlive();
-
-(async function main() {
+(async function asyncMain() {
   const siteMetadata = await getSiteMetadata();
   setupMessageProxy(siteMetadata);
 })();

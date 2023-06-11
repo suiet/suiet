@@ -10,6 +10,8 @@ import { isDev } from '../../utils/env';
 import { ErrorCode } from '../background/errors';
 import mitt, { Emitter } from 'mitt';
 import errorToString from './errorToString';
+import Port from '../background/utils/Port';
+import KeepAliveConnection from '../background/connections/KeepAliveConnection';
 
 function log(message: string, details?: any, devOnly = true) {
   if (devOnly && !isDev) return;
@@ -27,39 +29,27 @@ export type ApiClientEventsMap = {
 };
 
 export class BackgroundApiClient {
-  private port: chrome.runtime.Port;
+  private port: Port;
   private portObservable: Observable<BackgroundResData>;
-  private connected: boolean = false;
   private readonly events: Emitter<ApiClientEventsMap>;
 
   constructor() {
     this.events = mitt();
     this.connect();
+
+    // maintain a connection to the background script
+    const keepAlive = new KeepAliveConnection();
+    keepAlive.connect();
   }
 
   private connect() {
-    this.port = chrome.runtime.connect({
+    this.port = new Port({
       name: PortName.SUIET_UI_BACKGROUND,
     });
-    log('connect to port', this.port);
-    this.connected = true;
-
     this.initPortObservable(this.port);
-    this.port.onDisconnect.addListener(() => {
-      log('port disconnected');
-      this.connected = false;
-
-      // retry connection
-      try {
-        this.connect();
-        log('retry port reconnection after disconnected');
-      } catch (e) {
-        console.error('reconnect to port failed', e);
-      }
-    });
   }
 
-  private initPortObservable(port: chrome.runtime.Port) {
+  private initPortObservable(port: Port) {
     this.portObservable = fromEventPattern(
       (h) => port.onMessage.addListener(h),
       (h) => port.onMessage.removeListener(h),
@@ -78,7 +68,7 @@ export class BackgroundApiClient {
     payload: Req,
     options?: CallFuncOption
   ): Promise<Res> {
-    if (!this.connected) {
+    if (!this.port.connected) {
       log('port is disconnected', this.port);
       throw new Error('[api client] port is disconnected');
     }
@@ -87,19 +77,8 @@ export class BackgroundApiClient {
       typeof payload === 'undefined' ? null : payload,
       options
     );
-    try {
-      this.port.postMessage(reqParams);
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('disconnected')) {
-        this.connect();
-        this.port.postMessage(reqParams);
-        log(
-          'port is disconnected while sending messages, trigger reconnection and retry sending message'
-        );
-      } else {
-        throw e;
-      }
-    }
+
+    this.port.postMessage(reqParams);
     const result = await lastValueFrom(
       this.portObservable.pipe(
         filter((data) => data.id === reqParams.id),
