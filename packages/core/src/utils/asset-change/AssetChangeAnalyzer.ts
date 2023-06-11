@@ -44,9 +44,9 @@ export interface IAssetChangeInput {
 }
 
 export interface IAssetChangeOutput {
-  getCoinChangeList(): ICoinChangeObject[];
-  getNftChangeList(): INftChangeObject[];
-  getObjectChangeList(): IObjectChangeObject[];
+  getCoinChangeList: () => ICoinChangeObject[];
+  getNftChangeList: () => INftChangeObject[];
+  getObjectChangeList: () => IObjectChangeObject[];
 }
 
 export type ObjectOwnership = 'owned' | 'shared' | 'dynamicField' | 'unknown';
@@ -74,7 +74,7 @@ export type INftChangeObject = IObjectChangeObject & {
 };
 
 export default class AssetChangeAnalyzer {
-  private accountAddress: string;
+  private readonly accountAddress: string;
   private objectChanges: ObjectChange[];
   private balanceChanges: TokenBalanceChange[];
   private objectDataMap: Record<string, SuiObjectData>;
@@ -136,7 +136,7 @@ export default class AssetChangeAnalyzer {
       }
 
       return true;
-    }) as (SuiObjectChangeCreated | SuiObjectChangeMutated)[];
+    }) as Array<SuiObjectChangeCreated | SuiObjectChangeMutated>;
   }
 
   /**
@@ -275,9 +275,9 @@ export default class AssetChangeAnalyzer {
         accountAddress,
         objChange
       ),
-      objectType: objectType,
-      objectId: objectId,
-      digest: digest,
+      objectType,
+      objectId,
+      digest,
       version: objChange.version,
     };
   }
