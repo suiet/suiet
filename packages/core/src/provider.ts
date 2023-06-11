@@ -17,7 +17,6 @@ import {
   SuiTransactionBlockResponse,
   getTotalGasUsed,
   is,
-  RPCError as SuiRpcError,
   RPCValidationError as SuiRpcValidationError,
   SuiObjectDataOptions,
   CoinMetadata,
@@ -366,13 +365,6 @@ export class QueryProvider {
 }
 
 function handleSuiRpcError(e: unknown): never {
-  if (e instanceof SuiRpcError) {
-    throw new RpcError((e?.cause as any)?.message ?? e.message, {
-      code: e.code,
-      data: e.data,
-      cause: e.cause,
-    });
-  }
   if (e instanceof SuiRpcValidationError) {
     throw new RpcError(e.message, {
       result: e.result,
