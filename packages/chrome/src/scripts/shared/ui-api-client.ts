@@ -10,7 +10,7 @@ import { isDev } from '../../utils/env';
 import { ErrorCode } from '../background/errors';
 import mitt, { Emitter } from 'mitt';
 import errorToString from './errorToString';
-import Port from '../background/utils/Port';
+import Port, { IPort } from '../background/utils/Port';
 import KeepAliveConnection from '../background/connections/KeepAliveConnection';
 
 function log(message: string, details?: any, devOnly = true) {
@@ -43,13 +43,19 @@ export class BackgroundApiClient {
   }
 
   private connect() {
-    this.port = new Port({
-      name: PortName.SUIET_UI_BACKGROUND,
-    });
-    this.initPortObservable(this.port);
+    this.port = new Port(
+      {
+        name: PortName.SUIET_UI_BACKGROUND,
+      },
+      {
+        onConnect: (port) => {
+          this.initPortObservable(port);
+        },
+      }
+    );
   }
 
-  private initPortObservable(port: Port) {
+  private initPortObservable(port: IPort) {
     this.portObservable = fromEventPattern(
       (h) => port.onMessage.addListener(h),
       (h) => port.onMessage.removeListener(h),
@@ -69,7 +75,6 @@ export class BackgroundApiClient {
     options?: CallFuncOption
   ): Promise<Res> {
     if (!this.port.connected) {
-      log('port is disconnected', this.port);
       throw new Error('[api client] port is disconnected');
     }
     const reqParams = reqData(

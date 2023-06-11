@@ -1,8 +1,11 @@
 import { PortName, WindowMsg, WindowMsgTarget } from '../shared';
 import { WindowMsgStream } from '../shared/msg-passing/window-msg-stream';
-import { getSiteMetadata, SiteMetadata } from './utils';
-import { validateExternalWindowMsg } from './utils';
-import Port from '../background/utils/Port';
+import {
+  getSiteMetadata,
+  SiteMetadata,
+  validateExternalWindowMsg,
+} from './utils';
+import Port, { IPort } from '../background/utils/Port';
 import KeepAliveConnection from '../background/connections/KeepAliveConnection';
 
 function injectDappInterface() {
@@ -25,48 +28,57 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
     WindowMsgTarget.DAPP,
     siteMetadata.origin
   );
-  const port = new Port({
-    name: PortName.SUIET_CONTENT_BACKGROUND,
-  });
 
-  // port msg from background - content script proxy -> window msg to dapp
-  port.onMessage.addListener((msg) => {
-    // console.log('[content] before port sends data to window', msg);
-    windowMsgStream.post(msg);
-  });
+  const handlePortConnect = (newPort: IPort) => {
+    const passMessageToPort = (eventData: WindowMsg, port: IPort) => {
+      try {
+        validateExternalWindowMsg(eventData);
+      } catch (e) {
+        console.warn(
+          `[${WindowMsgTarget.SUIET_CONTENT}] rejects an invalid request from window message`
+        );
+        return;
+      }
 
-  // window msg from dapp - content script proxy -> port msg to ext background
-  const passMessageToPort = (eventData: WindowMsg) => {
-    // console.log('[content] received data from window postMessage', eventData);
-
-    try {
-      validateExternalWindowMsg(eventData);
-    } catch (e) {
-      console.warn(
-        `[${WindowMsgTarget.SUIET_CONTENT}] rejects an invalid request from window message`
-      );
-      return;
-    }
-
-    const { payload: trueData } = eventData;
-    const message = {
-      id: trueData.id,
-      funcName: trueData.funcName,
-      payload: {
-        params: trueData.payload,
-        context: {
-          origin: siteMetadata.origin,
-          name: siteMetadata.name,
-          favicon: siteMetadata.icon,
+      const { payload: trueData } = eventData;
+      const message = {
+        id: trueData.id,
+        funcName: trueData.funcName,
+        payload: {
+          params: trueData.payload,
+          context: {
+            origin: siteMetadata.origin,
+            name: siteMetadata.name,
+            favicon: siteMetadata.icon,
+          },
         },
-      },
+      };
+      port.postMessage(message);
     };
-    // console.log('[content]  before port postMessage', message);
-    port.postMessage(message);
+
+    // port msg from background - content script proxy -> window msg to dapp
+    newPort.onMessage.addListener((msg) => {
+      windowMsgStream.post(msg);
+    });
+
+    // window msg from dapp - content script proxy -> port msg to ext background
+    const winMsgSubscription = windowMsgStream.subscribe((eventData) => {
+      passMessageToPort(eventData, newPort);
+    });
+
+    newPort.onDisconnect.addListener(() => {
+      winMsgSubscription.unsubscribe();
+    });
   };
 
-  windowMsgStream.subscribe(passMessageToPort);
-  return port;
+  return new Port(
+    {
+      name: PortName.SUIET_CONTENT_BACKGROUND,
+    },
+    {
+      onConnect: handlePortConnect,
+    }
+  );
 }
 
 (function main() {

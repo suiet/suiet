@@ -6,12 +6,19 @@ export default class Port implements IPort {
   #port: chrome.runtime.Port;
   #connected: boolean;
   #portName: string;
+  readonly #onConnectCallback: (port: IPort) => void | Promise<void>;
 
-  constructor(connectInfo: chrome.runtime.ConnectInfo) {
+  constructor(
+    connectInfo: chrome.runtime.ConnectInfo,
+    opts?: {
+      onConnect?: (port: IPort) => void | Promise<void>;
+    }
+  ) {
     if (!connectInfo.name) {
       throw new Error('port name is required');
     }
     this.#portName = connectInfo.name;
+    this.#onConnectCallback = opts?.onConnect ?? (() => {});
     this.#port = this.#createPort();
   }
 
@@ -25,6 +32,7 @@ export default class Port implements IPort {
       this.#connected = false;
       log(`chrome port ${this.#portName} connected`);
     });
+    this.#onConnectCallback(newPort);
     return newPort;
   }
 
