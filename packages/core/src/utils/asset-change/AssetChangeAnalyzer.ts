@@ -9,7 +9,7 @@ import {
   SuiObjectChangeWrapped,
   SuiObjectData,
 } from '@mysten/sui.js';
-import { Infer, string } from 'superstruct';
+import { Infer } from 'superstruct';
 import { has } from '../index';
 
 export type TokenBalanceChange = Infer<typeof BalanceChange>;
