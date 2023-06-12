@@ -10,6 +10,7 @@ import {
   StandardEventsListeners,
   StandardEventsOnMethod,
   SUI_DEVNET_CHAIN,
+  SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
   SuiSignAndExecuteTransactionBlockFeature,
   SuiSignAndExecuteTransactionBlockInput,
@@ -93,7 +94,11 @@ export class SuietWallet implements Wallet {
 
   // Return the Sui chains that your wallet supports.
   get chains() {
-    return [SUI_DEVNET_CHAIN, SUI_TESTNET_CHAIN] as IdentifierArray;
+    return [
+      SUI_DEVNET_CHAIN,
+      SUI_TESTNET_CHAIN,
+      SUI_MAINNET_CHAIN,
+    ] as IdentifierArray;
   }
 
   get accounts() {
