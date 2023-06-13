@@ -9,7 +9,7 @@ import {
   SuiObjectChangeWrapped,
   SuiObjectData,
 } from '@mysten/sui.js';
-import { Infer } from 'superstruct';
+import { Infer, string } from 'superstruct';
 import { has } from '../index';
 
 export type TokenBalanceChange = Infer<typeof BalanceChange>;
@@ -44,9 +44,9 @@ export interface IAssetChangeInput {
 }
 
 export interface IAssetChangeOutput {
-  getCoinChangeList(): ICoinChangeObject[];
-  getNftChangeList(): INftChangeObject[];
-  getObjectChangeList(): IObjectChangeObject[];
+  getCoinChangeList: () => ICoinChangeObject[];
+  getNftChangeList: () => INftChangeObject[];
+  getObjectChangeList: () => IObjectChangeObject[];
 }
 
 export type ObjectOwnership = 'owned' | 'shared' | 'dynamicField' | 'unknown';
@@ -74,7 +74,7 @@ export type INftChangeObject = IObjectChangeObject & {
 };
 
 export default class AssetChangeAnalyzer {
-  private accountAddress: string;
+  private readonly accountAddress: string;
   private objectChanges: ObjectChange[];
   private balanceChanges: TokenBalanceChange[];
   private objectDataMap: Record<string, SuiObjectData>;
@@ -136,7 +136,7 @@ export default class AssetChangeAnalyzer {
       }
 
       return true;
-    }) as (SuiObjectChangeCreated | SuiObjectChangeMutated)[];
+    }) as Array<SuiObjectChangeCreated | SuiObjectChangeMutated>;
   }
 
   /**
@@ -275,9 +275,9 @@ export default class AssetChangeAnalyzer {
         accountAddress,
         objChange
       ),
-      objectType: objectType,
-      objectId: objectId,
-      digest: digest,
+      objectType,
+      objectId,
+      digest,
       version: objChange.version,
     };
   }
@@ -363,13 +363,20 @@ export default class AssetChangeAnalyzer {
       return 'unknown';
     }
 
-    if ('Shared' in (objectChange as any).owner) {
+    if (
+      typeof objectChange?.owner !== 'string' &&
+      'Shared' in objectChange.owner
+    ) {
       // handle changes with Shared Object
       if (objectChange.type === 'created') return 'increase';
       if (objectChange.type === 'mutated') return 'modify';
       return 'unknown';
     }
-    if ('ObjectOwner' in (objectChange as any).owner) {
+
+    if (
+      typeof objectChange?.owner !== 'string' &&
+      'ObjectOwner' in objectChange.owner
+    ) {
       // handle changes with ObjectOwner
       if (objectChange.type === 'created') return 'increase';
       if (objectChange.type === 'mutated') return 'modify';
@@ -377,7 +384,9 @@ export default class AssetChangeAnalyzer {
     }
 
     // handle changes with AddressOwner
-    const addressOwner = (objectChange.owner as any).AddressOwner;
+    const addressOwner =
+      typeof objectChange?.owner !== 'string' &&
+      objectChange.owner.AddressOwner;
     const type = objectChange.type;
     if (type === 'created') {
       return 'increase';
@@ -413,8 +422,8 @@ export default class AssetChangeAnalyzer {
       return 'dynamicField';
     }
     if (
-      'Shared' in (objectChange as any)?.owner ||
-      'ObjectOwner' in (objectChange as any)?.owner
+      typeof objectChange?.owner !== 'string' &&
+      ('Shared' in objectChange?.owner || 'ObjectOwner' in objectChange?.owner)
     ) {
       return 'shared';
     }
@@ -431,7 +440,12 @@ export default class AssetChangeAnalyzer {
     const objectTypeMap = new Map<string, any>();
     for (const item of balanceChanges) {
       // ignore coin changes that are not related to the account
-      if ((item.owner as any).AddressOwner !== accountAddress) continue;
+      if (
+        typeof item?.owner !== 'string' &&
+        'AddressOwner' in item.owner &&
+        item.owner.AddressOwner !== accountAddress
+      )
+        continue;
 
       // for coins, we use the coin type as the key
       objectTypeMap.set(`0x2::coin::Coin<${item.coinType}>`, item);
