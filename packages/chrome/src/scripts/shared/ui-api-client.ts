@@ -74,15 +74,11 @@ export class BackgroundApiClient {
     payload: Req,
     options?: CallFuncOption
   ): Promise<Res> {
-    if (!this.port.connected) {
-      throw new Error('[api client] port is disconnected');
-    }
     const reqParams = reqData(
       funcName,
       typeof payload === 'undefined' ? null : payload,
       options
     );
-
     this.port.postMessage(reqParams);
     const result = await lastValueFrom(
       this.portObservable.pipe(
