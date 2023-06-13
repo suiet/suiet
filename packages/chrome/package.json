@@ -43,6 +43,7 @@
     "crypto-hash": "2.0.1",
     "dayjs": "1.11.5",
     "detect-browser": "5.3.0",
+    "events": "^3.3.0",
     "graphql": "16.6.0",
     "lodash-es": "4.17.21",
     "mitt": "3.0.0",
