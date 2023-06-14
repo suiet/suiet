@@ -4,7 +4,6 @@ import { crx } from '@crxjs/vite-plugin';
 // @ts-ignore
 import manifest from './src/manifest';
 import viteSvgr from 'vite-plugin-svgr';
-import { Buffer } from 'buffer';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
