@@ -26,7 +26,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   esbuild: {
-    pure: mode === 'production' ? ['console.log', 'debugger'] : [],
+    pure:
+      mode === 'production' ? ['console.log', 'console.debug', 'debugger'] : [],
   },
   define: {
     // handle "process is not defined" for importing sui sdk
