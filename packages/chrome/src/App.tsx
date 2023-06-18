@@ -5,31 +5,16 @@ import './styles/react-toastify.scss';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'react-tabs/style/react-tabs.css';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect } from 'react';
 import message from './components/message';
 import { ToastContainer } from 'react-toastify';
-import {
-  ContextFeatureFlags,
-  useAutoLoadFeatureFlags,
-} from './hooks/useFeatureFlags';
-import { CachePersistor, AsyncStorageWrapper } from 'apollo3-cache-persist';
+import { useAutoLoadFeatureFlags } from './hooks/useFeatureFlags';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
-import { setContext } from 'apollo-link-context';
-import {
-  ApolloProvider,
-  ApolloClient,
-  ApolloLink,
-  from,
-  HttpLink,
-  NormalizedCacheObject,
-} from '@apollo/client';
-import { InMemoryCache } from '@apollo/client/cache';
-import { fieldPolicyForTransactions } from './pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
+import { ApolloProvider } from '@apollo/client';
 import { ChromeStorage } from './store/storage';
 import { version } from '../package.json';
 import VersionGuard from './components/VersionGuard';
-import { RetryLink } from '@apollo/client/link/retry';
 import { ErrorCode } from './scripts/background/errors';
 import { useCustomApolloClient } from './hooks/useCustomApolloClient';
 
@@ -55,7 +40,6 @@ function useRegisterHandleRejectionEvent() {
 
 function App() {
   const routes = useRoutes(routesConfig);
-  const featureFlags = useAutoLoadFeatureFlags();
   const appContext = useSelector((state: RootState) => state.appContext);
   const client = useCustomApolloClient(
     appContext.networkId,
@@ -65,19 +49,17 @@ function App() {
   );
 
   useRegisterHandleRejectionEvent();
+  useAutoLoadFeatureFlags();
 
   if (!client) {
     return <h2>Initializing app...</h2>;
   }
-
   return (
     <div className="app">
       <ErrorBoundary>
-        <ContextFeatureFlags.Provider value={featureFlags}>
-          <VersionGuard>
-            <ApolloProvider client={client}>{routes}</ApolloProvider>
-          </VersionGuard>
-        </ContextFeatureFlags.Provider>
+        <VersionGuard>
+          <ApolloProvider client={client}>{routes}</ApolloProvider>
+        </VersionGuard>
         <ToastContainer />
       </ErrorBoundary>
     </div>
