@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import appContextReducer from './app-context';
 import biometricContextReducer from './biometric-context';
+import featureFlagReducer from './feature-flag';
 import { ChromeStorage } from './storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import {
@@ -15,12 +16,13 @@ import {
 const persistConfig = {
   key: 'root',
   storage: new ChromeStorage(),
-  whitelist: ['appContext', 'wallet'],
+  whitelist: ['appContext', 'featureFlag'],
 };
 
 const allReducers = combineReducers({
   appContext: appContextReducer,
   biometricContext: biometricContextReducer,
+  featureFlag: featureFlagReducer,
 });
 
 function createStore() {

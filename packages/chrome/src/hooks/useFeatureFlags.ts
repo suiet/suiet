@@ -1,16 +1,13 @@
-import React, { useContext } from 'react';
-import { FeatureFlagRes, getFeatureFlags } from '../api';
+import { useEffect } from 'react';
+import { getFeatureFlags } from '../api';
 import { useQuery } from 'react-query';
-import { useNetwork } from './useNetwork';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-
-export const ContextFeatureFlags = React.createContext<
-  FeatureFlagRes | undefined
->(undefined);
+import { updateFeatureFlag } from '../store/feature-flag';
 
 export function useFeatureFlags() {
-  return useContext(ContextFeatureFlags);
+  const featureFlag = useSelector((state: RootState) => state.featureFlag);
+  return featureFlag.flags;
 }
 
 /**
@@ -24,6 +21,7 @@ export function useFeatureFlagsWithNetwork() {
 
 // for provider
 export function useAutoLoadFeatureFlags() {
+  const dispatch = useDispatch();
   const { data } = useQuery(
     ['fetchFeatureFlags'],
     async () => await fetchFeatureFlags(),
@@ -34,5 +32,13 @@ export function useAutoLoadFeatureFlags() {
   async function fetchFeatureFlags() {
     return await getFeatureFlags();
   }
+
+  useEffect(() => {
+    if (data) {
+      // update redux store
+      dispatch(updateFeatureFlag(data));
+    }
+  }, [data]);
+
   return data;
 }
