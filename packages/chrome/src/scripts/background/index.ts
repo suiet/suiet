@@ -24,16 +24,6 @@ class ApiBridgeConnection {
   }
 }
 
-const MIN_DISCONNECT_TIMEOUT = 1000 * 30;
-const MAX_DISCONNECT_TIMEOUT = 1000 * 60 * 3;
-
-function getRandomDisconnectTimeout() {
-  return Math.floor(
-    Math.random() * (MAX_DISCONNECT_TIMEOUT - MIN_DISCONNECT_TIMEOUT) +
-      MIN_DISCONNECT_TIMEOUT
-  );
-}
-
 /**
  * Because Chrome would kill sw periodically,
  * so notify content script to reconnect by disconnect the port after specific timeout,
@@ -44,28 +34,11 @@ function listenToKeepAliveChannel() {
   chrome.runtime.onConnect.addListener((newPort) => {
     if (newPort.name !== PortName.SUIET_KEEP_ALIVE) return;
 
-    // when killed by chrome, the content script will reconnect and wake this up
-    newPort.onDisconnect.addListener(() => {
-      deleteTimer(newPort);
+    newPort.onMessage.addListener((msg) => {
+      if (msg.type !== 'KEEP_ALIVE') return;
+      newPort.postMessage({ type: 'KEEP_ALIVE', payload: 'PONG' });
     });
-    // force client page to reconnect the port before chrome kills this service worker
-    (newPort as any)._timer = setTimeout(
-      forceReconnect,
-      getRandomDisconnectTimeout(),
-      newPort
-    );
   });
-
-  function forceReconnect(port: any) {
-    deleteTimer(port);
-    port.disconnect(); // manually trigger disconnect to force client page to reconnect
-  }
-  function deleteTimer(port: any) {
-    if (port._timer) {
-      clearTimeout(port._timer);
-      delete port._timer;
-    }
-  }
 }
 
 (function main() {

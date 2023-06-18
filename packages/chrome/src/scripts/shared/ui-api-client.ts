@@ -38,7 +38,7 @@ export class BackgroundApiClient {
     this.connect();
 
     // maintain a connection to the background script
-    const keepAlive = new KeepAliveConnection();
+    const keepAlive = new KeepAliveConnection('UI');
     keepAlive.connect();
   }
 
