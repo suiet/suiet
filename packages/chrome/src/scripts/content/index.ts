@@ -83,7 +83,7 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
 
 (function main() {
   injectDappInterface();
-  const keepAlive = new KeepAliveConnection();
+  const keepAlive = new KeepAliveConnection('CONTENT_SCRIPT');
   keepAlive.connect();
 })();
 
