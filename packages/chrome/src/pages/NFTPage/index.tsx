@@ -110,7 +110,7 @@ function MainPage() {
                 Manage your NFTs.
               </Typo.Small>
             </div>
-            {network?.name !== 'mainnet' && network?.enableMintExampleNFT && (
+            {network?.enableMintExampleNFT && (
               <Button
                 className="rounded-full w-fit"
                 onClick={handleMintSampleNFT}
