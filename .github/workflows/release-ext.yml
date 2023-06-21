@@ -16,7 +16,7 @@ jobs:
       - name: Build
         working-directory: packages/chrome/
         run: |
-          npn install
+          npm install
           npm run build
       - name: Zip
         working-directory: packages/chrome/dist
