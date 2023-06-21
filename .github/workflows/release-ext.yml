@@ -16,8 +16,8 @@ jobs:
       - name: Build
         working-directory: packages/chrome/
         run: |
-          npm set-script prepare ''
-          npm install --production
+          npm install husky
+          npm install
           npm run build
       - name: Zip
         working-directory: packages/chrome/dist
