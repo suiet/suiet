@@ -70,17 +70,23 @@ const ImportPrivateKeyView = (props: ImportPrivateKeyViewProps) => {
 
   return (
     <SettingOneLayout
-      titles={['Input', 'Private', 'Key']}
-      desc={'From an existing wallet.'}
+      titles={['Import', 'Private', 'Key']}
+      desc={'From an existing account.'}
     >
       <section className={'mt-[24px] w-full'}>
         <Form form={form} onSubmit={handleSubmit}>
-          <div className={classNames('flex items-center w-full')}>
+          <div className={classNames('flex flex-col items-center w-full')}>
             <Input
               {...form.register('privateKey', {
                 required: 'Empty input is not allowed',
+                validate: (value) => {
+                  // prviate key should be 64 characters long
+                  if (value.length !== 64) {
+                    return 'Invalid private key';
+                  }
+                },
               })}
-              className="flex-1"
+              className="flex-1 w-full"
               elClassName={'w-full h-[154px]'}
               type={'password'}
               state={getInputStateByFormState(form.formState, 'privateKey')}
@@ -88,7 +94,7 @@ const ImportPrivateKeyView = (props: ImportPrivateKeyViewProps) => {
             />
 
             {errors?.privateKey && (
-              <Typo.Hints className="text-red-500">
+              <Typo.Hints className="text-red-500 w-full">
                 {errors.privateKey.message}
               </Typo.Hints>
             )}
