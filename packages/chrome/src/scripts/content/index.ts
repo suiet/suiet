@@ -8,16 +8,6 @@ import {
 import Port, { IPort } from '../background/utils/Port';
 import KeepAliveConnection from '../background/connections/KeepAliveConnection';
 
-function injectDappInterface() {
-  const script = document.createElement('script');
-  const url = chrome.runtime.getURL('dapp-api.js');
-  script.setAttribute('src', url);
-  script.setAttribute('type', 'module');
-  const container = document.head || document.documentElement;
-  container.insertBefore(script, container.firstElementChild);
-  container.removeChild(script);
-}
-
 /**
  * Set up proxy between in-page window message and chrome ext port
  * @param siteMetadata
@@ -82,12 +72,8 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
 }
 
 (function main() {
-  injectDappInterface();
   const keepAlive = new KeepAliveConnection('CONTENT_SCRIPT');
   keepAlive.connect();
-})();
 
-(async function asyncMain() {
-  const siteMetadata = await getSiteMetadata();
-  setupMessageProxy(siteMetadata);
+  setupMessageProxy(getSiteMetadata());
 })();

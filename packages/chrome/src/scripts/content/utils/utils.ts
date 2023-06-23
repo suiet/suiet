@@ -8,10 +8,10 @@ export type SiteMetadata = {
  * Gets site metadata and returns it
  *
  */
-export async function getSiteMetadata(): Promise<SiteMetadata> {
+export function getSiteMetadata(): SiteMetadata {
   return {
     name: getSiteName(window),
-    icon: await getSiteIcon(window),
+    icon: getSiteIcon(window),
     origin: window.origin,
   };
 }
@@ -44,37 +44,17 @@ function getSiteName(windowObject: typeof window): string {
  * Extracts an icon for the site from the DOM
  * @returns an icon URL
  */
-async function getSiteIcon(
-  windowObject: typeof window
-): Promise<string | null> {
+function getSiteIcon(windowObject: typeof window): string | null {
   const { document } = windowObject;
 
   const icons: NodeListOf<HTMLLinkElement> = document.querySelectorAll(
     'head > link[rel~="icon"]'
   );
   for (const icon of icons) {
-    if (icon && (await imgExists(icon.href))) {
+    if (icon && icon.href) {
       return icon.href;
     }
   }
 
   return null;
-}
-
-/**
- * Returns whether the given image URL exists
- * @param url - the url of the image
- * @returns Whether the image exists.
- */
-async function imgExists(url: string): Promise<boolean> {
-  return await new Promise((resolve, reject) => {
-    try {
-      const img = document.createElement('img');
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = url;
-    } catch (e) {
-      reject(e);
-    }
-  });
 }
