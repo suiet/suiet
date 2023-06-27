@@ -71,7 +71,19 @@ function setupMessageProxy(siteMetadata: SiteMetadata): chrome.runtime.Port {
   );
 }
 
+function injectDappInterface() {
+  const script = document.createElement('script');
+  const url = chrome.runtime.getURL('dapp-api.js');
+  script.setAttribute('src', url);
+  script.setAttribute('type', 'module');
+  const container = document.head || document.documentElement;
+  container.insertBefore(script, container.firstElementChild);
+  container.removeChild(script);
+}
+
 (function main() {
+  injectDappInterface();
+
   const keepAlive = new KeepAliveConnection('CONTENT_SCRIPT');
   keepAlive.connect();
 

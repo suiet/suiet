@@ -64,6 +64,34 @@ function writeContentsToFile(filename, startingLineNumber, contentsToWrite) {
   });
 }
 
+function removeLineFromFile(filename, lineToRemove) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      // Remove the specified line
+      const lines = data.split('\n');
+      const updatedLines = lines.filter((line) => line.trim() !== lineToRemove);
+
+      // Create the updated content
+      const updatedContent = updatedLines.join('\n');
+
+      // Write the updated content back to the file
+      fs.writeFile(filename, updatedContent, 'utf8', (err) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        console.log(`Line '${lineToRemove}' removed from '${filename}'.`);
+        resolve();
+      });
+    });
+  });
+}
+
 /**
  * This script is used to fix the content script injection issue,
  * where the content loader is async but injection should be executed as soon as possible.
@@ -75,6 +103,16 @@ function writeContentsToFile(filename, startingLineNumber, contentsToWrite) {
     path.join(DIST_PATH, 'assets'),
     contentScriptFileNameRegExp
   );
+
+  // remove injection code from index file (because it's async, we need to inject it manually
+  // such that it can be executed in a sync way)
+  const indexHash = contentScriptLoaderFileName.split('.')[3];
+  const indexFilePath = path.join(
+    DIST_PATH,
+    'assets',
+    `index.ts.${indexHash}.js`
+  );
+  await removeLineFromFile(indexFilePath, 'injectDappInterface();');
 
   const injectedContent = `
   function injectDappInterface() {
