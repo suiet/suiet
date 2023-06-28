@@ -5,6 +5,7 @@ import { crx } from '@crxjs/vite-plugin';
 import manifest from './src/manifest';
 import viteSvgr from 'vite-plugin-svgr';
 import { Buffer } from 'buffer';
+import { comlink } from 'vite-plugin-comlink';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -33,5 +34,8 @@ export default defineConfig(({ mode }) => ({
     // https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
     'process.env': {},
   },
-  plugins: [react(), crx({ manifest }), viteSvgr()],
+  plugins: [react(), viteSvgr(), comlink()],
+  worker: {
+    plugins: [comlink()],
+  },
 }));
