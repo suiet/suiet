@@ -1,4 +1,4 @@
-import { ChromeStorage } from '../../store/storage';
+import { Storage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
 import { DappBaseRequest, DappConnectionContext } from './types';
@@ -18,10 +18,10 @@ export interface PermRequest extends DappBaseRequest {
 }
 
 export class PermReqStorage {
-  storage: ChromeStorage;
+  storage: Storage;
 
   constructor() {
-    this.storage = new ChromeStorage();
+    this.storage = new Storage();
   }
 
   async getPermRequestStoreMap(): Promise<Record<string, PermRequest>> {

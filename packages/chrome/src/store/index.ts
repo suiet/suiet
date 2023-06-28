@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import appContextReducer from './app-context';
 import biometricContextReducer from './biometric-context';
-import { ChromeStorage } from './storage';
+import { Storage } from './storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import {
   FLUSH,
@@ -12,9 +12,11 @@ import {
   REHYDRATE,
 } from 'redux-persist/es/constants';
 
+import storage from 'redux-persist/lib/storage';
+
 const persistConfig = {
   key: 'root',
-  storage: new ChromeStorage(),
+  storage: storage,
   whitelist: ['appContext', 'wallet'],
 };
 

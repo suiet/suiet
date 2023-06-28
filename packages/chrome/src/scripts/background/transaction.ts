@@ -1,4 +1,4 @@
-import { ChromeStorage } from '../../store/storage';
+import { Storage } from '../../store/storage';
 import { StorageKeys } from '../../store/enum';
 import { v4 as uuidv4 } from 'uuid';
 import { DappBaseRequest, DappConnectionContext } from './types';
@@ -21,9 +21,9 @@ export interface TxRequest extends DappBaseRequest {
 }
 
 export class TxRequestStorage {
-  private readonly storage: ChromeStorage;
+  private readonly storage: Storage;
   constructor() {
-    this.storage = new ChromeStorage();
+    this.storage = new Storage();
   }
 
   async get(id: string): Promise<TxRequest | undefined> {

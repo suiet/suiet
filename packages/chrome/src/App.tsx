@@ -23,7 +23,7 @@ import {
 } from '@apollo/client';
 import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from './pages/TransactionFlow/hooks/useTransactionListForHistory';
-import { ChromeStorage } from './store/storage';
+import { Storage } from './store/storage';
 
 enum CacheSyncStatus {
   NOT_SYNCED,
@@ -33,9 +33,7 @@ enum CacheSyncStatus {
 
 function useCustomApolloClient(networkId: string) {
   const cacheSyncStatus = useRef<number>(CacheSyncStatus.NOT_SYNCED);
-  const cacheInChromeStorage = useRef(
-    new AsyncStorageWrapper(new ChromeStorage())
-  );
+  const cacheInChromeStorage = useRef(new AsyncStorageWrapper(new Storage()));
   const cachePersistor = useRef<CachePersistor<NormalizedCacheObject>>();
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
 

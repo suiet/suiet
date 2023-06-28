@@ -1,5 +1,5 @@
 import { filter, firstValueFrom, map, race, Subject, take, tap } from 'rxjs';
-import { ChromeStorage } from '../../../store/storage';
+import { Storage } from '../../../store/storage';
 import { AppContextState } from '../../../store/app-context';
 import { PopupWindow } from '../popup-window';
 import {
@@ -61,7 +61,7 @@ const approvalSubject: Subject<Approval> = new Subject<Approval>();
  */
 export class DappBgApi {
   private readonly ctx: BackgroundApiContext;
-  private readonly chromeStorage: ChromeStorage;
+  private readonly chromeStorage: Storage;
   private readonly permManager: PermissionManager;
   private readonly txManager: TxRequestManager;
   private readonly signManager: SignRequestManager;
@@ -83,7 +83,7 @@ export class DappBgApi {
     this.networkApi = networkApi;
     this.authApi = authApi;
     this.accountApi = accountApi;
-    this.chromeStorage = new ChromeStorage();
+    this.chromeStorage = new Storage();
     this.permManager = new PermissionManager();
     this.txManager = new TxRequestManager();
     this.signManager = new SignRequestManager();
