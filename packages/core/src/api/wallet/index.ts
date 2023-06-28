@@ -30,6 +30,7 @@ export type ImportWalletParams = {
 };
 export type AvatarPfp = {
   objectId: string;
+  name: string;
   uri: string;
   mime: string;
   expiresAt: number;
@@ -249,6 +250,7 @@ export class WalletApi implements IWalletApi {
     }
     if (typeof meta.avatarPfp === 'object') {
       wallet.avatarPfp = {
+        name: meta.avatarPfp.name,
         mime: meta.avatarPfp.mime,
         uri: meta.avatarPfp.uri,
         objectId: meta.avatarPfp.objectId,
