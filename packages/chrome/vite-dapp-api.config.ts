@@ -3,7 +3,6 @@ import { defineConfig } from 'vite';
 import packageJson from './package.json';
 
 // @ts-ignore
-import manifest from './src/manifest';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
