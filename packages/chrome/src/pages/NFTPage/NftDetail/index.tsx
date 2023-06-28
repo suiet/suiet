@@ -23,14 +23,11 @@ import { NftMeta } from '../NftList';
 import Tooltip from '../../../components/Tooltip';
 import classNames from 'classnames';
 import Button from '../../../components/Button';
-import { useApiClient } from '../../../hooks/useApiClient';
-import { OmitToken } from '../../../types';
 import { useWallet } from '../../../hooks/useWallet';
 
 const NftDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const apiClient = useApiClient();
   const { walletId } = useSelector((state: RootState) => state.appContext);
   const {
     data: wallet,
@@ -52,8 +49,6 @@ const NftDetail = () => {
     verification,
   }: NftMeta = location.state ?? ({} as any);
 
-  console.log('location.state', location.state);
-
   const appContext = useSelector((state: RootState) => state.appContext);
 
   useEffect(() => {
@@ -71,6 +66,7 @@ const NftDetail = () => {
   const setPfpAsWalletAvatar = async () => {
     try {
       await setPfpAvatar({
+        name: name,
         objectId: id,
         uri: url,
         mime: 'image/png',

@@ -26,11 +26,17 @@
     height: 16px;
     margin-top: 8px;
   }
+}
 
-  &-item-title {
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    color: $gray-400;
-  }
+.title-1 {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  color: $gray-900;
+}
+.title-2 {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $gray-400;
 }

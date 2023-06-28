@@ -60,6 +60,7 @@ export function useWallet(walletId: string) {
         walletId,
         meta: {
           avatarPfp: {
+            name: '',
             mime: '',
             uri: '',
             objectId: '',
