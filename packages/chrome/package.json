@@ -14,6 +14,7 @@
     "test:coverage": "jest --detectOpenHandles --runInBand --logHeapUsage --verbose --no-cache --bail --watchAll=false --ci --reporters=default"
   },
   "dependencies": {
+    "-": "^0.0.1",
     "@apollo/client": "3.7.7",
     "@crxjs/vite-plugin": "1.0.13",
     "@hookform/error-message": "2.0.0",
@@ -36,6 +37,7 @@
     "borsh": "0.7.0",
     "cbor-sync": "1.0.4",
     "classnames": "2.3.2",
+    "comlink": "^4.4.1",
     "copy-to-clipboard": "3.3.2",
     "crypto-hash": "2.0.1",
     "dayjs": "1.11.5",
@@ -85,6 +87,7 @@
     "sass": "1.54.4",
     "tailwindcss": "3.1.8",
     "vite": "^3.2.7",
+    "vite-plugin-comlink": "^3.0.5",
     "vite-plugin-svgr": "2.4.0"
   }
 }
