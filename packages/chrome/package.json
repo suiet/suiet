@@ -1,12 +1,12 @@
 {
   "name": "@suiet/chrome-ext",
   "private": true,
-  "version": "0.2.40",
+  "version": "0.2.41",
   "type": "module",
   "scripts": {
     "dev": "run-s build:dapp-api dev:ext",
     "dev:ext": "vite --mode development",
-    "build": "run-s build:dapp-api clean build:ext ci:fix",
+    "build": "run-s build:dapp-api clean build:ext",
     "build:ext": "vite build",
     "build:dapp-api": "vite build --config vite-dapp-api.config.ts",
     "ci:fix": "node ./ci/fix-content-script-injection.cjs",
