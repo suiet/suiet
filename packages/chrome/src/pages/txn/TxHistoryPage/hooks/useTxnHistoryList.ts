@@ -88,7 +88,7 @@ export function useTxnHistoryList(
   options?: TxnHistoryListQueryOption
 ) {
   const { limit, fetchPolicy } = options ?? {};
-
+  const [isRefetching, setIsRefetching] = useState(false);
   const { data: incomingData, ...restForIncoming } = useQuery<
     TransactionsData<TxnCategoryDto>,
     GetTransactionsParams
@@ -134,12 +134,23 @@ export function useTxnHistoryList(
     res = filterDuplicateTransactions(res);
     // descending order by timestamp
     res.sort((a, b) => b.timestamp - a.timestamp);
+    setIsRefetching(false);
     return res;
   }, [incomingData, outgoingData]);
 
   const refetch = useCallback(() => {
-    restForIncoming.refetch();
-    restForOutgoing.refetch();
+    setIsRefetching(true);
+    restForIncoming.client.refetchQueries({
+      include: [GET_TX_LIST_GQL],
+      updateCache(cache) {
+        cache.evict({ fieldName: 'transactions' });
+      },
+      onQueryUpdated: () => {
+        setTimeout(() => {
+          setIsRefetching(false);
+        }, 500);
+      },
+    });
   }, [restForIncoming.refetch, restForOutgoing.refetch]);
 
   const fetchMore = async () => {
@@ -171,12 +182,13 @@ export function useTxnHistoryList(
   return {
     data: txHistoryList,
     loading: restForIncoming.loading || restForOutgoing.loading,
-    error: restForIncoming.error || restForOutgoing.error,
+    error: restForIncoming.error ?? restForOutgoing.error,
     hasMore:
       !!incomingData?.transactions?.nextCursor ||
       !!outgoingData?.transactions?.nextCursor,
     refetch,
     fetchMore,
+    isRefetching,
   };
 }
 
@@ -203,7 +215,7 @@ export function fieldPolicyForTransactions(): {
       merge(
         existing: TransactionsResult<TxnCategoryDto> | undefined,
         incoming: TransactionsResult<TxnCategoryDto> | undefined,
-        // @ts-ignore
+        // @ts-expect-error
         { args: { cursor }, readField }
       ) {
         if (!existing) return incoming;

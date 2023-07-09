@@ -17,17 +17,18 @@ import Skeleton from 'react-loading-skeleton';
 import Typo from '../../../components/Typo';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Extendable } from '../../../types';
-import classNames from 'classnames';
 import { isNonEmptyArray } from '../../../utils/check';
 import Empty from './Empty';
 import { safe } from '@suiet/core';
 import { useNavigate } from 'react-router-dom';
 
+import { ReactComponent as RefreshIcon } from './assets/refresh-cw-05.svg';
+
 export type TxHistoryPageProps = {};
 
 const TxSummaryItemSkeleton = (props: Extendable) => {
   return (
-    <div className={classNames('flex items-center', props.className)}>
+    <div className={classnames('flex items-center', props.className)}>
       <Skeleton className={'w-[36px] h-[36px] rounded-full overflow-hidden'} />
       <div className={'flex flex-col ml-[16px]'}>
         <Skeleton className={'w-[60px] h-[22px]'} />
@@ -91,7 +92,9 @@ const TxHistoryPage = (props: TxHistoryPageProps) => {
     data: txnHistoryList,
     hasMore,
     fetchMore,
+    refetch,
     loading,
+    isRefetching,
   } = useTxnHistoryList(address, {
     limit: 10,
   });
@@ -209,6 +212,17 @@ const TxHistoryPage = (props: TxHistoryPageProps) => {
             );
           })}
         </InfiniteScroll>
+        <button
+          onClick={refetch}
+          style={{
+            boxShadow: '0px 2px 20px 0px rgba(0, 0, 0, 0.10)',
+          }}
+          className="fixed p-2 bottom-24 right-4 bg-white rounded-full z-100"
+        >
+          <RefreshIcon
+            className={classnames(isRefetching ? 'animate-spin' : '')}
+          ></RefreshIcon>
+        </button>
       </div>
     </AppLayout>
   );
