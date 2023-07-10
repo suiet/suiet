@@ -7,7 +7,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import filterDuplicateTransactions from '../utils/filterDuplicateTx';
 import { DisplayItemDto } from '../../types';
-
+import message from '../../../../components/message';
 export type TxnCategoryDto = {
   digest: string;
   timestamp: number;
@@ -140,14 +140,18 @@ export function useTxnHistoryList(
 
   const refetch = useCallback(() => {
     setIsRefetching(true);
+
+    // restForIncoming.client.resetStore();
+
     restForIncoming.client.refetchQueries({
       include: [GET_TX_LIST_GQL],
-      updateCache(cache) {
-        cache.evict({ fieldName: 'transactions' });
-      },
+      // updateCache(cache) {
+      //   cache.evict({ fieldName: 'transactions' });
+      // },
       onQueryUpdated: () => {
         setTimeout(() => {
           setIsRefetching(false);
+          // message.success('Refreshed');
         }, 500);
       },
     });
