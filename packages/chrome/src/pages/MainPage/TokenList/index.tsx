@@ -70,9 +70,9 @@ const TokenItem = (props: TokenItemProps) => {
 
   function handleClick() {
     // TODO: support other coins for detail page
-    if (isSUI) {
-      navigate(`/coin/detail/${props.type}`);
-    }
+    // if (isSUI) {
+    navigate(`/coin/detail/${props.type}`);
+    // }
   }
   return (
     <div

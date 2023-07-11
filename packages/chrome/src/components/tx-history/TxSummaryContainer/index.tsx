@@ -4,9 +4,7 @@ import classNames from 'classnames';
 import { isNonEmptyArray } from '@suiet/core';
 import styles from './index.module.scss';
 import { Icon } from '../../icons';
-import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat';
-import calendar from 'dayjs/plugin/calendar';
+import { formatDatetime } from '../../../utils/formatDatetime';
 import TemplateText from '../TemplateText';
 export type TxSummaryContainerProps = {
   timestamp: number;
@@ -15,15 +13,6 @@ export type TxSummaryContainerProps = {
   categoryColor?: string;
   onClick?: () => void;
 };
-
-function formatDatetime(timestamp: number) {
-  dayjs.extend(LocalizedFormat);
-  dayjs.extend(calendar);
-  // return dayjs(timestamp).format('lll');
-  return dayjs(timestamp).calendar(null, {
-    sameElse: 'lll',
-  });
-}
 
 const TxSummaryContainer = (props: Extendable & TxSummaryContainerProps) => {
   const {

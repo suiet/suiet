@@ -5,7 +5,7 @@ $icon-wrap-size--sm: 16px;
 $icon-wrap-size--lg: 64px;
 $icon-size--sm: 10px;
 $icon-size--lg: 36px;
-
+$icon-size--xl: 64px;
 .token-item {
   @apply box-border flex items-center;
   height: 72px;
@@ -29,6 +29,7 @@ $icon-size--lg: 36px;
   height: $icon-size;
   background: rgba(62, 162, 248, 1);
 
+
   &--small {
     width: $icon-wrap-size--sm;
     height: $icon-wrap-size--sm;
@@ -37,6 +38,11 @@ $icon-size--lg: 36px;
   &--large {
     width: $icon-wrap-size--lg;
     height: $icon-wrap-size--lg;
+  }
+
+  &--xlarge {
+    width: $icon-size--xl;
+    height: $icon-size--xl;
   }
 }
 
@@ -47,5 +53,9 @@ $icon-size--lg: 36px;
 
   &--large {
     height: $icon-size--lg;
+  }
+
+  &--xlarge {
+    height: $icon-size--xl;
   }
 }

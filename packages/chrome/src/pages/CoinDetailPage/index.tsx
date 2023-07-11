@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
@@ -20,7 +20,10 @@ import { OmitToken } from '../../types';
 import { useNetwork } from '../../hooks/useNetwork';
 import { ReactComponent as IconStakeFilled } from '../../assets/icons/stake-filled.svg';
 import { useQuery } from '@apollo/client';
-import { GET_DELEGATED_STAKES } from '../../utils/graphql/query';
+import {
+  GET_DELEGATED_STAKES,
+  GET_COIN_HISTORY,
+} from '../../utils/graphql/query';
 import Button from '../../components/Button';
 import Nav from '../../components/Nav';
 import Skeleton from 'react-loading-skeleton';
@@ -31,7 +34,8 @@ import { createUnstakeTransaction } from '../StakingPage/utils';
 import useCoins from '../../hooks/coin/useCoins';
 import { isSuiToken } from '../../utils/check';
 import Tooltip from '../../components/Tooltip';
-
+import HistoryChart from './historyChart';
+import { set } from 'superstruct';
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const apiClient = useApiClient();
@@ -51,6 +55,31 @@ export default function CoinDetailPage() {
       skip: !address,
     }
   );
+  const [timePeriod, setTimePeriod] = useState('day');
+  const timePeriodOptions = ['day', 'hour', 'minute'];
+
+  const [supportHistoryChart, setSupportHistoryChart] = useState(false);
+  const { data: coinHistoryResult, loading: coinHistoryLoading } = useQuery(
+    GET_COIN_HISTORY,
+    {
+      variables: {
+        address,
+        coinTypes: [coinType],
+        interval: timePeriod,
+        length: 24,
+      },
+      onCompleted(data) {
+        if (data.coins[0]?.history?.length > 0) {
+          // console.log(data);
+          setSupportHistoryChart(true);
+        }
+      },
+    }
+  );
+
+  const symbol = coinHistoryResult?.coins[0]?.symbol;
+  const iconURL = coinHistoryResult?.coins[0]?.iconURL;
+  const usdPrice = coinHistoryResult?.coins[0]?.usdPrice;
   const delegatedStakes = delegatedStakesResult?.delegatedStakes;
   const stakedBalance =
     delegatedStakes?.reduce((accumulator, current) => {
@@ -138,7 +167,7 @@ export default function CoinDetailPage() {
           //     default:
           //   }
         }}
-        title="SUI"
+        title={symbol}
       />
       <div className="flex justify-center pt-8">
         <div className="flex">
@@ -148,9 +177,9 @@ export default function CoinDetailPage() {
             model={wallet?.avatar}
           />
           <TokenIcon
-            icon={isSUI ? IconWaterDrop : IconToken}
+            icon={isSUI ? IconWaterDrop : iconURL}
             alt="water-drop"
-            size="large"
+            size="xlarge"
             className={classNames(
               'border-2 border-white',
               'w-[64px] h-[64px]',
@@ -161,7 +190,12 @@ export default function CoinDetailPage() {
       </div>
 
       <div className="flex justify-center flex-col items-center">
-        <div className="mt-4 flex items-center gap-2">
+        <div
+          className="mt-4 flex items-center gap-2"
+          style={{
+            fontFamily: 'IBM Plex Mono',
+          }}
+        >
           {stakesLoading ? (
             <Skeleton className="w-12 h-6"></Skeleton>
           ) : (
@@ -169,177 +203,227 @@ export default function CoinDetailPage() {
               {formatSUI(BigInt(balance) + BigInt(stakedBalance))}
             </p>
           )}
-          <p className="inline text-3xl font-bold text-zinc-400">SUI</p>
-        </div>
-
-        <div className="">
-          {stakesLoading ? (
-            <Skeleton className="w-10 h-6 mr-2"></Skeleton>
-          ) : (
-            <p className="inline text-2 text-zinc-400">
-              Earned {formatSUI(earnedBalance)} SUI{' '}
-            </p>
-          )}
+          <p className="inline text-3xl font-bold text-zinc-400">{symbol}</p>
         </div>
       </div>
+      {supportHistoryChart && (
+        <>
+          <HistoryChart
+            data={coinHistoryResult}
+            coinType={coinType}
+            symbol={symbol}
+            timePeriod={timePeriod}
+            usdPrice={usdPrice}
+          ></HistoryChart>
 
-      <div className="balance details flex mt-2 mx-6 justify-between">
-        <div className="free-balance">
-          <p className="text-zinc-400 font-normal">Avaliable</p>
+          <nav className="flex space-x-4 justify-center mb-6" aria-label="Tabs">
+            {timePeriodOptions.map((tab) => (
+              <a
+                key={tab}
+                onClick={() => setTimePeriod(tab)}
+                className={classNames(
+                  tab === timePeriod
+                    ? 'bg-gray-200 text-gray-800'
+                    : 'text-gray-600 hover:text-gray-800',
+                  'rounded-full px-3 py-2 text-sm font-medium'
+                )}
+                aria-current={tab ? 'page' : undefined}
+              >
+                {tab}
+              </a>
+            ))}
+          </nav>
+        </>
+      )}
 
-          <div className="font-bold">{formatSUI(balance)} SUI</div>
-        </div>
-        <div className="staked-balance text-right">
-          <p className="text-zinc-400 font-normal">Staked</p>
-          {stakesLoading ? (
-            <Skeleton className="w-10 h-4 mb-2"></Skeleton>
-          ) : (
-            <div className="font-bold">{formatSUI(stakedBalance)} SUI</div>
-          )}
-        </div>
-      </div>
-
-      <div className="w-full px-6 rounded-full overflow-hidden">
-        <div className="w-full rounded-full mx-auto h-2 bg-gray-200 overflow-hidden">
-          {stakesLoading ? (
-            <Skeleton className="w-full h-full"></Skeleton>
-          ) : (
-            <div
-              className="h-full rounded-full bg-sky-300 transition-all duration-500 ease-in-out"
-              style={{
-                width: `${
-                  (Number(balance) * 100) / (stakedBalance + Number(balance))
-                }%`,
-              }}
-            ></div>
-          )}
-        </div>
-      </div>
-
-      <div className="mx-6 mt-6 mb-24">
+      {/* // todo: add earned balance display */}
+      {/* <div className="">
         {stakesLoading ? (
-          <Skeleton className="w-24 h-4 inline-block"></Skeleton>
+          <Skeleton className="w-10 h-6 mr-2"></Skeleton>
         ) : (
-          <div className="text-zinc-400">
-            Staking on {delegatedStakes?.length ?? 0} validators
-          </div>
+          <p className="inline text-2 text-zinc-400">
+            Earned {formatSUI(earnedBalance)} SUI{' '}
+          </p>
         )}
+      </div> */}
 
-        <div className="flex flex-col mt-2">
-          {stakesLoading ? (
-            <>
-              <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
-              <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
-            </>
-          ) : (
-            delegatedStakes?.map((delegatedStake) =>
-              delegatedStake.stakes?.map((stake) => (
-                <div
-                  className="flex flex-col justify-between border-2 border-zinc-100 w-full rounded-2xl p-4 mb-2"
-                  key={delegatedStake?.validator?.suiAddress}
-                >
-                  <div className="flex gap-4 items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <IconStakeFilled />
-                      <div className="font-bold">
-                        {delegatedStake?.validator?.name}
-                      </div>
-                    </div>
-                    <Tooltip
-                      message={
-                        delegatedStake?.validator?.epoch <
-                        stake.stakeActiveEpoch
-                          ? 'you can start unstake from next epoch (24h)'
-                          : undefined
-                      }
-                    >
-                      <button
-                        className={classNames(
-                          'bg-zinc-100  px-3 py-1 rounded-xl transition-all',
-                          delegatedStake?.validator?.epoch <
-                            stake.stakeActiveEpoch
-                            ? ['cursor-not-allowed', 'text-gray-400']
-                            : [
-                                'cursor-pointer',
-                                'hover:bg-zinc-200',
-                                'active:bg-zinc-300',
-                              ]
-                        )}
-                        onClick={async () =>
-                          await UnstakeCoins(stake?.stakedSuiID)
-                        }
-                        disabled={
-                          delegatedStake?.validator?.epoch <
-                          stake.stakeActiveEpoch
-                        }
-                        style={
-                          {
-                            // fixme: unhide when unstake is ready
-                            // display: 'none',
-                          }
-                        }
-                      >
-                        {buttonLoading?.[stake?.stakedSuiID] ? (
-                          <div className="px-5 py-1">
-                            <LoadingSpokes
-                              width="12px"
-                              height="12px"
-                            ></LoadingSpokes>
-                          </div>
-                        ) : (
-                          'Unstake'
-                        )}
-                      </button>
-                    </Tooltip>
-                  </div>
-                  <div className="flex mt-4 gap-2 justify-around">
-                    <div className="flex flex-col">
-                      <p className="text-zinc-400">Staked</p>
-                      <div className="font-medium text-sm">
-                        {formatSUI(stake.principal)}
-                        <div className="inline text-zinc-400 pl-1">SUI</div>
-                      </div>
-                    </div>
+      {isSUI && (
+        <>
+          <div className="balance details flex mt-2 mx-6 justify-between">
+            <div className="free-balance">
+              <p className="text-zinc-400 font-normal">Avaliable</p>
 
-                    <div className="flex w-[1px] bg-zinc-200"></div>
-
-                    <div className="flex flex-col">
-                      <p className="text-zinc-400">APY</p>
-                      <div className="text-sm font-medium">
-                        {delegatedStake?.validator?.description.lenth === 0
-                          ? delegatedStake?.validator?.description
-                          : formatCurrency(delegatedStake?.validator?.apy, {
-                              decimals: 0,
-                            }) + '%'}
-                      </div>
-                    </div>
-
-                    <div className="flex w-[1px] bg-zinc-200"></div>
-
-                    <div className="flex flex-col">
-                      <p className="text-zinc-400">Epoch</p>
-                      <div className="text-sm font-medium">
-                        {stake?.stakeActiveEpoch
-                          ? stake.stakeActiveEpoch
-                          : stake.stakeRequestEpoch}
-                      </div>
-                    </div>
-                  </div>
+              <div className="font-bold">
+                {formatSUI(balance)} {symbol}
+              </div>
+            </div>
+            <div className="staked-balance text-right">
+              <p className="text-zinc-400 font-normal">Staked</p>
+              {stakesLoading ? (
+                <Skeleton className="w-10 h-4 mb-2"></Skeleton>
+              ) : (
+                <div className="font-bold">
+                  {formatSUI(stakedBalance)} {symbol}
                 </div>
-              ))
-            )
-          )}
-        </div>
-      </div>
+              )}
+            </div>
+          </div>
+          <div className="w-full px-6 rounded-full overflow-hidden">
+            <div className="w-full rounded-full mx-auto h-2 bg-gray-200 overflow-hidden">
+              {stakesLoading ? (
+                <Skeleton className="w-full h-full"></Skeleton>
+              ) : (
+                <div
+                  className="h-full rounded-full bg-sky-300 transition-all duration-500 ease-in-out"
+                  style={{
+                    width: `${
+                      (Number(balance) * 100) /
+                      (stakedBalance + Number(balance))
+                    }%`,
+                  }}
+                ></div>
+              )}
+            </div>
+          </div>
+          <div className="mx-6 mt-6 mb-24">
+            {stakesLoading ? (
+              <Skeleton className="w-24 h-4 inline-block"></Skeleton>
+            ) : (
+              <div className="text-zinc-400">
+                Staking on {delegatedStakes?.length ?? 0} validators
+              </div>
+            )}
+
+            <div className="flex flex-col mt-2 min-h-[120px]">
+              {stakesLoading ? (
+                <>
+                  <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
+                  <Skeleton className="flex justify-between items-center w-full rounded-2xl p-6"></Skeleton>
+                </>
+              ) : (
+                delegatedStakes?.map((delegatedStake) =>
+                  delegatedStake.stakes?.map((stake) => (
+                    <div
+                      className="flex flex-col justify-between border-2 border-zinc-100 w-full rounded-2xl p-4 mb-2"
+                      key={delegatedStake?.validator?.suiAddress}
+                    >
+                      <div className="flex gap-4 items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <IconStakeFilled />
+                          <div className="font-bold">
+                            {delegatedStake?.validator?.name}
+                          </div>
+                        </div>
+                        <Tooltip
+                          message={
+                            delegatedStake?.validator?.epoch <
+                            stake.stakeActiveEpoch
+                              ? 'you can start unstake from next epoch (24h)'
+                              : undefined
+                          }
+                        >
+                          <button
+                            className={classNames(
+                              'bg-zinc-100  px-3 py-1 rounded-xl transition-all',
+                              delegatedStake?.validator?.epoch <
+                                stake.stakeActiveEpoch
+                                ? ['cursor-not-allowed', 'text-gray-400']
+                                : [
+                                    'cursor-pointer',
+                                    'hover:bg-zinc-200',
+                                    'active:bg-zinc-300',
+                                  ]
+                            )}
+                            onClick={async () =>
+                              await UnstakeCoins(stake?.stakedSuiID)
+                            }
+                            disabled={
+                              delegatedStake?.validator?.epoch <
+                              stake.stakeActiveEpoch
+                            }
+                            style={
+                              {
+                                // fixme: unhide when unstake is ready
+                                // display: 'none',
+                              }
+                            }
+                          >
+                            {buttonLoading?.[stake?.stakedSuiID] ? (
+                              <div className="px-5 py-1">
+                                <LoadingSpokes
+                                  width="12px"
+                                  height="12px"
+                                ></LoadingSpokes>
+                              </div>
+                            ) : (
+                              'Unstake'
+                            )}
+                          </button>
+                        </Tooltip>
+                      </div>
+                      <div className="flex mt-4 gap-2 justify-around">
+                        <div className="flex flex-col">
+                          <p className="text-zinc-400">Staked</p>
+                          <div className="font-medium text-sm">
+                            {formatSUI(stake.principal)}
+                            <div className="inline text-zinc-400 pl-1">
+                              {' '}
+                              {symbol}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex w-[1px] bg-zinc-200"></div>
+
+                        <div className="flex flex-col">
+                          <p className="text-zinc-400">APY</p>
+                          <div className="text-sm font-medium">
+                            {delegatedStake?.validator?.description.lenth === 0
+                              ? delegatedStake?.validator?.description
+                              : formatCurrency(delegatedStake?.validator?.apy, {
+                                  decimals: 0,
+                                }) + '%'}
+                          </div>
+                        </div>
+
+                        <div className="flex w-[1px] bg-zinc-200"></div>
+
+                        <div className="flex flex-col">
+                          <p className="text-zinc-400">Epoch</p>
+                          <div className="text-sm font-medium">
+                            {stake?.stakeActiveEpoch
+                              ? stake.stakeActiveEpoch
+                              : stake.stakeRequestEpoch}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {network?.enableStaking && (
-        <div className="fixed w-full bottom-0 left-0 right-0 p-4 border-t border-t-zinc-100 bg-white">
+        <div className="fixed flex gap-4 w-full bottom-0 left-0 right-0 p-4 border-t border-t-zinc-100 bg-white">
+          {isSUI && (
+            <Button
+              type={'submit'}
+              state={'primary'}
+              onClick={() => navigate('/staking')}
+            >
+              Stake
+            </Button>
+          )}
+
           <Button
             type={'submit'}
-            state={'primary'}
-            onClick={() => navigate('/staking')}
+            state={'normal'}
+            onClick={() => navigate('/send')}
           >
-            Stake
+            Send
           </Button>
         </div>
       )}
