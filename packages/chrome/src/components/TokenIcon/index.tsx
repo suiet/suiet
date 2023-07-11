@@ -4,7 +4,7 @@ import styles from './index.module.scss';
 import classnames from 'classnames';
 import Img from '../Img';
 
-type Size = 'normal' | 'small' | 'large';
+type Size = 'normal' | 'small' | 'large' | 'xlarge';
 
 export type TokenIconProps = Extendable & {
   icon: string | ReactNode;

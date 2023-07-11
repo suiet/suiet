@@ -13,7 +13,11 @@ import AddressInputPage from './AddressInput';
 import SendConfirm from './SendConfirm';
 import Skeleton from 'react-loading-skeleton';
 import { CoinDto } from '../../hooks/coin/useCoins';
-import { SendAndExecuteTxParams, TxEssentials } from '@suiet/core';
+import {
+  SendAndExecuteTxParams,
+  TxEssentials,
+  calculateCoinAmount,
+} from '@suiet/core';
 import { DEFAULT_SUI_COIN } from '../../constants/coin';
 import { SendData } from './types';
 import { compareCoinAmount } from '../../utils/check';
@@ -25,7 +29,6 @@ import useSuiBalance from '../../hooks/coin/useSuiBalance';
 import { getTransactionBlock } from '@suiet/core/src/utils/txb-factory';
 import createTransferCoinTxb from './utils/createTransferCoinTxb';
 import useGasBudgetForTransferCoin from './hooks/useGasBudgetForTranferCoin';
-import { calculateCoinAmount } from '@suiet/core';
 import useCoinsWithSuiOnTop from './hooks/useCoinsWithSuiOnTop';
 
 enum Mode {
@@ -165,6 +168,10 @@ const SendPage = () => {
                     verified={coin.isVerified}
                     selected={sendData.coinType === coin.type}
                     isVerified={coin.isVerified}
+                    usd={coin.usd}
+                    pricePercentChange24h={coin.pricePercentChange24h}
+                    wrappedChain={coin.wrappedChain}
+                    bridge={coin.bridge}
                     onClick={(coinType) => {
                       setSelectedCoin(coin);
                       setSendData((prev) => ({
