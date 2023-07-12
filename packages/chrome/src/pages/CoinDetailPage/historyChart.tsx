@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Axis, Chart, Line, Geom, Tooltip, LineAdvance } from 'bizcharts';
 import classNames from 'classnames';
 import { formateRelativetime } from '../../utils/formatDatetime';
-import { set } from 'superstruct';
+
 type HistoryChartProps = Extendable & {
   data: any;
   coinType: string | undefined;
@@ -54,7 +54,7 @@ export default function HistoryChart(props: HistoryChartProps) {
       setSelectedPrice(e.data?.items[0].value);
       setSelectedTimestamp(e.data?.items[0]?.data?.timestamp);
       setPriceChangePercent(
-        (e.data?.items[0].value - currentPrice) / currentPrice
+        (e.data?.items[0].value - Number(currentPrice)) / e.data?.items[0].value
       );
     }
   }

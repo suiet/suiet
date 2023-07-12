@@ -66,7 +66,7 @@ export default function CoinDetailPage() {
         address,
         coinTypes: [coinType],
         interval: timePeriod,
-        length: 24,
+        length: timePeriod === 'day' ? 30 : timePeriod === 'hour' ? 24 : 60,
       },
       onCompleted(data) {
         if (data.coins[0]?.history?.length > 0) {
@@ -74,6 +74,7 @@ export default function CoinDetailPage() {
           setSupportHistoryChart(true);
         }
       },
+      skip: !address,
     }
   );
 
