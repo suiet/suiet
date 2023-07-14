@@ -114,7 +114,7 @@ export class QueryProvider {
   provider: JsonRpcProvider;
   // An amount of gas (in gas units) that is added to
   // transactions as an overhead to ensure transactions do not fail.
-  private static GAS_SAFE_OVERHEAD = 1000n;
+  private static readonly GAS_SAFE_OVERHEAD = 1000n;
 
   constructor(queryEndpoint: string, versionCacheTimeoutInSeconds: number) {
     this.provider = new JsonRpcProvider(
@@ -159,10 +159,10 @@ export class QueryProvider {
         owner: address,
         cursor: nextCursor,
         options: {
-          showType: showType,
-          showDisplay: showDisplay,
-          showContent: showContent,
-          showOwner: showOwner,
+          showType,
+          showDisplay,
+          showContent,
+          showOwner,
         },
       });
       const suiObjectResponses = resp.data as SuiObjectResponse[];
@@ -311,13 +311,13 @@ export class QueryProvider {
   }
 
   public async getCoinMetadata(coinTypes: string[]): Promise<
-    {
+    Array<{
       data: CoinMetadata | null;
       error: string | null;
-    }[]
+    }>
   > {
-    const requests = coinTypes.map((coinType) => {
-      return this.provider.getCoinMetadata({
+    const requests = coinTypes.map(async (coinType) => {
+      return await this.provider.getCoinMetadata({
         coinType,
       });
     });

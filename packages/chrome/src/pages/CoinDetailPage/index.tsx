@@ -65,11 +65,9 @@ export default function CoinDetailPage() {
       variables: {
         address,
         coinTypes: [coinType],
-        interval: timePeriod,
-        length: timePeriod === 'day' ? 30 : timePeriod === 'hour' ? 24 : 60,
       },
       onCompleted(data) {
-        if (data.coins[0]?.history?.length > 0) {
+        if (data.coins[0]?.day?.length > 0) {
           // console.log(data);
           setSupportHistoryChart(true);
         }

@@ -49,6 +49,8 @@ const DappTxApprovePage = lazy(
 const DappSignMsgPage = lazy(
   async () => await import('../pages/dapp/SignMsgPage')
 );
+const SwapPage = lazy(async () => await import('../pages/SwapPage'));
+
 const DappsPage = lazy(async () => await import('../pages/DappsPage'));
 const PasswordConfirmPage = lazy(
   async () => await import('../pages/PasswordConfirmPage')
@@ -111,6 +113,10 @@ const routesConfig: RouteObject[] = [
             element: withSus(<SendPage />),
           },
         ],
+      },
+      {
+        path: 'swap',
+        element: withSus(<SwapPage />),
       },
       {
         path: 'staking',
