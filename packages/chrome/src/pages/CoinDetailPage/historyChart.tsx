@@ -20,20 +20,43 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-export default function HistoryChart(props: HistoryChartProps) {
-  const data = props.data?.coins[0]?.history
+function formatHistoryData(data: any, timePeriod: string) {
+  return data
     ?.map(
       (item: any) =>
         item.timestamp && {
           timestamp: item.timestamp,
           date:
-            props.timePeriod === 'day'
+            timePeriod === 'day'
               ? new Date(item.timestamp).toLocaleDateString()
               : new Date(item.timestamp).toLocaleTimeString(),
           price: Number(item.price),
         }
     )
     ?.sort((a: any, b: any) => a.timestamp - b.timestamp);
+}
+
+export default function HistoryChart(props: HistoryChartProps) {
+  const data =
+    props.timePeriod === 'minute'
+      ? formatHistoryData(props.data?.coins[0]?.minute, props.timePeriod)
+      : props.timePeriod === 'hour'
+      ? formatHistoryData(props.data?.coins[0]?.hour, props.timePeriod)
+      : formatHistoryData(props.data?.coins[0]?.day, props.timePeriod);
+
+  // const data = props.data?.coins[0]?.history
+  //   ?.map(
+  //     (item: any) =>
+  //       item.timestamp && {
+  //         timestamp: item.timestamp,
+  //         date:
+  //           props.timePeriod === 'day'
+  //             ? new Date(item.timestamp).toLocaleDateString()
+  //             : new Date(item.timestamp).toLocaleTimeString(),
+  //         price: Number(item.price),
+  //       }
+  //   )
+  //   ?.sort((a: any, b: any) => a.timestamp - b.timestamp);
 
   const currentPrice = props.usdPrice;
   const currentTimestamp = Date.now();
