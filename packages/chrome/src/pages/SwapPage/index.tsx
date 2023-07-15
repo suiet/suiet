@@ -11,7 +11,7 @@ import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { TransactionBlock } from '@mysten/sui.js';
 import BN from 'bn.js';
-import { useEffect, useState } from 'react';
+import { Key, useEffect, useState } from 'react';
 import AppLayout from '../../layouts/AppLayout';
 import { Extendable } from '../../types';
 import Img from '../../components/Img';
@@ -19,11 +19,14 @@ import Button from '../../components/Button';
 import { Select, SelectItem } from './selectSwapToken';
 import { useQuery } from '@apollo/client';
 import { GET_SUPPORT_SWAP_COINS } from '../../utils/graphql/query';
-
+import TokenItem from '../../components/TokenItem';
+import { Token } from 'graphql';
+import { CoinType } from '../../types/coin';
 type SwapItemProps = Extendable & {
   type: 'From' | 'To';
   data: any;
   defaultValue?: any;
+  onChange: (value: string) => void;
 };
 
 function SwapItem(props: SwapItemProps) {
@@ -34,50 +37,35 @@ function SwapItem(props: SwapItemProps) {
         // onValueChange={console.log}
         // layoutClass="fixed left-0 right-0 bottom-0 w-[100wh] h-[400px]"
         defaultValue={props.defaultValue}
+        onChange={props.onChange}
+        // trigger={<TokenInfo />}
       >
-        {/* <div className="flex items-center gap-2 flex-shrink-0">
-          <Img
-            className="w-[32px] h-[32px] items-center"
-            src="https://assets.suiet.app/img/coins/eth.png"
-          ></Img>
-          <div>
-            <p className="text-zinc-500">{props.type}</p>
-            <p className="font-bold text-large">USDT</p>
-          </div>
-        </div> */}
         <div className="">
-          {props.data?.map((coin) => {
+          {props.data?.map((coin: CoinType) => {
             return (
               <SelectItem
                 key={coin.type}
                 className="focus:outline-0"
                 value={coin.type}
               >
-                <div className="flex items-center gap-2 flex-shrink-0 mr-2">
-                  <Img
-                    className="w-[32px] h-[32px] items-center"
-                    src={coin.iconURL}
-                  ></Img>
-                  <div className="flex flex-col items-start">
-                    {/* <p className="text-zinc-500">{props.type}</p> */}
-                    <p className="font-bold text-large">{coin.symbol}</p>
-                  </div>
-                </div>
+                <TokenItem
+                  coin={coin}
+                  wrapperClass={'py-[20px] px-[20px] border-t border-gray-100'}
+                  //     amount = 0,
+                  //     symbol,
+                  //     iconURL,
+                  //     decimals = 0,
+                  //     onClick,
+                  //     selected,
+                  //     isVerified,
+                  //     usd,
+                  //     pricePercentChange24h,
+                  //     wrappedChain,
+                  // bridge,
+                ></TokenItem>
               </SelectItem>
             );
           })}
-
-          <SelectItem className="focus:outline-0" value={'sol'}>
-            <div className="flex items-center gap-2 flex-shrink-0 mr-2">
-              <Img
-                className="w-[32px] h-[32px] items-center"
-                src="https://assets.suiet.app/img/coins/eth.png"
-              ></Img>
-              <div className="flex flex-col items-start">
-                <p className="font-bold text-large">USDT</p>
-              </div>
-            </div>
-          </SelectItem>
         </div>
       </Select>
 
@@ -99,11 +87,17 @@ export default function SwapPage() {
   const { address } = useAccount(accountId);
   const sdk = new SDK(clmmMainnet);
 
+  const [fromCoinType, setFromCoinType] = useState<string | null>(null);
+  const [toCoinType, setToCoinType] = useState<string | null>(null);
   initPool();
 
   const [price, setPrice] = useState<any>(null);
   const { loading, error, data } = useQuery(GET_SUPPORT_SWAP_COINS, {
     fetchPolicy: 'cache-and-network',
+    variables: {
+      ownerAddress: address,
+    },
+    skip: !address,
   });
 
   useEffect(() => {
@@ -351,29 +345,24 @@ export default function SwapPage() {
   return (
     <AppLayout>
       <div className="w-full">
-        {/* {address} */}
-        {/* {data?.supportedSwapCoins.map((coin) => {
-          return (
-            <SwapItem
-              type="From"
-              coinType="0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc::usdt::USDT"
-            ></SwapItem>
-          );
-        })} */}
         <SwapItem
           type="From"
           data={data?.supportedSwapCoins}
           defaultValue="0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
-        ></SwapItem>
+          onChange={setFromCoinType}
+        >
+          {JSON.stringify(fromCoinType)}
+        </SwapItem>
 
         <SwapItem
           type="To"
           data={data?.supportedSwapCoins}
           defaultValue="0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN"
-        ></SwapItem>
+          onChange={setToCoinType}
+        >
+          {JSON.stringify(toCoinType)}
+        </SwapItem>
       </div>
-      <div>Swap Page</div>
-      {/* <>{JSON.stringify(price)}</ p> */}
 
       <div className="mx-[24px]">
         <Button className="" state="primary">
