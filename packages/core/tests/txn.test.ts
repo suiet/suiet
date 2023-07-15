@@ -4,9 +4,9 @@ import * as tweetnacl from 'tweetnacl';
 import {
   IntentScope,
   JsonRpcProvider,
-  fromSerializedSignature,
   messageWithIntent,
   fromB64,
+  toSingleSignaturePubkeyPair,
 } from '@mysten/sui.js';
 import { TxProvider } from '../src/provider';
 import { blake2b } from '@noble/hashes/blake2b';
@@ -30,7 +30,7 @@ describe('signMessage', () => {
       new TextEncoder().encode('hello world'),
       vault
     );
-    const signature = fromSerializedSignature(signedMsg.signature);
+    const signature = toSingleSignaturePubkeyPair(signedMsg.signature);
     const message = messageWithIntent(
       IntentScope.PersonalMessage,
       fromB64(signedMsg.messageBytes)
