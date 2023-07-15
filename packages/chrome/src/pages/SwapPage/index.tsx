@@ -16,12 +16,14 @@ import AppLayout from '../../layouts/AppLayout';
 import { Extendable } from '../../types';
 import Img from '../../components/Img';
 import Button from '../../components/Button';
-// import { Select, SelectItem } from '../../components/Select';
-import { SelectItem, Select } from './selectSwapToken';
+import { Select, SelectItem } from './selectSwapToken';
+import { useQuery } from '@apollo/client';
+import { GET_SUPPORT_SWAP_COINS } from '../../utils/graphql/query';
 
 type SwapItemProps = Extendable & {
-  coinType: string;
   type: 'From' | 'To';
+  data: any;
+  defaultValue?: any;
 };
 
 function SwapItem(props: SwapItemProps) {
@@ -29,8 +31,9 @@ function SwapItem(props: SwapItemProps) {
     <div className="px-6 py-4 hover:bg-slate-100 transition-all flex justify-between w-full">
       <Select
         className="flex-shrink-0"
-        onValueChange={console.log}
-        defualtValue={'eth'}
+        // onValueChange={console.log}
+        // layoutClass="fixed left-0 right-0 bottom-0 w-[100wh] h-[400px]"
+        defaultValue={props.defaultValue}
       >
         {/* <div className="flex items-center gap-2 flex-shrink-0">
           <Img
@@ -42,20 +45,39 @@ function SwapItem(props: SwapItemProps) {
             <p className="font-bold text-large">USDT</p>
           </div>
         </div> */}
-        <div className="fixed bottom-0 left-0 right-0 w-[100vh] h-[400px] bg-zinc-400">
-          {/* <SelectItem value={'eth'}>
-            <div className="flex items-center gap-2 flex-shrink-0 mr-8">
+        <div className="">
+          {props.data?.map((coin) => {
+            return (
+              <SelectItem
+                key={coin.type}
+                className="focus:outline-0"
+                value={coin.type}
+              >
+                <div className="flex items-center gap-2 flex-shrink-0 mr-2">
+                  <Img
+                    className="w-[32px] h-[32px] items-center"
+                    src={coin.iconURL}
+                  ></Img>
+                  <div className="flex flex-col items-start">
+                    {/* <p className="text-zinc-500">{props.type}</p> */}
+                    <p className="font-bold text-large">{coin.symbol}</p>
+                  </div>
+                </div>
+              </SelectItem>
+            );
+          })}
+
+          <SelectItem className="focus:outline-0" value={'sol'}>
+            <div className="flex items-center gap-2 flex-shrink-0 mr-2">
               <Img
                 className="w-[32px] h-[32px] items-center"
                 src="https://assets.suiet.app/img/coins/eth.png"
               ></Img>
               <div className="flex flex-col items-start">
-                <p className="text-zinc-500">{props.type}</p>
                 <p className="font-bold text-large">USDT</p>
               </div>
             </div>
-          </SelectItem> */}
-          <SelectItem></SelectItem>
+          </SelectItem>
         </div>
       </Select>
 
@@ -80,6 +102,9 @@ export default function SwapPage() {
   initPool();
 
   const [price, setPrice] = useState<any>(null);
+  const { loading, error, data } = useQuery(GET_SUPPORT_SWAP_COINS, {
+    fetchPolicy: 'cache-and-network',
+  });
 
   useEffect(() => {
     if (address) {
@@ -327,15 +352,24 @@ export default function SwapPage() {
     <AppLayout>
       <div className="w-full">
         {/* {address} */}
-
+        {/* {data?.supportedSwapCoins.map((coin) => {
+          return (
+            <SwapItem
+              type="From"
+              coinType="0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc::usdt::USDT"
+            ></SwapItem>
+          );
+        })} */}
         <SwapItem
           type="From"
-          coinType="0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc::usdt::USDT"
+          data={data?.supportedSwapCoins}
+          defaultValue="0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
         ></SwapItem>
 
         <SwapItem
           type="To"
-          coinType="0x26b3bc67befc214058ca78ea9a2690298d731a2d4309485ec3d40198063c4abc::usdc::USDC"
+          data={data?.supportedSwapCoins}
+          defaultValue="0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN"
         ></SwapItem>
       </div>
       <div>Swap Page</div>
@@ -389,16 +423,6 @@ const SDKConfig = {
       '0x5e194a8efcf653830daf85a85b52e3ae8f65dc39481d54b2382acda25068375c',
     clmm_pools_handle:
       '0x37f60eb2d9d227949b95da8fea810db3c32d1e1fa8ed87434fc51664f87d83cb',
-  },
-  tokenConfig: {
-    coin_registry_id:
-      '0xe0b8cb7e56d465965cac5c5fe26cba558de35d88b9ec712c40f131f72c600151',
-    pool_registry_id:
-      '0xab40481f926e686455edf819b4c6485fbbf147a42cf3b95f72ed88c94577e67a',
-    coin_list_owner:
-      '0x1f6510ee7d8e2b39261bad012f0be0adbecfd75199450b7cbf28efab42dad083',
-    pool_list_owner:
-      '0x6de133b609ea815e1f6a4d50785b798b134f567ec1f4ee113ae73f6900b4012d',
   },
 };
 

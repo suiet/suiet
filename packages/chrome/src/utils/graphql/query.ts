@@ -63,3 +63,30 @@ export const GET_DELEGATED_STAKES = gql`
     }
   }
 `;
+
+export const GET_SUPPORT_SWAP_COINS = gql`
+  query GetSupportedSwapCoins {
+    supportedSwapCoins {
+      symbol
+      usdPrice
+      usd
+      type
+      iconURL
+      isVerified
+      metadata {
+        decimals
+      }
+      swapPool {
+        cetus {
+          poolAddress
+          coinA {
+            symbol
+          }
+          coinB {
+            symbol
+          }
+        }
+      }
+    }
+  }
+`;
