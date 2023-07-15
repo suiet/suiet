@@ -65,17 +65,22 @@ export const GET_DELEGATED_STAKES = gql`
 `;
 
 export const GET_SUPPORT_SWAP_COINS = gql`
-  query GetSupportedSwapCoins {
-    supportedSwapCoins {
+  query GetSupportedSwapCoins($ownerAddress: Address) {
+    supportedSwapCoins(ownerAddress: $ownerAddress) {
       symbol
       usdPrice
       usd
+      balance
       type
       iconURL
       isVerified
       metadata {
         decimals
+        wrappedChain
+        bridge
+        isVerified
       }
+      isVerified
       swapPool {
         cetus {
           poolAddress

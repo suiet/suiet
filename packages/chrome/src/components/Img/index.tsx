@@ -20,7 +20,7 @@ const ImgSkeleton = (props: Extendable) => {
   );
 };
 
-const Img = (props: ImageProps) => {
+export const Img = (props: ImageProps) => {
   const { src, fallback = ImgError, alt = 'image' } = props;
 
   const [loading, setLoading] = useState(true);
