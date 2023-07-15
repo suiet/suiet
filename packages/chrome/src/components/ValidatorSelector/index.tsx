@@ -31,10 +31,7 @@ export default function ValidatorSelector({
     </div>
   ) : (
     <Select.Root value={selectedValidator} onValueChange={setSelectedValidator}>
-      <Select.Trigger
-        className="SelectTrigger w-full outline-none"
-        aria-label="Food"
-      >
+      <Select.Trigger className="SelectTrigger w-full outline-none">
         <div className="rounded-2xl validator-info p-4 flex items-center justify-between m-2 bg-sky-50 ">
           <>
             <div className="flex items-center gap-2">

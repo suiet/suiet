@@ -35,7 +35,12 @@ export const Select = (props: SelectProps) => (
     value={props.value}
     onValueChange={props.onValueChange}
   >
-    <RadixSelect.Trigger className="flex gap-2 items-center text-gray-600 font-medium text-medium mb-4">
+    <RadixSelect.Trigger
+      className={classnames(
+        'flex gap-2 items-center text-gray-600 font-medium text-medium',
+        props.className
+      )}
+    >
       <RadixSelect.Value className="" />
       <RadixSelect.Icon className="SelectIcon">
         <ChevronDownIcon />
