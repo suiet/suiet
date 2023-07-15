@@ -11,7 +11,13 @@ import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { TransactionBlock } from '@mysten/sui.js';
 import BN from 'bn.js';
-import { Key, useEffect, useState } from 'react';
+import React, {
+  Key,
+  useEffect,
+  useState,
+  CSSProperties,
+  ReactNode,
+} from 'react';
 import AppLayout from '../../layouts/AppLayout';
 import { Extendable } from '../../types';
 import Img from '../../components/Img';
@@ -22,11 +28,13 @@ import { GET_SUPPORT_SWAP_COINS } from '../../utils/graphql/query';
 import TokenItem from '../../components/TokenItem';
 import { Token } from 'graphql';
 import { CoinType } from '../../types/coin';
+import { TokenInfo } from './token';
 type SwapItemProps = Extendable & {
   type: 'From' | 'To';
-  data: any;
+  data: CoinType[] | undefined;
   defaultValue?: any;
   onChange: (value: string) => void;
+  trigger: ReactNode;
 };
 
 function SwapItem(props: SwapItemProps) {
@@ -38,10 +46,10 @@ function SwapItem(props: SwapItemProps) {
         // layoutClass="fixed left-0 right-0 bottom-0 w-[100wh] h-[400px]"
         defaultValue={props.defaultValue}
         onChange={props.onChange}
-        // trigger={<TokenInfo />}
+        trigger={props.trigger}
       >
         <div className="">
-          {props.data?.map((coin: CoinType) => {
+          {props.data?.map((coin) => {
             return (
               <SelectItem
                 key={coin.type}
@@ -51,17 +59,6 @@ function SwapItem(props: SwapItemProps) {
                 <TokenItem
                   coin={coin}
                   wrapperClass={'py-[20px] px-[20px] border-t border-gray-100'}
-                  //     amount = 0,
-                  //     symbol,
-                  //     iconURL,
-                  //     decimals = 0,
-                  //     onClick,
-                  //     selected,
-                  //     isVerified,
-                  //     usd,
-                  //     pricePercentChange24h,
-                  //     wrappedChain,
-                  // bridge,
                 ></TokenItem>
               </SelectItem>
             );
@@ -87,8 +84,12 @@ export default function SwapPage() {
   const { address } = useAccount(accountId);
   const sdk = new SDK(clmmMainnet);
 
-  const [fromCoinType, setFromCoinType] = useState<string | null>(null);
-  const [toCoinType, setToCoinType] = useState<string | null>(null);
+  const [fromCoinType, setFromCoinType] = useState<string>(
+    '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI'
+  );
+  const [toCoinType, setToCoinType] = useState<string>(
+    '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN'
+  );
   initPool();
 
   const [price, setPrice] = useState<any>(null);
@@ -342,23 +343,37 @@ export default function SwapPage() {
     return routerPayload;
   }
 
+  const fromCoinInfo =
+    data?.supportedSwapCoins.find(
+      (coin: CoinType) => coin.type === fromCoinType
+    ) &&
+    data?.supportedSwapCoins.find(
+      (coin: CoinType) => coin.type === fromCoinType
+    );
+
+  const toCoinInfo =
+    data?.supportedSwapCoins.find(
+      (coin: CoinType) => coin.type === toCoinType
+    ) &&
+    data?.supportedSwapCoins.find((coin: CoinType) => coin.type === toCoinType);
+
   return (
     <AppLayout>
       <div className="w-full">
         <SwapItem
           type="From"
           data={data?.supportedSwapCoins}
-          defaultValue="0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+          defaultValue={fromCoinType}
           onChange={setFromCoinType}
-        >
-          {JSON.stringify(fromCoinType)}
-        </SwapItem>
+          trigger={<TokenInfo coin={fromCoinInfo}></TokenInfo>}
+        ></SwapItem>
 
         <SwapItem
           type="To"
           data={data?.supportedSwapCoins}
-          defaultValue="0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN"
+          defaultValue={toCoinType}
           onChange={setToCoinType}
+          trigger={<TokenInfo coin={toCoinInfo}></TokenInfo>}
         >
           {JSON.stringify(toCoinType)}
         </SwapItem>
