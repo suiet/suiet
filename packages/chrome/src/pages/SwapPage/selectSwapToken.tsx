@@ -11,7 +11,7 @@ import { Extendable } from '../../types';
 type SelectProps = Extendable & {
   defaultValue: string;
   onChange?: (value: string) => void;
-  trigger?: JSX.Element;
+  trigger?: React.ReactNode;
 };
 
 export function Select(props: SelectProps) {
@@ -22,7 +22,7 @@ export function Select(props: SelectProps) {
     >
       <SelectCompoment.Trigger className="flex items-center" aria-label="Food">
         {/* <SelectCompoment.Value placeholder="Select a coin" /> */}
-        <SelectCompoment.Icon className="SelectIcon">
+        <SelectCompoment.Icon className="flex gap-2 items-center">
           {props.trigger}
           <ChevronDownIcon />
         </SelectCompoment.Icon>
