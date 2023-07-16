@@ -44,19 +44,21 @@ import { useAsyncEffect } from 'ahooks';
 import { dryRunTransactionBlock } from '../../hooks/transaction/useDryRunTransactionBlock';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useNetwork } from '../../hooks/useNetwork';
+import classNames from 'classnames';
 type SwapItemProps = Extendable & {
   type: 'From' | 'To';
   data: CoinType[] | undefined;
   defaultValue?: any;
   onChange: (value: string) => void;
-  amount: string;
+  amount: string | undefined;
+  maxAmount?: string;
   onAmountChange?: (value: string) => void;
   trigger: ReactNode;
 };
 
 function SwapItem(props: SwapItemProps) {
   return (
-    <div className="px-6 py-4 hover:bg-slate-100 transition-all flex justify-between w-full">
+    <div className="px-6 py-4 hover:bg-slate-100 transition-all flex justify-between items-center w-full">
       <Select
         className="flex-shrink-0"
         // onValueChange={console.log}
@@ -82,18 +84,33 @@ function SwapItem(props: SwapItemProps) {
           })}
         </div>
       </Select>
-
-      <input
-        className="focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[160px]"
-        // type="text"
-        type="number"
-        min="0"
-        placeholder="0.00"
-        value={props.amount}
-        onInput={(e) => {
-          props.onAmountChange && props.onAmountChange((e.target as any).value);
-        }}
-      />
+      {props.type === 'From' ? (
+        <input
+          className={classNames(
+            'focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[160px]',
+            '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+          )}
+          // type="text"
+          type="number"
+          min="0"
+          max={props.maxAmount}
+          placeholder="0.00"
+          style={{
+            WebkitAppearance: 'none',
+          }}
+          value={props.amount}
+          onInput={(e) => {
+            props.onAmountChange?.((e.target as any).value);
+          }}
+        />
+      ) : (
+        <div
+          className="focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[160px]"
+          placeholder="0.00"
+        >
+          {props.amount}
+        </div>
+      )}
     </div>
   );
 }
@@ -113,7 +130,9 @@ export default function SwapPage() {
     '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN'
   );
 
-  const [fromCoinAmount, setFromCoinAmount] = useState<string>('0');
+  const [fromCoinAmount, setFromCoinAmount] = useState<string | undefined>(
+    undefined
+  );
   const [toCoinAmount, setToCoinAmount] = useState<string>('0');
   const [swapLoading, setSwapLoading] = useState<boolean>(false);
 
@@ -161,20 +180,41 @@ export default function SwapPage() {
     cetusSwapClient.current = client;
   }, [address]);
 
-  const updateInfoForSwap = debounce(async (fromAmount: string) => {
+  const updateInfoForSwap = debounce(async (fromAmount: string | undefined) => {
+    if (!fromAmount) return;
     if (!cetusSwapClient.current) return;
     if (!network) return;
+    setSwapLoading(true);
 
-    const swapCoinA = new SwapCoin(fromCoinType, 9);
-    swapCoinA.setAmountWithDecimals(fromAmount);
-    const swapCoinB = new SwapCoin(toCoinType, 6);
+    const swapCoinA = new SwapCoin(
+      fromCoinInfo.type,
+      fromCoinInfo.metadata.decimals
+    );
+    // BigInt(fromAmount) * BigInt(Math.pow(10, fromCoinInfo.metadata.decimals))
+    const numMultiplied =
+      Number(fromAmount) * Math.pow(10, fromCoinInfo.metadata.decimals);
+    const numRounded = Math.round(numMultiplied); // 取整
+    const bigIntFromAmount = BigInt(numRounded); // 转为 BigInt
+
+    swapCoinA.setAmount(bigIntFromAmount);
+    // swapCoinA.setAmountWithDecimals(fromAmount);
+    const swapCoinB = new SwapCoin(
+      toCoinInfo.type,
+      toCoinInfo.metadata.decimals
+    );
     cetusSwapClient.current.createCoinPair(swapCoinA, swapCoinB);
     console.log('set coinPair', cetusSwapClient.current.coinPair);
 
-    if (fromAmount === '0') return;
+    if (fromAmount.toString() === '0') {
+      setSwapLoading(false);
+      return;
+    }
+
     const priceResult = await fetchRouterPrice();
     if (!priceResult) {
       Message.error('Cannot find any available route for this coin pair');
+
+      setSwapLoading(false);
       return;
     }
     setPrice(priceResult);
@@ -193,6 +233,7 @@ export default function SwapPage() {
     console.log('dryRunRes', dryRunRes);
     if (!dryRunRes) {
       Message.error('Cannot get dryRun result');
+      setSwapLoading(false);
       return;
     }
     const toCoinEstimatedChange = dryRunRes.balanceChanges.find(
@@ -201,10 +242,11 @@ export default function SwapPage() {
     if (toCoinEstimatedChange) {
       setToCoinAmount(
         formatCurrency(toCoinEstimatedChange.amount, {
-          decimals: 6,
+          decimals: toCoinInfo.metadata.decimals,
         })
       );
     }
+    setSwapLoading(false);
   });
 
   const fromCoinInfo =
@@ -238,8 +280,8 @@ export default function SwapPage() {
           transactionBlock: transactionBlock.current.serialize(),
           context: {
             network,
-            walletId: walletId,
-            accountId: accountId,
+            walletId,
+            accountId,
           },
         },
         { withAuth: true }
@@ -262,8 +304,9 @@ export default function SwapPage() {
           defaultValue={fromCoinType}
           onChange={(coinType) => {
             setFromCoinType(coinType);
-            setFromCoinAmount('0');
+            setFromCoinAmount(undefined);
             setToCoinAmount('0');
+            updateInfoForSwap(fromCoinAmount);
           }}
           amount={fromCoinAmount}
           onAmountChange={(value) => {
@@ -273,6 +316,9 @@ export default function SwapPage() {
             }
             updateInfoForSwap(value);
           }}
+          maxAmount={Number(
+            fromCoinInfo?.balance / 10 ** fromCoinInfo?.metadata.decimals
+          ).toString()}
           trigger={<TokenInfo coin={fromCoinInfo}></TokenInfo>}
         ></SwapItem>
 
@@ -283,6 +329,7 @@ export default function SwapPage() {
           onChange={(coinType) => {
             setToCoinType(coinType);
             setToCoinAmount('0');
+            updateInfoForSwap(fromCoinAmount);
           }}
           amount={toCoinAmount}
           trigger={<TokenInfo coin={toCoinInfo}></TokenInfo>}
