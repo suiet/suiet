@@ -27,10 +27,10 @@ export default function Slider(props: SliderProps) {
       // minStepsBetweenThumbs={100}
     >
       <RadixSlider.Track className="bg-gray-300 relative flex-grow rounded-full h-0.5">
-        <RadixSlider.Range className="absolute bg-blue-500 rounded-full h-full" />
+        <RadixSlider.Range className="absolute bg-blue-400 rounded-full h-full" />
       </RadixSlider.Track>
       <RadixSlider.Thumb
-        className="block w-5 h-5 bg-zinc-50 rounded-full  border-[1.5px] border-zinc-200 hover:border-zinc-300 hover:bg-zinc-100 focus:outline-none"
+        className="block transition w-5 h-5 bg-zinc-50 rounded-full  border-[1.5px] border-zinc-200 hover:border-zinc-300 hover:bg-zinc-100 focus:outline-none"
         aria-label="Volume"
       />
     </RadixSlider.Root>

@@ -422,7 +422,7 @@ export default function SwapPage() {
     if (isSuiToken(fromCoinInfo?.type)) {
       return fromCoinInfo?.balance
         ? Big(fromCoinInfo?.balance)
-            .minus(estimatedGasFee)
+            .minus(Big(estimatedGasFee).times(2))
             .div(Big(10).pow(fromCoinInfo?.metadata.decimals))
             .toString()
         : '0';
