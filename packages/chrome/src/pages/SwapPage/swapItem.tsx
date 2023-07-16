@@ -43,34 +43,45 @@ export default function SwapItem(props: SwapItemProps) {
           })}
         </div>
       </Select>
-      {props.type === 'From' ? (
-        <input
-          className={classNames(
-            'focus:outline-0 text-xl flex-shrink text-right bg-transparent',
-            '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-          )}
-          // type="text"
-          type="number"
-          min="0"
-          max={props.maxAmount}
-          placeholder="0.00"
-          style={{
-            WebkitAppearance: 'none',
-          }}
-          value={props.amount}
-          onInput={(e) => {
-            props.onAmountChange &&
-              props.onAmountChange((e.target as any).value);
-          }}
-        />
-      ) : (
-        <div
-          className="focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[130px]"
-          placeholder="0.00"
-        >
-          {Number(props.amount).toLocaleString() ? props.amount : '-'}
-        </div>
-      )}
+      <div className="flex flex-col items-end">
+        {props.type === 'From' ? (
+          <input
+            className={classNames(
+              'font-bold',
+              'w-[110px]',
+              'focus:outline-0 text-xl flex-shrink text-right bg-transparent',
+              '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+            )}
+            // type="text"
+            type="number"
+            min="0"
+            max={props.maxAmount}
+            placeholder="0.00"
+            style={{
+              fontSize: 28,
+              fontFamily: 'Inter',
+            }}
+            value={props.amount}
+            onInput={(e) => {
+              props.onAmountChange &&
+                props.onAmountChange((e.target as any).value);
+            }}
+          />
+        ) : (
+          <div
+            className="focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[110px] font-bold overflow-x-scroll no-scrollbar"
+            placeholder="0.00"
+            style={{
+              fontSize: 28,
+              fontFamily: 'Inter',
+            }}
+          >
+            {props.amount ? Number(props.amount).toString() : '-'}
+          </div>
+        )}
+
+        <p className="text-zinc-400">$1212132</p>
+      </div>
     </div>
   );
 }

@@ -47,8 +47,9 @@ import { dryRunTransactionBlock } from '../../hooks/transaction/useDryRunTransac
 import { useApiClient } from '../../hooks/useApiClient';
 import { useNetwork } from '../../hooks/useNetwork';
 import SwapItem from './swapItem';
-import { current } from '@reduxjs/toolkit';
 
+// import { ExchageIcon}
+import { ReactComponent as IconExchange } from '../../assets/icons/exchange.svg';
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
     (state: RootState) => state.appContext
@@ -388,8 +389,8 @@ export default function SwapPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="w-full relative">
+    <AppLayout className="relative">
+      <div className="w-full relative mt-[24px]">
         <SwapItem
           type="From"
           data={data?.supportedSwapCoins}
@@ -413,9 +414,13 @@ export default function SwapPage() {
           ).toString()}
           trigger={<TokenInfo coin={fromCoinInfo}></TokenInfo>}
         ></SwapItem>
-        <div className="">
-          <button className="absolute t-[-50%]" onClick={switchFromAndTo}>
-            Switch
+        <div className="h-[32px] relative">
+          <div className="absolute border h-0 w-full border-gray-100 top-0 bottom-0 my-auto"></div>
+          <button
+            className="absolute top-0 bottom-0 left-[28px] my-auto"
+            onClick={switchFromAndTo}
+          >
+            <IconExchange className="w-[32px] h-[32px]" />
           </button>
         </div>
         <SwapItem
@@ -433,6 +438,18 @@ export default function SwapPage() {
           {JSON.stringify(toCoinType)}
         </SwapItem>
       </div>
+      <div className="h-[92px]"></div>
+
+      <div className="mx-[24px] mt-[8px] mb-8 flex flex-col gap-2">
+        <div className="w-full flex text-zinc-800 justify-between font-medium">
+          <p> Estmate Gas Fee</p>
+          <p className="text-zinc-400"> {formatSUI(estimatedGasFee)} SUI</p>
+        </div>
+        <div className="w-full flex text-zinc-800 justify-between font-medium">
+          <p>Router</p>
+          <p className="text-zinc-400">Cetus</p>
+        </div>
+      </div>
 
       <div className="mx-[24px]">
         <Button
@@ -444,17 +461,6 @@ export default function SwapPage() {
         >
           Swap
         </Button>
-      </div>
-
-      <div className="mx-[24px] my-[8px]">
-        <div className="w-full flex justify-between">
-          <p> Estmate Gas Fee</p>
-          <p> {formatSUI(estimatedGasFee)} SUI</p>
-        </div>
-        <div className="w-full flex justify-between">
-          <p>Router</p>
-          <p>Cetus</p>
-        </div>
       </div>
     </AppLayout>
   );
