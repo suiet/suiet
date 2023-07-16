@@ -56,7 +56,10 @@ import formatInputCoinAmount from '../../components/InputAmount/formatInputCoinA
 
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import { useNavigate } from 'react-router-dom';
+import Slider from './slider';
 import Big from 'big.js';
+import classNames from 'classnames';
+import { isSuiToken } from '../../utils/check';
 
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
@@ -195,7 +198,6 @@ export default function SwapPage() {
         const fromCoinInfo = getCoinInfo(fromCoinType);
         const toCoinInfo = getCoinInfo(toCoinType);
         if (!fromCoinInfo || !toCoinInfo) return;
-
         setSwapLoading(true);
         const swapPool = fromCoinInfo.swapPool?.cetus?.find(
           (pool) =>
@@ -263,6 +265,13 @@ export default function SwapPage() {
         const currentCoinBalance = coins?.find(
           (coin) => coin.type === fromCoinType
         )?.balance;
+
+        if (!currentCoinBalance || currentCoinBalance === '0') {
+          setSwapLoading(false);
+          setIsSwapAvailable(false);
+          setInputErrorMessage('Amount exceeds');
+          return;
+        }
 
         // if trying larger amount, skip dry run
         if (
@@ -408,6 +417,23 @@ export default function SwapPage() {
     return `${(slippageValue / 100).toFixed(2)}%`;
   }
 
+  function getMaxAmount(): number {
+    // estimatedGasFee
+    if (isSuiToken(fromCoinInfo?.type)) {
+      return fromCoinInfo?.balance
+        ? Big(fromCoinInfo?.balance)
+            .minus(estimatedGasFee)
+            .div(Big(10).pow(fromCoinInfo?.metadata.decimals))
+            .toString()
+        : '0';
+    }
+    return fromCoinInfo?.balance
+      ? Big(fromCoinInfo?.balance)
+          .div(Big(10).pow(fromCoinInfo?.metadata.decimals))
+          .toString()
+      : '0';
+  }
+
   return (
     <AppLayout className="relative">
       <div className="w-full relative mt-[24px]">
@@ -463,13 +489,7 @@ export default function SwapPage() {
               slippagePercentage
             );
           }}
-          maxAmount={
-            fromCoinInfo?.balance
-              ? Big(fromCoinInfo?.balance)
-                  .div(Big(10).pow(fromCoinInfo?.metadata.decimals))
-                  .toString()
-              : '0'
-          }
+          maxAmount={getMaxAmount().toString()}
           trigger={<TokenInfo coin={fromCoinInfo}></TokenInfo>}
         ></SwapItem>
         <div className="h-[32px] relative">
@@ -480,6 +500,25 @@ export default function SwapPage() {
           >
             <IconExchange className="w-[32px] h-[32px]" />
           </button>
+          <div className="pl-[100px] pr-[24px] w-full h-8">
+            {getMaxAmount() > 0 && (
+              <Slider
+                className={classNames('w-full', 'h-8')}
+                value={Number(fromCoinAmount)}
+                onChange={(value) => {
+                  setFromCoinAmount(value.toString());
+                  setToCoinAmount('');
+                  updateInfoForSwap(
+                    value.toString(),
+                    fromCoinType,
+                    toCoinType,
+                    slippagePercentage
+                  );
+                }}
+                max={getMaxAmount()}
+              ></Slider>
+            )}
+          </div>
         </div>
         <SwapItem
           type="To"
