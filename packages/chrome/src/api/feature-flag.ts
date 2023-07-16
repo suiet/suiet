@@ -9,6 +9,7 @@ export interface FeatureFlagNetwork {
   move_call_gas_budget: number;
   pay_coin_gas_budget: number;
   enable_staking: boolean;
+  cetus_partner_id?: string; 
   enable_swap: boolean;
   enable_buy_crypto: boolean;
   enable_mint_example_nft: boolean;

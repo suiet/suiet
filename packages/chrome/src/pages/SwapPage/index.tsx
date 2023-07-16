@@ -50,10 +50,13 @@ import SwapItem from './swapItem';
 import Alert from '../../components/Alert';
 // import { ExchageIcon}
 import { ReactComponent as IconExchange } from '../../assets/icons/exchange.svg';
+import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
+
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
     (state: RootState) => state.appContext
   );
+  const featureFlags = useFeatureFlagsWithNetwork();
   const { data: network } = useNetwork(networkId);
   const apiClient = useApiClient();
   const { address } = useAccount(accountId);
@@ -265,6 +268,7 @@ export default function SwapPage() {
         by_amount_in: byAmountIn,
         amount: res.amount.toString(),
         amount_limit: amountLimit.toString(),
+        swap_partner: featureFlags?.cetus_partner_id,
       });
       transactionBlock.current = txb;
       const dryRunRes = await dryRunTransactionBlock({
