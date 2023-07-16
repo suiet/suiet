@@ -8,6 +8,7 @@ import {
   SuiObjectIdType,
 } from '@cetusprotocol/cetus-sui-clmm-sdk';
 import BN from 'bn.js';
+import { isNonEmptyArray } from '../../utils';
 
 type OnePath = {
   amountIn: BN;
@@ -59,6 +60,10 @@ export class SwapCoin {
     this._amount = amount;
   }
 
+  setAmountWithDecimals(amount: number | string) {
+    this._amount = BigInt(amount) * BigInt(Math.pow(10, this._decimals));
+  }
+
   get type() {
     return this._type;
   }
@@ -73,7 +78,7 @@ export class SwapCoin {
 /**
  * Direction would always be from coinA to coinB
  */
-class SwapCoinPair {
+export class SwapCoinPair {
   coinA: SwapCoin;
   coinB: SwapCoin;
 
@@ -113,24 +118,18 @@ export class CetusSwapClient {
     this._coinPair = new SwapCoinPair(coinA, coinB);
   }
 
-  public async buildRouterSwapTransaction(opts?: {
-    priceSplitPoint?: number;
-    partner?: string;
-    swapWithMultiPoolParams?: PreSwapWithMultiPoolParams;
-  }) {
-    const priceResult = await this.getRouterPrice(opts);
-    if (!priceResult) {
-      throw new Error('No price result');
+  public buildRouterSwapTransaction(swapRouterParams: SwapWithRouterParams) {
+    if (!swapRouterParams) {
+      throw new Error('swapRouterParams is required');
     }
-    if (priceResult.isExceed) {
-      throw new Error('Price exceeds');
+    if (!isNonEmptyArray(this._ownedCoins)) {
+      throw new Error('Owned coins are not loaded');
     }
-    await this.loadOwnedCoins();
     const byAmountIn = true;
 
     const txb = TransactionUtil.buildRouterSwapTransaction(
       this._sdk,
-      priceResult.createTxParams,
+      swapRouterParams,
       byAmountIn,
       this._ownedCoins
     );
