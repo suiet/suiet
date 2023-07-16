@@ -27,15 +27,20 @@ export function Select(props: SelectProps) {
           <ChevronDownIcon />
         </SelectCompoment.Icon>
       </SelectCompoment.Trigger>
-      <SelectCompoment.Portal className="fixed bottom-0 left-0 right-0 h-[400px] bg-white w-full py-0  shadow-lg">
-        <SelectCompoment.Content className="SelectContent">
+      <SelectCompoment.Portal className="fixed bottom-0 left-0 right-0 h-[100vh] w-full py-0 backdrop-blur-md bg-opacity-20 bg-black shadow-lg">
+        <SelectCompoment.Content className="">
           <SelectCompoment.ScrollUpButton className="SelectScrollButton">
             <ChevronUpIcon />
           </SelectCompoment.ScrollUpButton>
-          <SelectCompoment.Viewport className="rounded-t-lg shadow-xl shadow-black">
+          <SelectCompoment.Viewport className="rounded-t-2xl mt-[20vh] bg-white shadow-xl shadow-black">
             <div className="w-full flex">
-              <h2 className="text-xl font-medium mx-auto my-4 text-zinc-500 ">
-                Choose a coin to swap{' '}
+              <h2
+                className="text-xl font-medium mx-auto my-[14px] text-gray-700"
+                style={{
+                  fontFamily: 'Inter',
+                }}
+              >
+                Choose a coin to swap
               </h2>
             </div>
             {props.children}
