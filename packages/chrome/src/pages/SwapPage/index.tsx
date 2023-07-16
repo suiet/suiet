@@ -9,7 +9,7 @@ import SDK, {
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import { TransactionBlock } from '@mysten/sui.js';
+import { TransactionBlock, getTotalGasUsed } from '@mysten/sui.js';
 import { SuiSignAndExecuteTransactionBlockOutput } from '@mysten/wallet-standard';
 import BN from 'bn.js';
 import React, {
@@ -41,6 +41,7 @@ import {
   SwapCoin,
   SwapCoinPair,
   TxEssentials,
+  calculateCoinAmount,
 } from '@suiet/core';
 import { debounce } from 'lodash-es';
 import Message from '../../components/message';
@@ -53,8 +54,6 @@ import Alert from '../../components/Alert';
 // import { ExchageIcon}
 import { ReactComponent as IconExchange } from '../../assets/icons/exchange.svg';
 import formatInputCoinAmount from '../../components/InputAmount/formatInputCoinAmount';
-import { calculateCoinAmount } from '@suiet/core';
-import { getTotalGasUsed } from '@mysten/sui.js';
 
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import { useNavigate } from 'react-router-dom';
@@ -156,21 +155,6 @@ export default function SwapPage() {
   };
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // const buildRouterSwapTransaction = (priceResult: any) => {
-  //   if (!cetusSwapClient.current) {
-  //     throw new Error('cetusSwapClient is not ready');
-  //   }
-  //   if (!priceResult) {
-  //     throw new Error('price result is not ready');
-  //   }
-  //   const transactionBlock = cetusSwapClient.current.buildRouterSwapTransaction(
-  //     priceResult.createTxParams
-  //   );
-
-  //   console.log('transactionBlock', transactionBlock);
-  //   return transactionBlock;
-  // };
 
   useEffect(() => {
     if (!address) return;
@@ -294,20 +278,6 @@ export default function SwapPage() {
           slippage,
           !byAmountIn
         );
-
-        // build swap Payload
-        // const swapPayload =
-        //   cetusSwapClient.current?.sdk.Swap.createSwapTransactionPayload({
-        //     pool_id: pool.poolAddress,
-        //     coinTypeA: pool.coinTypeA,
-        //     coinTypeB: pool.coinTypeB,
-        //     a2b,
-        //     by_amount_in: byAmountIn,
-        //     amount: res.amount.toString(),
-        //     amount_limit: amountLimit.toString(),
-        //   });
-
-        // cetusSwapClient.current.sdk
 
         const swapPartnerId = featureFlags?.cetus_partner_id
           ? featureFlags?.cetus_partner_id
@@ -436,6 +406,34 @@ export default function SwapPage() {
             setFromCoinType(coinType);
             setFromCoinAmount(undefined);
             setToCoinAmount(undefined);
+
+            // when to token pair is not exists
+            const coinInfo = getCoinInfo(coinType);
+            const supportedCoins = [
+              ...new Set(
+                coinInfo?.swapPool?.cetus
+                  ?.map((pool) => {
+                    if (pool.coinTypeA === fromCoinType) {
+                      return pool.coinTypeB;
+                    }
+                    if (pool.coinTypeB === fromCoinType) {
+                      return pool.coinTypeA;
+                    }
+                    return null;
+                  })
+                  .filter((item) => item)
+              ),
+            ];
+            if (
+              !supportedCoins.includes(toCoinType) &&
+              supportedCoins.length > 0
+            ) {
+              if (supportedCoins[0]) {
+                setToCoinType(supportedCoins[0]);
+              } else {
+                setErrorMessage('No token pair is avaliable');
+              }
+            }
           }}
           amount={fromCoinAmount}
           onAmountChange={(value) => {
