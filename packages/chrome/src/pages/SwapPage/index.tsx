@@ -75,6 +75,7 @@ export default function SwapPage() {
     data: coins,
     loading: isLoading,
     error: coinsError,
+    client,
   } = useCoins(address);
   const [fromCoinType, setFromCoinType] = useState<string>('0x2::sui::SUI');
   const [toCoinType, setToCoinType] = useState<string>(
@@ -325,7 +326,6 @@ export default function SwapPage() {
               network,
             },
           });
-          console.log('dryRunRes', dryRunRes);
 
           if (!dryRunRes) {
             setIsSwapAvailable(false);
@@ -407,6 +407,10 @@ export default function SwapPage() {
           ?.status.status === 'success'
       ) {
         Message.success('Swap successfully');
+        client.resetStore();
+        setTimeout(() => {
+          client.resetStore();
+        }, 1000);
         navigate('/transaction/flow');
       } else {
         Message.error(
