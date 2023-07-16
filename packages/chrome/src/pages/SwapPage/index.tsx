@@ -131,18 +131,25 @@ export default function SwapPage() {
   }, [address]);
 
   const updateInfoForSwap = debounce(
-    async (fromAmount: string | undefined) => {
+    async (
+      fromAmount: string | undefined,
+      fromCoinType: string,
+      toCoinType: string
+    ) => {
       setErrorMessage(null);
       setWarningMessage(null);
-      if (!fromAmount) {
-        setErrorMessage('Please input amount first');
+      if (!fromAmount || fromAmount === '0') {
         return;
       }
       if (!cetusSwapClient.current) return;
       if (!network) return;
 
+      const fromCoinInfo = getCoinInfo(fromCoinType);
+      const toCoinInfo = getCoinInfo(toCoinType);
+      if (!fromCoinInfo || !toCoinInfo) return;
+
       setSwapLoading(true);
-      const swapPool = fromCoinInfo.swapPool.cetus.find(
+      const swapPool = fromCoinInfo.swapPool?.cetus?.find(
         (pool) =>
           (pool.coinTypeA === fromCoinType && pool.coinTypeB === toCoinType) ||
           (pool.coinTypeB === fromCoinType && pool.coinTypeA === toCoinType)
@@ -195,6 +202,8 @@ export default function SwapPage() {
         ).toString()
       );
       setEstimatedTxFee(res.estimatedFeeAmount);
+
+      console.log('res', res);
 
       if (Number(res.estimatedAmountOut) === 0) {
         setSwapLoading(false);
@@ -302,23 +311,22 @@ export default function SwapPage() {
     setFromCoinAmount(tempToCoinAmount);
     setToCoinAmount(undefined);
     setSwapLoading(true);
-    setTimeout(() => {
-      setSwapLoading(true);
-      updateInfoForSwap(tempToCoinAmount);
-    }, 500);
+
+    // setTimeout(() => {
+    //   setSwapLoading(true);
+    updateInfoForSwap(tempToCoinAmount, tempToCoinType, tempFromCoinType);
+    // }, 500);/
   }
 
-  const fromCoinInfo =
-    data?.supportedSwapCoins.find(
-      (coin: CoinType) => coin.type === fromCoinType
-    ) &&
-    data?.supportedSwapCoins.find(
+  function getCoinInfo(coinType: string): CoinType | undefined {
+    return data?.supportedSwapCoins.find(
       (coin: CoinType) => coin.type === fromCoinType
     );
+  }
 
-  const fromCoinPools = fromCoinInfo
-    ? (fromCoinInfo as CoinType)?.swapPool?.cetus
-    : [];
+  const fromCoinInfo = getCoinInfo(fromCoinType);
+  const toCoinInfo = getCoinInfo(toCoinType);
+  const fromCoinPools = fromCoinInfo ? fromCoinInfo?.swapPool?.cetus : [];
   const fromCoinSupportedCoinTypes = fromCoinPools
     ? [
         ...new Set(
@@ -341,12 +349,6 @@ export default function SwapPage() {
         fromCoinSupportedCoinTypes.includes(coin.type)
       )
     : data?.supportedSwapCoins;
-
-  const toCoinInfo =
-    data?.supportedSwapCoins.find(
-      (coin: CoinType) => coin.type === toCoinType
-    ) &&
-    data?.supportedSwapCoins.find((coin: CoinType) => coin.type === toCoinType);
 
   const executeSwap = async () => {
     if (!transactionBlock.current) {
@@ -402,9 +404,8 @@ export default function SwapPage() {
           defaultValue={fromCoinType}
           onChange={(coinType) => {
             setFromCoinType(coinType);
-            setFromCoinAmount('0');
-            setToCoinAmount('0');
-            updateInfoForSwap(fromCoinAmount);
+            setFromCoinAmount(undefined);
+            setToCoinAmount(undefined);
           }}
           amount={fromCoinAmount}
           onAmountChange={(value) => {
@@ -412,7 +413,7 @@ export default function SwapPage() {
             if (value === '0') {
               setToCoinAmount('0');
             }
-            updateInfoForSwap(value);
+            updateInfoForSwap(value, fromCoinType, toCoinType);
           }}
           maxAmount={Number(
             fromCoinInfo?.balance / 10 ** fromCoinInfo?.metadata.decimals
@@ -435,7 +436,6 @@ export default function SwapPage() {
           onChange={(coinType) => {
             setToCoinType(coinType);
             setToCoinAmount(undefined);
-            updateInfoForSwap(fromCoinAmount);
           }}
           amount={toCoinAmount}
           trigger={<TokenInfo coin={toCoinInfo}></TokenInfo>}
