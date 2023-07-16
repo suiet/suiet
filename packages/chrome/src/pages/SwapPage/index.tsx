@@ -57,6 +57,7 @@ import { calculateCoinAmount } from '@suiet/core';
 import { getTotalGasUsed } from '@mysten/sui.js';
 
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
+import { useNavigate } from 'react-router-dom';
 
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
@@ -103,6 +104,7 @@ export default function SwapPage() {
     () => Percentage.fromDecimal(d(slippageValue)),
     [slippageValue]
   );
+  const navigate = useNavigate();
 
   const getCoinInfo = useCallback(
     (coinType: string): CoinType | undefined => {
@@ -307,6 +309,9 @@ export default function SwapPage() {
 
         // cetusSwapClient.current.sdk
 
+        const swapPartnerId = featureFlags?.cetus_partner_id
+          ? featureFlags?.cetus_partner_id
+          : undefined;
         const txb = buildSwapTransaction({
           pool_id: pool.poolAddress,
           coinTypeA: pool.coinTypeA,
@@ -315,7 +320,7 @@ export default function SwapPage() {
           by_amount_in: byAmountIn,
           amount: res.amount.toString(),
           amount_limit: amountLimit.toString(),
-          swap_partner: featureFlags?.cetus_partner_id,
+          swap_partner: swapPartnerId,
         });
         transactionBlock.current = txb;
         const dryRunRes = await dryRunTransactionBlock({
@@ -398,6 +403,7 @@ export default function SwapPage() {
           ?.status.status === 'success'
       ) {
         Message.success('Swap successfully');
+        navigate('/transaction/flow');
       } else {
         Message.error(
           `Swap failed: ${
