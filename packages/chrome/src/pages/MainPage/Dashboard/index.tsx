@@ -15,6 +15,8 @@ import Banner from '../Banner';
 import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 import useSuiBalance from '../../../hooks/coin/useSuiBalance';
 import useCoins from '../../../hooks/coin/useCoins';
+import { useQuery } from '@apollo/client';
+import { GET_SUPPORT_SWAP_COINS } from '../../../utils/graphql/query';
 export type ReceiveButtonProps = {
   address: string;
 };
@@ -82,6 +84,14 @@ function MainPage({ address, networkId }: DashboardProps) {
   const faucetApi =
     featureFlags?.faucet_api ?? `https://faucet.${networkId}.sui.io/gas`;
 
+  // preload swap data
+  useQuery(GET_SUPPORT_SWAP_COINS, {
+    fetchPolicy: 'cache-and-network',
+    variables: {
+      ownerAddress: address,
+    },
+    skip: !address,
+  });
   const usd = coins
     .map((coin) => {
       return Number(coin.usd);
@@ -190,17 +200,20 @@ function MainPage({ address, networkId }: DashboardProps) {
           </div>
         )}
         <ReceiveButton address={address} />
-        <Link to={'/swap'}>
-          <div
-            className={classnames(
-              styles['operations-item'],
-              styles['send'],
-              'ml-[6px]'
-            )}
-          >
-            Swap
-          </div>
-        </Link>
+        {featureFlags?.enable_swap && (
+          <Link to={'/swap'}>
+            <div
+              className={classnames(
+                styles['operations-item'],
+                styles['send'],
+                'ml-[6px]'
+              )}
+            >
+              Swap
+            </div>
+          </Link>
+        )}
+
         <Link to={'/send'}>
           <div
             className={classnames(

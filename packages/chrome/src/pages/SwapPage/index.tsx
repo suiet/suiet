@@ -56,10 +56,13 @@ import formatInputCoinAmount from '../../components/InputAmount/formatInputCoinA
 import { calculateCoinAmount } from '@suiet/core';
 import { getTotalGasUsed } from '@mysten/sui.js';
 
+import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
+
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
     (state: RootState) => state.appContext
   );
+  const featureFlags = useFeatureFlagsWithNetwork();
   const { data: network } = useNetwork(networkId);
   const apiClient = useApiClient();
   const { address } = useAccount(accountId);
@@ -312,6 +315,7 @@ export default function SwapPage() {
           by_amount_in: byAmountIn,
           amount: res.amount.toString(),
           amount_limit: amountLimit.toString(),
+          swap_partner: featureFlags?.cetus_partner_id,
         });
         transactionBlock.current = txb;
         const dryRunRes = await dryRunTransactionBlock({
@@ -342,7 +346,7 @@ export default function SwapPage() {
         trailing: true,
       }
     ),
-    [network, getCoinInfo, coins]
+    [network, getCoinInfo, coins, featureFlags]
   );
 
   function switchFromAndTo() {
