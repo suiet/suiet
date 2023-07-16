@@ -320,7 +320,7 @@ export default function SwapPage() {
 
   function getCoinInfo(coinType: string): CoinType | undefined {
     return data?.supportedSwapCoins.find(
-      (coin: CoinType) => coin.type === fromCoinType
+      (coin: CoinType) => coin.type === coinType
     );
   }
 
