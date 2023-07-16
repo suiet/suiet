@@ -10,6 +10,7 @@ export const coinsGql = gql`
       symbol
       type
       usd
+      usdPrice
       pricePercentChange24h
       metadata {
         decimals

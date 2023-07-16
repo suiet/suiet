@@ -10,6 +10,7 @@ export type CoinType = {
   };
   isVerified: boolean;
   usd: string | null;
+  usdPrice: string | null;
   pricePercentChange24h: string | null;
   // swapPool {
   //   cetus {

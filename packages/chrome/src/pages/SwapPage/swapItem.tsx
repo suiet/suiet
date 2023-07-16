@@ -4,11 +4,14 @@ import { Select, SelectItem } from './selectSwapToken';
 import TokenItem from '../../components/TokenItem';
 import { CoinType } from '../../types/coin';
 import classNames from 'classnames';
+import Big from 'big.js';
 type SwapItemProps = Extendable & {
   type: 'From' | 'To';
   data: CoinType[] | undefined;
+  coinInfo: CoinType | undefined;
   defaultValue?: any;
   onChange: (value: string) => void;
+  inputErrorMessage?: string | null;
   amount: string | undefined;
   maxAmount?: string;
   onAmountChange?: (value: string) => void;
@@ -50,6 +53,7 @@ export default function SwapItem(props: SwapItemProps) {
             className={classNames(
               'font-bold',
               'w-[110px]',
+              props.inputErrorMessage && 'text-red-500',
               'focus:outline-0 text-xl flex-shrink text-right bg-transparent',
               '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
             )}
@@ -81,7 +85,21 @@ export default function SwapItem(props: SwapItemProps) {
           </div>
         )}
 
-        <p className="text-zinc-400">$1212132</p>
+        {
+          // if has error, how error
+          props.inputErrorMessage ? (
+            <p className="text-red-500">{props.inputErrorMessage}</p>
+          ) : props.amount && props.coinInfo?.usdPrice ? (
+            <p className="text-zinc-400">
+              $
+              {Number(
+                Number(props.amount) * Number(props.coinInfo.usdPrice)
+              ).toLocaleString()}
+            </p>
+          ) : (
+            <p className="text-zinc-400"> {'-'}</p>
+          )
+        }
       </div>
     </div>
   );

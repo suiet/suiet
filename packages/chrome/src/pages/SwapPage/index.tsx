@@ -26,7 +26,6 @@ import AppLayout from '../../layouts/AppLayout';
 import { Extendable, OmitToken } from '../../types';
 import Img from '../../components/Img';
 import Button from '../../components/Button';
-import { Select, SelectItem } from './selectSwapToken';
 import { useQuery } from '@apollo/client';
 import { GET_SUPPORT_SWAP_COINS } from '../../utils/graphql/query';
 import { TokenInfo } from '../../components/TokenItem';
@@ -57,6 +56,7 @@ import formatInputCoinAmount from '../../components/InputAmount/formatInputCoinA
 
 import { useFeatureFlagsWithNetwork } from '../../hooks/useFeatureFlags';
 import { useNavigate } from 'react-router-dom';
+import Big from 'big.js';
 
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
@@ -151,7 +151,9 @@ export default function SwapPage() {
   };
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  const [inputErrorMessage, setInputErrorMessage] = useState<string | null>(
+    null
+  );
   useEffect(() => {
     if (!address) return;
     cetusSwapClient.current = null;
@@ -164,7 +166,6 @@ export default function SwapPage() {
   useEffect(() => {
     if (!(Number(fromCoinAmount) > 0)) {
       setIsSwapAvailable(false);
-      return;
     }
   }, [fromCoinAmount]);
 
@@ -176,6 +177,7 @@ export default function SwapPage() {
         toCoinType: string,
         slippage: Percentage
       ) => {
+        setInputErrorMessage(null);
         setErrorMessage(null);
         setWarningMessage(null);
         if (!fromAmount || fromAmount === '0') {
@@ -235,10 +237,12 @@ export default function SwapPage() {
         });
 
         setToCoinAmount(
-          (
-            Number(res.estimatedAmountOut) /
-            Math.pow(10, toCoinInfo.metadata.decimals)
-          ).toString()
+          // (res.estimatedAmountOut, {
+          //   decimals: toCoinInfo.metadata.decimals,
+          // })
+          Big(res.estimatedAmountOut)
+            .div(Big(10).pow(toCoinInfo.metadata.decimals))
+            .toString()
         );
         setEstimatedTxFee(res.estimatedFeeAmount);
 
@@ -263,7 +267,7 @@ export default function SwapPage() {
         ) {
           setSwapLoading(false);
           setIsSwapAvailable(false);
-          setWarningMessage('Amount exceeds your current balance');
+          setInputErrorMessage('Amount exceeds');
           return;
         }
 
@@ -440,7 +444,9 @@ export default function SwapPage() {
               }
             }
           }}
+          coinInfo={fromCoinInfo}
           amount={fromCoinAmount}
+          inputErrorMessage={inputErrorMessage}
           onAmountChange={(value) => {
             setFromCoinAmount(value);
             setToCoinAmount('');
@@ -451,9 +457,13 @@ export default function SwapPage() {
               slippagePercentage
             );
           }}
-          maxAmount={Number(
-            fromCoinInfo?.balance / 10 ** fromCoinInfo?.metadata.decimals
-          ).toString()}
+          maxAmount={
+            fromCoinInfo?.balance
+              ? Big(fromCoinInfo?.balance)
+                  .div(Big(10).pow(fromCoinInfo?.metadata.decimals))
+                  .toString()
+              : '0'
+          }
           trigger={<TokenInfo coin={fromCoinInfo}></TokenInfo>}
         ></SwapItem>
         <div className="h-[32px] relative">
@@ -470,6 +480,7 @@ export default function SwapPage() {
           data={supportedToCoins}
           defaultValue={toCoinType}
           value={toCoinType}
+          coinInfo={toCoinInfo}
           onChange={(coinType) => {
             setToCoinType(coinType);
             setToCoinAmount('');
