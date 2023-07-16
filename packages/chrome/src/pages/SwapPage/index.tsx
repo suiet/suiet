@@ -47,7 +47,7 @@ import { dryRunTransactionBlock } from '../../hooks/transaction/useDryRunTransac
 import { useApiClient } from '../../hooks/useApiClient';
 import { useNetwork } from '../../hooks/useNetwork';
 import SwapItem from './swapItem';
-
+import Alert from '../../components/Alert';
 // import { ExchageIcon}
 import { ReactComponent as IconExchange } from '../../assets/icons/exchange.svg';
 export default function SwapPage() {
@@ -90,18 +90,6 @@ export default function SwapPage() {
     skip: !address,
   });
 
-  const fetchRouterPrice = async () => {
-    console.log('execute getRouterPrice');
-    if (!cetusSwapClient.current) {
-      throw new Error('cetusSwapClient is not ready');
-    }
-    const priceResult = await cetusSwapClient.current.getRouterPrice({
-      priceSplitPoint: 0.05,
-    });
-    console.log('priceResult', priceResult);
-    return priceResult;
-  };
-
   const buildSwapTransaction = (payload: any) => {
     if (!cetusSwapClient.current) {
       throw new Error('cetusSwapClient is not ready');
@@ -115,6 +103,8 @@ export default function SwapPage() {
     console.log('transactionBlock', transactionBlock);
     return transactionBlock;
   };
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // const buildRouterSwapTransaction = (priceResult: any) => {
   //   if (!cetusSwapClient.current) {
@@ -133,6 +123,7 @@ export default function SwapPage() {
 
   useEffect(() => {
     if (!address) return;
+    cetusSwapClient.current = null;
     const client = new CetusSwapClient(address, clmmMainnet);
     // client.loadPools([], undefined, 1000);
     client.loadOwnedCoins();
@@ -141,7 +132,12 @@ export default function SwapPage() {
 
   const updateInfoForSwap = debounce(
     async (fromAmount: string | undefined) => {
-      if (!fromAmount) return;
+      setErrorMessage(null);
+      setWarningMessage(null);
+      if (!fromAmount) {
+        setErrorMessage('Please input amount first');
+        return;
+      }
       if (!cetusSwapClient.current) return;
       if (!network) return;
 
@@ -154,6 +150,7 @@ export default function SwapPage() {
       // console.log('swapPool', swapPool);
       if (!swapPool) {
         console.log('no avaliable pool');
+        setErrorMessage('Token pair not avaliable');
         setIsSwapAvailable(false);
         setSwapLoading(false);
         return;
@@ -199,6 +196,13 @@ export default function SwapPage() {
       );
       setEstimatedTxFee(res.estimatedFeeAmount);
 
+      if (Number(res.estimatedAmountOut) === 0) {
+        setSwapLoading(false);
+        setIsSwapAvailable(false);
+        setWarningMessage('Swap pool not avaliable');
+        return;
+      }
+
       const currentCoinBalance = coins?.find(
         (coin) => coin.type === fromCoinType
       )?.balance;
@@ -210,6 +214,7 @@ export default function SwapPage() {
       ) {
         setSwapLoading(false);
         setIsSwapAvailable(false);
+        setWarningMessage('Amount exceeds your current balance');
         return;
       }
 
@@ -438,7 +443,10 @@ export default function SwapPage() {
           {JSON.stringify(toCoinType)}
         </SwapItem>
       </div>
-      <div className="h-[92px]"></div>
+      <div className="min-h-[48px] mx-[24px] flex flex-col gap-2 mb-[8px] overflow-scroll">
+        {warningMessage && <Alert type="warn"> {warningMessage}</Alert>}
+        {errorMessage && <Alert type="error"> {errorMessage}</Alert>}
+      </div>
 
       <div className="mx-[24px] mt-[8px] mb-8 flex flex-col gap-2">
         <div className="w-full flex text-zinc-800 justify-between font-medium">
@@ -450,14 +458,15 @@ export default function SwapPage() {
           <p className="text-zinc-400">Cetus</p>
         </div>
       </div>
+      <div className="h-[48px]"></div>
 
-      <div className="mx-[24px]">
+      <div className="fixed bottom-[72px] w-full px-[24px] bg-white py-[12px]">
         <Button
           className=""
           state="primary"
           onClick={executeSwap}
           loading={swapLoading}
-          disabled={!isSwapAvailable}
+          disabled={!isSwapAvailable || !cetusSwapClient.current}
         >
           Swap
         </Button>
@@ -534,5 +543,4 @@ export const clmmMainnet = {
     deepbook_endpoint_v2:
       '0xeab65f3cec37f1936ea4751b87c37b8d3d1dc0f2d3242cd532d787d63774ebfa',
   },
-  // aggregatorUrl: 'https://aggregator.suiet.app',
 };
