@@ -23,6 +23,7 @@ export default function SwapItem(props: SwapItemProps) {
         // onValueChange={console.log}
         // layoutClass="fixed left-0 right-0 bottom-0 w-[100wh] h-[400px]"
         defaultValue={props.defaultValue}
+        value={props.value}
         onChange={props.onChange}
         trigger={props.trigger}
       >
@@ -62,7 +63,7 @@ export default function SwapItem(props: SwapItemProps) {
               fontFamily: 'Inter',
             }}
             value={props.amount}
-            onInput={(e) => {
+            onChange={(e) => {
               props.onAmountChange &&
                 props.onAmountChange((e.target as any).value);
             }}

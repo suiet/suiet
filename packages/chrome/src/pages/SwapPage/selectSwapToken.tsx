@@ -9,6 +9,7 @@ import {
 import { Extendable } from '../../types';
 
 type SelectProps = Extendable & {
+  value: string;
   defaultValue: string;
   onChange?: (value: string) => void;
   trigger?: React.ReactNode;
@@ -18,6 +19,7 @@ export function Select(props: SelectProps) {
   return (
     <SelectCompoment.Root
       defaultValue={props.defaultValue}
+      value={props.value}
       onValueChange={props.onChange}
     >
       <SelectCompoment.Trigger className="flex items-center" aria-label="Food">

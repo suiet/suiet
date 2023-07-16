@@ -82,12 +82,8 @@ export default function SwapPage() {
   const [estimatedGasFee, setEstimatedGasFee] = useState<number>(200000000);
   const [estimatedTxFee, setEstimatedTxFee] = useState<number | null>(null);
 
-  const [fromCoinAmount, setFromCoinAmount] = useState<string | undefined>(
-    undefined
-  );
-  const [toCoinAmount, setToCoinAmount] = useState<string | undefined>(
-    undefined
-  );
+  const [fromCoinAmount, setFromCoinAmount] = useState<string>('');
+  const [toCoinAmount, setToCoinAmount] = useState<string>('');
   const [swapLoading, setSwapLoading] = useState<boolean>(false);
 
   const [isSwapAvailable, setIsSwapAvailable] = useState<boolean>(false);
@@ -181,6 +177,13 @@ export default function SwapPage() {
     cetusSwapClient.current = client;
   }, [address]);
 
+  useEffect(() => {
+    if (!(Number(fromCoinAmount) > 0)) {
+      setIsSwapAvailable(false);
+      return;
+    }
+  }, [fromCoinAmount]);
+
   const updateInfoForSwap = useCallback(
     debounce(
       async (
@@ -192,7 +195,7 @@ export default function SwapPage() {
         setErrorMessage(null);
         setWarningMessage(null);
         if (!fromAmount || fromAmount === '0') {
-          setToCoinAmount(undefined);
+          setToCoinAmount('');
           return;
         }
         if (!cetusSwapClient.current) return;
@@ -270,8 +273,9 @@ export default function SwapPage() {
 
         // if trying larger amount, skip dry run
         if (
-          Number(fromAmount) * Math.pow(10, fromCoinInfo.metadata.decimals) >
-          Number(currentCoinBalance)
+          BigInt(
+            calculateCoinAmount(fromAmount, fromCoinInfo.metadata.decimals)
+          ) > BigInt(currentCoinBalance)
         ) {
           setSwapLoading(false);
           setIsSwapAvailable(false);
@@ -279,7 +283,7 @@ export default function SwapPage() {
           return;
         }
 
-        if (fromAmount.toString() === '0') {
+        if (!fromAmount || fromAmount === '0') {
           setIsSwapAvailable(false);
           setSwapLoading(false);
           return;
@@ -361,7 +365,7 @@ export default function SwapPage() {
     setFromCoinType(tempToCoinType);
     setToCoinType(tempFromCoinType);
     setFromCoinAmount(tempToCoinAmount);
-    setToCoinAmount(undefined);
+    setToCoinAmount('');
     setSwapLoading(true);
 
     // setTimeout(() => {
@@ -432,15 +436,16 @@ export default function SwapPage() {
           type="From"
           data={data?.supportedSwapCoins}
           defaultValue={fromCoinType}
+          value={fromCoinType}
           onChange={(coinType) => {
             setFromCoinType(coinType);
-            setFromCoinAmount(undefined);
-            setToCoinAmount(undefined);
+            setFromCoinAmount('');
+            setToCoinAmount('');
           }}
           amount={fromCoinAmount}
           onAmountChange={(value) => {
             setFromCoinAmount(value);
-            setToCoinAmount(undefined);
+            setToCoinAmount('');
             updateInfoForSwap(
               value,
               fromCoinType,
@@ -466,9 +471,10 @@ export default function SwapPage() {
           type="To"
           data={supportedToCoins}
           defaultValue={toCoinType}
+          value={toCoinType}
           onChange={(coinType) => {
             setToCoinType(coinType);
-            setToCoinAmount(undefined);
+            setToCoinAmount('');
             updateInfoForSwap(
               fromCoinAmount,
               fromCoinType,
