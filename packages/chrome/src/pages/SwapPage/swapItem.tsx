@@ -13,6 +13,7 @@ type SwapItemProps = Extendable & {
   onChange: (value: string) => void;
   inputErrorMessage?: string | null;
   amount: string | undefined;
+  value: string;
   maxAmount?: string;
   onAmountChange?: (value: string) => void;
   trigger: ReactNode;

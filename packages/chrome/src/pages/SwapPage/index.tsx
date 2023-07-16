@@ -94,6 +94,13 @@ export default function SwapPage() {
     },
     skip: !address,
   });
+  const filteredData = data?.supportedSwapCoins?.filter((coin: CoinType) => {
+    if (!coin.swapPool?.cetus) {
+      return false;
+    }
+
+    return coin.swapPool?.cetus?.length > 0;
+  });
   const [slippageValue, setSlippageValue] = useState<number>(5);
   const slippagePercentage = useMemo(
     () => Percentage.fromDecimal(d(slippageValue)),
@@ -103,9 +110,7 @@ export default function SwapPage() {
 
   const getCoinInfo = useCallback(
     (coinType: string): CoinType | undefined => {
-      return data?.supportedSwapCoins.find(
-        (coin: CoinType) => coin.type === coinType
-      );
+      return filteredData?.find((coin: CoinType) => coin.type === coinType);
     },
     [data]
   );
@@ -131,10 +136,10 @@ export default function SwapPage() {
       ]
     : [];
   const supportedToCoins = fromCoinInfo
-    ? data?.supportedSwapCoins.filter((coin: CoinType) =>
+    ? filteredData.filter((coin: CoinType) =>
         fromCoinSupportedCoinTypes.includes(coin.type)
       )
-    : data?.supportedSwapCoins;
+    : filteredData;
 
   const buildSwapTransaction = (payload: any) => {
     if (!cetusSwapClient.current) {
@@ -408,7 +413,7 @@ export default function SwapPage() {
       <div className="w-full relative mt-[24px]">
         <SwapItem
           type="From"
-          data={data?.supportedSwapCoins}
+          data={filteredData}
           defaultValue={fromCoinType}
           value={fromCoinType}
           onChange={(coinType) => {
@@ -422,10 +427,10 @@ export default function SwapPage() {
               ...new Set(
                 coinInfo?.swapPool?.cetus
                   ?.map((pool) => {
-                    if (pool.coinTypeA === fromCoinType) {
+                    if (pool.coinTypeA === coinType) {
                       return pool.coinTypeB;
                     }
-                    if (pool.coinTypeB === fromCoinType) {
+                    if (pool.coinTypeB === coinType) {
                       return pool.coinTypeA;
                     }
                     return null;
@@ -433,6 +438,7 @@ export default function SwapPage() {
                   .filter((item) => item)
               ),
             ];
+            // debugger;
             if (
               !supportedCoins.includes(toCoinType) &&
               supportedCoins.length > 0
