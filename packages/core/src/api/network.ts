@@ -8,6 +8,7 @@ export type Network = {
   stakeGasBudget?: number;
   enableMintExampleNFT?: boolean;
   enableStaking?: boolean;
+  enableSwap?: boolean;
   enableBuyCrypto?: boolean;
 };
 
