@@ -68,6 +68,7 @@ export function useNetwork(networkId: string) {
 
     const overrideData: Network & {
       enableStaking?: boolean;
+      enableSwap?: boolean;
       enableMintExampleNFT?: boolean;
       moveCallGasBudget?: number;
       payCoinGasBudget?: number;
@@ -82,6 +83,7 @@ export function useNetwork(networkId: string) {
           currentNetworkConfig.version_cache_timout_in_seconds,
         stakeGasBudget: currentNetworkConfig.stake_gas_budget,
         enableStaking: currentNetworkConfig.enable_staking,
+        enableSwap: currentNetworkConfig.enable_swap,
         enableBuyCrypto: currentNetworkConfig.enable_buy_crypto,
         enableMintExampleNFT: currentNetworkConfig.enable_mint_example_nft,
         moveCallGasBudget: currentNetworkConfig.move_call_gas_budget,
