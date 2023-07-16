@@ -11,6 +11,7 @@ export type SelectProps = Extendable & {
   value?: any;
   onValueChange: (value: any) => void;
   defualtValue?: any;
+  portalClass?: string;
 };
 export type SelectItemProps = Extendable & {
   className?: any;
@@ -46,7 +47,11 @@ export const Select = (props: SelectProps) => (
         <ChevronDownIcon />
       </RadixSelect.Icon>
     </RadixSelect.Trigger>
-    <RadixSelect.Portal className="bg-white rounded-[14px] border border-gray-100 shadow-lg shadow-zinc-200">
+    <RadixSelect.Portal
+      className={classnames(
+        'bg-white rounded-[14px] border border-gray-100 shadow-lg shadow-zinc-200'
+      )}
+    >
       <RadixSelect.Content className="p-1" position="popper" sideOffset={12}>
         <RadixSelect.ScrollUpButton className="SelectScrollButton">
           <ChevronUpIcon />
