@@ -55,6 +55,15 @@ export default function CoinDetailPage() {
       skip: !address,
     }
   );
+  const delegatedStakes = delegatedStakesResult?.delegatedStakes;
+  const stakedBalance =
+    delegatedStakes?.reduce((accumulator, current) => {
+      const sum = current.stakes.reduce(
+        (stakesAccumulator, stake) => stakesAccumulator + stake.principal,
+        0
+      );
+      return accumulator + sum;
+    }, 0) ?? 0;
   const [timePeriod, setTimePeriod] = useState('day');
   const timePeriodOptions = ['day', 'hour', 'minute'];
 
@@ -79,15 +88,7 @@ export default function CoinDetailPage() {
   const symbol = coinHistoryResult?.coins[0]?.symbol;
   const iconURL = coinHistoryResult?.coins[0]?.iconURL;
   const usdPrice = coinHistoryResult?.coins[0]?.usdPrice;
-  const delegatedStakes = delegatedStakesResult?.delegatedStakes;
-  const stakedBalance =
-    delegatedStakes?.reduce((accumulator, current) => {
-      const sum = current.stakes.reduce(
-        (stakesAccumulator, stake) => stakesAccumulator + stake.principal,
-        0
-      );
-      return accumulator + sum;
-    }, 0) ?? 0;
+
   const earnedBalance =
     delegatedStakes?.reduce((accumulator, current) => {
       const sum = current.stakes.reduce(

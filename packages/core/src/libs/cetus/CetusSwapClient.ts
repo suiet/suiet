@@ -1,14 +1,14 @@
 import SDK, {
   SdkOptions,
   TransactionUtil,
-} from '@cetusprotocol/cetus-sui-clmm-sdk/dist';
-import {
   PreSwapWithMultiPoolParams,
   SuiAddressType,
   SuiObjectIdType,
-} from '@cetusprotocol/cetus-sui-clmm-sdk';
+} from '@cetusprotocol/cetus-sui-clmm-sdk/dist';
 import BN from 'bn.js';
+import { TransactionBlock } from '@mysten/sui.js';
 import { isNonEmptyArray } from '../../utils';
+import params from 'js-crypto-hmac/dist/params';
 
 type OnePath = {
   amountIn: BN;
@@ -46,8 +46,8 @@ type CoinAsset = {
 };
 
 export class SwapCoin {
-  private _type: string;
-  private _decimals: number;
+  private readonly _type: string;
+  private readonly _decimals: number;
   private _amount: bigint;
 
   constructor(type: string, decimals = 0) {
@@ -67,9 +67,11 @@ export class SwapCoin {
   get type() {
     return this._type;
   }
+
   get amount() {
     return this._amount;
   }
+
   get decimals() {
     return this._decimals;
   }
@@ -96,18 +98,18 @@ export class SwapCoinPair {
 
 export class CetusSwapClient {
   private readonly _clmmConfig: Record<string, any>;
-  private readonly _sdk: any;
+  sdk: SDK;
   private _pools: any[];
   private _coinPair: SwapCoinPair | null;
-  private _priceResult: PriceResult | null;
+  private readonly _priceResult: PriceResult | null;
   private _ownedCoins: CoinAsset[];
-  private _userAddress: string;
+  private readonly _userAddress: string;
 
   constructor(userAddress: string, clmmConfig: SdkOptions) {
     this._clmmConfig = clmmConfig;
     this._userAddress = userAddress;
-    this._sdk = new SDK(clmmConfig);
-    this._sdk.senderAddress = userAddress;
+    this.sdk = new SDK(clmmConfig);
+    this.sdk.senderAddress = userAddress;
 
     this._pools = [];
     this._coinPair = null;
@@ -118,7 +120,26 @@ export class CetusSwapClient {
     this._coinPair = new SwapCoinPair(coinA, coinB);
   }
 
-  public buildRouterSwapTransaction(swapRouterParams: SwapWithRouterParams) {
+  public buildSwapTransaction(payload: any): TransactionBlock {
+    if (!payload) {
+      throw new Error('swapRouterParams is required');
+    }
+    if (!isNonEmptyArray(this._ownedCoins)) {
+      throw new Error('Owned coins are not loaded');
+    }
+    const byAmountIn = true;
+
+    const txb = TransactionUtil.buildSwapTransaction(
+      this.sdk,
+      payload,
+      this._ownedCoins
+    );
+    return txb;
+  }
+
+  public buildRouterSwapTransaction(
+    swapRouterParams: SwapWithRouterParams
+  ): TransactionBlock {
     if (!swapRouterParams) {
       throw new Error('swapRouterParams is required');
     }
@@ -128,7 +149,7 @@ export class CetusSwapClient {
     const byAmountIn = true;
 
     const txb = TransactionUtil.buildRouterSwapTransaction(
-      this._sdk,
+      this.sdk,
       swapRouterParams,
       byAmountIn,
       this._ownedCoins
@@ -147,7 +168,7 @@ export class CetusSwapClient {
     const { priceSplitPoint = 0, partner = '' } = opts || {};
     const { coinA, coinB } = this._coinPair;
     const byAmountIn = true;
-    return this._sdk.Router.price(
+    return await this.sdk.Router.price(
       coinA.type,
       coinB.type,
       new BN(String(coinA.amount)),
@@ -159,7 +180,7 @@ export class CetusSwapClient {
   }
 
   async loadPools(assignPools?: string[], offset?: number, limit?: number) {
-    const pools = await this._sdk.Pool.getPools(assignPools, offset, limit);
+    const pools = await this.sdk.Pool.getPools(assignPools, offset, limit);
     if (!Array.isArray(pools)) {
       throw new Error('Pools should be an array');
     }
@@ -203,11 +224,11 @@ export class CetusSwapClient {
     const paths = {
       paths: Array.from(poolMap.values()),
     };
-    this._sdk.Router.loadGraph(coins, paths);
+    this.sdk.Router.loadGraph(coins, paths);
   }
 
   async loadOwnedCoins() {
-    this._ownedCoins = await this._sdk.getOwnerCoinAssets(this._userAddress);
+    this._ownedCoins = await this.sdk.getOwnerCoinAssets(this._userAddress);
   }
 
   get coinPair() {
