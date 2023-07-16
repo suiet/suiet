@@ -24,7 +24,7 @@ export function Select(props: SelectProps) {
     >
       <SelectCompoment.Trigger className="flex items-center" aria-label="Food">
         {/* <SelectCompoment.Value placeholder="Select a coin" /> */}
-        <SelectCompoment.Icon className="flex gap-2 items-center">
+        <SelectCompoment.Icon className="flex gap-2 items-center outline-none">
           {props.trigger}
           <ChevronDownIcon />
         </SelectCompoment.Icon>
