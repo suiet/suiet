@@ -41,7 +41,9 @@ const Alert = (props: AlertProps) => {
               {props.title}
             </h3>
           )}
-          <div className={`text-sm text-${color}-700`}>{props.children}</div>
+          <div className={classnames(`text-sm text-${color}-700`, 'break-all')}>
+            {props.children}
+          </div>
         </div>
       </div>
     </div>

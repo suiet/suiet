@@ -315,27 +315,39 @@ export default function SwapPage() {
           swap_partner: swapPartnerId,
         });
         transactionBlock.current = txb;
-        const dryRunRes = await dryRunTransactionBlock({
-          transactionBlock: txb,
-          apiClient,
-          context: {
-            walletId,
-            accountId,
-            network,
-          },
-        });
-        console.log('dryRunRes', dryRunRes);
-        if (!dryRunRes) {
-          Message.error('Cannot get dryRun result');
+        try {
+          const dryRunRes = await dryRunTransactionBlock({
+            transactionBlock: txb,
+            apiClient,
+            context: {
+              walletId,
+              accountId,
+              network,
+            },
+          });
+          console.log('dryRunRes', dryRunRes);
+
+          if (!dryRunRes) {
+            setIsSwapAvailable(false);
+            setSwapLoading(false);
+
+            const e = (
+              dryRunRes as unknown as SuiSignAndExecuteTransactionBlockOutput
+            ).effects?.status.error;
+            setErrorMessage(e ?? 'Cannot get dryRun result');
+
+            return;
+          }
+          setEstimatedGasFee(Number(getTotalGasUsed(dryRunRes.effects)));
+
+          setSwapLoading(false);
+          setIsSwapAvailable(true);
+        } catch (e) {
+          console.error(e);
           setIsSwapAvailable(false);
           setSwapLoading(false);
-          return;
+          setErrorMessage(e.message);
         }
-
-        setEstimatedGasFee(Number(getTotalGasUsed(dryRunRes.effects)));
-
-        setSwapLoading(false);
-        setIsSwapAvailable(true);
       },
       300,
       {
@@ -544,8 +556,18 @@ export default function SwapPage() {
       </div>
 
       <div className="min-h-[48px] mx-[24px] flex flex-col gap-2 mb-[8px]">
-        {warningMessage && <Alert type="warn"> {warningMessage}</Alert>}
-        {errorMessage && <Alert type="error"> {errorMessage}</Alert>}
+        {warningMessage && (
+          <Alert type="warn" className="break-words">
+            {' '}
+            {warningMessage}
+          </Alert>
+        )}
+        {errorMessage && (
+          <Alert type="error" className="break-words">
+            {' '}
+            {errorMessage}
+          </Alert>
+        )}
       </div>
 
       <div className="mx-[24px] mt-[8px] mb-8 flex flex-col gap-2">
