@@ -87,7 +87,7 @@ export default function SwapPage() {
   const [fromCoinAmount, setFromCoinAmount] = useState<string>('');
   const [toCoinAmount, setToCoinAmount] = useState<string>('');
   const [swapLoading, setSwapLoading] = useState<boolean>(false);
-
+  const [swapSubmitting, setSwapSubmitting] = useState<boolean>(false);
   const [isSwapAvailable, setIsSwapAvailable] = useState<boolean>(false);
   const [price, setPrice] = useState<any>(null);
   const { loading, error, data } = useQuery(GET_SUPPORT_SWAP_COINS, {
@@ -373,7 +373,7 @@ export default function SwapPage() {
       return;
     }
 
-    setSwapLoading(true);
+    setSwapSubmitting(true);
     try {
       const resp = await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
@@ -409,7 +409,7 @@ export default function SwapPage() {
 
       console.error(e);
     } finally {
-      setSwapLoading(false);
+      setSwapSubmitting(false);
     }
   };
 
@@ -569,10 +569,10 @@ export default function SwapPage() {
           className=""
           state="primary"
           onClick={executeSwap}
-          loading={swapLoading}
+          loading={swapLoading || swapSubmitting}
           disabled={!isSwapAvailable || !cetusSwapClient.current}
         >
-          Swap
+          {swapLoading ? 'Loading' : swapSubmitting ? 'Submitting' : 'Swap'}
         </Button>
       </div>
     </AppLayout>
