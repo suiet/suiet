@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { TransactionBlock } from '@mysten/sui.js';
+import { SuiSignAndExecuteTransactionBlockOutput } from '@mysten/wallet-standard';
 import BN from 'bn.js';
 import React, {
   Key,
@@ -26,13 +27,14 @@ import Button from '../../components/Button';
 import { Select, SelectItem } from './selectSwapToken';
 import { useQuery } from '@apollo/client';
 import { GET_SUPPORT_SWAP_COINS } from '../../utils/graphql/query';
-import TokenItem from '../../components/TokenItem';
+import { TokenInfo } from '../../components/TokenItem';
 import { Token } from 'graphql';
 import { CoinType } from '../../types/coin';
-import { TokenInfo } from './token';
+import useCoins from '../../hooks/coin/useCoins';
 import {
   CetusSwapClient,
   formatCurrency,
+  formatSUI,
   SendAndExecuteTxParams,
   SwapCoin,
   SwapCoinPair,
@@ -44,76 +46,8 @@ import { useAsyncEffect } from 'ahooks';
 import { dryRunTransactionBlock } from '../../hooks/transaction/useDryRunTransactionBlock';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useNetwork } from '../../hooks/useNetwork';
-import classNames from 'classnames';
-type SwapItemProps = Extendable & {
-  type: 'From' | 'To';
-  data: CoinType[] | undefined;
-  defaultValue?: any;
-  onChange: (value: string) => void;
-  amount: string | undefined;
-  maxAmount?: string;
-  onAmountChange?: (value: string) => void;
-  trigger: ReactNode;
-};
-
-function SwapItem(props: SwapItemProps) {
-  return (
-    <div className="px-6 py-4 hover:bg-slate-100 transition-all flex justify-between items-center w-full">
-      <Select
-        className="flex-shrink-0"
-        // onValueChange={console.log}
-        // layoutClass="fixed left-0 right-0 bottom-0 w-[100wh] h-[400px]"
-        defaultValue={props.defaultValue}
-        onChange={props.onChange}
-        trigger={props.trigger}
-      >
-        <div className="">
-          {props.data?.map((coin) => {
-            return (
-              <SelectItem
-                key={coin.type}
-                className="focus:outline-0"
-                value={coin.type}
-              >
-                <TokenItem
-                  coin={coin}
-                  wrapperClass={'py-[20px] px-[20px] border-t border-gray-100'}
-                ></TokenItem>
-              </SelectItem>
-            );
-          })}
-        </div>
-      </Select>
-      {props.type === 'From' ? (
-        <input
-          className={classNames(
-            'focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[160px]',
-            '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-          )}
-          // type="text"
-          type="number"
-          min="0"
-          max={props.maxAmount}
-          placeholder="0.00"
-          style={{
-            WebkitAppearance: 'none',
-          }}
-          value={props.amount}
-          onInput={(e) => {
-            props.onAmountChange?.((e.target as any).value);
-          }}
-        />
-      ) : (
-        <div
-          className="focus:outline-0 text-xl flex-shrink text-right bg-transparent w-[160px]"
-          placeholder="0.00"
-        >
-          {props.amount}
-        </div>
-      )}
-    </div>
-  );
-}
+import SwapItem from './swapItem';
+import { current } from '@reduxjs/toolkit';
 
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
@@ -124,18 +58,28 @@ export default function SwapPage() {
   const { address } = useAccount(accountId);
   const cetusSwapClient = useRef<CetusSwapClient | null>(null);
   const transactionBlock = useRef<TransactionBlock | null>(null);
-
+  const {
+    data: coins,
+    loading: isLoading,
+    error: coinsError,
+  } = useCoins(address);
   const [fromCoinType, setFromCoinType] = useState<string>('0x2::sui::SUI');
   const [toCoinType, setToCoinType] = useState<string>(
     '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN'
   );
 
+  const [estimatedGasFee, setEstimatedGasFee] = useState<number>(200000000);
+  const [estimatedTxFee, setEstimatedTxFee] = useState<number | null>(null);
+
   const [fromCoinAmount, setFromCoinAmount] = useState<string | undefined>(
     undefined
   );
-  const [toCoinAmount, setToCoinAmount] = useState<string>('0');
+  const [toCoinAmount, setToCoinAmount] = useState<string | undefined>(
+    undefined
+  );
   const [swapLoading, setSwapLoading] = useState<boolean>(false);
 
+  const [isSwapAvailable, setIsSwapAvailable] = useState<boolean>(false);
   const [price, setPrice] = useState<any>(null);
   const { loading, error, data } = useQuery(GET_SUPPORT_SWAP_COINS, {
     fetchPolicy: 'cache-and-network',
@@ -157,97 +101,206 @@ export default function SwapPage() {
     return priceResult;
   };
 
-  const buildRouterSwapTransaction = (priceResult: any) => {
+  const buildSwapTransaction = (payload: any) => {
     if (!cetusSwapClient.current) {
       throw new Error('cetusSwapClient is not ready');
     }
-    if (!priceResult) {
+    if (!payload) {
       throw new Error('price result is not ready');
     }
-    const transactionBlock = cetusSwapClient.current.buildRouterSwapTransaction(
-      priceResult.createTxParams
-    );
+    const transactionBlock =
+      cetusSwapClient.current.buildSwapTransaction(payload);
 
     console.log('transactionBlock', transactionBlock);
     return transactionBlock;
   };
 
+  // const buildRouterSwapTransaction = (priceResult: any) => {
+  //   if (!cetusSwapClient.current) {
+  //     throw new Error('cetusSwapClient is not ready');
+  //   }
+  //   if (!priceResult) {
+  //     throw new Error('price result is not ready');
+  //   }
+  //   const transactionBlock = cetusSwapClient.current.buildRouterSwapTransaction(
+  //     priceResult.createTxParams
+  //   );
+
+  //   console.log('transactionBlock', transactionBlock);
+  //   return transactionBlock;
+  // };
+
   useEffect(() => {
     if (!address) return;
     const client = new CetusSwapClient(address, clmmMainnet);
-    client.loadPools();
+    // client.loadPools([], undefined, 1000);
     client.loadOwnedCoins();
     cetusSwapClient.current = client;
   }, [address]);
 
-  const updateInfoForSwap = debounce(async (fromAmount: string | undefined) => {
-    if (!fromAmount) return;
-    if (!cetusSwapClient.current) return;
-    if (!network) return;
-    setSwapLoading(true);
+  const updateInfoForSwap = debounce(
+    async (fromAmount: string | undefined) => {
+      if (!fromAmount) return;
+      if (!cetusSwapClient.current) return;
+      if (!network) return;
 
-    const swapCoinA = new SwapCoin(
-      fromCoinInfo.type,
-      fromCoinInfo.metadata.decimals
-    );
-    // BigInt(fromAmount) * BigInt(Math.pow(10, fromCoinInfo.metadata.decimals))
-    const numMultiplied =
-      Number(fromAmount) * Math.pow(10, fromCoinInfo.metadata.decimals);
-    const numRounded = Math.round(numMultiplied); // 取整
-    const bigIntFromAmount = BigInt(numRounded); // 转为 BigInt
-
-    swapCoinA.setAmount(bigIntFromAmount);
-    // swapCoinA.setAmountWithDecimals(fromAmount);
-    const swapCoinB = new SwapCoin(
-      toCoinInfo.type,
-      toCoinInfo.metadata.decimals
-    );
-    cetusSwapClient.current.createCoinPair(swapCoinA, swapCoinB);
-    console.log('set coinPair', cetusSwapClient.current.coinPair);
-
-    if (fromAmount.toString() === '0') {
-      setSwapLoading(false);
-      return;
-    }
-
-    const priceResult = await fetchRouterPrice();
-    if (!priceResult) {
-      Message.error('Cannot find any available route for this coin pair');
-
-      setSwapLoading(false);
-      return;
-    }
-    setPrice(priceResult);
-
-    const txb = buildRouterSwapTransaction(priceResult);
-    transactionBlock.current = txb;
-    const dryRunRes = await dryRunTransactionBlock({
-      transactionBlock: txb,
-      apiClient,
-      context: {
-        walletId,
-        accountId,
-        network,
-      },
-    });
-    console.log('dryRunRes', dryRunRes);
-    if (!dryRunRes) {
-      Message.error('Cannot get dryRun result');
-      setSwapLoading(false);
-      return;
-    }
-    const toCoinEstimatedChange = dryRunRes.balanceChanges.find(
-      (item) => item.coinType === toCoinType
-    );
-    if (toCoinEstimatedChange) {
-      setToCoinAmount(
-        formatCurrency(toCoinEstimatedChange.amount, {
-          decimals: toCoinInfo.metadata.decimals,
-        })
+      setSwapLoading(true);
+      const swapPool = fromCoinInfo.swapPool.cetus.find(
+        (pool) =>
+          (pool.coinTypeA === fromCoinType && pool.coinTypeB === toCoinType) ||
+          (pool.coinTypeB === fromCoinType && pool.coinTypeA === toCoinType)
       );
+      // console.log('swapPool', swapPool);
+      if (!swapPool) {
+        console.log('no avaliable pool');
+        setIsSwapAvailable(false);
+        setSwapLoading(false);
+        return;
+      }
+      // debugger;
+      // Whether the swap direction is token a to token b
+      const a2b = swapPool.coinTypeA === fromCoinType;
+      // fix input token amount
+      const amount = new BN(
+        Number(fromAmount) * Math.pow(10, fromCoinInfo.metadata.decimals)
+      );
+      // input token amount is token a
+      const byAmountIn = true;
+      // slippage value
+      const slippage = Percentage.fromDecimal(d(5));
+
+      // Fetch pool data
+      const pool = await cetusSwapClient.current?.sdk.Pool.getPool(
+        swapPool.poolAddress
+      );
+
+      const coinTypeA = toCoinInfo;
+      const coinTypeB = fromCoinInfo;
+
+      // Estimated amountIn amountOut fee
+      const res: any = await cetusSwapClient.current?.sdk.Swap.preswap({
+        pool,
+        current_sqrt_price: pool.current_sqrt_price,
+        coinTypeA: swapPool.coinTypeA,
+        coinTypeB: swapPool.coinTypeB,
+        decimalsA: coinTypeA.metadata.decimals, // coin a 's decimals
+        decimalsB: coinTypeB.metadata.decimals, // coin b 's decimals
+        a2b,
+        by_amount_in: byAmountIn,
+        amount,
+      });
+
+      setToCoinAmount(
+        (
+          Number(res.estimatedAmountOut) /
+          Math.pow(10, toCoinInfo.metadata.decimals)
+        ).toString()
+      );
+      setEstimatedTxFee(res.estimatedFeeAmount);
+
+      const currentCoinBalance = coins?.find(
+        (coin) => coin.type === fromCoinType
+      )?.balance;
+
+      // if trying larger amount, skip dry run
+      if (
+        Number(fromAmount) * Math.pow(10, fromCoinInfo.metadata.decimals) >
+        Number(currentCoinBalance)
+      ) {
+        setSwapLoading(false);
+        setIsSwapAvailable(false);
+        return;
+      }
+
+      if (fromAmount.toString() === '0') {
+        setIsSwapAvailable(false);
+        setSwapLoading(false);
+        return;
+      }
+
+      const toAmount = byAmountIn
+        ? res.estimatedAmountOut
+        : res.estimatedAmountIn;
+
+      const amountLimit = adjustForSlippage(
+        new BN(toAmount),
+        slippage,
+        !byAmountIn
+      );
+
+      // build swap Payload
+      // const swapPayload =
+      //   cetusSwapClient.current?.sdk.Swap.createSwapTransactionPayload({
+      //     pool_id: pool.poolAddress,
+      //     coinTypeA: pool.coinTypeA,
+      //     coinTypeB: pool.coinTypeB,
+      //     a2b,
+      //     by_amount_in: byAmountIn,
+      //     amount: res.amount.toString(),
+      //     amount_limit: amountLimit.toString(),
+      //   });
+
+      // cetusSwapClient.current.sdk
+
+      const txb = buildSwapTransaction({
+        pool_id: pool.poolAddress,
+        coinTypeA: pool.coinTypeA,
+        coinTypeB: pool.coinTypeB,
+        a2b,
+        by_amount_in: byAmountIn,
+        amount: res.amount.toString(),
+        amount_limit: amountLimit.toString(),
+      });
+      transactionBlock.current = txb;
+      const dryRunRes = await dryRunTransactionBlock({
+        transactionBlock: txb,
+        apiClient,
+        context: {
+          walletId,
+          accountId,
+          network,
+        },
+      });
+      console.log('dryRunRes', dryRunRes);
+      if (!dryRunRes) {
+        Message.error('Cannot get dryRun result');
+        setIsSwapAvailable(false);
+        setSwapLoading(false);
+        return;
+      }
+
+      setEstimatedGasFee(
+        Number(
+          BigInt(dryRunRes.effects.gasUsed.computationCost) +
+            BigInt(dryRunRes.effects.gasUsed.storageCost) -
+            BigInt(dryRunRes.effects.gasUsed.storageRebate)
+        )
+      );
+
+      setSwapLoading(false);
+      setIsSwapAvailable(true);
+    },
+    300,
+    {
+      leading: false,
+      trailing: true,
     }
-    setSwapLoading(false);
-  });
+  );
+
+  function switchFromAndTo() {
+    const tempFromCoinType = fromCoinType;
+    const tempToCoinAmount = toCoinAmount;
+    const tempToCoinType = toCoinType;
+    setFromCoinType(tempToCoinType);
+    setToCoinType(tempFromCoinType);
+    setFromCoinAmount(tempToCoinAmount);
+    setToCoinAmount(undefined);
+    setSwapLoading(true);
+    setTimeout(() => {
+      setSwapLoading(true);
+      updateInfoForSwap(tempToCoinAmount);
+    }, 500);
+  }
 
   const fromCoinInfo =
     data?.supportedSwapCoins.find(
@@ -256,6 +309,32 @@ export default function SwapPage() {
     data?.supportedSwapCoins.find(
       (coin: CoinType) => coin.type === fromCoinType
     );
+
+  const fromCoinPools = fromCoinInfo
+    ? (fromCoinInfo as CoinType)?.swapPool?.cetus
+    : [];
+  const fromCoinSupportedCoinTypes = fromCoinPools
+    ? [
+        ...new Set(
+          fromCoinPools
+            ?.map((pool) => {
+              if (pool.coinTypeA === fromCoinType) {
+                return pool.coinTypeB;
+              }
+              if (pool.coinTypeB === fromCoinType) {
+                return pool.coinTypeA;
+              }
+              return null;
+            })
+            .filter((item) => item)
+        ),
+      ]
+    : [];
+  const supportedToCoins = fromCoinInfo
+    ? data?.supportedSwapCoins.filter((coin: CoinType) =>
+        fromCoinSupportedCoinTypes.includes(coin.type)
+      )
+    : data?.supportedSwapCoins;
 
   const toCoinInfo =
     data?.supportedSwapCoins.find(
@@ -271,7 +350,7 @@ export default function SwapPage() {
 
     setSwapLoading(true);
     try {
-      await apiClient.callFunc<
+      const resp = await apiClient.callFunc<
         SendAndExecuteTxParams<string, OmitToken<TxEssentials>>,
         undefined
       >(
@@ -286,9 +365,22 @@ export default function SwapPage() {
         },
         { withAuth: true }
       );
-      Message.success('Swap successfully');
+      if (
+        (resp as unknown as SuiSignAndExecuteTransactionBlockOutput).effects
+          ?.status.status === 'success'
+      ) {
+        Message.success('Swap successfully');
+      } else {
+        Message.error(
+          `Swap failed: ${
+            (resp as unknown as SuiSignAndExecuteTransactionBlockOutput).effects
+              ?.status.error
+          }`
+        );
+      }
     } catch (e) {
       Message.error(`Swap failed: ${e.message}`);
+
       console.error(e);
     } finally {
       setSwapLoading(false);
@@ -297,14 +389,14 @@ export default function SwapPage() {
 
   return (
     <AppLayout>
-      <div className="w-full">
+      <div className="w-full relative">
         <SwapItem
           type="From"
           data={data?.supportedSwapCoins}
           defaultValue={fromCoinType}
           onChange={(coinType) => {
             setFromCoinType(coinType);
-            setFromCoinAmount(undefined);
+            setFromCoinAmount('0');
             setToCoinAmount('0');
             updateInfoForSwap(fromCoinAmount);
           }}
@@ -321,14 +413,18 @@ export default function SwapPage() {
           ).toString()}
           trigger={<TokenInfo coin={fromCoinInfo}></TokenInfo>}
         ></SwapItem>
-
+        <div className="">
+          <button className="absolute t-[-50%]" onClick={switchFromAndTo}>
+            Switch
+          </button>
+        </div>
         <SwapItem
           type="To"
-          data={data?.supportedSwapCoins}
+          data={supportedToCoins}
           defaultValue={toCoinType}
           onChange={(coinType) => {
             setToCoinType(coinType);
-            setToCoinAmount('0');
+            setToCoinAmount(undefined);
             updateInfoForSwap(fromCoinAmount);
           }}
           amount={toCoinAmount}
@@ -344,6 +440,7 @@ export default function SwapPage() {
           state="primary"
           onClick={executeSwap}
           loading={swapLoading}
+          disabled={!isSwapAvailable}
         >
           Swap
         </Button>
@@ -351,12 +448,12 @@ export default function SwapPage() {
 
       <div className="mx-[24px] my-[8px]">
         <div className="w-full flex justify-between">
-          <p> Network Fee</p>
-          <p> 0.00012 SUI</p>
+          <p> Estmate Gas Fee</p>
+          <p> {formatSUI(estimatedGasFee)} SUI</p>
         </div>
         <div className="w-full flex justify-between">
-          <p> Transaction Fee</p>
-          <p> 0.00012 SUI</p>
+          <p>Router</p>
+          <p>Cetus</p>
         </div>
       </div>
     </AppLayout>

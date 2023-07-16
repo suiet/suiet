@@ -84,12 +84,9 @@ export const GET_SUPPORT_SWAP_COINS = gql`
       swapPool {
         cetus {
           poolAddress
-          coinA {
-            symbol
-          }
-          coinB {
-            symbol
-          }
+          coinTypeA
+          coinTypeB
+          feeRate
         }
       }
     }
