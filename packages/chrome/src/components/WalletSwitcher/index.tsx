@@ -3,13 +3,15 @@ import Typo from '../Typo';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import Button from '../Button';
-import { Icon } from '../icons';
+import { Icon, IconContainer } from '../icons';
 import { ReactComponent as IconEdit } from '../../assets/icons/edit.svg';
 import { createPortal } from 'react-dom';
 import { sleep } from '../../utils/time';
 import Address from '../Address';
 import Avatar from '../Avatar';
 import { AvatarPfp } from '@suiet/core';
+import { ReactComponent as IconSettings } from '../../assets/icons/settings.svg';
+
 export type WalletData = {
   id: string;
   name: string;
@@ -106,6 +108,7 @@ export type WalletSwitcherProps = {
   onClickLayer?: () => void;
   onClickNew?: () => void;
   onClickImport?: () => void;
+  onClickSettings?: () => void;
 };
 
 const WalletSwitcher = (props: WalletSwitcherProps) => {
@@ -139,12 +142,22 @@ const WalletSwitcher = (props: WalletSwitcherProps) => {
           )}
         >
           <header className={styles['header']}>
-            <Typo.Title className={styles['header-title']}>Suiet</Typo.Title>
-            <Typo.Small
-              className={classnames(styles['header-desc'], 'mt-[2px]')}
+            <div>
+              <Typo.Title className={styles['header-title']}>Suiet</Typo.Title>
+              <Typo.Small
+                className={classnames(styles['header-desc'], 'mt-[2px]')}
+              >
+                {wallets.length} Wallets
+              </Typo.Small>
+            </div>
+
+            <IconContainer
+              className={'cursor-pointer hover:bg-gray-200 transition-colors'}
+              color={'transparent'}
+              onClick={props.onClickSettings}
             >
-              {wallets.length} Wallets
-            </Typo.Small>
+              <IconSettings width={20} height={20} stroke={'#7D89B0'} />
+            </IconContainer>
           </header>
           <section
             className={classnames(styles['wallet-item-container'], 'mt-[20px]')}

@@ -22,6 +22,7 @@ import { ReactComponent as IconNetwork } from '../../assets/icons/net.svg';
 import { ReactComponent as IconLock } from '../../assets/icons/lock.svg';
 import { ReactComponent as IconDiscord } from '../../assets/icons/discord.svg';
 import { ReactComponent as IconTwitter } from '../../assets/icons/twitter.svg';
+import Nav from '../../components/Nav';
 type SettingItemProps = Extendable & {
   icon: JSX.Element;
   hideArrow?: boolean;
@@ -68,7 +69,15 @@ const SettingPage = () => {
   const { logout } = useAuth();
 
   return (
-    <AppLayout>
+    <div className={'w-full h-full overflow-y-auto bg-white no-scrollbar'}>
+      <Nav
+        position={'sticky'}
+        onNavBack={() => {
+          navigate('/');
+        }}
+        title="Settings"
+        className={'bg-white'}
+      />
       <div className={styles['container']}>
         <div className={'flex flex-col items-center'}>
           <Avatar size={'lg'} model={wallet?.avatar} pfp={wallet?.avatarPfp} />
@@ -165,7 +174,7 @@ const SettingPage = () => {
           version v{version}
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 };
 

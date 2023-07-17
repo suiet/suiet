@@ -15,6 +15,17 @@ $nav-height: 56px;
     top: 0;
     left: 0;
   }
+
+  &--fixed {
+    position: fixed;
+    z-index: $normal-zindex;
+  }
+
+  &--sticky {
+    position: sticky;
+    top: 0;
+    z-index: $normal-zindex;
+  }
 }
 
 .icon-back {
