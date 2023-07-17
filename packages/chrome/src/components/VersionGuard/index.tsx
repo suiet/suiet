@@ -5,18 +5,17 @@ import { compareVersions } from 'compare-versions';
 import { ReactComponent as IconArrowUpRight } from '../../assets/icons/arrow-up-right.svg';
 import { ReactComponent as IconLink } from '../../assets/icons/link.svg';
 import { version } from '../../../package.json';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export type GuideContainerProps = Extendable;
 
 export default function VersionGuard(props: GuideContainerProps) {
   const featureFlags = useFeatureFlags();
   const chromeVersion = getChromeVersion();
-
   useEffect(() => {
     if (
       featureFlags &&
-      compareVersions(version, featureFlags.minimal_versions.extension) < 0
+      compareVersions(version, featureFlags.latest_versions.extension) < 0
     ) {
       chrome.runtime.requestUpdateCheck((status: string, details: any) => {});
     }
