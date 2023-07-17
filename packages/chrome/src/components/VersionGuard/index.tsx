@@ -6,12 +6,18 @@ import { ReactComponent as IconArrowUpRight } from '../../assets/icons/arrow-up-
 import { ReactComponent as IconLink } from '../../assets/icons/link.svg';
 import { version } from '../../../package.json';
 import { useEffect, useState } from 'react';
+import { useLocalStorageState } from 'ahooks';
 
 export type GuideContainerProps = Extendable;
 
 export default function VersionGuard(props: GuideContainerProps) {
   const featureFlags = useFeatureFlags();
   const chromeVersion = getChromeVersion();
+  const [skipUpgrade, setSkipUpgrade] = useLocalStorageState('skip-upgrade', {
+    defaultValue: false,
+  });
+  const [skipUpdateTime, setSkipUpdateTime] =
+    useLocalStorageState('skip-upgrade-time');
   useEffect(() => {
     if (
       featureFlags &&
@@ -24,7 +30,9 @@ export default function VersionGuard(props: GuideContainerProps) {
   if (
     featureFlags &&
     chromeVersion &&
-    compareVersions(chromeVersion, featureFlags.minimal_versions.chrome) < 0
+    compareVersions(chromeVersion, featureFlags.minimal_versions.chrome) < 0 &&
+    (!skipUpgrade ||
+      (skipUpdateTime && skipUpdateTime < Date.now() - 1000 * 60 * 60 * 24 * 7))
   ) {
     return (
       <GuideLayout blackTitle="Browser Update Needed">
@@ -48,10 +56,19 @@ export default function VersionGuard(props: GuideContainerProps) {
           href="https://suiet.app/docs/how-to-upgrade-browser"
           target="_blank"
           rel="noreferrer"
-          className="w-fill text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all flex items-center px-[24px]"
+          className="w-fill cursor-pointer mb-4 text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all flex items-center justify-center px-[24px]"
         >
           <IconArrowUpRight width={24} height={24} className="mr-[16px]" />
           Follow Guide
+        </a>
+        <a
+          onClick={() => {
+            setSkipUpgrade(true);
+            setSkipUpdateTime(Date.now());
+          }}
+          className="w-fill flex justify-center cursor-pointer text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all items-center px-[24px]"
+        >
+          <p>Skip for now</p>
         </a>
 
         <div className="flex w-full fixed bottom-[0]">
@@ -73,7 +90,9 @@ export default function VersionGuard(props: GuideContainerProps) {
 
   if (
     featureFlags &&
-    compareVersions(version, featureFlags.minimal_versions.extension) < 0
+    compareVersions(version, featureFlags.minimal_versions.extension) < 0 &&
+    (!skipUpgrade ||
+      (skipUpdateTime && skipUpdateTime < Date.now() - 1000 * 60 * 60 * 24 * 7))
   ) {
     return (
       <GuideLayout blackTitle="Extension Update Needed">
@@ -98,10 +117,22 @@ export default function VersionGuard(props: GuideContainerProps) {
           href="https://suiet.app/docs/how-to-upgrade-extension"
           target="_blank"
           rel="noreferrer"
-          className="w-fill text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all flex items-center px-[24px]"
+          className="w-fill cursor-pointer mb-4 text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all flex items-center justify-center px-[24px]"
         >
-          <IconArrowUpRight width={24} height={24} className="mr-[16px]" />
-          Follow Guide
+          <div className="flex">
+            <IconArrowUpRight width={24} height={24} className="mr-[16px]" />
+            <p>Follow Guide</p>
+          </div>
+        </a>
+
+        <a
+          onClick={() => {
+            setSkipUpgrade(true);
+            setSkipUpdateTime(Date.now());
+          }}
+          className="w-fill flex justify-center cursor-pointer text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all items-center px-[24px]"
+        >
+          <p>Skip for now</p>
         </a>
 
         <div className="flex w-full fixed bottom-[0]">
