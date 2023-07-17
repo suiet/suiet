@@ -8,6 +8,7 @@ import { ReactComponent as IconHistory } from '../../../assets/icons/history.svg
 import { ReactComponent as IconGrid } from '../../../assets/icons/grid.svg';
 import { ReactComponent as IconSwap } from '../../../assets/icons/swap.svg';
 import { ReactNode } from 'react';
+import { useFeatureFlagsWithNetwork } from '../../../hooks/useFeatureFlags';
 
 export type MenuProps = StyleExtendable;
 type MenuItemProps = StyleExtendable & {
@@ -37,6 +38,8 @@ const MenuItem = (props: MenuItemProps) => {
 };
 
 const Menu: React.FC<MenuProps> = (props: Extendable) => {
+  const featureFlags = useFeatureFlagsWithNetwork();
+
   return (
     <div
       className={classnames(styles['menu'], props.className)}
@@ -44,7 +47,9 @@ const Menu: React.FC<MenuProps> = (props: Extendable) => {
     >
       <MenuItem to="/home" icon={<IconHome />} alt="home" />
       <MenuItem to="/nft" icon={<IconNFT />} alt="nft" />
-      <MenuItem to="/swap" icon={<IconSwap />} alt="swap" />
+      {featureFlags?.enable_swap && (
+        <MenuItem to="/swap" icon={<IconSwap />} alt="swap" />
+      )}
       <MenuItem to="/dapps" icon={<IconGrid />} alt="dapps" />
       <MenuItem
         to="/transaction/flow"
