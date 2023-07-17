@@ -216,6 +216,16 @@ export default function SwapPage() {
         }
         // Whether the swap direction is token a to token b
         const a2b = swapPool.coinTypeA === fromCoinType;
+
+        let coinInfoA, coinInfoB;
+        if (a2b) {
+          coinInfoA = fromCoinInfo;
+          coinInfoB = toCoinInfo;
+        } else {
+          coinInfoA = fromCoinInfo;
+          coinInfoB = toCoinInfo;
+        }
+
         // fix input token amount
         const amount = new BN(
           calculateCoinAmount(fromAmount, fromCoinInfo.metadata.decimals)
@@ -228,17 +238,14 @@ export default function SwapPage() {
           swapPool.poolAddress
         );
 
-        const coinTypeA = toCoinInfo;
-        const coinTypeB = fromCoinInfo;
-
         // Estimated amountIn amountOut fee
         const res: any = await cetusSwapClient.current?.sdk.Swap.preswap({
           pool,
           current_sqrt_price: pool.current_sqrt_price,
           coinTypeA: swapPool.coinTypeA,
           coinTypeB: swapPool.coinTypeB,
-          decimalsA: coinTypeA.metadata.decimals, // coin a 's decimals
-          decimalsB: coinTypeB.metadata.decimals, // coin b 's decimals
+          decimalsA: coinInfoA.metadata.decimals, // coin a 's decimals
+          decimalsB: coinInfoB.metadata.decimals, // coin b 's decimals
           a2b,
           by_amount_in: byAmountIn,
           amount,
