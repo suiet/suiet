@@ -7,6 +7,7 @@ import { ReactComponent as IconNFT } from '../../../assets/icons/nft.svg';
 import { ReactComponent as IconHistory } from '../../../assets/icons/history.svg';
 import { ReactComponent as IconSettings } from '../../../assets/icons/settings.svg';
 import { ReactComponent as IconGrid } from '../../../assets/icons/grid.svg';
+import { ReactComponent as IconSwap } from '../../../assets/icons/swap.svg';
 import { ReactNode } from 'react';
 
 export type MenuProps = StyleExtendable;
@@ -44,13 +45,13 @@ const Menu: React.FC<MenuProps> = (props: Extendable) => {
     >
       <MenuItem to="/home" icon={<IconHome />} alt="home" />
       <MenuItem to="/nft" icon={<IconNFT />} alt="nft" />
+      <MenuItem to="/swap" icon={<IconSwap />} alt="swap" />
       <MenuItem to="/dapps" icon={<IconGrid />} alt="dapps" />
       <MenuItem
         to="/transaction/flow"
         icon={<IconHistory />}
         alt="transaction"
       />
-      <MenuItem to="/settings" icon={<IconSettings />} alt="settings" />
     </div>
   );
 };
