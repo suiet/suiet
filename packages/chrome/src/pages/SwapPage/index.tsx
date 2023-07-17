@@ -222,8 +222,8 @@ export default function SwapPage() {
           coinInfoA = fromCoinInfo;
           coinInfoB = toCoinInfo;
         } else {
-          coinInfoA = fromCoinInfo;
-          coinInfoB = toCoinInfo;
+          coinInfoA = toCoinInfo;
+          coinInfoB = fromCoinInfo;
         }
 
         // fix input token amount
@@ -250,11 +250,25 @@ export default function SwapPage() {
           by_amount_in: byAmountIn,
           amount,
         });
-
+        console.log(
+          'input',
+          {
+            fromCoinType,
+            toCoinType,
+          },
+          {
+            pool,
+            current_sqrt_price: pool.current_sqrt_price,
+            coinTypeA: swapPool.coinTypeA,
+            coinTypeB: swapPool.coinTypeB,
+            decimalsA: coinInfoA.metadata.decimals, // coin a 's decimals
+            decimalsB: coinInfoB.metadata.decimals, // coin b 's decimals
+            a2b,
+            by_amount_in: byAmountIn,
+            amount,
+          }
+        );
         setToCoinAmount(
-          // (res.estimatedAmountOut, {
-          //   decimals: toCoinInfo.metadata.decimals,
-          // })
           Big(res.estimatedAmountOut)
             .div(Big(10).pow(toCoinInfo.metadata.decimals))
             .toString()
