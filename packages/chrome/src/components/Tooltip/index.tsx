@@ -6,14 +6,24 @@ export type TypoProps = Extendable & {
   message?: string;
   backgoroundColor?: string;
   textColor?: string;
-  className?: string;
+  triggerAsChild?: boolean;
+  delayDuration?: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onClick?: () => void;
 };
-export default function Tooltip(props: TypoProps) {
+export default function Tooltip(
+  props: TypoProps = {
+    delayDuration: 300,
+  }
+) {
   return props.message ? (
-    <TooltipRadix.Provider delayDuration={300}>
-      <TooltipRadix.Root>
-        <TooltipRadix.Trigger className={props.className}>
+    <TooltipRadix.Provider delayDuration={props.delayDuration}>
+      <TooltipRadix.Root open={props.open} onOpenChange={props.onOpenChange}>
+        <TooltipRadix.Trigger
+          className={props.className}
+          asChild={props.triggerAsChild}
+        >
           {props.children}
         </TooltipRadix.Trigger>
         <TooltipRadix.Portal>
