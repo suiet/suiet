@@ -200,19 +200,6 @@ function MainPage({ address, networkId }: DashboardProps) {
           </div>
         )}
         <ReceiveButton address={address} />
-        {featureFlags?.enable_swap && (
-          <Link to={'/swap'}>
-            <div
-              className={classnames(
-                styles['operations-item'],
-                styles['send'],
-                'ml-[6px]'
-              )}
-            >
-              Swap
-            </div>
-          </Link>
-        )}
 
         <Link to={'/send'}>
           <div
