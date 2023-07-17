@@ -72,6 +72,7 @@ const WalletSwitcherInstance = (props: {
   onClickLayer: () => void;
   onClickImport: () => void;
   onClickNew: () => void;
+  onClickSettings: () => void;
 }) => {
   const { data: wallets = [] } = useWallets();
   const walletAccountMap = useWalletAccountMap(wallets);
@@ -102,6 +103,7 @@ const WalletSwitcherInstance = (props: {
       onClickLayer={props.onClickLayer}
       onClickNew={props.onClickNew}
       onClickImport={props.onClickImport}
+      onClickSettings={props.onClickSettings}
     />
   );
 };
@@ -236,6 +238,9 @@ function Header(props: HeaderProps) {
             navigate('/wallet/import', {
               state: { pageEntry: PageEntry.SWITCHER },
             });
+          }}
+          onClickSettings={() => {
+            navigate('/settings');
           }}
         />
       )}

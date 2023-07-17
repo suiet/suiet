@@ -11,7 +11,7 @@ export type NavProps = Extendable & {
   title?: string | React.ReactNode;
   titleClassName?: string;
   titleStyle?: CSSProperties;
-  position?: 'relative' | 'absolute';
+  position?: 'relative' | 'absolute' | 'fixed' | 'sticky';
   onNavBack?: () => void;
 };
 

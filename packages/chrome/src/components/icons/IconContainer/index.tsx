@@ -6,6 +6,7 @@ import { CSSProperties } from 'react';
 export type IconContainerProps = Extendable & {
   shape?: 'circle' | 'square';
   color?: 'gray' | 'blue' | 'purple' | 'red' | 'transparent' | string;
+  onClick?: () => void;
 };
 
 export type ColorType = 'builtin' | 'custom' | 'tailwindcss';
@@ -46,6 +47,7 @@ const IconContainer = (props: IconContainerProps) => {
         props.className
       )}
       style={colorStyle}
+      onClick={props.onClick}
     >
       {props.children}
     </div>

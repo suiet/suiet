@@ -24,6 +24,9 @@ $ani-duration: 0.2s;
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   padding: 0 $container-px;
 }
 .header-title {
