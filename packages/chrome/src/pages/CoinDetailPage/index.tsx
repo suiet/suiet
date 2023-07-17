@@ -35,7 +35,6 @@ import useCoins from '../../hooks/coin/useCoins';
 import { isSuiToken } from '../../utils/check';
 import Tooltip from '../../components/Tooltip';
 import HistoryChart from './historyChart';
-import { set } from 'superstruct';
 export default function CoinDetailPage() {
   const appContext = useSelector((state: RootState) => state.appContext);
   const apiClient = useApiClient();
