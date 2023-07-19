@@ -3,6 +3,7 @@ import { Navigate, Outlet, RouteObject } from 'react-router-dom';
 import RequireInit from '../components/RequireInit';
 import { withSus } from '../components/TheSuspense';
 import Session from '../components/Session';
+import { Routes } from './constants';
 
 const MainPage = lazy(async () => await import('../pages/MainPage'));
 const CoinDetailPage = lazy(
@@ -55,6 +56,9 @@ const DappsPage = lazy(async () => await import('../pages/DappsPage'));
 const PasswordConfirmPage = lazy(
   async () => await import('../pages/PasswordConfirmPage')
 );
+const AssetChangeConfirmPage = lazy(
+  async () => await import('../pages/AssetChangeConfirmPage')
+);
 
 const routesConfig: RouteObject[] = [
   {
@@ -69,7 +73,8 @@ const routesConfig: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to="home" />,
+        element: <Navigate to={Routes.App.AssetChangeConfirmPage} />,
+        // element: <Navigate to="home" />,
       },
       {
         path: 'home',
@@ -152,6 +157,10 @@ const routesConfig: RouteObject[] = [
         ],
       },
       { path: 'password-confirm', element: withSus(<PasswordConfirmPage />) },
+      {
+        path: Routes.App.AssetChangeConfirmPage,
+        element: withSus(<AssetChangeConfirmPage />),
+      },
     ],
   },
   {

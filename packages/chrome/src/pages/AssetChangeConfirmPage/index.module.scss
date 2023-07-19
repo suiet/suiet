@@ -1,0 +1,34 @@
+@import '../../styles/variables.scss';
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &--col {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  & + & {
+    margin-top: 8px;
+  }
+
+  &__key {
+    font-family: 'Work Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: $gray-700;
+  }
+
+  &__value {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: $gray-400;
+  }
+}
