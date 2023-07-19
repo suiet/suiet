@@ -142,7 +142,7 @@ export function useTxnHistoryList(
     setIsRefetching(true);
 
     // restForIncoming.client.resetStore();
-
+    restForOutgoing.client.resetStore();
     restForIncoming.client.refetchQueries({
       include: [GET_TX_LIST_GQL],
       // updateCache(cache) {
