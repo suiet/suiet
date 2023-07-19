@@ -39,7 +39,6 @@ const DappPopupLayout = (props: DappPopupLayoutProps) => {
 
   const { walletId } = useSelector((state: RootState) => state.appContext);
   const { data: wallet } = useWallet(walletId);
-  console.log('wallet', wallet);
 
   return (
     <div className={styles['container']}>
