@@ -30,7 +30,7 @@ import { getTransactionBlock } from '@suiet/core/src/utils/txb-factory';
 import createTransferCoinTxb from './utils/createTransferCoinTxb';
 import useGasBudgetForTransferCoin from './hooks/useGasBudgetForTranferCoin';
 import useCoinsWithSuiOnTop from './hooks/useCoinsWithSuiOnTop';
-
+import { useApolloClient } from '@apollo/client';
 enum Mode {
   symbol,
   address,
@@ -42,7 +42,7 @@ const SendPage = () => {
     (state: RootState) => state.appContext
   );
   const { data: network } = useNetwork(networkId);
-
+  const client = useApolloClient();
   const apiClient = useApiClient();
   const navigate = useNavigate();
   const { address } = useAccount(accountId);
@@ -108,6 +108,11 @@ const SendPage = () => {
       console.error(e);
       message.error(`Send transaction failed: ${e?.message}`);
     }
+
+    // refetch tx in 500ms
+    setTimeout(() => {
+      client.resetStore();
+    }, 500);
   }, [gasResult, sendData, selectedCoin]);
 
   useEffect(() => {
