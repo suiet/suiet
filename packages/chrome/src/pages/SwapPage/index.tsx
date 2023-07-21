@@ -60,6 +60,7 @@ import Slider from './slider';
 import Big from 'big.js';
 import classNames from 'classnames';
 import { isSuiToken } from '../../utils/check';
+import AssetChangeConfirmPage from '../AssetChangeConfirmPage';
 
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
@@ -111,6 +112,7 @@ export default function SwapPage() {
     [slippageValue]
   );
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
   const getCoinInfo = useCallback(
     (coinType: string): CoinType | undefined => {
@@ -615,13 +617,26 @@ export default function SwapPage() {
         <Button
           className=""
           state="primary"
-          onClick={executeSwap}
+          onClick={() => {
+            setShowConfirm(true);
+          }}
           loading={swapLoading || swapSubmitting}
           disabled={!isSwapAvailable || !cetusSwapClient.current}
         >
           {swapLoading ? 'Loading' : swapSubmitting ? 'Submitting' : 'Swap'}
         </Button>
       </div>
+
+      <AssetChangeConfirmPage
+        open={showConfirm}
+        serializedTransactionBlock={transactionBlock.current?.serialize()}
+        onOk={() => {
+          executeSwap();
+        }}
+        onClose={() => {
+          setShowConfirm(false);
+        }}
+      />
     </AppLayout>
   );
 }

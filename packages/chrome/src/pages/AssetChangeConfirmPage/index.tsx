@@ -6,24 +6,24 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
 import { TransactionBlock } from '@mysten/sui.js';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import styles from './index.module.scss';
 import Typo from '../../components/Typo';
 import Button from '../../components/Button';
 import WalletSelector from '../dapp/WalletSelector';
-import { useNavigate } from 'react-router-dom';
 import { LoadingSpin } from '../../components/Loading';
 import { useNetwork } from '../../hooks/useNetwork';
+import Drawer from '../../components/Drawer';
 
 export type AssetChangeConfirmPageProps = {
+  serializedTransactionBlock: string | null | undefined;
+  open: boolean;
+  onClose?: () => void;
   okText?: string;
   cancelText?: string;
   onOk?: () => void;
   onCancel?: () => void;
 };
-
-const clutchyNftPurchaseTxbData =
-  '{"version":1,"gasConfig":{"budget":"80000000"},"inputs":[{"kind":"Input","value":69000000000,"index":0,"type":"pure"},{"kind":"Input","value":3381000000,"index":1,"type":"pure"},{"kind":"Input","value":"0x266f5a401df5fa40fc5ab2a1a8e74ac41fe5fb241e106eb608bf37c732c17e0e","index":2,"type":"object"},{"kind":"Input","value":"0xf37aef913cbd5f8399514d4aa6baf2b48af427d67b82723f18aff93cfebacea0","index":3,"type":"object"},{"kind":"Input","value":"0x71e317e2f77bfe72c1b012506796bd0c55fd4bb55ca56152c23e325e10d0bf58","index":4,"type":"object"},{"kind":"Input","value":"0x89c3acb80f578f5bbb05b005421bca0ac16715d1694f8f3f18f45c95d9508ee1","index":5,"type":"object"},{"kind":"Input","value":"69000000000","index":6,"type":"pure"},{"kind":"Input","value":"0x1ae174e8e2f238648d5fbef41e2b435b7285e678aa5e2e7db27f1be006ab242c","index":7,"type":"object"},{"kind":"Input","value":"0xb648cec3bca1895fe8d480c6f0783a70d3f88790d79ce42a0fec3199934f9b1c","index":8,"type":"object"},{"kind":"Input","value":"0xbee1cdd31138d62f7c4e1dec71a49c89ddfddabf219b0e1e13b4845770d05074","index":9,"type":"object"},{"kind":"Input","value":"0x9f662eafdf9b4327c9836f3f3a46cd2b43f23978061121c7796be647de05129b","index":10,"type":"pure"},{"kind":"Input","value":"0x2795dbc73f09d0ac8640696e286ebca5d630df022b1c763b35fcbd8504da7eef","index":11,"type":"pure"}],"transactions":[{"kind":"SplitCoins","coin":{"kind":"GasCoin"},"amounts":[{"kind":"Input","value":69000000000,"index":0,"type":"pure"},{"kind":"Input","value":3381000000,"index":1,"type":"pure"}]},{"kind":"MoveCall","target":"0xa0bab69d913e5a0ce8b448235a08bcf4c42da45c50622743dc9cab2dc0dff30f::orderbook::buy_nft","arguments":[{"kind":"Input","value":"0x266f5a401df5fa40fc5ab2a1a8e74ac41fe5fb241e106eb608bf37c732c17e0e","index":2,"type":"object"},{"kind":"Input","value":"0xf37aef913cbd5f8399514d4aa6baf2b48af427d67b82723f18aff93cfebacea0","index":3,"type":"object"},{"kind":"Input","value":"0x71e317e2f77bfe72c1b012506796bd0c55fd4bb55ca56152c23e325e10d0bf58","index":4,"type":"object"},{"kind":"Input","value":"0x89c3acb80f578f5bbb05b005421bca0ac16715d1694f8f3f18f45c95d9508ee1","index":5,"type":"object"},{"kind":"Input","value":"69000000000","index":6,"type":"pure"},{"kind":"NestedResult","index":0,"resultIndex":0}],"typeArguments":["0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b::fuddies::Fuddies","0x2::sui::SUI"]},{"kind":"MoveCall","target":"0x34a2d6af89db8a7d702cfd257f89da8d7b3462fd871ac2eb52b76d02eae2c82c::transfer_allowlist::confirm_transfer","arguments":[{"kind":"Input","value":"0x1ae174e8e2f238648d5fbef41e2b435b7285e678aa5e2e7db27f1be006ab242c","index":7,"type":"object"},{"kind":"Result","index":1}],"typeArguments":["0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b::fuddies::Fuddies"]},{"kind":"MoveCall","target":"0x34a2d6af89db8a7d702cfd257f89da8d7b3462fd871ac2eb52b76d02eae2c82c::royalty_strategy_bps::confirm_transfer","arguments":[{"kind":"Input","value":"0xb648cec3bca1895fe8d480c6f0783a70d3f88790d79ce42a0fec3199934f9b1c","index":8,"type":"object"},{"kind":"Result","index":1}],"typeArguments":["0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b::fuddies::Fuddies","0x2::sui::SUI"]},{"kind":"MoveCall","target":"0xb2b8d1c3fd2b5e3a95389cfcf6f8bda82c88b228dff1f0e1b76a63376cbad7c6::transfer_request::confirm","arguments":[{"kind":"Result","index":1},{"kind":"Input","value":"0xbee1cdd31138d62f7c4e1dec71a49c89ddfddabf219b0e1e13b4845770d05074","index":9,"type":"object"}],"typeArguments":["0xac176715abe5bcdaae627c5048958bbe320a8474f524674f3278e31af3c8b86b::fuddies::Fuddies","0x2::sui::SUI"]},{"kind":"TransferObjects","objects":[{"kind":"NestedResult","index":0,"resultIndex":0}],"address":{"kind":"Input","value":"0x9f662eafdf9b4327c9836f3f3a46cd2b43f23978061121c7796be647de05129b","index":10,"type":"pure"}},{"kind":"TransferObjects","objects":[{"kind":"NestedResult","index":0,"resultIndex":1}],"address":{"kind":"Input","value":"0x2795dbc73f09d0ac8640696e286ebca5d630df022b1c763b35fcbd8504da7eef","index":11,"type":"pure"}}]}';
 
 function TxItem(props: { name: ReactNode; value: ReactNode }) {
   return (
@@ -47,12 +47,13 @@ const AssetChangeConfirmPage = (props: AssetChangeConfirmPageProps) => {
   const appContext = useSelector((state: RootState) => state.appContext);
   const { data: account } = useAccount(appContext.accountId);
   const { data: network } = useNetwork(appContext.networkId);
-  const navigate = useNavigate();
 
-  const transactionBlock = useMemo(
-    () => TransactionBlock.from(clutchyNftPurchaseTxbData),
-    []
-  );
+  const transactionBlock = useMemo(() => {
+    if (!props.serializedTransactionBlock) {
+      return undefined;
+    }
+    return TransactionBlock.from(props.serializedTransactionBlock);
+  }, [props.serializedTransactionBlock]);
 
   const {
     data: { coinChangeList, nftChangeList, objectChangeList, gasBudget },
@@ -108,24 +109,21 @@ const AssetChangeConfirmPage = (props: AssetChangeConfirmPageProps) => {
     );
   };
 
-  return (
-    <PageWithNavLayout
-      navProps={{
-        title: 'Action Confirm',
-        onNavBack: () => {
-          navigate(-1);
-        },
-      }}
-    >
-      <header className={'mt-[24px]'}>
-        <div className={'px-[32px]'}>
-          <Typo.Title className={'font-bold text-[36px]'}>
-            Asset Changes
-          </Typo.Title>
-          <Typo.Normal>Please confirm your action</Typo.Normal>
-        </div>
-      </header>
+  const handleClose = (confirmed: boolean) => {
+    if (confirmed) {
+      props.onOk && props.onOk();
+    } else {
+      props.onCancel && props.onCancel();
+    }
+    props.onClose && props.onClose();
+  };
 
+  return (
+    <Drawer
+      title={'Asset Changes'}
+      open={props.open}
+      onClose={() => handleClose(false)}
+    >
       <main className={'mb-[80px] mt-[24px]'}>
         <WalletSelector className={'mx-[32px] mt-[10px]'} />
         {renderAssetChanges()}
@@ -135,14 +133,18 @@ const AssetChangeConfirmPage = (props: AssetChangeConfirmPageProps) => {
           'fixed w-full bottom-0 px-4 py-2 flex border-t z-10 bg-white'
         }
       >
-        <Button state={'danger'} onClick={props.onCancel}>
+        <Button state={'danger'} onClick={() => handleClose(false)}>
           {cancelText}
         </Button>
-        <Button state={'primary'} className={'ml-[8px]'} onClick={props.onOk}>
+        <Button
+          state={'primary'}
+          className={'ml-[8px]'}
+          onClick={() => handleClose(true)}
+        >
           {okText}
         </Button>
       </footer>
-    </PageWithNavLayout>
+    </Drawer>
   );
 };
 
