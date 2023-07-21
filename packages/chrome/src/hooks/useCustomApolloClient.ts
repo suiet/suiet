@@ -11,7 +11,6 @@ import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from '../pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
 import { RetryLink } from '@apollo/client/link/retry';
 import { WebStorage } from '../store/storage';
-
 export enum CacheSyncStatus {
   NOT_SYNCED,
   SYNCING,
