@@ -139,7 +139,7 @@ const TxHistoryPage = (props: TxHistoryPageProps) => {
           dataLength={safe(txnHistoryList?.length, 0)}
           next={fetchMore}
           hasMore={hasMore}
-          height={437}
+          height={457}
           loader={<TxHistoryLoadingSkeleton />}
           endMessage={
             <Typo.Hints className={'text-center'}>
