@@ -56,9 +56,7 @@ const DappsPage = lazy(async () => await import('../pages/DappsPage'));
 const PasswordConfirmPage = lazy(
   async () => await import('../pages/PasswordConfirmPage')
 );
-const AssetChangeConfirmPage = lazy(
-  async () => await import('../pages/AssetChangeConfirmPage')
-);
+const TestPage = lazy(async () => await import('../pages/TestPage'));
 
 const routesConfig: RouteObject[] = [
   {
@@ -73,8 +71,12 @@ const routesConfig: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to={Routes.App.AssetChangeConfirmPage} />,
-        // element: <Navigate to="home" />,
+        element: <Navigate to="home" />,
+        // element: <Navigate to="test" />,
+      },
+      {
+        path: 'test',
+        element: withSus(<TestPage />),
       },
       {
         path: 'home',
@@ -157,10 +159,6 @@ const routesConfig: RouteObject[] = [
         ],
       },
       { path: 'password-confirm', element: withSus(<PasswordConfirmPage />) },
-      {
-        path: Routes.App.AssetChangeConfirmPage,
-        element: withSus(<AssetChangeConfirmPage />),
-      },
     ],
   },
   {

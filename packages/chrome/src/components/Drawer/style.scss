@@ -1,0 +1,41 @@
+@import '../../styles/variables';
+
+$container-px: 16px;
+$switcher-width: 284px;
+$ani-duration: 0.2s;
+
+@keyframes move-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes move-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  width: $switcher-width;
+  height: 100vh;
+  padding: 20px 0 16px;
+  background: $white;
+
+  &--move-in {
+    animation: move-in $ani-duration ease-in;
+    animation-fill-mode: forwards;
+  }
+  &--move-out {
+    animation: move-out $ani-duration ease-in;
+    animation-fill-mode: forwards;
+  }
+}
