@@ -1,15 +1,13 @@
 @import '../../styles/variables';
 
-$container-px: 16px;
-$switcher-width: 284px;
 $ani-duration: 0.2s;
 
 @keyframes move-in {
   from {
-    transform: translateY(-100%);
+    transform: translateY(-80px);
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
@@ -18,17 +16,13 @@ $ani-duration: 0.2s;
     transform: translateY(0);
   }
   to {
-    transform: translateX(-100%);
+    transform: translateY(-80vh);
   }
 }
 
 .drawer {
-  display: flex;
-  flex-direction: column;
-  width: $switcher-width;
-  height: 100vh;
-  padding: 20px 0 16px;
-  background: $white;
+  animation: move-in $ani-duration ease-in;
+  animation-fill-mode: forwards;
 
   &--move-in {
     animation: move-in $ani-duration ease-in;

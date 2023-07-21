@@ -76,7 +76,7 @@ const AssetChangeConfirmPage = (props: AssetChangeConfirmPageProps) => {
   const renderAssetChanges = () => {
     if (diffLoading) {
       return (
-        <div className={'h-full flex justify-center items-center mt-[80px]'}>
+        <div className={'h-full flex justify-center items-center'}>
           <LoadingSpin />
         </div>
       );
@@ -124,13 +124,13 @@ const AssetChangeConfirmPage = (props: AssetChangeConfirmPageProps) => {
       open={props.open}
       onClose={() => handleClose(false)}
     >
-      <main className={'mb-[80px] mt-[24px]'}>
+      <main className={'mb-[40px] flex-1'}>
         <WalletSelector className={'mx-[32px] mt-[10px]'} />
         {renderAssetChanges()}
       </main>
       <footer
         className={
-          'fixed w-full bottom-0 px-4 py-2 flex border-t z-10 bg-white'
+          'sticky bottom-0 w-full px-4 py-2 flex border-t z-10 bg-white'
         }
       >
         <Button state={'danger'} onClick={() => handleClose(false)}>
