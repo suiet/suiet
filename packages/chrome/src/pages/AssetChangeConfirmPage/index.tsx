@@ -120,7 +120,7 @@ const AssetChangeConfirmPage = (props: AssetChangeConfirmPageProps) => {
 
   return (
     <Drawer
-      title={'Asset Changes'}
+      title={'Confirm Transaction'}
       open={props.open}
       onClose={() => handleClose(false)}
     >
