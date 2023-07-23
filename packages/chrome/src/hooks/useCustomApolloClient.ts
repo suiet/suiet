@@ -11,6 +11,7 @@ import { InMemoryCache } from '@apollo/client/cache';
 import { fieldPolicyForTransactions } from '../pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
 import { RetryLink } from '@apollo/client/link/retry';
 import { WebStorage } from '../store/storage';
+import { useFeatureFlagsWithNetwork } from './useFeatureFlags';
 export enum CacheSyncStatus {
   NOT_SYNCED,
   SYNCING,
@@ -27,7 +28,7 @@ export function useCustomApolloClient(
   const cacheInChromeStorage = useRef(new AsyncStorageWrapper(storage));
   const cachePersistor = useRef<CachePersistor<NormalizedCacheObject>>();
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
-
+  const featureFlags = useFeatureFlagsWithNetwork();
   const retryLink = new RetryLink({
     delay: {
       initial: 300,
@@ -73,9 +74,6 @@ export function useCustomApolloClient(
       });
       // sync cache from chrome storage
       await cachePersistor.current.restore();
-      // cachePersistor.current.getSize().then((size) => {
-      //   console.log('cache restore size: ', size);
-      // });
 
       const newClient = new ApolloClient({
         cache,
@@ -83,7 +81,7 @@ export function useCustomApolloClient(
           retryLink,
           headerLink,
           new HttpLink({
-            uri: `https://${networkId}.suiet.app/query`,
+            uri: featureFlags.graphql_url,
           }),
         ]),
         defaultOptions: {

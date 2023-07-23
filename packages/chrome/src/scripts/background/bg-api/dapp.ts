@@ -590,6 +590,7 @@ export class DappBgApi {
     const overrideData: Network = {
       ...defaultData,
       queryRpcUrl: currentNetworkConfig.full_node_url,
+      graphqlUrl: currentNetworkConfig.graphql_url,
       txRpcUrl: currentNetworkConfig.full_node_url,
       versionCacheTimoutInSeconds:
         currentNetworkConfig.version_cache_timout_in_seconds,
