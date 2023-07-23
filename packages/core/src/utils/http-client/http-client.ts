@@ -9,7 +9,7 @@ export class HttpClient {
     this.baseUrl = baseUrl;
   }
 
-  async post(url: string, body: any) {
+  async post<REQ = any, RES = any>(url: string, body: REQ) {
     let fullUrl: string;
     if (url.startsWith('http') || url.startsWith('//')) {
       fullUrl = url;
@@ -23,6 +23,6 @@ export class HttpClient {
         'Content-Type': 'application/json',
       },
     });
-    return response.json();
+    return response.json() as RES;
   }
 }
