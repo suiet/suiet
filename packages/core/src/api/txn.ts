@@ -3,7 +3,6 @@ import { Provider, QueryProvider, TxProvider } from '../provider';
 import { validateAccount } from '../utils/token';
 import { IStorage } from '../storage';
 import { Vault } from '../vault/Vault';
-import { Buffer } from 'buffer';
 import {
   CoinMetadata,
   DryRunTransactionBlockResponse,
@@ -21,6 +20,7 @@ import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 import { getTransactionBlock } from '../utils/txb-factory';
 import { prepareVault } from '../utils/vault';
+import { bffClient } from '../utils/http-client';
 
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
@@ -450,12 +450,17 @@ export class TransactionApi implements ITransactionApi {
   async dryRunTransactionBlock(
     params: DryRunTXBParams<string | TransactionBlock>
   ): Promise<DryRunTransactionBlockResponse> {
-    const { provider, vault } = await this.prepareTxEssentials(params.context);
-    const res = await provider.dryRunTransactionBlock(
-      getTransactionBlock(params.transactionBlock),
-      vault
+    const account = await this.storage.getAccount(params.context.accountId);
+    if (!account) {
+      throw new Error('Account not found');
+    }
+    return await bffClient.post<any, DryRunTransactionBlockResponse>(
+      '/dry-run',
+      {
+        serializedTxn: params.transactionBlock,
+        senderAddress: account.address,
+      }
     );
-    return res;
   }
 
   private async prepareVault(
