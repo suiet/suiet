@@ -17,14 +17,10 @@ import {
   Permission,
   PermReqStorage,
   PermRequest,
+  tips,
 } from '../../../scripts/background/permission';
 import { ApprovalType } from '../../../scripts/background/bg-api/dapp';
 import DappPopupLayout from '../../../layouts/DappPopupLayout';
-
-const tips: Record<string, any> = {
-  [Permission.SUGGEST_TX]: 'Share wallet address',
-  [Permission.VIEW_ACCOUNT]: 'Suggest transactions to approve',
-};
 
 const ConnectPage = () => {
   const appContext = useSelector((state: RootState) => state.appContext);

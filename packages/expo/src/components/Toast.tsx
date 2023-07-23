@@ -4,7 +4,7 @@ import { Surface } from 'gl-react-expo';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Image, View, StyleSheet, LayoutRectangle, ImageProps } from 'react-native';
-import Typography from './Typography';
+import Typography from '@/components/Typography';
 
 const shaders = Shaders.create({
   gradient: {

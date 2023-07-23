@@ -37,10 +37,11 @@ export function useRealKeychain() {
       await setGenericPassword(address, mnemonic, {
         service,
 
-        accessControl: ACCESS_CONTROL.BIOMETRY_ANY,
+        accessControl: ACCESS_CONTROL.BIOMETRY_ANY_OR_DEVICE_PASSCODE,
         authenticationType: AUTHENTICATION_TYPE.DEVICE_PASSCODE_OR_BIOMETRICS,
-        accessible: ACCESSIBLE.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
-        storage: STORAGE_TYPE.KC,
+        accessible: ACCESSIBLE.WHEN_UNLOCKED,
+        // storage: STORAGE_TYPE.KC,
+        storage: STORAGE_TYPE.RSA,
         securityLevel: SECURITY_LEVEL.SECURE_HARDWARE,
       });
 
@@ -108,6 +109,14 @@ export function useRealKeychain() {
     try {
       const saved = await getGenericPassword({
         service,
+
+        accessControl: ACCESS_CONTROL.BIOMETRY_ANY_OR_DEVICE_PASSCODE,
+        authenticationType: AUTHENTICATION_TYPE.DEVICE_PASSCODE_OR_BIOMETRICS,
+        accessible: ACCESSIBLE.WHEN_UNLOCKED,
+        // storage: STORAGE_TYPE.KC,
+        storage: STORAGE_TYPE.RSA,
+        securityLevel: SECURITY_LEVEL.SECURE_HARDWARE,
+
         authenticationPrompt: {
           title: 'Authenticate to access your wallet',
           description: 'We need to access your wallet to continue',
@@ -123,6 +132,15 @@ export function useRealKeychain() {
     } catch (e) {}
 
     throw new Error('Failed to load your wallet from device');
+  };
+
+  const resetAll = async () => {
+    const { getAllGenericPasswordServices, resetGenericPassword } = await import('react-native-keychain');
+    const a = await getAllGenericPasswordServices();
+    console.log(a);
+    for (const service of a) {
+      await resetGenericPassword({ service });
+    }
   };
 
   const wrapWithAlert =
@@ -160,6 +178,7 @@ export function useRealKeychain() {
       android: loadMnemonic,
       default: loadMnemonic,
     }),
+    resetAll,
   };
 }
 
@@ -184,6 +203,46 @@ export const useFakeKeychain: typeof useRealKeychain = () => {
 
     saveMnemonic,
     loadMnemonic,
+    resetAll: async () => {},
+  };
+};
+
+// expo-secure-store
+export const useExpoKeyChain: typeof useRealKeychain = () => {
+  return {
+    isSupported: async () => {
+      const SecureStore = await import('expo-secure-store');
+
+      return await SecureStore.isAvailableAsync();
+    },
+    alertUnsupportedDevice: async () => {},
+    saveMnemonic: async (address: string, mnemonic: string) => {
+      const SecureStore = await import('expo-secure-store');
+
+      await SecureStore.setItemAsync(address, mnemonic, {
+        // keychainService: `SUIET_WALLET_MNEMONIC_${address}`,
+        requireAuthentication: true,
+        authenticationPrompt: 'We need to access your wallet to continue',
+      });
+
+      return { address, mnemonic };
+    },
+    loadMnemonic: async (address: string) => {
+      const SecureStore = await import('expo-secure-store');
+
+      const mnemonic = await SecureStore.getItemAsync(address, {
+        // keychainService: `SUIET_WALLET_MNEMONIC_${address}`,
+        requireAuthentication: true,
+        authenticationPrompt: 'We need to access your wallet to continue',
+      });
+      if (!mnemonic) {
+        throw new Error('Failed to load your wallet from device');
+      }
+
+      return mnemonic;
+    },
+
+    resetAll: async () => {},
   };
 };
 
@@ -193,3 +252,5 @@ export const useFakeKeychain: typeof useRealKeychain = () => {
 const shouldUseFakeKeychain = false;
 
 export const useKeychain = shouldUseFakeKeychain ? useFakeKeychain : useRealKeychain;
+// export { useFakeKeychain as useKeychain };
+// export { useExpoKeyChain as useKeychain };

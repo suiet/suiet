@@ -89,12 +89,6 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
       );
     }
 
-    // console.log();
-
-    Array.from(category.entries()).map(([subtitle, dapps]) => {
-      console.log(subtitle, dapps);
-    });
-
     return (
       <ScrollView style={{ backgroundColor: '#FFF', flexGrow: 1, paddingTop: 8 }} overScrollMode="never">
         <View style={{ gap: 8 }}>
@@ -141,7 +135,7 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
                     key={dapp.id}
                     onPress={() => {
                       // Linking.openURL(dapp.link);
-                      navigation.navigate('InAppBrowser', { url: dapp.link });
+                      navigation.navigate('DappBrowser', { url: dapp.link });
                     }}
                   >
                     <View
@@ -179,7 +173,11 @@ export const Dapp: React.FC<StackScreenProps<RootStackParamList, 'Dapp'>> = ({ n
                   key={dapp.id}
                   onPress={() => {
                     // Linking.openURL(dapp.link);
-                    navigation.navigate('InAppBrowser', { url: dapp.link });
+                    if (dapp.link.startsWith('https://movex.exchange')) {
+                      navigation.navigate('DappBrowser', { url: 'https://app.movex.exchange/?utm_source=suiet' });
+                    } else {
+                      navigation.navigate('DappBrowser', { url: dapp.link });
+                    }
                   }}
                   activeOpacity={0.9}
                   underlayColor={Gray_900}

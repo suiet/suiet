@@ -113,5 +113,7 @@ export function useCoinsLazyQuery(options?: LazyQueryHookOptions) {
       data: data?.coins?.map(formatCoinFromGql) ?? [],
       ...rest,
     },
-  ];
+  ] as const;
 }
+
+export { useCoins };

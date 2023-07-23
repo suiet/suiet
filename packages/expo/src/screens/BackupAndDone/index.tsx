@@ -1,14 +1,14 @@
 import React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
-import { Dimensions, View, Platform, Image, StyleSheet, Text } from 'react-native';
+import { Dimensions, View, Image, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '@/../App';
 import { Button } from '@/components/Button';
 import { useWallets } from '@/hooks/useWallets';
-import { FontFamilys } from '@/hooks/useFonts';
 import Typography from '@/components/Typography';
 import { White } from '@/styles/colors';
 import { Mnemonic } from '@/components/Mnemonic';
+import { useKeychain } from '@/hooks/useKeychain';
 
 export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'BackupAndDone'>> = ({
   route,
@@ -20,6 +20,8 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
   const { top, bottom } = useSafeAreaInsets();
 
   const { wallets, updateWallets, selectedWallet, updateSelectedWallet } = useWallets();
+
+  const { saveMnemonic } = useKeychain();
 
   return (
     <View style={{ flexDirection: 'column', flexGrow: 1, backgroundColor: 'white', paddingHorizontal: 24 }}>
@@ -42,10 +44,13 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       <Button
         title={'Copy and Done'}
         innerStyle={{ marginBottom: 8 }}
-        onPress={() => {
+        onPress={async () => {
           const existingWallets = wallets ?? [];
           const address = route.params?.address;
           if (typeof address === 'string') {
+            const { address, mnemonic } = route.params;
+            await saveMnemonic(address, mnemonic);
+
             updateWallets([
               ...existingWallets,
               {

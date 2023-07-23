@@ -1,19 +1,5 @@
 import { gql } from '@apollo/client';
 
-export interface Coin {
-  balance: string;
-  isVerified: boolean;
-  iconURL: string;
-  description: string;
-  symbol: string;
-  type: string;
-  metadata: {
-    decimals: number;
-  };
-}
-
-export type CoinsResult = Coin[];
-
 export const GET_COINS = gql`
   query Coins($address: Address!, $coin: [String!]) {
     coins(address: $address, coin: $coin) {

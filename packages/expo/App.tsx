@@ -1,50 +1,47 @@
-import React, { useEffect, useMemo } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import Toast from 'react-native-toast-message';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import { createStackNavigator } from '@react-navigation/stack';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-import Toast from 'react-native-toast-message';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
-import { Send } from '@/screens/Coin/components/Send';
-import { Header } from '@/screens/Coin/components/Header';
-import { Settings } from '@/screens/Coin/components/Settings';
-import { useFonts } from '@/hooks/useFonts';
-import { useSetAndroidNavigation } from '@/hooks/useSetAndroidNavigation';
-import { CreateNew } from '@/screens/CreateNew';
-import { BackupAndDone } from '@/screens/BackupAndDone';
-import { ImportOld } from '@/screens/ImportOld';
-import { ScanQRCode } from '@/screens/ScanQRCode';
-import { persistor, store } from '@/store';
-import { useWallets } from '@/hooks/useWallets';
-import { Welcome } from '@/screens/Welcome';
-import { Home } from '@/screens/Home';
-import { SelectWallet } from '@/screens/SelectWallet';
-import { EditWallet } from '@/screens/EditWallet';
-import { Receive } from '@/screens/Receive';
-import { Swap } from '@/screens/Swap';
-import { SelectToken } from '@/screens/SelectToken';
-// import { LoadingAvatars, LoadingDots } from '@/components/Loading';
-
-import { ContextFeatureFlags, useAutoLoadFeatureFlags } from '@/hooks/useFeatureFlags';
 import { AngularGradientToast } from '@/components/Toast';
-import { Image } from 'react-native';
-import { TransactionForHistory, fieldPolicyForTransactions } from '@/hooks/useTransactionListForHistory';
-import { SelectNetwork } from '@/screens/SelectNetwork';
-import { TxDetail } from '@/screens/TxDetail';
+import { ContextFeatureFlags, useAutoLoadFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFonts } from '@/hooks/useFonts';
 import { useNetwork } from '@/hooks/useNetwork';
-// import { InAppBrowser } from '@/screens/InAppBrowser';
-import { Security } from '@/screens/Security';
-import { SecurityWarning } from '@/screens/Security/SecurityWarning';
-import { SecurityShow } from '@/screens/Security/SecurityShow';
-import { NftDetail } from '@/screens/NftDetail';
 import { NftGqlDto } from '@/hooks/useNftList';
-import { InAppBrowser } from '@/screens/InAppBrowser';
-
+import { useSetAndroidNavigation } from '@/hooks/useSetAndroidNavigation';
+import { TransactionForHistory } from '@/hooks/useTransactionListForHistory';
+import { useWallets } from '@/hooks/useWallets';
+import { BackupAndDone } from '@/screens/BackupAndDone';
+import { Header } from '@/screens/Coin/components/Header';
+import { Send } from '@/screens/Coin/components/Send';
+import { Settings } from '@/screens/Coin/components/Settings';
+import { CreateNew } from '@/screens/CreateNew';
+import { DappApproval } from '@/screens/DappApproval';
+import { DappBrowser } from '@/screens/DappBrowser';
+import { EditWallet } from '@/screens/EditWallet';
+import { Home } from '@/screens/Home';
+import { ImportOld } from '@/screens/ImportOld';
+import { NftDetail } from '@/screens/NftDetail';
+import { Receive } from '@/screens/Receive';
+import { ScanQRCode } from '@/screens/ScanQRCode';
+import { Security } from '@/screens/Security';
+import { SecurityShow } from '@/screens/Security/SecurityShow';
+import { SecurityWarning } from '@/screens/Security/SecurityWarning';
+import { SelectNetwork } from '@/screens/SelectNetwork';
+import { SelectToken } from '@/screens/SelectToken';
+import { SelectWallet } from '@/screens/SelectWallet';
+import { Swap } from '@/screens/Swap';
+import { TxDetail } from '@/screens/TxDetail';
+import { Welcome } from '@/screens/Welcome';
+import { persistor, store } from '@/store';
+import { ApolloProvider } from '@apollo/client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useCustomApolloClient } from '@suiet/chrome-ext/src/hooks/useCustomApolloClient';
+
 import type { WebStorage } from '@suiet/chrome-ext/src/store/storage';
 
 // SplashScreen.preventAutoHideAsync();
@@ -70,10 +67,12 @@ export type RootStackParamList = {
   Coin: undefined;
   Nft: undefined;
   NftDetail: { nft: NftGqlDto };
-  Dapp: undefined;
   TxHistory: undefined;
   TxDetail: { tx: TransactionForHistory };
-  InAppBrowser: { url: string };
+
+  Dapp: undefined;
+  DappBrowser: { url: string };
+  DappApproval: { id: string; title: string };
 
   ScanQRCode: undefined;
   SelectWallet: undefined;
@@ -130,7 +129,7 @@ function App() {
               <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
               <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
               <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
-              <RootStack.Screen name="InAppBrowser" component={InAppBrowser} options={{ headerShown: false }} />
+              <RootStack.Screen name="DappBrowser" component={DappBrowser} options={{ headerShown: false }} />
             </RootStack.Group>
             <RootStack.Group
               screenOptions={{
@@ -282,6 +281,17 @@ function App() {
                 options={{
                   header: ({ navigation, route: { name } }) => (
                     <Header title={''} onRightAction={() => navigation.goBack()} />
+                  ),
+                }}
+              />
+
+              <RootStack.Screen
+                name="DappApproval"
+                component={DappApproval}
+                options={{
+                  header: ({ navigation, route: { name, params } }) => (
+                    // @ts-ignore
+                    <Header title={params.title} onRightAction={() => navigation.goBack()} />
                   ),
                 }}
               />

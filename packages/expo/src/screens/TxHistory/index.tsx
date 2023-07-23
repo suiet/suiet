@@ -139,8 +139,6 @@ const TransactionItem: React.FC<{
   return (
     <TouchableHighlight
       onPress={() => {
-        console.log('onPress', item);
-
         navigation.navigate('TxDetail', { tx: item });
       }}
     >

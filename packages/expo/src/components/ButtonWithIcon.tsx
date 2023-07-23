@@ -1,9 +1,8 @@
 import React from 'react';
-import { Gray_100, Gray_400, Gray_700, Primary_500, White } from '@styles/colors';
-import { Text, TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
+import { Gray_100, Gray_700 } from '@styles/colors';
+import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { FontFamilys } from '@/hooks/useFonts';
-import Typography from './Typography';
+import Typography from '@/components/Typography';
 
 export const ButtonWithIcon: React.FC<{ iconSvg: string; title: string } & TouchableOpacityProps> = ({
   iconSvg,

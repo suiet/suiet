@@ -1,30 +1,24 @@
-import { View, ColorValue, ViewProps, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import * as React from 'react';
+import { useMemo } from 'react';
+import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
 import Toast, { ToastProps } from 'react-native-toast-message';
-import { getExecutionStatusType, getExecutionStatusError } from '@mysten/sui.js';
 
-import { Gray_200, Gray_300, Gray_50, Gray_700, Gray_900, Primary_400, Secondary_50 } from '@styles/colors';
-import { CoinIcon } from '@components/CoinIcon';
-import { formatCurrency } from '@/utils/format';
-import { useQuery } from '@apollo/client';
-import { Coin, GET_COINS } from '@/utils/gql';
+import { Badge } from '@/components/Badge';
+import { SvgGift02 } from '@/components/icons/svgs';
+import { Label } from '@/components/Label';
 import { LoadingDots } from '@/components/Loading';
 import Typography from '@/components/Typography';
-import { Badge } from '@/components/Badge';
-import { useCallback, useEffect, useMemo } from 'react';
-import { NftGqlDto, nftImgUrl, useNftList } from '@/hooks/useNftList';
-import { AVATARS } from '@/utils/constants';
-import { Label } from '@/components/Label';
-import { SvgGift01, SvgGift02, SvgLinkExternal01 } from '@/components/icons/svgs';
-
-import getMintExampleNftTxBlock from '@suiet/core/src/libs/tx-block/getMintExampleNftTxBlock';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
-import { useNetwork } from '@/hooks/useNetwork';
-import { useWallets } from '@/hooks/useWallets';
-import { Provider, TxProvider } from '@suiet/core/src/provider';
 import { useKeychain } from '@/hooks/useKeychain';
-import { Vault } from '@suiet/core/src/vault/Vault';
+import { useNetwork } from '@/hooks/useNetwork';
+import { NftGqlDto, nftImgUrl, useNftList } from '@/hooks/useNftList';
+import { useSkipFirstEffect } from '@/hooks/useSkipFirstEffect';
+import { useWallets } from '@/hooks/useWallets';
+import { getExecutionStatusError, getExecutionStatusType } from '@mysten/sui.js';
+import { Gray_200, Gray_300, Gray_50, Gray_700, Primary_400 } from '@styles/colors';
 import { derivationHdPath } from '@suiet/core/src/crypto';
+import getMintExampleNftTxBlock from '@suiet/core/src/libs/tx-block/getMintExampleNftTxBlock';
+import { TxProvider } from '@suiet/core/src/provider';
+import { Vault } from '@suiet/core/src/vault/Vault';
 
 const ListItem: React.FC<{ nft: NftGqlDto }> = ({ nft }) => {
   return (
@@ -168,8 +162,16 @@ export const MintNft: React.FC = () => {
   );
 };
 
-export const Nfts: React.FC<{ address: string; onChoose?: (coin: NftGqlDto) => void }> = ({ address, onChoose }) => {
-  const { loading, error, data } = useNftList(address, { pollInterval: 5000 });
+export const Nfts: React.FC<{ address: string; refreshControl?: number; onChoose?: (coin: NftGqlDto) => void }> = ({
+  address,
+  refreshControl,
+  onChoose,
+}) => {
+  const { loading, error, data, refetch } = useNftList(address, { pollInterval: 0, fetchPolicy: 'network-only' });
+
+  useSkipFirstEffect(() => {
+    refetch();
+  }, [refreshControl]);
 
   if (loading) {
     return (

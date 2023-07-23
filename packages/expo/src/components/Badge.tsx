@@ -1,21 +1,17 @@
 import {
   Error_50,
-  Error_500,
   Error_700,
   Gray_100,
   Gray_700,
   Green_100,
   Green_700,
-  Warning_100,
   Warning_50,
-  Warning_500,
   Warning_700,
-  White,
 } from '@/styles/colors';
 import React from 'react';
 import { View } from 'react-native';
-import { Label } from './Label';
-import Typography from './Typography';
+import { Label } from '@/components/Label';
+import Typography from '@/components/Typography';
 
 export interface BadgeProps {
   title: string;

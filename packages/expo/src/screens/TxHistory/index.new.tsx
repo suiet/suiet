@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo, useRef } from 'react';
-import { View, FlatList, Image, Text } from 'react-native';
+import { View, FlatList, Image, Text, RefreshControl } from 'react-native';
 import dayjs from 'dayjs';
 
 import { useTxnHistoryList } from '@suiet/chrome-ext/src/pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
@@ -18,9 +18,10 @@ import { Badge } from '@/components/Badge';
 import { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { RootStackParamList } from '@/../App';
 
-import { TxSummaryContainer } from './components/TxSummaryContainer';
-import { TxDateContainer } from './components/TxDateContainer';
-import { TxSummaryItem } from './components/TxSummaryItem';
+import { TxSummaryContainer } from '@/screens/TxHistory/components/TxSummaryContainer';
+import { TxDateContainer } from '@/screens/TxHistory/components/TxDateContainer';
+import { TxSummaryItem } from '@/screens/TxHistory/components/TxSummaryItem';
+import { useIsFocused } from '@react-navigation/native';
 
 export const HistoryList: React.FC<{
   address: string;
@@ -130,7 +131,10 @@ export const HistoryList: React.FC<{
         } else {
           return (
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 12 }}>
-              <Typography.Comment color={Gray_400} children="No more transactions" />
+              <Typography.Comment
+                color={Gray_400}
+                children={data.length === 0 ? 'No transactions' : 'No more transactions'}
+              />
             </View>
           );
         }
@@ -140,12 +144,15 @@ export const HistoryList: React.FC<{
       //     ? () => <View style={{ height: 120, backgroundColor: Gray_100 }} />
       //     : undefined
       // }
+      // refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}
     />
   );
 };
 
 export const TxHistory: React.FC<BottomTabScreenProps<RootStackParamList, 'TxHistory'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
+
+  const isFocused = useIsFocused();
 
   const { selectedWallet, wallets } = useWallets();
   const walletsByAddress = React.useMemo(
@@ -155,6 +162,10 @@ export const TxHistory: React.FC<BottomTabScreenProps<RootStackParamList, 'TxHis
   const wallet = walletsByAddress[selectedWallet!] as Wallet;
 
   if (!selectedWallet) {
+    return null;
+  }
+
+  if (!isFocused) {
     return null;
   }
 

@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Wallet /* WalletManager */ } from '@/utils/wallet';
 import { AppDispatch, RootState } from '../store';
 import { updateWallets, updateSelectedWallet } from '../store/reducers/appContext';

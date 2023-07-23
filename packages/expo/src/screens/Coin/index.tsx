@@ -1,4 +1,13 @@
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  RefreshControl,
+} from 'react-native';
 import { useState } from 'react';
 import * as React from 'react';
 import { SvgXml } from 'react-native-svg';
@@ -19,7 +28,7 @@ import { useWallets } from '@/hooks/useWallets';
 import { Wallet } from '@/utils/wallet';
 import { AVATARS } from '@/utils/constants';
 import { Address } from '@/components/Address';
-import { Coins } from '@/components/Coins';
+import { CoinsNew } from '@/components/Coins';
 import { FAB } from '@/components/FAB';
 import { FontFamilys } from '@/hooks/useFonts';
 import Typography from '@/components/Typography';
@@ -37,6 +46,16 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
     () => Object.fromEntries(wallets.map((wallet) => [wallet.address, wallet])),
     [wallets]
   );
+
+  const [refreshControl, setRefreshControl] = React.useState(Date.now());
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setRefreshControl(Date.now());
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 500);
+  }, []);
 
   if (typeof selectedWallet === 'undefined' || typeof walletsByAddress[selectedWallet] === 'undefined') {
     return null;
@@ -64,6 +83,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
             }
           }
         }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         scrollEventThrottle={33}
         overScrollMode="never"
       >
@@ -161,7 +181,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
             {/* <Text style={{ color: Gray_400 }}>See all</Text>
             <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml> */}
           </View>
-          <Coins address={selectedWallet} />
+          <CoinsNew address={selectedWallet} refreshControl={refreshControl} />
 
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
             <Typography.Subtitle children="NFTs" color={Gray_900} style={{ marginLeft: 4 }} />
@@ -170,6 +190,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
           </View>
           <Nfts
             address={selectedWallet}
+            refreshControl={refreshControl}
             onChoose={(nft) => {
               navigation.navigate('NftDetail', { nft });
             }}

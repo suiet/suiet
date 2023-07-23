@@ -32,10 +32,12 @@ import { getAllGenericPasswordServices, resetGenericPassword } from 'react-nativ
 import { Alert } from 'react-native';
 import Typography from '@/components/Typography';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useKeychain } from '@/hooks/useKeychain';
 
 export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settings'>> = ({ navigation }) => {
   const { bottom } = useSafeAreaInsets();
   const { wallet } = useWallets();
+  const { resetAll } = useKeychain();
 
   const renderItem = (
     title: string,
@@ -145,18 +147,18 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
                         text: 'YES',
                         style: 'destructive',
                         onPress: async () => {
-                          {
-                            const a = await getAllGenericPasswordServices();
-                            console.log(a);
-                            for (const service of a) {
-                              await resetGenericPassword({ service });
-                            }
-                            const b = await getAllGenericPasswordServices();
-                            console.log(b);
-                          }
+                          // {
+                          //   const a = await getAllGenericPasswordServices();
+                          //   console.log(a);
+                          //   for (const service of a) {
+                          //     await resetGenericPassword({ service });
+                          //   }
+                          //   const b = await getAllGenericPasswordServices();
+                          //   console.log(b);
+                          // }
 
+                          await resetAll();
                           await AsyncStorage.clear();
-
                           const { default: RNRestart } = await import('react-native-restart');
                           RNRestart.restart();
                         },

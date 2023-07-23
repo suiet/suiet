@@ -2,7 +2,7 @@ import { Error_500, Gray_700, Green_600, Warning_600, White } from '@/styles/col
 import { View, ViewProps } from 'react-native';
 import React from 'react';
 import { SvgXml } from 'react-native-svg';
-import Typography from './Typography';
+import Typography from '@/components/Typography';
 
 export interface LabelProps {
   title: string;

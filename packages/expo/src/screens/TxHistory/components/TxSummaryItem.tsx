@@ -1,29 +1,16 @@
-import React, { ReactElement, useMemo, useRef } from 'react';
-import { View, FlatList, Image, Text } from 'react-native';
-import dayjs from 'dayjs';
+import React from 'react';
+import { View } from 'react-native';
 
-import { useTxnHistoryList } from '@suiet/chrome-ext/src/pages/txn/TxHistoryPage/hooks/useTxnHistoryList';
-import { aggregateTxByTime } from '@suiet/chrome-ext/src/pages/txn/TxHistoryPage/utils/aggregateTxByTime';
-import { orderTimeList } from '@suiet/chrome-ext/src/pages/txn/TxHistoryPage/utils/orderTimeList';
 import type { TxSummaryItemProps } from '@suiet/chrome-ext/src/components/tx-history/TxSummaryItem';
 import type { TemplateIconType } from '@suiet/chrome-ext/src/components/tx-history/TemplateIcon';
-import { safe } from '@suiet/core/src/utils';
+import type { TemplateTextType } from '@suiet/chrome-ext/src/components/tx-history/TemplateText';
 
-import { useWallets } from '@/hooks/useWallets';
-import { LoadingDots } from '@/components/Loading';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AVATARS } from '@/utils/constants';
-import { Wallet } from '@/utils/wallet';
 import Typography from '@/components/Typography';
-import { Gray_400, Gray_900, TailwindColor, White } from '@/styles/colors';
-import { Badge } from '@/components/Badge';
-import { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { RootStackParamList } from '@/../App';
-import { TemplateIcon } from './TemplateIcon';
-import { TemplateText } from './TemplateText';
-import { TemplateTextType } from '@suiet/chrome-ext/src/components/tx-history/TemplateText';
-import { resolveColor } from '../utils/color';
-import { iconMap } from '../utils/iconMap';
+import { Gray_900 } from '@/styles/colors';
+import { TemplateIcon } from '@/screens/TxHistory/components/TemplateIcon';
+import { TemplateText } from '@/screens/TxHistory/components/TemplateText';
+import { resolveColor } from '@/screens/TxHistory/utils/color';
+import { iconMap } from '@/screens/TxHistory/utils/iconMap';
 import { SvgXml } from 'react-native-svg';
 
 export const TxSummaryItem: React.FC<TxSummaryItemProps> = (props) => {

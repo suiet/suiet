@@ -1,4 +1,4 @@
-import { suietHttp } from './request';
+import { suietHttp } from '@/utils/request';
 export interface FeatureFlagNetwork {
   explorer_url: string;
   full_node_url: string;
@@ -9,7 +9,7 @@ export interface FeatureFlagNetwork {
   move_call_gas_budget: number;
   enable_staking: boolean;
   enable_swap: boolean;
-  cetus_partner_id?: string; 
+  cetus_partner_id?: string;
   enable_buy_crypto: boolean;
   enable_mint_example_nft: boolean;
   version_cache_timout_in_seconds: number;
