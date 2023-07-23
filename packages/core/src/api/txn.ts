@@ -20,8 +20,7 @@ import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 import { getTransactionBlock } from '../utils/txb-factory';
 import { prepareVault } from '../utils/vault';
-import { bffClient } from '../utils/http-client';
-
+import { bffClient, HttpClient } from '../utils/http-client';
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
     'SUI',
@@ -454,13 +453,14 @@ export class TransactionApi implements ITransactionApi {
     if (!account) {
       throw new Error('Account not found');
     }
-    return await bffClient.post<any, DryRunTransactionBlockResponse>(
-      '/dry-run',
-      {
-        serializedTxn: params.transactionBlock,
-        senderAddress: account.address,
-      }
-    );
+
+    return await new HttpClient(params.context.network.txRpcUrl).post<
+      any,
+      DryRunTransactionBlockResponse
+    >('/dry-run', {
+      serializedTxn: params.transactionBlock,
+      senderAddress: account.address,
+    });
   }
 
   private async prepareVault(
