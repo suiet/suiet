@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Dimensions, Alert } from 'react-native';
-import { Gray_100, Gray_400, Gray_700 } from '@styles/colors';
+import React from 'react';
+import { StyleSheet, View, Image, Dimensions } from 'react-native';
+import { Gray_400 } from '@styles/colors';
 import { StackScreenProps } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import type { RootStackParamList } from '@/../App';
 import { useWallets } from '@/hooks/useWallets';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFakeKeychain, useKeychain } from '@/hooks/useKeychain';
-import { FontFamilys } from '@/hooks/useFonts';
+import { useKeychain } from '@/hooks/useKeychain';
 import Typography from '@/components/Typography';
 
 export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> = ({ navigation }) => {

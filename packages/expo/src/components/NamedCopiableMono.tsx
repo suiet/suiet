@@ -1,8 +1,7 @@
-import { Gray_500, Gray_700, Gray_900 } from '@/styles/colors';
-import { addressEllipsis } from '@/utils/format';
+import { Gray_500, Gray_900 } from '@/styles/colors';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import Typography from './Typography';
+import Typography from '@/components/Typography';
 import { ToastProps } from 'react-native-toast-message';
 import { SvgXml } from 'react-native-svg';
 import { SvgCopy03 } from '@/components/icons/svgs';

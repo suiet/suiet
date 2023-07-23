@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Gray_100, Gray_500, Primary_400 } from '@/styles/colors';
-import { SvgCoins03 } from './icons/svgs';
+import { SvgCoins03 } from '@/components/icons/svgs';
 import Typography from '@/components/Typography';
-import { ToastProps } from './Toast';
+import { ToastProps } from '@/components/Toast';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
-import { FAB } from './FAB';
+import { FAB } from '@/components/FAB';
 import { useNetwork } from '@/hooks/useNetwork';
 
 export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {

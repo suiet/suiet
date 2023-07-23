@@ -10,7 +10,7 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { Error_500, Gray_100, Gray_400, Gray_500, Gray_900, Primary_50, Primary_900 } from '@styles/colors';
 
 import { CoinIcon } from '@/components/CoinIcon';
-import { Coins } from '@/components/Coins';
+import { CoinsNew } from '@/components/Coins';
 import { Button } from '@/components/Button';
 import type { RootStackParamList } from '@/../App';
 import { TextInput } from '@/components/TextInput';
@@ -24,8 +24,7 @@ import { Vault } from '@suiet/core/src/vault/Vault';
 import { derivationHdPath } from '@suiet/core/src/crypto';
 import { addressEllipsis, formatCurrency } from '@/utils/format';
 import { useKeychain } from '@/hooks/useKeychain';
-import { Coin } from '@/utils/gql';
-import { Header } from './Header';
+import { Header } from '@/screens/Coin/components/Header';
 import { AddressBadge } from '@/components/AddressBadge';
 import { LoadingDots } from '@/components/Loading';
 import Toast from 'react-native-toast-message';
@@ -33,16 +32,17 @@ import { getExecutionStatusType, getExecutionStatusError } from '@mysten/sui.js'
 import { isNumeric } from '@/utils/check';
 import { ToastProps } from '@/components/Toast';
 import { useNetwork } from '@/hooks/useNetwork';
+import type { CoinDto } from '@suiet/chrome-ext/src/hooks/coin/useCoins';
 
 type SendStackParamList = {
   SendSelectCoin: undefined;
-  SendInputAddress: { coin: Coin };
-  SendInputAmount: { coin: Coin; address: string };
+  SendInputAddress: { coin: CoinDto };
+  SendInputAmount: { coin: CoinDto; address: string };
 } & RootStackParamList;
 
 const SendStackNavgiator = createStackNavigator<SendStackParamList>();
 
-const SelectedCoin: React.FC<{ coin: Coin }> = ({ coin }) => {
+const SelectedCoin: React.FC<{ coin: CoinDto }> = ({ coin }) => {
   if (!coin) {
     return null;
   }
@@ -93,7 +93,7 @@ const SelectCoin: React.FC<StackScreenProps<SendStackParamList, 'SendSelectCoin'
         <Typography.Body children="Which token do you want to send?" color={Gray_400} />
       </View>
 
-      <Coins
+      <CoinsNew
         address={selectedWallet}
         onChooseCoin={(coin) => {
           navigation.navigate('SendInputAddress', { coin });
@@ -196,7 +196,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
   const gasBudget = Number(network?.pay_coin_gas_budget!);
   const max = useMemo(() => {
     if (balance > gasBudget) {
-      return (balance - gasBudget) / 10 ** coin.metadata.decimals;
+      return (balance - gasBudget) / 10 ** coin.decimals;
     } else {
       return 0;
     }
@@ -294,9 +294,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
               style={{ flexGrow: 1, textAlign: 'right' }}
               color={Gray_500}
               children={
-                (Number(network?.pay_coin_gas_budget!) / 10 ** coin.metadata.decimals).toFixed(coin.metadata.decimals) +
-                ' ' +
-                coin.symbol
+                (Number(network?.pay_coin_gas_budget!) / 10 ** coin.decimals).toFixed(coin.decimals) + ' ' + coin.symbol
               }
             />
           </View>
@@ -305,11 +303,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
             <Typography.Mono
               style={{ flexGrow: 1, textAlign: 'right' }}
               color={hasError ? Error_500 : Gray_500}
-              children={
-                (Number(coin.balance) / 10 ** coin.metadata.decimals).toFixed(coin.metadata.decimals) +
-                ' ' +
-                coin.symbol
-              }
+              children={(Number(coin.balance) / 10 ** coin.decimals).toFixed(coin.decimals) + ' ' + coin.symbol}
             />
           </View>
         </View>
@@ -349,7 +343,7 @@ const InputAmount: React.FC<StackScreenProps<SendStackParamList, 'SendInputAmoun
 
                   const res = await txProvider.transferCoin(
                     coin.type,
-                    BigInt(Math.ceil(parseFloat(amount!) * Math.pow(10, coin?.metadata.decimals || 0))),
+                    BigInt(Math.ceil(parseFloat(amount!) * Math.pow(10, coin?.decimals || 0))),
                     route.params.address,
                     await Vault.fromMnemonic(derivationHdPath(0), mnemonic)
                     // network?.pay_coin_gas_budget!

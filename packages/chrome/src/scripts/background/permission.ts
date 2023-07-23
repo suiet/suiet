@@ -10,6 +10,11 @@ export enum Permission {
 
 export const ALL_PERMISSIONS = Object.values(Permission);
 
+export const tips: Record<string, any> = {
+  [Permission.SUGGEST_TX]: 'Share wallet address',
+  [Permission.VIEW_ACCOUNT]: 'Suggest transactions to approve',
+};
+
 export interface PermRequest extends DappBaseRequest {
   permissions: string[];
   approved: boolean | null;

@@ -65,6 +65,19 @@ const Num: React.FC<TextProps & ColorProps> = ({ style, color, ...props }) => {
   );
 };
 
+const NumS: React.FC<TextProps & ColorProps> = ({ style, color, ...props }) => {
+  return (
+    <Text
+      style={[
+        { fontFamily: FontFamilys.BarlowSemiCondensed_500Medium, fontSize: 14, lineHeight: 20 },
+        style,
+        { color },
+      ]}
+      {...props}
+    />
+  );
+};
+
 const Display: React.FC<TextProps & ColorProps> = ({ style, color, ...props }) => {
   return (
     <Text
@@ -126,6 +139,7 @@ export default {
   MonoS,
   MonoBold,
   Num,
+  NumS,
   Display,
   Headline,
   Title,

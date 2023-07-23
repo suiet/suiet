@@ -6,9 +6,9 @@ import Toast from 'react-native-toast-message';
 import { addressEllipsis } from '@/utils/format';
 import { Wallet } from '@/utils/wallet';
 import { Gray_700 } from '@/styles/colors';
-import { SvgCopy03 } from './icons/svgs';
+import { SvgCopy03 } from '@/components/icons/svgs';
 import Typography from '@/components/Typography';
-import { ToastProps } from './Toast';
+import { ToastProps } from '@/components/Toast';
 
 export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
   return (

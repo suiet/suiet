@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { isValidSuiAddress } from '@mysten/sui.js';
 
-import { Badge } from './Badge';
-import { LoadingDots } from './Loading';
-import { Label } from './Label';
-import { SvgLinkExternal01 } from './icons/svgs';
+import { Badge } from '@/components/Badge';
+import { LoadingDots } from '@/components/Loading';
+import { Label } from '@/components/Label';
+import { SvgLinkExternal01 } from '@/components/icons/svgs';
 import { GET_TRANSACTIONS, TransactionsFilter, TransactionsResult } from '@/utils/gql';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
@@ -90,7 +90,6 @@ export const AddressBadge: React.FC<AddressBadgeProps> = ({ address }) => {
           rightLabel={
             <TouchableOpacity
               onPress={() => {
-                console.log(network);
                 Linking.openURL(`https://explorer.sui.io/address/${address}`);
               }}
             >

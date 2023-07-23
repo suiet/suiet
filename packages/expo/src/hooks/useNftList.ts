@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import type { QueryHookOptions } from '@apollo/client';
 
 export const GET_NFT_LIST = gql`
   query GetNftList($address: Address!) {
@@ -41,30 +42,19 @@ export type NftGqlDto = {
   description: string;
 };
 
-export function useNftList(
-  address: string,
-  options?: {
-    pollInterval?: number;
-  }
-) {
-  const { pollInterval } = options ?? {};
-  const { data, error, loading, ...rest } = useQuery<
-    { nfts: NftGqlDto[] },
-    {
-      address: string;
-    }
-  >(GET_NFT_LIST, {
+export function useNftList(address: string, options?: QueryHookOptions) {
+  const { pollInterval = 5 * 1000, ...restOptions } = options || {};
+  const { data, ...rest } = useQuery<{ nfts: NftGqlDto[] }>(GET_NFT_LIST, {
     variables: {
       address,
     },
     pollInterval,
     skip: !address,
+    ...restOptions,
   });
 
   return {
     data: data?.nfts,
-    error,
-    loading,
     ...rest,
   };
 }

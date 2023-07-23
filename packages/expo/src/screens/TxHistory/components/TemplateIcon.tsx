@@ -1,15 +1,13 @@
 import React from 'react';
 import { View, Image } from 'react-native';
-// import { Icon, IconContainer } from '../../../components/icons';
-// import { TemplateIconProps } from './index';
 import type { TemplateIconProps, TemplateIconType } from '@suiet/chrome-ext/src/components/tx-history/TemplateIcon';
 import type { IconContainerProps } from '@suiet/chrome-ext/src/components/icons/IconContainer';
 import type { IconProps } from '@suiet/chrome-ext/src/components/icons/Icon';
 
 import { Gray_100, Gray_400, Gray_500, Primary_500, Red_600, White } from '@/styles/colors';
 import { SvgXml } from 'react-native-svg';
-import { iconMap } from '../utils/iconMap';
-import { resolveColor } from '../utils/color';
+import { iconMap } from '@/screens/TxHistory/utils/iconMap';
+import { resolveColor } from '@/screens/TxHistory/utils/color';
 
 export const IconContainer: React.FC<React.PropsWithChildren<IconContainerProps>> = ({ shape, color, children }) => {
   let backgroundColor = Gray_400;

@@ -49,6 +49,7 @@ import Gift01 from '@untitled-ui/icons-react/build/esm/Gift01';
 import Gift02 from '@untitled-ui/icons-react/build/esm/Gift02';
 import Hash02 from '@untitled-ui/icons-react/build/esm/Hash02';
 import Cube01 from '@untitled-ui/icons-react/build/esm/Cube01';
+import Link01 from '@untitled-ui/icons-react/build/esm/Link01';
 
 export const SvgArrowDown = renderToXml(ArrowDown);
 export const SvgArrowUp = renderToXml(ArrowUp);
@@ -94,3 +95,4 @@ export const SvgGift01 = renderToXml(Gift01);
 export const SvgGift02 = renderToXml(Gift02);
 export const SvgHash02 = renderToXml(Hash02);
 export const SvgCube01 = renderToXml(Cube01);
+export const SvgLink01 = renderToXml(Link01);

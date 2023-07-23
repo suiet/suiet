@@ -1,5 +1,3 @@
-import AsyncStorage, { AsyncStorageStatic } from '@react-native-async-storage/async-storage';
-
 export interface Wallet {
   address: string;
   name: string;

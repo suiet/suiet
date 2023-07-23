@@ -4,7 +4,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 
 import { useWallets } from '@/hooks/useWallets';
 
-import { Coins } from '@/components/Coins';
+import { CoinsNew } from '@/components/Coins';
 import type { RootStackParamList } from '@/../App';
 
 export const SelectToken: React.FC<StackScreenProps<RootStackParamList, 'SelectToken'>> = ({ navigation }) => {
@@ -15,7 +15,7 @@ export const SelectToken: React.FC<StackScreenProps<RootStackParamList, 'SelectT
 
   return (
     <ScrollView style={{ paddingHorizontal: 24, backgroundColor: '#fff' }} overScrollMode="never">
-      <Coins
+      <CoinsNew
         address={selectedWallet}
         onChooseCoin={() => {
           navigation.goBack();

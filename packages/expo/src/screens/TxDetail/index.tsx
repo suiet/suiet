@@ -10,7 +10,7 @@ import { SvgInbox01, SvgSend02 } from '@/components/icons/svgs';
 import { SvgXml } from 'react-native-svg';
 import { formatSUI } from '@/utils/format';
 import Typography from '@/components/Typography';
-import { formatTxType } from '../TxHistory';
+import { formatTxType } from '@/screens/TxHistory';
 import { CoinBalanceChangeItem, TransactionForHistory } from '@/hooks/useTransactionListForHistory';
 import { upperFirst } from 'lodash-es';
 import { isNonEmptyArray } from '@suiet/core/src/utils';

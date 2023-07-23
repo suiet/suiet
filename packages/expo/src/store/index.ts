@@ -1,7 +1,6 @@
 // import { combineReducers, configureStore } from '@reduxjs/toolkit';
 // import { persistReducer, persistStore } from 'redux-persist';
 // import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, PersistConfig } from 'redux-persist';
-// import appContext from './reducers/appContext';
 
 // const allReducers = combineReducers({
 //   appContext,
@@ -24,7 +23,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistStore, persistReducer } from 'redux-persist';
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from 'redux-persist/es/constants';
-import appContext from './reducers/appContext';
+import appContext from '@/store/reducers/appContext';
 
 const persistConfig = {
   key: 'root',

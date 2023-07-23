@@ -67,7 +67,6 @@ import { resolveColor } from '../utils/color';
 export const TemplateText: React.FC<{ type: TemplateTextType; value: string; color?: string }> = (props) => {
   const { type = 'text', value, color } = props;
 
-  console.log(color);
   switch (type) {
     case 'address':
       return <Typography.Mono children={addressEllipsis(value)} color={resolveColor(color)} />;
