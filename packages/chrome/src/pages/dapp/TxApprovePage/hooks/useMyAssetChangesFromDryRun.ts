@@ -122,13 +122,13 @@ export default function useMyAssetChangesFromDryRun(
     if (!transactionBlock || !accountAddress || !network) return;
     if (loading) return;
 
+    let dryRunResult: DryRunTransactionBlockResponse;
     let analyzeResult: IAssetChangeOutput;
-    let gasBudgetResult: string;
     let estimatedGasFeeResult: string;
 
     setLoading(true);
     try {
-      const dryRunResult = await dryRunTransactionBlock({
+      dryRunResult = await dryRunTransactionBlock({
         apiClient,
         context: {
           network,
@@ -138,17 +138,24 @@ export default function useMyAssetChangesFromDryRun(
         transactionBlock,
       });
 
-      console.log('dryRunResult', dryRunResult);
-
       estimatedGasFeeResult = String(
         getTotalGasUsed(dryRunResult.effects) ?? 0
       );
+      setEstimatedGasFee(estimatedGasFeeResult);
 
-      gasBudgetResult = await queryGasBudgetFromDryRunResult({
-        apiClient,
-        network,
-        dryRunResult,
-      });
+      // if gas budget is set in transaction block, use it
+      if (transactionBlock.blockData.gasConfig.budget) {
+        setGasBudget(String(transactionBlock.blockData.gasConfig.budget));
+      } else {
+        // non-blocking update
+        queryGasBudgetFromDryRunResult({
+          apiClient,
+          network,
+          dryRunResult,
+        }).then((gasBudgetResult) => {
+          setGasBudget(gasBudgetResult);
+        });
+      }
 
       analyzeResult = await analyzeAssetChanges(
         accountAddress,
@@ -181,19 +188,6 @@ export default function useMyAssetChangesFromDryRun(
     setCoinChangeList(coinChangeList);
     setNftChangeList(analyzeResult.getNftChangeList());
     setObjectChangeList(analyzeResult.getObjectChangeList());
-
-    console.log('coinChangeList', coinChangeList);
-    console.log('nftChangeList', analyzeResult.getNftChangeList());
-    console.log('objectChangeList', analyzeResult.getObjectChangeList());
-
-    setEstimatedGasFee(estimatedGasFeeResult);
-
-    // if gas budget is set in transaction block, use it
-    if (transactionBlock.blockData.gasConfig.budget) {
-      setGasBudget(String(transactionBlock.blockData.gasConfig.budget));
-    } else {
-      setGasBudget(gasBudgetResult);
-    }
   }, [transactionBlock, accountAddress, network]);
 
   return {
