@@ -20,7 +20,8 @@ import { RpcError } from '../errors';
 import { SuiTransactionBlockResponseOptions } from '@mysten/sui.js/src/types';
 import { getTransactionBlock } from '../utils/txb-factory';
 import { prepareVault } from '../utils/vault';
-import { bffClient, HttpClient } from '../utils/http-client';
+import { HttpClient } from '../utils/http-client';
+import serializeTransactionBlock from '../utils/txb-factory/serializeTransactionBlock';
 export const DEFAULT_SUPPORTED_COINS = new Map<string, CoinPackageIdPair>([
   [
     'SUI',
@@ -453,14 +454,31 @@ export class TransactionApi implements ITransactionApi {
     if (!account) {
       throw new Error('Account not found');
     }
+    const fetchFromBffService = async () => {
+      return await new HttpClient(params.context.network.txRpcUrl).post<
+        any,
+        DryRunTransactionBlockResponse
+      >('/dry-run', {
+        serializedTxn: serializeTransactionBlock(params.transactionBlock),
+        senderAddress: account.address,
+      });
+    };
+    const fetchFromSuiSdk = async () => {
+      const { provider, vault } = await this.prepareTxEssentials(
+        params.context
+      );
+      return await provider.dryRunTransactionBlock(
+        getTransactionBlock(params.transactionBlock),
+        vault
+      );
+    };
 
-    return await new HttpClient(params.context.network.txRpcUrl).post<
-      any,
-      DryRunTransactionBlockResponse
-    >('/dry-run', {
-      serializedTxn: params.transactionBlock,
-      senderAddress: account.address,
-    });
+    try {
+      return await fetchFromBffService();
+    } catch {
+      // as fallback
+      return await fetchFromSuiSdk();
+    }
   }
 
   private async prepareVault(
