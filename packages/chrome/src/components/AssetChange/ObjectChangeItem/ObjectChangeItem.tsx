@@ -60,7 +60,7 @@ function getColorClassName(color: string | null | undefined) {
   return `text-${color}-500`;
 }
 
-const ObjectChangeItem = (props: ObjectChangeItemProps) => {
+export const ObjectChangeItem = (props: ObjectChangeItemProps) => {
   const { changeTitleColor = 'text-gray-400', descType = 'text' } = props;
 
   return (
@@ -114,5 +114,3 @@ const ObjectChangeItem = (props: ObjectChangeItemProps) => {
     </div>
   );
 };
-
-export default ObjectChangeItem;
