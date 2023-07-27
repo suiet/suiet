@@ -2,6 +2,7 @@ import { suietHttp } from '@/utils/request';
 export interface FeatureFlagNetwork {
   explorer_url: string;
   full_node_url: string;
+  graphql_url: string;
   on_maintenance: boolean;
   faucet_api: string;
   // mint_example_nft_gas_budget: number;
@@ -15,7 +16,6 @@ export interface FeatureFlagNetwork {
   version_cache_timout_in_seconds: number;
   pay_coin_gas_budget: number;
   stake_gas_budget: number;
-  graphql_url: string;
   sample_nft_object_id: string;
 }
 export interface FeatureFlagRes {
