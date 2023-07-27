@@ -10,6 +10,7 @@
   "main": "src/index.ts",
   "module": "src/index.ts",
   "dependencies": {
+    "@cetusprotocol/cetus-sui-clmm-sdk": "3.0.5",
     "@mysten/sui.js": "0.37.1",
     "@scure/bip39": "1.1.0",
     "aes-js": "3.1.2",
@@ -20,11 +21,11 @@
     "jayson": "3.6.6",
     "js-crypto-hmac": "1.0.4",
     "lossless-json": "1.0.5",
+    "path-browserify": "^1.0.1",
     "randombytes": "2.1.0",
     "sha3": "2.1.4",
     "superstruct": "1.0.3",
-    "xhr-shim": "0.1.2",
-    "@cetusprotocol/cetus-sui-clmm-sdk": "3.0.5"
+    "xhr-shim": "0.1.2"
   },
   "devDependencies": {
     "@types/aes-js": "3.1.1",
@@ -33,6 +34,7 @@
     "@types/fast-text-encoding": "1.0.1",
     "@types/jest": "28.1.8",
     "@types/lossless-json": "1.0.1",
+    "@types/path-browserify": "^1.0.0",
     "@types/pbkdf2": "3.1.0",
     "@types/randombytes": "2.0.0",
     "jest": "28.1.3",

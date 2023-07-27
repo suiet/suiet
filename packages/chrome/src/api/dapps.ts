@@ -4,6 +4,7 @@ import { SuietApiOptions } from './types';
 export interface DappCategory {
   explorer_url: string;
   full_node_url: string;
+  graphql_url: string;
   latest_sdk_version: string;
   latest_sui_version: Record<string, string>;
   on_maintenance: boolean;

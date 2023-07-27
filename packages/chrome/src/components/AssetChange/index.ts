@@ -1,1 +1,1 @@
-export { default as ObjectChangeItem } from './ObjectChangeItem';
+export * from './ObjectChangeItem';

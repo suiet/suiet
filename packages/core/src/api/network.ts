@@ -2,6 +2,7 @@ export type Network = {
   id: string;
   name: string;
   queryRpcUrl: string;
+  graphqlUrl?: string;
   txRpcUrl: string;
   versionCacheTimoutInSeconds: number;
   moveCallGasBudget?: number;
@@ -26,6 +27,7 @@ const DEFAULT_NETWORKS = new Map([
       name: 'devnet',
       queryRpcUrl: 'https://devnet.suiet.app',
       txRpcUrl: 'https://devnet.suiet.app',
+      graphqlUrl: 'https://devnet.suiet.app/query',
       versionCacheTimoutInSeconds: 0,
     },
   ],
@@ -36,6 +38,7 @@ const DEFAULT_NETWORKS = new Map([
       name: 'testnet',
       queryRpcUrl: 'https://testnet.suiet.app',
       txRpcUrl: 'https://testnet.suiet.app',
+      graphqlUrl: 'https://testnet.suiet.app/query',
       versionCacheTimoutInSeconds: 0,
     },
   ],
@@ -46,6 +49,7 @@ const DEFAULT_NETWORKS = new Map([
       name: 'mainnet',
       queryRpcUrl: 'https://mainnet.suiet.app',
       txRpcUrl: 'https://mainnet.suiet.app',
+      graphqlUrl: 'https://mainnet.suiet.app/query',
       versionCacheTimoutInSeconds: 0,
     },
   ],

@@ -46,7 +46,10 @@ import { getGasBudgetFromTxb } from '../../../utils/getters';
 import useMyAssetChangesFromDryRun from './hooks/useMyAssetChangesFromDryRun';
 import { useAccount } from '../../../hooks/useAccount';
 import useSuiBalance from '../../../hooks/coin/useSuiBalance';
-import { ObjectChangeItem } from '../../../components/AssetChange';
+import {
+  ObjectChangeItem,
+  ObjectChangeSkeleton,
+} from '../../../components/AssetChange';
 import classNames from 'classnames';
 import './custom.css';
 enum Mode {
@@ -202,8 +205,15 @@ const TxApprovePage = () => {
     );
   }
 
-  // deprecated
   const renderAssetChanges = () => {
+    if (mode === Mode.LOADING) {
+      return (
+        <div className={'my-6 flex flex-col gap-2'}>
+          <ObjectChangeSkeleton />
+          <ObjectChangeSkeleton />
+        </div>
+      );
+    }
     return (
       <div>
         <div className="my-6 flex flex-col gap-2">
@@ -288,7 +298,27 @@ const TxApprovePage = () => {
 
   if (!txReqData) return null;
   switch (mode) {
-    case Mode.NORMAL:
+    case Mode.ERROR:
+      return (
+        <DappPopupLayout
+          desc={'wants to make a transaction from'}
+          originTitle={txReqData.source.name}
+          originUrl={txReqData.source.origin}
+          favicon={txReqData.source.favicon}
+          avatarMode={wallet?.avatar}
+          showOk={false}
+          cancelText={'Cancel'}
+          cancelState={'normal'}
+          onCancel={() => {
+            emitApproval(false, TxFailureReason.INSUFFICIENT_GAS);
+          }}
+        >
+          <Typo.Hints className={styles['dryrun-error']}>
+            {formatDryRunError(diffError)}
+          </Typo.Hints>
+        </DappPopupLayout>
+      );
+    default:
       return (
         <DappPopupLayout
           desc={'wants to make a transaction from'}
@@ -330,47 +360,6 @@ const TxApprovePage = () => {
               </TabPanel>
             ))}
           </Tabs>
-        </DappPopupLayout>
-      );
-    case Mode.ERROR:
-      return (
-        <DappPopupLayout
-          desc={'wants to make a transaction from'}
-          originTitle={txReqData.source.name}
-          originUrl={txReqData.source.origin}
-          favicon={txReqData.source.favicon}
-          avatarMode={wallet?.avatar}
-          showOk={false}
-          cancelText={'Cancel'}
-          cancelState={'normal'}
-          onCancel={() => {
-            emitApproval(false, TxFailureReason.INSUFFICIENT_GAS);
-          }}
-        >
-          <Typo.Hints className={styles['dryrun-error']}>
-            {formatDryRunError(diffError)}
-          </Typo.Hints>
-        </DappPopupLayout>
-      );
-    default:
-      // Loading state
-      return (
-        <DappPopupLayout
-          desc={'wants to make a transaction from'}
-          originTitle={txReqData.source.name}
-          originUrl={txReqData.source.origin}
-          favicon={txReqData.source.favicon}
-          avatarMode={wallet?.avatar}
-          showOk={false}
-          cancelText={'Cancel'}
-          cancelState={'normal'}
-          onCancel={() => {
-            emitApproval(false, TxFailureReason.USER_REJECTION);
-          }}
-        >
-          <div className={'h-full flex justify-center items-center'}>
-            <LoadingSpin />
-          </div>
         </DappPopupLayout>
       );
   }
