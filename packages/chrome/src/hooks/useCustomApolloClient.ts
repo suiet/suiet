@@ -81,7 +81,9 @@ export function useCustomApolloClient(
           retryLink,
           headerLink,
           new HttpLink({
-            uri: featureFlags.graphql_url,
+            uri:
+              featureFlags?.graphql_url ||
+              `https://${networkId}.suiet.app/query`,
           }),
         ]),
         defaultOptions: {
@@ -96,7 +98,7 @@ export function useCustomApolloClient(
     }
 
     initApolloClient();
-  }, []);
+  }, [featureFlags]);
 
   useEffect(() => {
     if (!client || !networkId) return; // sequentially set client after cache is ready
