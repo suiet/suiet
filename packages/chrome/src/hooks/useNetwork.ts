@@ -83,6 +83,7 @@ export function useNetwork(networkId: string) {
         queryRpcUrl: currentNetworkConfig.full_node_url,
         graphqlUrl: currentNetworkConfig.graphql_url,
         txRpcUrl: currentNetworkConfig.full_node_url,
+        grphaqlUrl: currentNetworkConfig.graphql_url,
         versionCacheTimoutInSeconds:
           currentNetworkConfig.version_cache_timout_in_seconds,
         stakeGasBudget: currentNetworkConfig.stake_gas_budget,
