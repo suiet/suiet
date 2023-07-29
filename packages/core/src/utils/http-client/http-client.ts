@@ -23,6 +23,7 @@ export class HttpClient {
         'Content-Type': 'application/json',
       },
     });
+    if (!response.ok) throw new Error(response.statusText);
     return response.json() as RES;
   }
 }
