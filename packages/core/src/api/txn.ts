@@ -474,7 +474,11 @@ export class TransactionApi implements ITransactionApi {
     };
 
     try {
-      return await fetchFromBffService();
+      const res = await fetchFromBffService();
+      if (res?.effects) {
+        throw new Error('response is not valid');
+      }
+      return res;
     } catch {
       // as fallback
       return await fetchFromSuiSdk();
