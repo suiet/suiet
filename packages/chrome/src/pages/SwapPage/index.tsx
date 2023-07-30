@@ -647,7 +647,7 @@ export default function SwapPage() {
             className="absolute inset-0 flex items-center"
             aria-hidden="true"
           >
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-gray-200" />
           </div>
           <div
             className="relative flex justify-center"
@@ -655,14 +655,14 @@ export default function SwapPage() {
               setIsExpanded(!isExpanded);
             }}
           >
-            <div className="flex bg-white rounded-lg py-1 cursor-pointer hover:bg-gray-50 transition text-gray-500 items-center pl-2">
+            <div className="flex bg-white rounded-lg py-1 cursor-pointer hover:bg-gray-50 transition text-gray-400 items-center pl-2">
               {isExpanded ? (
                 <ChevronDownIcon className="w-6 h-6 "></ChevronDownIcon>
               ) : (
                 <ChevronUpIcon className="w-6 h-6 "></ChevronUpIcon>
               )}
 
-              <span className=" px-2 text-sm text-gray-500">Expand</span>
+              <span className="px-2 text-sm text-gray-400">Expand</span>
             </div>
           </div>
         </div>
@@ -693,7 +693,7 @@ export default function SwapPage() {
       </div>
       <div className="h-[48px]"></div>
 
-      <div className="fixed bottom-[72px] w-full px-[24px] bg-white py-[12px]">
+      <div className="fixed bottom-[72px] w-full px-[24px] bg-white py-[12px] border-t border-t-gray-100">
         <Button
           className=""
           state="primary"
