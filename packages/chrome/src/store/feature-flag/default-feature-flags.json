@@ -1,0 +1,76 @@
+{
+  "networks": {
+    "devnet": {
+      "version_cache_timout_in_seconds": 10,
+      "enable_staking": true,
+      "enable_buy_crypto": false,
+      "enable_mint_example_nft": true,
+      "enable_swap": false,
+      "cetus_partner_id": null,
+      "full_node_url": "https://wallet-rpc.devnet.sui.io",
+      "explorer_url": "https://explorer.sui.io",
+      "graphql_url": "https://devnet.suiet.app/query",
+      "on_maintenance": false,
+      "pay_coin_gas_budget": 2000000,
+      "move_call_gas_budget": 20000000,
+      "mint_example_nft_gas_budget": 10000,
+      "transfer_object_gas_budget": 200,
+      "stake_gas_budget": 20000000,
+      "faucet_api": "https://faucet.devnet.sui.io/gas",
+      "sample_nft_object_id": "0xe146dbd6d33d7227700328a9421c58ed34546f998acdc42a1d05b4818b49faa2"
+    },
+    "mainnet": {
+      "version_cache_timout_in_seconds": 10,
+      "enable_staking": true,
+      "enable_buy_crypto": true,
+      "enable_mint_example_nft": true,
+      "enable_swap": true,
+      "cetus_partner_id": "0xb6d512c62f5b54bd4a0935de7a99f3aa8719f3887c511145e9e87bcce7b1b8e1",
+      "full_node_url": "https://mainnet.suiet.app",
+      "explorer_url": "https://explorer.mainnet.sui.io",
+      "graphql_url": "https://mainnet.suiet.app/query",
+      "on_maintenance": false,
+      "pay_coin_gas_budget": 2000000,
+      "move_call_gas_budget": 20000000,
+      "mint_example_nft_gas_budget": 10000,
+      "transfer_object_gas_budget": 1000,
+      "stake_gas_budget": 20000000,
+      "faucet_api": "https://faucet.mainnet.sui.io/gas",
+      "sample_nft_object_id": "0x5b45da03d42b064f5e051741b6fed3b29eb817c7923b83b92f37a1d2abf4fbab"
+    },
+    "testnet": {
+      "version_cache_timout_in_seconds": 10,
+      "enable_staking": true,
+      "enable_buy_crypto": false,
+      "enable_mint_example_nft": true,
+      "enable_swap": true,
+      "cetus_partner_id": null,
+      "full_node_url": "https://testnet.suiet.app?token=8123A4B4-1625-436F-90D8-D27011FCA6AB",
+      "explorer_url": "https://explorer.testnet.sui.io",
+      "graphql_url": "https://testnet.suiet.app/query",
+      "on_maintenance": false,
+      "pay_coin_gas_budget": 2000000,
+      "move_call_gas_budget": 20000000,
+      "mint_example_nft_gas_budget": 10000,
+      "transfer_object_gas_budget": 1000,
+      "stake_gas_budget": 20000000,
+      "faucet_api": "https://faucet.testnet.sui.io/gas",
+      "sample_nft_object_id": "0x5ea6aafe995ce6506f07335a40942024106a57f6311cb341239abf2c3ac7b82f"
+    }
+  },
+  "require_update_browser": false,
+  "available_networks": ["mainnet", "testnet", "devnet"],
+  "default_network": "mainnet",
+  "campaign": null,
+  "minimal_versions": {
+    "android": "1.0.0",
+    "chrome": "102.0.0.0",
+    "extension": "0.2.49",
+    "ios": "1.0.0"
+  },
+  "latest_versions": {
+    "android": "1.0.0",
+    "extension": "0.2.49",
+    "ios": "1.0.0"
+  }
+}
