@@ -53,7 +53,7 @@ export default function VersionGuard(props: GuideContainerProps) {
         </div>
         <br />
         <a
-          href="https://suiet.app/docs/how-to-upgrade-browser"
+          href="https://docs.suiet.app/wallet/guides/upgrade-browser"
           target="_blank"
           rel="noreferrer"
           className="w-fill cursor-pointer mb-4 text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all flex items-center justify-center px-[24px]"
@@ -114,7 +114,7 @@ export default function VersionGuard(props: GuideContainerProps) {
         </div>
         <br />
         <a
-          href="https://suiet.app/docs/how-to-upgrade-extension"
+          href="https://docs.suiet.app/wallet/guides/upgrade-extension"
           target="_blank"
           rel="noreferrer"
           className="w-fill cursor-pointer mb-4 text-coolGray-500 font-bold hover:text-coolGray-600 mx-[36px] h-[56px] bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-2xl transition-all flex items-center justify-center px-[24px]"
@@ -138,7 +138,7 @@ export default function VersionGuard(props: GuideContainerProps) {
         <div className="flex w-full fixed bottom-[0]">
           <a
             className="flex mx-[36px] my-[24px] text-coolGray-400 items-center"
-            href="https://suiet.app/docs/how-to-upgrade-extension"
+            href="https://docs.suiet.app/wallet/guides/upgrade-extension"
             target="_blank"
             rel="noreferrer"
           >

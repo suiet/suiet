@@ -46,7 +46,7 @@ export default function Empty(props: EmptyProps) {
         You will see your NFT here once you have one.
         <br />
         <a
-          href="https://suiet.app/docs/getting-started"
+          href="https://docs.suiet.app/wallet/get-started/get-started"
           className="text-sky-600 underline"
           target="_blank"
           rel="noreferrer"
