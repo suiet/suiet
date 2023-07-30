@@ -9,7 +9,7 @@ import SDK, {
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import { TransactionBlock, getTotalGasUsed } from '@mysten/sui.js';
+import { TransactionBlock, getTotalGasUsed, is } from '@mysten/sui.js';
 import { SuiSignAndExecuteTransactionBlockOutput } from '@mysten/wallet-standard';
 import BN from 'bn.js';
 import React, {
@@ -61,7 +61,8 @@ import Big from 'big.js';
 import classNames from 'classnames';
 import { isSuiToken } from '../../utils/check';
 import AssetChangeConfirmPage from '../AssetChangeConfirmPage';
-
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid';
+import Tooltip from '../../components/Tooltip';
 export default function SwapPage() {
   const { accountId, walletId, networkId } = useSelector(
     (state: RootState) => state.appContext
@@ -160,6 +161,7 @@ export default function SwapPage() {
     console.log('transactionBlock', transactionBlock);
     return transactionBlock;
   };
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [inputErrorMessage, setInputErrorMessage] = useState<string | null>(
@@ -593,7 +595,7 @@ export default function SwapPage() {
         </SwapItem>
       </div>
 
-      <div className="min-h-[48px] mx-[24px] flex flex-col gap-2 mb-[8px]">
+      <div className="min-h-[28px] mx-[24px] flex flex-col gap-2 mb-[8px]">
         {warningMessage && (
           <Alert type="warn" className="break-words">
             {' '}
@@ -610,7 +612,10 @@ export default function SwapPage() {
 
       <div className="mx-[24px] mt-[8px] mb-8 flex flex-col gap-2">
         <div className="w-full flex text-zinc-800 justify-between font-medium">
-          <p>Price Impact</p>
+          <Tooltip message="The expected change in a token's price due to the size of a trade">
+            <p>Price Impact</p>
+          </Tooltip>
+
           <p
             className={classNames(
               'text-zinc-400',
@@ -626,18 +631,65 @@ export default function SwapPage() {
             {priceImpact && (priceImpact * 100).toFixed(2) + '%'}
           </p>
         </div>
+
         <div className="w-full flex text-zinc-800 justify-between font-medium">
-          <p>Slippage</p>
-          <p className="text-zinc-400">{formatSlippage(slippageValue)}</p>
-        </div>
-        <div className="w-full flex text-zinc-800 justify-between font-medium">
-          <p> Estmate Gas Fee</p>
-          <p className="text-zinc-400"> {formatSUI(estimatedGasFee)} SUI</p>
-        </div>
-        <div className="w-full flex text-zinc-800 justify-between font-medium">
-          <p>Router</p>
+          <Tooltip message="The expected change in a token's price due to the size of a trade">
+            <p>Router</p>
+          </Tooltip>
           <p className="text-zinc-400">Cetus</p>
         </div>
+        <div className="w-full flex text-zinc-800 justify-between font-medium">
+          <p>Estmate Gas Fee</p>
+          <p className="text-zinc-400"> {formatSUI(estimatedGasFee)} SUI</p>
+        </div>
+        <div className="relative">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div
+            className="relative flex justify-center"
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}
+          >
+            <div className="flex bg-white rounded-lg py-1 cursor-pointer hover:bg-gray-50 transition text-gray-500 items-center pl-2">
+              {isExpanded ? (
+                <ChevronDownIcon className="w-6 h-6 "></ChevronDownIcon>
+              ) : (
+                <ChevronUpIcon className="w-6 h-6 "></ChevronUpIcon>
+              )}
+
+              <span className=" px-2 text-sm text-gray-500">Expand</span>
+            </div>
+          </div>
+        </div>
+        {isExpanded && (
+          <>
+            <div className="w-full flex text-zinc-800 justify-between font-medium">
+              <Tooltip message="The maximum difference between the expected and actual execution price of a trade">
+                <p>Slippage</p>
+              </Tooltip>
+              <p className="text-zinc-400">{formatSlippage(slippageValue)}</p>
+            </div>
+
+            <div className="w-full flex text-zinc-800 justify-between font-medium">
+              <Tooltip message="Fee charged by Suiet Wallet">
+                <p>Suiet Fee</p>
+              </Tooltip>
+              <div className="flex items-center gap-1">
+                <Tooltip message="During the campaign, Suiet will not charge any separate fees">
+                  <p className="text-green-500 bg-green-100 px-2 py-[1px] rounded-lg">
+                    limited
+                  </p>
+                </Tooltip>
+                <p className="text-green-400">0%</p>
+              </div>
+            </div>
+          </>
+        )}
       </div>
       <div className="h-[48px]"></div>
 
