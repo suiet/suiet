@@ -452,6 +452,17 @@ export default function SwapPage() {
     }
   };
 
+  const priceImpact =
+    fromCoinAmount &&
+    fromCoinInfo &&
+    toCoinAmount &&
+    toCoinInfo &&
+    Math.abs(
+      Number(
+        Number(fromCoinAmount) * Number(fromCoinInfo.usdPrice) -
+          Number(toCoinAmount) * Number(toCoinInfo.usdPrice)
+      ) / Number(fromCoinAmount)
+    ) * Number(fromCoinInfo.usdPrice);
   function formatSlippage(slippageValue: number) {
     return `${(slippageValue / 100).toFixed(2)}%`;
   }
@@ -599,16 +610,33 @@ export default function SwapPage() {
 
       <div className="mx-[24px] mt-[8px] mb-8 flex flex-col gap-2">
         <div className="w-full flex text-zinc-800 justify-between font-medium">
+          <p>Price Impact</p>
+          <p
+            className={classNames(
+              'text-zinc-400',
+              priceImpact && [
+                priceImpact > 0.03
+                  ? 'text-red-500'
+                  : priceImpact > 0.01
+                  ? 'text-yellow-500'
+                  : 'text-green-500',
+              ]
+            )}
+          >
+            {priceImpact && (priceImpact * 100).toFixed(2) + '%'}
+          </p>
+        </div>
+        <div className="w-full flex text-zinc-800 justify-between font-medium">
+          <p>Slippage</p>
+          <p className="text-zinc-400">{formatSlippage(slippageValue)}</p>
+        </div>
+        <div className="w-full flex text-zinc-800 justify-between font-medium">
           <p> Estmate Gas Fee</p>
           <p className="text-zinc-400"> {formatSUI(estimatedGasFee)} SUI</p>
         </div>
         <div className="w-full flex text-zinc-800 justify-between font-medium">
           <p>Router</p>
           <p className="text-zinc-400">Cetus</p>
-        </div>
-        <div className="w-full flex text-zinc-800 justify-between font-medium">
-          <p>Slippage</p>
-          <p className="text-zinc-400">{formatSlippage(slippageValue)}</p>
         </div>
       </div>
       <div className="h-[48px]"></div>
