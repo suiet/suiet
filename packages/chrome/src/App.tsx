@@ -41,15 +41,14 @@ function useRegisterHandleRejectionEvent() {
 function App() {
   const routes = useRoutes(routesConfig);
   const appContext = useSelector((state: RootState) => state.appContext);
+  useRegisterHandleRejectionEvent();
+  useAutoLoadFeatureFlags();
   const client = useCustomApolloClient(
     appContext.networkId,
     'suiet-desktop-extension',
     version,
     new ChromeStorage()
   );
-
-  useRegisterHandleRejectionEvent();
-  useAutoLoadFeatureFlags();
 
   if (!client) {
     return <h2>Initializing app...</h2>;
