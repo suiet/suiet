@@ -347,7 +347,9 @@ export class QueryProvider {
     if (!dryRunResult.effects.gasUsed) {
       throw new Error('dry run result does not have gas used');
     }
-    const refPrice = await this.getReferenceGasPrice();
+    // const refPrice = await this.getReferenceGasPrice();
+    const refPrice =
+      dryRunResult.input?.gasData.price ?? (await this.getReferenceGasPrice());
     const safeOverhead =
       QueryProvider.GAS_SAFE_OVERHEAD * BigInt(refPrice || 1n);
 
