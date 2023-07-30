@@ -12,21 +12,6 @@ export type CoinType = {
   usd: string | null;
   usdPrice: string | null;
   pricePercentChange24h: string | null;
-  // swapPool {
-  //   cetus {
-  //     poolAddress
-  //     coinTypeA
-  //     coinA {
-  //       symbol
-  //       type
-  //     }
-  //     coinTypeB
-  //     coinB {
-  //       type
-  //       symbol
-  //     }
-  //   }
-  // }
   swapPool?: {
     cetus?: Array<{
       poolAddress: string;
