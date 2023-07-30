@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "run-s build:dapp-api dev:ext",
     "dev:ext": "vite --mode development",
+    "builddev": "run-s build:dapp-api clean builddev:ext",
+    "builddev:ext": "vite build --mode development",
     "build": "run-s build:dapp-api clean build:ext",
     "build:ext": "vite build",
     "build:dapp-api": "vite build --config vite-dapp-api.config.ts",
