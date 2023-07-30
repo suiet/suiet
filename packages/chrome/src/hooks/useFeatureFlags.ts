@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { getFeatureFlags } from '../api';
+import { FeatureFlagNetwork, FeatureFlagRes, getFeatureFlags } from '../api';
 import { useQuery } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { updateFeatureFlag } from '../store/feature-flag';
 
-export function useFeatureFlags() {
+export function useFeatureFlags(): FeatureFlagRes {
   const featureFlag = useSelector((state: RootState) => state.featureFlag);
   return featureFlag.flags;
 }
@@ -13,10 +13,10 @@ export function useFeatureFlags() {
 /**
  * useFeatureFlags for the active network
  */
-export function useFeatureFlagsWithNetwork() {
+export function useFeatureFlagsWithNetwork(): FeatureFlagNetwork {
   const appContext = useSelector((state: RootState) => state.appContext);
   const featureFlags = useFeatureFlags();
-  return featureFlags?.networks && featureFlags.networks[appContext.networkId];
+  return featureFlags?.networks[appContext.networkId];
 }
 
 // for provider
