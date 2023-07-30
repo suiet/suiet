@@ -1,12 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { FeatureFlagRes } from '../api';
+import { FeatureFlagRes } from '../../api';
+import defaultFeatureFlags from './default-feature-flags.json';
 
 export interface FeatureFlagState {
   flags: FeatureFlagRes | null;
 }
 
 const initialState: FeatureFlagState = {
-  flags: null,
+  flags: defaultFeatureFlags,
 };
 
 export const featureFlagSlice = createSlice({
@@ -14,7 +15,13 @@ export const featureFlagSlice = createSlice({
   initialState,
   reducers: {
     updateFeatureFlag(state, action) {
-      state.flags = action.payload;
+      // overwrite logics
+      state.flags = Object.assign(
+        {},
+        defaultFeatureFlags,
+        state.flags,
+        action.payload
+      );
     },
   },
 });
