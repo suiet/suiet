@@ -17,7 +17,7 @@
     "@apollo/client": "3.7.7",
     "@crxjs/vite-plugin": "1.0.13",
     "@hookform/error-message": "2.0.0",
-    "@mysten/sui.js": "0.32.2",
+    "@mysten/sui.js": "0.39.0",
     "@mysten/wallet-standard": "0.5.4",
     "@radix-ui/react-dialog": "1.0.2",
     "@radix-ui/react-select": "1.2.1",
