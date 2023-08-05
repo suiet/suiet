@@ -50,6 +50,7 @@ import Gift02 from '@untitled-ui/icons-react/build/esm/Gift02';
 import Hash02 from '@untitled-ui/icons-react/build/esm/Hash02';
 import Cube01 from '@untitled-ui/icons-react/build/esm/Cube01';
 import Link01 from '@untitled-ui/icons-react/build/esm/Link01';
+import CreditCard02 from '@untitled-ui/icons-react/build/esm/CreditCard02';
 
 export const SvgArrowDown = renderToXml(ArrowDown);
 export const SvgArrowUp = renderToXml(ArrowUp);
@@ -96,3 +97,4 @@ export const SvgGift02 = renderToXml(Gift02);
 export const SvgHash02 = renderToXml(Hash02);
 export const SvgCube01 = renderToXml(Cube01);
 export const SvgLink01 = renderToXml(Link01);
+export const SvgCreditCard02 = renderToXml(CreditCard02);

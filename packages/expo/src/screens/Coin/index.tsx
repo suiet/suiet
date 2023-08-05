@@ -17,6 +17,7 @@ import {
   SvgArrowUp,
   SvgSwitchHorizontal01,
   SvgChevronDown,
+  SvgCreditCard02,
   // SvgScan,
   SvgSettings02,
 } from '@components/icons/svgs';
@@ -35,6 +36,7 @@ import Typography from '@/components/Typography';
 import { Airdrop } from '@/components/Airdrop';
 import Toast, { ToastProps } from 'react-native-toast-message';
 import { Nfts } from '@/components/Nfts';
+import { useNetwork } from '@/hooks/useNetwork';
 
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
@@ -46,7 +48,8 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
     () => Object.fromEntries(wallets.map((wallet) => [wallet.address, wallet])),
     [wallets]
   );
-
+  
+  const { networkId } = useNetwork();
   const [refreshControl, setRefreshControl] = React.useState(Date.now());
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(() => {
@@ -121,13 +124,31 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         />
 
         <View style={{ display: 'flex', flexDirection: 'row', marginTop: 16, marginBottom: 16 }}>
-          <Airdrop recipient={selectedWallet} />
+          {networkId === 'mainnet' ?
+            <View
+              style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
+            >
+              <FAB
+                svg={SvgCreditCard02}
+                onPress={() => {
+                
+                  navigation.navigate('DappBrowser', {
+                    url:`https://pay.suiet.app/?wallet_address=${wallet.address}`
+                  });
+                  
+                }}
+              />
+              <Typography.Comment children={"Buy"} color={Gray_500} />
+            </View>: <Airdrop recipient={selectedWallet} /> }
+          
+        
           {[
             // {
             //   svg: SvgPlus,
             //   text: 'Buy',
             //   disabled: true,
             // },
+            
             {
               svg: SvgArrowDown,
               text: 'Receive',

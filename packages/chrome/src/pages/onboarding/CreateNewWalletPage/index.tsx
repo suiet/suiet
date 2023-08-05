@@ -92,7 +92,7 @@ const CreateNewWallet = () => {
 
   return (
     <div className={styles['page']}>
-      <Nav title={'Create New'} navDisabled={true} />
+      <Nav title={'Create'} navDisabled={true} />
       <SavePhraseView phrases={phrases} onNext={handleSavePhrase} />
     </div>
   );

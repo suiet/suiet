@@ -42,7 +42,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       <View style={{ flexGrow: 1 }} />
 
       <Button
-        title={'Copy and Done'}
+        title={'Confirm'}
         innerStyle={{ marginBottom: 8 }}
         onPress={async () => {
           const existingWallets = wallets ?? [];
