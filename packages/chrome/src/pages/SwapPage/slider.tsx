@@ -37,7 +37,7 @@ export default function Slider(props: SliderProps) {
       <RadixSlider.Thumb
         className="focus:outline-none"
         onClick={() => {
-          console.log('click');
+          // console.log('click');
           // setIsThumbActive(true);
         }}
         onPointerDown={() => setIsThumbActive(true)}
