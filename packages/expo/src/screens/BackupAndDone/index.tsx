@@ -79,7 +79,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
               {
                 name: `Wallet ${existingWallets.length + 1}`,
                 address,
-                avatar: 0,
+                avatar: wallets?.length % 9,
               },
             ]);
             if (typeof selectedWallet === 'undefined') {
