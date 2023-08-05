@@ -17,7 +17,8 @@
       "bundleIdentifier": "ac.oasis.Suiet",
       "infoPlist": {
         "NSFaceIDUsageDescription": "This app will use Face ID or Touch ID to save wallets"
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "package": "ac.oasis.Suiet",

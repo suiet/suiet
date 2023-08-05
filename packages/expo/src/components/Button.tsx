@@ -24,7 +24,7 @@ import Animated, {
   Extrapolate,
   interpolateColor,
 } from 'react-native-reanimated';
-
+import * as Haptics from 'expo-haptics';
 export const Button: React.FC<
   TouchableNativeFeedbackProps & {
     scaleTo?: number;
@@ -87,6 +87,7 @@ export const Button: React.FC<
   return (
     <TouchableWithoutFeedback
       onPressIn={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         pressed.value = true;
       }}
       onPressOut={() => {

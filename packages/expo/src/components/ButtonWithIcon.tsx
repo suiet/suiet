@@ -3,14 +3,24 @@ import { Gray_100, Gray_700 } from '@styles/colors';
 import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import Typography from '@/components/Typography';
-
+import * as Haptics from 'expo-haptics';
 export const ButtonWithIcon: React.FC<{ iconSvg: string; title: string } & TouchableOpacityProps> = ({
   iconSvg,
   title,
+  onPress,
   ...props
 }) => {
+
+  const handlePress = async (e) => {
+    if (onPress) onPress(e);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
   return (
-    <TouchableOpacity {...props}>
+
+    <TouchableOpacity {
+      ...props
+    }
+     onPress={handlePress}>
       <View
         style={{
           borderRadius: 20,

@@ -37,7 +37,7 @@ import { Airdrop } from '@/components/Airdrop';
 import Toast, { ToastProps } from 'react-native-toast-message';
 import { Nfts } from '@/components/Nfts';
 import { useNetwork } from '@/hooks/useNetwork';
-
+import * as Haptics from 'expo-haptics';
 export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = ({ navigation }) => {
   const { top } = useSafeAreaInsets();
   const [scrollIndicatorY, setScrollIndicatorY] = useState<number>();
@@ -96,6 +96,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
           <View style={{ alignItems: 'flex-start' }}>
             <TouchableOpacity
               onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 navigation.navigate('SelectWallet');
               }}
             >
@@ -131,6 +132,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               <FAB
                 svg={SvgCreditCard02}
                 onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   navigation.navigate('DappBrowser', {
                     url:`https://pay.suiet.app/?wallet_address=${wallet.address}`
                   });
@@ -179,6 +181,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               <FAB
                 svg={svg}
                 onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   if (disabled) {
                     Toast.show({
                       type: 'info',
@@ -197,7 +200,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
 
         <View style={{ gap: 8, paddingBottom: 24 }}>
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-            <Typography.Subtitle children="Tokens" color={Gray_900} style={{ marginLeft: 4 }} />
+            <Typography.Subtitle children="Coins" color={Gray_900} style={{ marginLeft: 4 }} />
             {/* <Text style={{ color: Gray_400 }}>See all</Text>
             <SvgXml style={{ margin: 2 }} width={16} height={16} color={Gray_700} xml={SvgChevronRight}></SvgXml> */}
           </View>
@@ -256,7 +259,10 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         {/* <TouchableOpacity>
           <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgScan} />
         </TouchableOpacity> */}
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+        <TouchableOpacity onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          navigation.navigate('Settings')
+        }}>
           <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgSettings02} />
         </TouchableOpacity>
       </View>

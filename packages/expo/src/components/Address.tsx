@@ -9,12 +9,13 @@ import { Gray_700 } from '@/styles/colors';
 import { SvgCopy03 } from '@/components/icons/svgs';
 import Typography from '@/components/Typography';
 import { ToastProps } from '@/components/Toast';
-
+import * as Haptics from 'expo-haptics';
 export const Address: React.FC<{ wallet: Wallet }> = ({ wallet }) => {
   return (
     <TouchableWithoutFeedback
       onPress={async () => {
         try {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           await Clipboard.setStringAsync(wallet.address);
           Toast.show({
             type: 'info',
