@@ -41,22 +41,27 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
       </View>
 
       <Mnemonic mnemonic={route.params.mnemonic} dark={true} />
-      <ButtonWithIcon
+      
+      <View style={{alignItems: 'flex-start',marginTop: 24, marginLeft:6}}>
+        <ButtonWithIcon
           title="Copy"
           iconSvg={SvgCopy07}
-        onPress={async () => {
-          const Clipboard = await import('expo-clipboard');
-          const { default: Toast } = await import('react-native-toast-message');
-          await Clipboard.setStringAsync(route.params.mnemonic);
-          Toast.show({
-            type: 'success',
-            text1: 'Copied to clipboard!',
-            props: {
-              icon: require('@assets/magic_wand.png'),
-            } as ToastProps,
-          });
+
+          onPress={async () => {
+            const Clipboard = await import('expo-clipboard');
+            const { default: Toast } = await import('react-native-toast-message');
+            await Clipboard.setStringAsync(route.params.mnemonic);
+            Toast.show({
+              type: 'success',
+              text1: 'Copied to clipboard!',
+              props: {
+                icon: require('@assets/magic_wand.png'),
+              } as ToastProps,
+            });
           }}
-        />
+          />
+        </View>
+      
       <View style={{ flexGrow: 1 }} />
 
       <Button
