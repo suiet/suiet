@@ -29,7 +29,7 @@
     "esbuild": "0.17.16",
     "eventemitter3": "5.0.0",
     "events": "3.3.0",
-    "expo": "48.0.5",
+    "expo": "~48.0.18",
     "expo-asset": "~8.9.1",
     "expo-barcode-scanner": "~12.3.0",
     "expo-build-properties": "~0.6.0",

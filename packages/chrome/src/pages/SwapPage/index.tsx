@@ -170,11 +170,17 @@ export default function SwapPage() {
   useEffect(() => {
     if (!address) return;
     cetusSwapClient.current = null;
-    const client = new CetusSwapClient(address, clmmMainnet);
-    // client.loadPools([], undefined, 1000);
+
+    const client = new CetusSwapClient(
+      address,
+      networkId === 'mainnet'
+        ? { ...clmmMainnet, simulationAccount: { address } }
+        : { ...clmmTestnet, simulationAccount: { address } }
+    );
+
     client.loadOwnedCoins();
     cetusSwapClient.current = client;
-  }, [address]);
+  }, [address, networkId, address]);
 
   useEffect(() => {
     if (!(Number(fromCoinAmount) > 0)) {
@@ -242,24 +248,51 @@ export default function SwapPage() {
           swapPool.poolAddress
         );
 
-        // Estimated amountIn amountOut fee
-        const res: any = await cetusSwapClient.current?.sdk.Swap.preswap({
-          pool,
-          current_sqrt_price: pool.current_sqrt_price,
-          coinTypeA: swapPool.coinTypeA,
-          coinTypeB: swapPool.coinTypeB,
-          decimalsA: coinInfoA.metadata.decimals, // coin a 's decimals
-          decimalsB: coinInfoB.metadata.decimals, // coin b 's decimals
-          a2b,
-          by_amount_in: byAmountIn,
-          amount,
-        });
+        let res;
+        try {
+          res = await cetusSwapClient.current?.sdk.Swap.preswap({
+            pool,
+            current_sqrt_price: pool.current_sqrt_price,
+            coinTypeA: swapPool.coinTypeA,
+            coinTypeB: swapPool.coinTypeB,
+            decimalsA: coinInfoA.metadata.decimals, // coin a 's decimals
+            decimalsB: coinInfoB.metadata.decimals, // coin b 's decimals
+            a2b,
+            by_amount_in: byAmountIn,
+            amount: amount.toString(),
+          });
+        } catch (e) {
+          console.log(
+            // 'input',
+            // {
+            //   fromCoinType,
+            //   toCoinType,
+            // },
+            {
+              pool,
+              current_sqrt_price: pool.current_sqrt_price,
+              coinTypeA: swapPool.coinTypeA,
+              coinTypeB: swapPool.coinTypeB,
+              decimalsA: coinInfoA.metadata.decimals, // coin a 's decimals
+              decimalsB: coinInfoB.metadata.decimals, // coin b 's decimals
+              a2b,
+              by_amount_in: byAmountIn,
+              amount: amount.toString(),
+            }
+          );
+          console.log('res', e);
+        }
+        if (!res) {
+          setIsSwapAvailable(false);
+          setSwapLoading(false);
+          return;
+        }
         console.log(
-          'input',
-          {
-            fromCoinType,
-            toCoinType,
-          },
+          // 'input',
+          // {
+          //   fromCoinType,
+          //   toCoinType,
+          // },
           {
             pool,
             current_sqrt_price: pool.current_sqrt_price,
@@ -269,9 +302,10 @@ export default function SwapPage() {
             decimalsB: coinInfoB.metadata.decimals, // coin b 's decimals
             a2b,
             by_amount_in: byAmountIn,
-            amount,
+            amount: amount.toString(),
           }
         );
+
         setToCoinAmount(
           Big(res.estimatedAmountOut)
             .div(Big(10).pow(toCoinInfo.metadata.decimals))
@@ -281,7 +315,7 @@ export default function SwapPage() {
 
         console.log('res', res);
 
-        if (Number(res.estimatedAmountOut) === 0) {
+        if (Number(res?.estimatedAmountOut) === 0) {
           setSwapLoading(false);
           setIsSwapAvailable(false);
           setWarningMessage('Swap pool not avaliable');
@@ -318,8 +352,8 @@ export default function SwapPage() {
         }
 
         const toAmount = byAmountIn
-          ? res.estimatedAmountOut
-          : res.estimatedAmountIn;
+          ? res?.estimatedAmountOut
+          : res?.estimatedAmountIn;
 
         const amountLimit = adjustForSlippage(
           new BN(toAmount),
@@ -371,7 +405,7 @@ export default function SwapPage() {
           console.error(e);
           setIsSwapAvailable(false);
           setSwapLoading(false);
-          setErrorMessage(e.message);
+          setErrorMessage(e?.message);
         }
       },
       300,
@@ -446,7 +480,7 @@ export default function SwapPage() {
         );
       }
     } catch (e) {
-      Message.error(`Swap failed: ${e.message}`);
+      Message.error(`Swap failed: ${e?.message}`);
 
       console.error(e);
     } finally {
@@ -752,41 +786,110 @@ const SDKConfig = {
   },
 };
 
-export const clmmMainnet = {
+export const clmmMainnet: SdkOptions = {
   fullRpcUrl: 'https://mainnet.suiet.app',
-  faucetURL: '',
-  faucet: {
-    faucet_display:
-      '0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96',
-    faucet_router:
-      '0x0588cff9a50e0eaf4cd50d337c1a36570bc1517793fd3303e1513e8ad4d2aa96',
-  },
   simulationAccount: {
-    address:
-      '0x326ce9894f08dcaa337fa232641cc34db957aec9ff6614c1186bc9a7508df0bb',
+    address: '',
   },
   cetus_config: {
-    config_display:
+    package_id:
       '0x95b8d278b876cae22206131fb9724f701c9444515813042f54f0a426c9a3bc2f',
-    config_router:
+    published_at:
       '0x95b8d278b876cae22206131fb9724f701c9444515813042f54f0a426c9a3bc2f',
     config: SDKConfig.cetusConfig,
   },
-  token: {
-    token_display: '',
-    config: SDKConfig.tokenConfig,
-  },
-  clmm: {
-    clmm_display:
+  clmm_pool: {
+    package_id:
       '0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb',
-    clmm_router:
-      '0x886b3ff4623c7a9d101e0470012e0612621fbc67fa4cedddd3b17b273e35a50e',
+    published_at:
+      '0xc33c3e937e5aa2009cc0c3fdb3f345a0c3193d4ee663ffc601fe8b894fbc4ba6',
     config: SDKConfig.clmmConfig,
   },
-  deepbook: {
-    deepbook_display:
-      '0x000000000000000000000000000000000000000000000000000000000000dee9',
-    deepbook_endpoint_v2:
-      '0xeab65f3cec37f1936ea4751b87c37b8d3d1dc0f2d3242cd532d787d63774ebfa',
+  integrate: {
+    package_id:
+      '0x996c4d9480708fb8b92aa7acf819fb0497b5ec8e65ba06601cae2fb6db3312c3',
+    published_at:
+      '0x9b110fcea19c331b087af5c5fee26206b84c0dfc0c77808322feaa321f7ae5c3',
   },
+  deepbook: {
+    package_id:
+      '0x000000000000000000000000000000000000000000000000000000000000dee9',
+    published_at:
+      '0x000000000000000000000000000000000000000000000000000000000000dee9',
+  },
+  deepbook_endpoint_v2: {
+    package_id:
+      '0xac95e8a5e873cfa2544916c16fe1461b6a45542d9e65504c1794ae390b3345a7',
+    published_at:
+      '0xac95e8a5e873cfa2544916c16fe1461b6a45542d9e65504c1794ae390b3345a7',
+  },
+  aggregatorUrl: 'https://api-sui.cetus.zone/router',
+};
+
+export const clmmTestnet: SdkOptions = {
+  fullRpcUrl: 'https://testnet.suiet.app',
+  simulationAccount: {
+    address: '',
+  },
+  cetus_config: {
+    package_id:
+      '0xf5ff7d5ba73b581bca6b4b9fa0049cd320360abd154b809f8700a8fd3cfaf7ca',
+    published_at:
+      '0xf5ff7d5ba73b581bca6b4b9fa0049cd320360abd154b809f8700a8fd3cfaf7ca',
+    config: {
+      coin_list_id:
+        '0x257eb2ba592a5480bba0a97d05338fab17cc3283f8df6998a0e12e4ab9b84478',
+      launchpad_pools_id:
+        '0xdc3a7bd66a6dcff73c77c866e87d73826e446e9171f34e1c1b656377314f94da',
+      clmm_pools_id:
+        '0x26c85500f5dd2983bf35123918a144de24e18936d0b234ef2b49fbb2d3d6307d',
+      admin_cap_id:
+        '0x1a496f6c67668eb2c27c99e07e1d61754715c1acf86dac45020c886ac601edb8',
+      global_config_id:
+        '0xe1f3db327e75f7ec30585fa52241edf66f7e359ef550b533f89aa1528dd1be52',
+      coin_list_handle:
+        '0x3204350fc603609c91675e07b8f9ac0999b9607d83845086321fca7f469de235',
+      launchpad_pools_handle:
+        '0xae67ff87c34aceea4d28107f9c6c62e297a111e9f8e70b9abbc2f4c9f5ec20fd',
+      clmm_pools_handle:
+        '0xd28736923703342b4752f5ed8c2f2a5c0cb2336c30e1fed42b387234ce8408ec',
+    },
+  },
+  clmm_pool: {
+    package_id:
+      '0x0868b71c0cba55bf0faf6c40df8c179c67a4d0ba0e79965b68b3d72d7dfbf666',
+    published_at:
+      '0x1c29d658882c40eeb39a8bb8fe58f71a216a918acb3e3eb3b47d24efd07257f2',
+    config: {
+      pools_id:
+        '0xc090b101978bd6370def2666b7a31d7d07704f84e833e108a969eda86150e8cf',
+      global_config_id:
+        '0x6f4149091a5aea0e818e7243a13adcfb403842d670b9a2089de058512620687a',
+      global_vault_id:
+        '0xf3114a74d54cbe56b3e68f9306661c043ede8c6615f0351b0c3a93ce895e1699',
+      admin_cap_id:
+        '0xa456f86a53fc31e1243f065738ff1fc93f5a62cc080ff894a0fb3747556a799b',
+      partners_id:
+        '0xb1cefb6de411213a1cfe94d24213af2518eff3d51267fb95e35d11aa77fc9b5f',
+    },
+  },
+  integrate: {
+    package_id:
+      '0x8627c5cdcd8b63bc3daa09a6ab7ed81a829a90cafce6003ae13372d611fbb1a9',
+    published_at:
+      '0x220f80b3f3e39da9d67db7d0400cd2981a28c37bb2e383ed9eecabdca2a54417',
+  },
+  deepbook: {
+    package_id:
+      '0x000000000000000000000000000000000000000000000000000000000000dee9',
+    published_at:
+      '0x000000000000000000000000000000000000000000000000000000000000dee9',
+  },
+  deepbook_endpoint_v2: {
+    package_id:
+      '0xa34ffca2c6540e1ca9e53963ab43e7b1eed7b82e37696c743bb7c6179c15dfa6',
+    published_at:
+      '0xa34ffca2c6540e1ca9e53963ab43e7b1eed7b82e37696c743bb7c6179c15dfa6',
+  },
+  aggregatorUrl: 'https://api-sui.devcetus.com/router',
 };
