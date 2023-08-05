@@ -9,7 +9,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "credentials": "echo \"$EXPO_CREDENTIALiS\" | base64 -D | tar xzvf -",
-    "build:ios-dev": "eas build --profile development --platform ios"
+    "build:ios-dev": "eas build --profile development --platform ios",
+    "build:ios-prod": "eas build --profile production --platform ios"
   },
   "dependencies": {
     "@babel/plugin-syntax-import-attributes": "^7.22.5",
@@ -69,7 +70,8 @@
     "react-query": "3.39.3",
     "react-redux": "8.0.5",
     "redux-persist": "6.0.0",
-    "text-encoding": "0.7.0"
+    "text-encoding": "0.7.0",
+    "expo-haptics": "~12.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -9,7 +9,7 @@ import { Coin } from '@/screens/Coin';
 import { Dapp } from '@/screens/Dapp';
 import { TxHistory } from '@/screens/TxHistory/index.new';
 import type { RootStackParamList } from '@/../App';
-
+import * as Haptics from 'expo-haptics';
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
 const TabBarIcon: React.FC<{ focused: boolean; iconSvg: string }> = ({ focused, iconSvg }) => {
@@ -24,6 +24,11 @@ export const Home: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
+        screenListeners={{
+          tabPress: (e) => { 
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }
+        }}
         screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: {
