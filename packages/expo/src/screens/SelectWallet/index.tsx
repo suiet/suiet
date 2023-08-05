@@ -69,7 +69,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16, justifyContent: 'center', gap: 8 }}>
         <ButtonWithIcon
           iconSvg={SvgPlus}
-          title="Create New"
+          title="Create"
           onPress={() => {
             navigation.navigate('CreateNew');
           }}

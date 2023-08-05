@@ -185,7 +185,7 @@ function App() {
               component={CreateNew}
               options={{
                 header: ({ navigation, route: { name } }) => (
-                  <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
+                  <Header title={'Create'} onRightAction={() => navigation.goBack()} />
                 ),
               }}
             />

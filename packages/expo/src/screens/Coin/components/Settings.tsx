@@ -129,7 +129,7 @@ export const Settings: React.FC<BottomTabScreenProps<RootStackParamList, 'Settin
         }}
       >
         {[
-          [SvgLockKeyholeCircle, 'Lock', '#2E90FA'],
+          // [SvgLockKeyholeCircle, 'Lock', '#2E90FA'],
           [SvgRefreshCcw04, 'Reset All', '#F04438'],
         ].map(([svg, item, color]) => (
           <Fragment key={item}>

@@ -131,7 +131,6 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
               <FAB
                 svg={SvgCreditCard02}
                 onPress={() => {
-                
                   navigation.navigate('DappBrowser', {
                     url:`https://pay.suiet.app/?wallet_address=${wallet.address}`
                   });
