@@ -15,7 +15,12 @@ module.exports = function (api) {
         },
       ],
       'react-native-reanimated/plugin',
-      '@babel/plugin-syntax-import-assertions',
+      [
+        '@babel/plugin-syntax-import-attributes',
+        {
+          deprecatedAssertSyntax: true,
+        },
+      ],
     ],
   };
 };

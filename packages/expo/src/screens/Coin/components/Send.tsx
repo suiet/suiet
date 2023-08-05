@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FontFamilys } from '@/hooks/useFonts';
 import { useWallets } from '@/hooks/useWallets';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlags } from '@suiet/chrome-ext/src/hooks/useFeatureFlags';
 
 import { Error_500, Gray_100, Gray_400, Gray_500, Gray_900, Primary_50, Primary_900 } from '@styles/colors';
 

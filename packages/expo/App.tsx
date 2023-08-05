@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import { AngularGradientToast } from '@/components/Toast';
-import { ContextFeatureFlags, useAutoLoadFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useFonts } from '@/hooks/useFonts';
 import { useNetwork } from '@/hooks/useNetwork';
 import { NftGqlDto } from '@/hooks/useNftList';
@@ -43,6 +42,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useCustomApolloClient } from '@suiet/chrome-ext/src/hooks/useCustomApolloClient';
 
 import type { WebStorage } from '@suiet/chrome-ext/src/store/storage';
+import { useAutoLoadFeatureFlags } from '@suiet/chrome-ext/src/hooks/useFeatureFlags';
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -120,186 +120,184 @@ function App() {
   }
 
   return (
-    <ContextFeatureFlags.Provider value={featureFlags}>
-      <ApolloProvider client={client}>
-        <StatusBar style="dark" translucent={true} />
-        <NavigationContainer>
-          <RootStack.Navigator initialRouteName={isWalletsEmpty ? 'Welcome' : 'Home'}>
-            <RootStack.Group>
-              <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-              <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
-              <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
-              <RootStack.Screen name="DappBrowser" component={DappBrowser} options={{ headerShown: false }} />
-            </RootStack.Group>
-            <RootStack.Group
-              screenOptions={{
-                presentation: 'modal',
-                gestureDirection: 'vertical',
-                gestureEnabled: true,
+    <ApolloProvider client={client}>
+      <StatusBar style="dark" translucent={true} />
+      <NavigationContainer>
+        <RootStack.Navigator initialRouteName={isWalletsEmpty ? 'Welcome' : 'Home'}>
+          <RootStack.Group>
+            <RootStack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+            <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
+            <RootStack.Screen name="BackupAndDone" component={BackupAndDone} options={{ headerShown: false }} />
+            <RootStack.Screen name="DappBrowser" component={DappBrowser} options={{ headerShown: false }} />
+          </RootStack.Group>
+          <RootStack.Group
+            screenOptions={{
+              presentation: 'modal',
+              gestureDirection: 'vertical',
+              gestureEnabled: true,
+            }}
+          >
+            <RootStack.Screen
+              name="Send"
+              component={Send}
+              options={{
+                header: () => null,
               }}
-            >
-              <RootStack.Screen
-                name="Send"
-                component={Send}
-                options={{
-                  header: () => null,
-                }}
-              />
-              <RootStack.Screen
-                name="Receive"
-                component={Receive}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'Receive'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="Swap"
-                component={Swap}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'Swap'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="SelectToken"
-                component={SelectToken}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'Select Token'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="Settings"
-                component={Settings}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="CreateNew"
-                component={CreateNew}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="ImportOld"
-                component={ImportOld}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="SelectWallet"
-                component={SelectWallet}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'Wallet List'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="EditWallet"
-                component={EditWallet}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
+            />
+            <RootStack.Screen
+              name="Receive"
+              component={Receive}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Receive'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="Swap"
+              component={Swap}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Swap'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="SelectToken"
+              component={SelectToken}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Select Token'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="Settings"
+              component={Settings}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="CreateNew"
+              component={CreateNew}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Create New'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="ImportOld"
+              component={ImportOld}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="SelectWallet"
+              component={SelectWallet}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'Wallet List'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="EditWallet"
+              component={EditWallet}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
 
-              <RootStack.Screen
-                name="ScanQRCode"
-                component={ScanQRCode}
-                options={{
-                  title: 'Scan QR Code',
-                  header: () => null,
-                }}
-              />
+            <RootStack.Screen
+              name="ScanQRCode"
+              component={ScanQRCode}
+              options={{
+                title: 'Scan QR Code',
+                header: () => null,
+              }}
+            />
 
-              <RootStack.Screen
-                name="SelectNetwork"
-                component={SelectNetwork}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
+            <RootStack.Screen
+              name="SelectNetwork"
+              component={SelectNetwork}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
 
-              <RootStack.Screen
-                name="TxDetail"
-                component={TxDetail}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
+            <RootStack.Screen
+              name="TxDetail"
+              component={TxDetail}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
 
-              <RootStack.Screen
-                name="NftDetail"
-                component={NftDetail}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={'NFT Detail'} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
+            <RootStack.Screen
+              name="NftDetail"
+              component={NftDetail}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={'NFT Detail'} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
 
-              <RootStack.Screen
-                name="Security"
-                component={Security}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="SecurityWarning"
-                component={SecurityWarning}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-              <RootStack.Screen
-                name="SecurityShow"
-                component={SecurityShow}
-                options={{
-                  header: ({ navigation, route: { name } }) => (
-                    <Header title={''} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
+            <RootStack.Screen
+              name="Security"
+              component={Security}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="SecurityWarning"
+              component={SecurityWarning}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="SecurityShow"
+              component={SecurityShow}
+              options={{
+                header: ({ navigation, route: { name } }) => (
+                  <Header title={''} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
 
-              <RootStack.Screen
-                name="DappApproval"
-                component={DappApproval}
-                options={{
-                  header: ({ navigation, route: { name, params } }) => (
-                    // @ts-ignore
-                    <Header title={params.title} onRightAction={() => navigation.goBack()} />
-                  ),
-                }}
-              />
-            </RootStack.Group>
-          </RootStack.Navigator>
-        </NavigationContainer>
-      </ApolloProvider>
-    </ContextFeatureFlags.Provider>
+            <RootStack.Screen
+              name="DappApproval"
+              component={DappApproval}
+              options={{
+                header: ({ navigation, route: { name, params } }) => (
+                  // @ts-ignore
+                  <Header title={params.title} onRightAction={() => navigation.goBack()} />
+                ),
+              }}
+            />
+          </RootStack.Group>
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </ApolloProvider>
   );
 }
 

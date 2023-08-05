@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { updateNetworkId } from '../store/reducers/appContext';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
-import { FeatureFlagRes } from '@/utils/api';
+import { useFeatureFlags } from '@suiet/chrome-ext/src/hooks/useFeatureFlags';
+import { FeatureFlagRes } from '@suiet/chrome-ext/src/api';
 
 export function useNetwork(featureFlags?: FeatureFlagRes) {
   const __featureFlags = useFeatureFlags();

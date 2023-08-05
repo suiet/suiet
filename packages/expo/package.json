@@ -73,6 +73,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@babel/plugin-syntax-import-attributes": "7.22.5",
     "@types/gl-react-expo": "3.16.3",
     "@types/lodash-es": "4.17.7",
     "@types/metro-config": "0.76.2",
