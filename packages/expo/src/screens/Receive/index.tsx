@@ -16,7 +16,7 @@ import { SvgXml } from 'react-native-svg';
 import Toast from 'react-native-toast-message';
 import Typography from '@/components/Typography';
 import { ToastProps } from '@/components/Toast';
-
+import * as Haptics from 'expo-haptics';
 export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> = ({ navigation }) => {
   // useEffect(() => {
   //   let brigheness: number;
@@ -70,6 +70,7 @@ export const Receive: React.FC<StackScreenProps<RootStackParamList, 'Receive'>> 
         <TouchableOpacity
           style={[{ flexDirection: 'row', alignItems: 'center', display: 'none', gap: 4 }, { display: 'flex' }]}
           onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.navigate('SelectWallet');
           }}
         >

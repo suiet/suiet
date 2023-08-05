@@ -42,8 +42,9 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
           updateSelectedWallet(wallet.address);
-          navigation.popToTop();
-          navigation.replace('Home');
+          if (navigation.canGoBack()) { 
+            navigation.goBack();
+          }
         }}
       >
         <Image
