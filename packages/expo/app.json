@@ -5,10 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "owner": "suiet",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "ac.oasis.Suiet",
@@ -24,11 +27,6 @@
       }
     },
     "jsEngine": "hermes",
-    "extra": {
-      "eas": {
-        "projectId": "b3e4434c-02b6-4090-95a6-0103915d9b54"
-      }
-    },
     "plugins": [
       [
         "expo-build-properties",
@@ -36,6 +34,11 @@
           "ios": {}
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fe962336-9a79-44bb-aa68-a1237ed1ea20"
+      }
+    }
   }
 }
