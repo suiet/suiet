@@ -24,6 +24,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistStore, persistReducer } from 'redux-persist';
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from 'redux-persist/es/constants';
 import appContext from '@/store/reducers/appContext';
+import featureFlagReducer from '@suiet/chrome-ext/src/store/feature-flag';
 
 const persistConfig = {
   key: 'root',
@@ -34,6 +35,7 @@ const persistedReducer = persistReducer(
   persistConfig,
   combineReducers({
     appContext,
+    featureFlag: featureFlagReducer,
   })
 );
 

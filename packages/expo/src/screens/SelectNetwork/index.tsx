@@ -35,11 +35,11 @@ import { Wallet } from '@/utils/wallet';
 import { addressEllipsis } from '@/utils/format';
 import { AVATARS } from '@/utils/constants';
 import Typography from '@/components/Typography';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
-import { FeatureFlagNetwork, FeatureFlagRes } from '@/utils/api';
 import { upperFirst } from 'lodash-es';
 import { LoadingDots } from '@/components/Loading';
 import { useNetwork } from '@/hooks/useNetwork';
+import { useFeatureFlags } from '@suiet/chrome-ext/src/hooks/useFeatureFlags';
+import { FeatureFlagRes } from '@suiet/chrome-ext/src/api';
 
 const NetworkSelector: React.FC<{ featureFlags: FeatureFlagRes }> = ({ featureFlags }) => {
   const { available_networks, networks, default_network } = featureFlags;

@@ -5,9 +5,9 @@ import { Gray_100, Gray_500, Primary_400 } from '@/styles/colors';
 import { SvgCoins03 } from '@/components/icons/svgs';
 import Typography from '@/components/Typography';
 import { ToastProps } from '@/components/Toast';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { FAB } from '@/components/FAB';
 import { useNetwork } from '@/hooks/useNetwork';
+import { useFeatureFlags } from '@suiet/chrome-ext/src/hooks/useFeatureFlags';
 
 export const Airdrop: React.FC<{ recipient: string }> = ({ recipient }) => {
   const featureFlags = useFeatureFlags();

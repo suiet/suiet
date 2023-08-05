@@ -8,7 +8,7 @@ import { LoadingDots } from '@/components/Loading';
 import { Label } from '@/components/Label';
 import { SvgLinkExternal01 } from '@/components/icons/svgs';
 import { GET_TRANSACTIONS, TransactionsFilter, TransactionsResult } from '@/utils/gql';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlags } from '@suiet/chrome-ext/src/hooks/useFeatureFlags';
 
 export interface AddressBadgeProps {
   address: string;

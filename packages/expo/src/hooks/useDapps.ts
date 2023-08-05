@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { DappItem, FeatureFlagRes, getDappList, getFeatureFlags } from '@/utils/api';
+import { DappItem, getDappList } from '@/utils/api';
 import { useQuery } from 'react-query';
 import { isNonEmptyArray } from '@suiet/core/src/utils';
 
