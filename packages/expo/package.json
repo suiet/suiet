@@ -8,9 +8,11 @@
     "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "credentials": "echo \"$EXPO_CREDENTIALS\" | base64 -D | tar xzvf -"
+    "credentials": "echo \"$EXPO_CREDENTIALiS\" | base64 -D | tar xzvf -",
+    "build:ios-dev": "eas build --profile development --platform ios"
   },
   "dependencies": {
+    "@babel/plugin-syntax-import-attributes": "^7.22.5",
     "@expo-google-fonts/barlow-semi-condensed": "0.2.3",
     "@expo-google-fonts/inter": "0.2.3",
     "@expo-google-fonts/roboto-mono": "0.2.3",
