@@ -132,14 +132,16 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
                   {
                     name: `Wallet ${wallets.length + 1}`,
                     address,
-                    avatar: 0,
+                    avatar: wallets?.length % 9,
                   },
                 ]);
                 if (typeof selectedWallet === 'undefined') {
                   updateSelectedWallet(address);
                 }
 
+               
                 navigation.popToTop();
+                updateSelectedWallet(address);
                 navigation.replace('Home');
               } finally {
                 setButtonLoading(false);

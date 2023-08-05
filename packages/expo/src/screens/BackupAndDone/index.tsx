@@ -87,6 +87,7 @@ export const BackupAndDone: React.FC<StackScreenProps<RootStackParamList, 'Backu
             }
           }
           navigation.popToTop();
+          updateSelectedWallet(address);
           navigation.replace('Home');
         }}
       />
