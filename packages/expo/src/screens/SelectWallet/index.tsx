@@ -15,7 +15,7 @@ import { Wallet } from '@/utils/wallet';
 import { addressEllipsis } from '@/utils/format';
 import { AVATARS } from '@/utils/constants';
 import Typography from '@/components/Typography';
-
+import * as Haptics from 'expo-haptics';
 export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'SelectWallet'>> = ({ navigation }) => {
   const { top, bottom } = useSafeAreaInsets();
   const { wallets, updateWallets, selectedWallet, updateSelectedWallet } = useWallets();
@@ -39,7 +39,11 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
           alignItems: 'center',
         }}
         onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
           updateSelectedWallet(wallet.address);
+          navigation.popToTop();
+          navigation.replace('Home');
         }}
       >
         <Image
