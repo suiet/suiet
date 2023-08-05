@@ -147,16 +147,17 @@ export const MintNft: React.FC = () => {
   return (
     <Badge
       variant="info"
-      title={`You have no NFTs`}
+      title={`You have no NFT`}
       leftLabel={<View style={{ width: 0 }} />}
       rightLabel={
         buttonLoading ? (
           <ActivityIndicator size={'small'} color={Primary_400} />
-        ) : (
-          <TouchableOpacity onPress={handleMint} disabled={buttonDisabled}>
-            <Label variant="info" title="Mint a NFT" rightIconSvg={SvgGift02} />
-          </TouchableOpacity>
-        )
+        ) : null
+        //   (
+        //   <TouchableOpacity onPress={handleMint} disabled={buttonDisabled}>
+        //     <Label variant="info" title="Mint a NFT" rightIconSvg={SvgGift02} />
+        //   </TouchableOpacity>
+        // )
       }
     />
   );

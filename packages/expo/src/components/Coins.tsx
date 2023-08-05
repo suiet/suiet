@@ -131,6 +131,7 @@ const ListItem: React.FC<{ item: CoinDto; showStaking?: boolean; address: string
                     {Number(props.pricePercentChange24h).toFixed(2)}%
                   </>
                 }
+                
                 color={
                   StyleSheet.flatten([
                     Number(props.pricePercentChange24h) > 0 && {

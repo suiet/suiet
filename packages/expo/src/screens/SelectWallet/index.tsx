@@ -76,7 +76,7 @@ export const SelectWallet: React.FC<StackScreenProps<RootStackParamList, 'Select
         />
         <ButtonWithIcon
           iconSvg={SvgDownload01}
-          title="Import Old"
+          title="Import"
           onPress={() => {
             navigation.navigate('ImportOld');
           }}

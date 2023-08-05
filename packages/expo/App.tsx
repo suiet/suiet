@@ -194,7 +194,7 @@ function App() {
               component={ImportOld}
               options={{
                 header: ({ navigation, route: { name } }) => (
-                  <Header title={'Import Old'} onRightAction={() => navigation.goBack()} />
+                  <Header title={'Import'} onRightAction={() => navigation.goBack()} />
                 ),
               }}
             />

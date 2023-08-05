@@ -85,7 +85,7 @@ export const Welcome: React.FC<StackScreenProps<RootStackParamList, 'Welcome'>> 
           />
 
           <Button
-            title={'Import Old Wallet'}
+            title={'Import Wallet'}
             type="Secondary"
             onPress={() => {
               isSupported().then((supported) => {
