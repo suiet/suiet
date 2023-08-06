@@ -48,7 +48,7 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
     () => Object.fromEntries(wallets.map((wallet) => [wallet.address, wallet])),
     [wallets]
   );
-  
+
   const { networkId } = useNetwork();
   const [refreshControl, setRefreshControl] = React.useState(Date.now());
   const [refreshing, setRefreshing] = React.useState(false);
@@ -125,31 +125,29 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         />
 
         <View style={{ display: 'flex', flexDirection: 'row', marginTop: 16, marginBottom: 16 }}>
-          {networkId === 'mainnet' ?
-            <View
-              style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
-            >
+          {networkId === 'mainnet' ? (
+            <View style={{ marginRight: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               <FAB
                 svg={SvgCreditCard02}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   navigation.navigate('DappBrowser', {
-                    url:`https://pay.suiet.app/?wallet_address=${wallet.address}`
+                    url: `https://pay.suiet.app/?wallet_address=${wallet.address}`,
                   });
-                  
                 }}
               />
-              <Typography.Comment children={"Buy"} color={Gray_500} />
-            </View>: <Airdrop recipient={selectedWallet} /> }
-          
-        
+              <Typography.Comment children={'Buy'} color={Gray_500} />
+            </View>
+          ) : (
+            <Airdrop recipient={selectedWallet} />
+          )}
+
           {[
             // {
             //   svg: SvgPlus,
             //   text: 'Buy',
             //   disabled: true,
             // },
-            
             {
               svg: SvgArrowDown,
               text: 'Receive',
@@ -259,10 +257,12 @@ export const Coin: React.FC<BottomTabScreenProps<RootStackParamList, 'Coin'>> = 
         {/* <TouchableOpacity>
           <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgScan} />
         </TouchableOpacity> */}
-        <TouchableOpacity onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          navigation.navigate('Settings')
-        }}>
+        <TouchableOpacity
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            navigation.navigate('Settings');
+          }}
+        >
           <SvgXml style={{ margin: 4 }} width={24} height={24} color={Gray_700} xml={SvgSettings02} />
         </TouchableOpacity>
       </View>

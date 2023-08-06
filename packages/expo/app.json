@@ -9,9 +9,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "ac.oasis.Suiet",
@@ -23,7 +21,7 @@
     "android": {
       "package": "ac.oasis.Suiet",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/ic_launcher-playstore.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       }
     },

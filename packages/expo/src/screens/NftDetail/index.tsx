@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 
 import type { RootStackParamList } from '@/../App';
-import { Gray_100, Gray_500 } from '@/styles/colors';
+import { Gray_100, Gray_500, White } from '@/styles/colors';
 import { SvgSend02 } from '@/components/icons/svgs';
 import Typography from '@/components/Typography';
 import { nftImgUrl } from '@/hooks/useNftList';
@@ -31,15 +31,30 @@ export const NftDetail: React.FC<StackScreenProps<RootStackParamList, 'NftDetail
         }}
       >
         <View style={{ flexDirection: 'row' }}>
-          <View style={{ flexGrow: 1, aspectRatio: 1, backgroundColor: Gray_100, borderRadius: 16 }}>
-            <Image source={{ uri: nftImgUrl(nft.url) }} />
+          <View
+            style={{ flexGrow: 1, aspectRatio: 1, backgroundColor: Gray_100, borderRadius: 16, overflow: 'hidden' }}
+          >
+            {!nft.url && (
+              <Image
+                style={{ width: '100%', height: '100%', resizeMode: 'cover', backgroundColor: White }}
+                source={require('@assets/icon/FAB.png')}
+              />
+            )}
+            {nft.url && (
+              <Image
+                style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
+                // source={{ uri: 'https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512' }}
+                // source={{ uri: 'https://framerusercontent.com/images/fk4ubHOF3iSqtcJQOd0CuU1v8.jpg' }}
+                source={{ uri: nftImgUrl(nft.url) }}
+              />
+            )}
           </View>
         </View>
 
         <View style={{ gap: 16 }}>
           <View style={{ marginBottom: 20, flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ flexGrow: 1 }}>
-              <Typography.Title children={nft.name} />
+            <View style={{ flexGrow: 1, flexShrink: 1 }}>
+              <Typography.Title children={nft.name} numberOfLines={2} />
               <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
                 <Address wallet={{ address: nft.object.objectID } as Wallet} />
               </View>

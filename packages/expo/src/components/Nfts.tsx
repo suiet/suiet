@@ -4,7 +4,7 @@ import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
 import Toast, { ToastProps } from 'react-native-toast-message';
 
 import { Badge } from '@/components/Badge';
-import { SvgGift02 } from '@/components/icons/svgs';
+import { SvgGift02, SvgCube01 } from '@/components/icons/svgs';
 import { Label } from '@/components/Label';
 import { LoadingDots } from '@/components/Loading';
 import Typography from '@/components/Typography';
@@ -14,7 +14,7 @@ import { NftGqlDto, nftImgUrl, useNftList } from '@/hooks/useNftList';
 import { useSkipFirstEffect } from '@/hooks/useSkipFirstEffect';
 import { useWallets } from '@/hooks/useWallets';
 import { getExecutionStatusError, getExecutionStatusType } from '@mysten/sui.js';
-import { Gray_200, Gray_300, Gray_50, Gray_700, Primary_400 } from '@styles/colors';
+import { Gray_200, Gray_300, Gray_50, Gray_700, Primary_400, White } from '@styles/colors';
 import { derivationHdPath } from '@suiet/core/src/crypto';
 import getMintExampleNftTxBlock from '@suiet/core/src/libs/tx-block/getMintExampleNftTxBlock';
 import { TxProvider } from '@suiet/core/src/provider';
@@ -30,15 +30,21 @@ const ListItem: React.FC<{ nft: NftGqlDto }> = ({ nft }) => {
           flexWrap: 'wrap',
         }}
       >
-        {/* <Image style={{  marginRight: 4 }} source={{ uri: nftImgUrl(nft.url) }} /> */}
-
         <View style={{ flexGrow: 1, aspectRatio: 1, borderRadius: 8, backgroundColor: Gray_50 }}>
-          <Image
-            style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
-            // source={{ uri: 'https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512' }}
-            // source={{ uri: 'https://framerusercontent.com/images/fk4ubHOF3iSqtcJQOd0CuU1v8.jpg' }}
-            source={{ uri: nftImgUrl(nft.url) }}
-          />
+          {!nft.url && (
+            <Image
+              style={{ width: '100%', height: '100%', resizeMode: 'cover', backgroundColor: White }}
+              source={require('@assets/icon/FAB.png')}
+            />
+          )}
+          {nft.url && (
+            <Image
+              style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
+              // source={{ uri: 'https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512' }}
+              // source={{ uri: 'https://framerusercontent.com/images/fk4ubHOF3iSqtcJQOd0CuU1v8.jpg' }}
+              source={{ uri: nftImgUrl(nft.url) }}
+            />
+          )}
         </View>
       </View>
 
@@ -150,9 +156,7 @@ export const MintNft: React.FC = () => {
       title={`You have no NFT`}
       leftLabel={<View style={{ width: 0 }} />}
       rightLabel={
-        buttonLoading ? (
-          <ActivityIndicator size={'small'} color={Primary_400} />
-        ) : null
+        buttonLoading ? <ActivityIndicator size={'small'} color={Primary_400} /> : null
         //   (
         //   <TouchableOpacity onPress={handleMint} disabled={buttonDisabled}>
         //     <Label variant="info" title="Mint a NFT" rightIconSvg={SvgGift02} />
