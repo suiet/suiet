@@ -87,10 +87,28 @@ export const ImportOld: React.FC<StackScreenProps<RootStackParamList, 'ImportOld
                 const mnemonic = textInputValue;
                 let address: string;
                 try {
-                  const vault = await Vault.fromMnemonic(derivationHdPath(0), mnemonic);
+                
+                  // check mnemonic words all in word list 
+
+                  const { wordlist } = await import('@scure/bip39/wordlists/english');
+                  const words = mnemonic.trim().split(/[\s\n]+/);
+                  const invalidWords = words.filter((word) => !wordlist.includes(word));
+                  if (invalidWords.length > 0) { 
+                    Alert.alert('Invalid Words', `Words ${invalidWords} is invalid.`, [
+                      {
+                        text: 'OK',
+                        onPress: () => {
+                          // navigation.goBack();
+                        },
+                      },
+                    ]);
+                    return;
+                  }
+
+                  const vault = await Vault.fromMnemonic(derivationHdPath(0), words.join(' '));
                   address = vault.getAddress();
                 } catch (e: any) {
-                  Alert.alert('Error', 'Your recovery phrase is invalid.', [
+                  Alert.alert('Validation Error', 'Your recovery phrase is invalid.', [
                     {
                       text: 'OK',
                       onPress: () => {
