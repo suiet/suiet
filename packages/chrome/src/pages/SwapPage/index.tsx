@@ -9,7 +9,12 @@ import SDK, {
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAccount } from '../../hooks/useAccount';
-import { TransactionBlock, getTotalGasUsed, is } from '@mysten/sui.js';
+import {
+  TransactionBlock,
+  getTotalGasUsed,
+  is,
+  getExecutionStatusGasSummary,
+} from '@mysten/sui.js';
 import { SuiSignAndExecuteTransactionBlockOutput } from '@mysten/wallet-standard';
 import BN from 'bn.js';
 import React, {
@@ -397,6 +402,7 @@ export default function SwapPage() {
 
             return;
           }
+
           setEstimatedGasFee(Number(getTotalGasUsed(dryRunRes.effects)));
 
           setSwapLoading(false);
@@ -505,6 +511,9 @@ export default function SwapPage() {
 
   function getMaxAmount(): number {
     // estimatedGasFee
+    if (!estimatedGasFee) {
+      return 0;
+    }
     if (isSuiToken(fromCoinInfo?.type)) {
       return fromCoinInfo?.balance
         ? Big(fromCoinInfo?.balance)
