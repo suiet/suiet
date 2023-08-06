@@ -48,8 +48,8 @@ export function useRealKeychain() {
       try {
         await new Promise<void>((resolve, reject) => {
           Alert.alert(
-            'Enable FaceID',
-            "Confirm to set up your wallet with FaceID",
+            'Authenticate to continue',
+            "A accessing test is required to ensure your device's authentication is working properly",
             [
               {
                 text: 'Cancel',
